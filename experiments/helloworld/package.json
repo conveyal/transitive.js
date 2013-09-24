@@ -1,0 +1,23 @@
+{
+  "author": "Conveyal",
+  "name": "d3-template",
+  "description": "D3 Browserify template",
+  "version": "1.0.0",
+  "homepage": "http://conveyal.com/",
+  "main": "index.js",
+  "dependencies": {
+    "d3": "3.3.5"
+  },
+  "scripts": {
+    "test": "mocha-phantomjs test/index.html"
+  },
+  "devDependencies": {
+    "uglify-js": "~2.2.5",
+    "mocha": "~1.9",
+    "browserify": "2.22.0"
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

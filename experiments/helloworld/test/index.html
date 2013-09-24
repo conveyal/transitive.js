@@ -1,0 +1,21 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../node_modules/mocha/mocha.js"></script>  
+
+  <script src="../dist/d3app.uncompressed.js"></script>
+
+  <script>
+    mocha.setup('bdd');
+  </script>
+
+  <script>
+    (window.mochaPhantomJS || window.mocha).run();
+  </script>
+</body>
+</html>
