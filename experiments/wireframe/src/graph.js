@@ -37,6 +37,21 @@ var NetworkGraph = new Class({
         toVertex.edges.push(edge);
         return edge;
     },
+
+    getEquivalentEdge : function(stopArray, fromVertex, toVertex) {
+        for(var e = 0; e < this.edges.length; e++) {
+            var edge = this.edges[e];
+            if(edge.fromVertex !== fromVertex || edge.toVertex !== toVertex || stopArray.length !== edge.stopArray.length) continue;
+            var matches = 0;
+            for(var s = 0; s < stopArray.length; s++) {
+                if(stopArray[s] === edge.stopArray[s]) matches++;
+            }
+            if(matches !== stopArray.length) continue;
+            return edge;
+        }
+
+        return null;
+    },
 });
 
 module.exports.NetworkGraph = NetworkGraph;
@@ -68,7 +83,14 @@ var Edge = new Class({
         var x = this.fromVertex.x + t*(this.toVertex.x - this.fromVertex.x);
         var y = this.fromVertex.y + t*(this.toVertex.y - this.fromVertex.y);
         return { x: x, y: y };
-    }
+    },
+
+    heading : function() {
+        var dx = this.fromVertex.x - this.toVertex.x;
+        var dy = this.fromVertex.y - this.toVertex.y;
+        var l = Math.sqrt(dx*dx + dy*dy);
+        return { x: dx/l, y : dy/l };
+    },    
 });
 
 module.exports.Edge = Vertex;
