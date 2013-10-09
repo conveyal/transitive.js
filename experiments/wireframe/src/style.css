@@ -2,6 +2,7 @@
     width: 500px;
     height: 500px;
     border: 1px solid black;
+    margin-top: 10px;
 }
 
 /* default style settings; applied to all pattern styles unless overriden */

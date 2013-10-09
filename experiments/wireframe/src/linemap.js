@@ -63,38 +63,40 @@ var Pattern = new Class({
         // add the line to the pattern
 
         this.line = d3.svg.line() // the line translation function
-            .x(_.bind(function(vertex, i) {
+            .x(_.bind(function(stopInfo, i) {
                 
-                var vx = vertex.x; //this.getStopXCoord(stop, i);
+                var vx = stopInfo.x;
 
                 // if first/last element, extend the line slightly
 
                 var edgeIndex = (i === 0) ? 0 : i - 1;
 
                 if(i === 0) {
-                    x = display.xScale(vx) + this.style.capExtension * this.graphEdges[edgeIndex].fromHeading().x;
+                    x = display.xScale(vx) + this.style.capExtension * stopInfo.outEdge.heading().x;
                 }
-                else if(i === this.graphEdges.length) {
-                    x = display.xScale(vx) + this.style.capExtension * this.graphEdges[edgeIndex].toHeading().x;
+                else if(i === this.stops.length-1) {
+                    x = display.xScale(vx) - this.style.capExtension * stopInfo.inEdge.heading().x;
                 }
                 else x = display.xScale(vx);
 
                 return x;
 
             }, this))
-            .y(_.bind(function(vertex, i) { 
+            .y(_.bind(function(stopInfo, i) { 
 
-                var vy = vertex.y;
+                var vy = stopInfo.y;
 
                 var edgeIndex = (i === 0) ? 0 : i - 1;
 
                 if(i === 0) {
-                    y = display.yScale(vy) - this.style.capExtension * this.graphEdges[edgeIndex].fromHeading().y;
+                    y = display.yScale(vy) - this.style.capExtension * stopInfo.outEdge.heading().y;
                 }
-                else if(i === this.graphEdges.length) {
-                    y = display.yScale(vy) - this.style.capExtension * this.graphEdges[edgeIndex].toHeading().y;
+                else if(i === this.stops.length-1) {
+                    y = display.yScale(vy) + this.style.capExtension * stopInfo.inEdge.heading().y;
                 }
-                else y = display.xScale(vy);
+                else y = display.yScale(vy);
+
+                if(stopInfo.offsetY) y += stopInfo.offsetY;
 
                 return y;
             }, this))
@@ -114,8 +116,7 @@ var Pattern = new Class({
                 if(!d.stop.graphVertex) return;
                 d.stop.graphVertex.x = display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft);
                 d.stop.graphVertex.y = display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop);
-                this.stopSvgGroups.data(this.getStopData()); 
-                this.refresh(display);
+                display.refreshAll();
             }, this));
 
         this.stopSvgGroups.append("circle")
@@ -138,11 +139,15 @@ var Pattern = new Class({
     },
 
     refresh : function(display) {
+
         // update the line and stop groups
-        this.lineGraph.attr("d", this.line(this.getGraphVertices()));
+        var stopData = this.getStopData();
+        this.lineGraph.attr("d", this.line(stopData));
+        
+        this.stopSvgGroups.data(stopData); 
         this.stopSvgGroups.attr('transform', _.bind(function(d, i) { 
             var x = display.xScale(d.x);
-            var y = display.yScale(d.y);
+            var y = display.yScale(d.y) + d.offsetY;
             return 'translate(' + x +', ' + y +')';
         }, this));
 
@@ -159,6 +164,13 @@ var Pattern = new Class({
         this.style = style;
 
         this.svgGroup.attr('class', style.className);
+
+        // override the pattern-specified color, if applicable
+        if(this.color) this.lineGraph.style('stroke', this.color);
+
+        // store the line stroke width as an int field
+        var widthStr = this.lineGraph.style('stroke-width');
+        this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2));
 
         this.svgGroup.selectAll('.stop-circle')
             .attr("cx", style.stopOffsetX)
@@ -178,22 +190,45 @@ var Pattern = new Class({
         
         var stopData = [];
         
+
         _.each(this.graphEdges, function(edge, i) {
+
 
             // the "from" vertex stop for this edge (first edge only)
             if(i === 0) {
-                stopData.push({ x: edge.fromVertex.x, y: edge.fromVertex.y, stop: edge.fromVertex.stop });
+                var stopInfo = {
+                    x: edge.fromVertex.x,
+                    y: edge.fromVertex.y,
+                    stop: edge.fromVertex.stop,
+                    inEdge: null,
+                    outEdge: edge
+                };
+                stopInfo.offsetY = this.offset ? this.offset * this.lineWidth : 0;
+                stopData.push(stopInfo);
             }
 
             // the internal stops for this edge
             _.each(edge.stopArray, function(stop, i) {
                 var stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));
-                stopInfo.stop = stop;
+                _.extend(stopInfo, {
+                    stop: stop,
+                    offsetY: this.offset ? this.offset * this.lineWidth : 0,
+                    inEdge: edge,
+                    outEdge: edge
+                });
                 stopData.push(stopInfo);
             }, this);
 
             // the "to" vertex stop for this edge
-            stopData.push({ x: edge.toVertex.x, y: edge.toVertex.y, stop: edge.toVertex.stop });
+            var stopInfo = {
+                x: edge.toVertex.x,
+                y: edge.toVertex.y,
+                stop: edge.toVertex.stop,
+                inEdge: edge,
+                outEdge: null
+            };
+            stopInfo.offsetY = this.offset ? this.offset * this.lineWidth : 0;
+            stopData.push(stopInfo);
         }, this);
         
         return stopData;
@@ -206,7 +241,7 @@ var Pattern = new Class({
             vertices.push(edge.toVertex);
         }, this);
         return vertices;
-    }
+    },
 
 });
 
@@ -221,7 +256,7 @@ var Display = new Class({
 
         this.displayedElements = [];
 
-        _.bindAll(this, "zoomed");
+        _.bindAll(this, "refreshAll");
 
         var element = document.getElementById("canvas");
         this.width = element.clientWidth; this.height = element.clientHeight;
@@ -239,7 +274,7 @@ var Display = new Class({
         this.zoom  = d3.behavior.zoom()
             .x(this.xScale).y(this.yScale)
             .scaleExtent([.25, 4])
-            .on("zoom", this.zoomed);
+            .on("zoom", this.refreshAll);
 
         this.labelZoomThreshold = .75;
 
@@ -261,7 +296,7 @@ var Display = new Class({
         this.displayedElements.push(element);
     },
 
-    zoomed: function() {
+    refreshAll: function() {
         _.each(this.displayedElements, function(element) {
             element.refresh(this);
         }, this);
@@ -361,7 +396,8 @@ var App = new Class({
                 
                 if(stop.graphVertex) { // this is a vertex stop
                     if(lastVertex !== null) {
-                        var edge = this.graph.addEdge(internalStops, lastVertex, stop.graphVertex);
+                        var edge = this.graph.getEquivalentEdge(internalStops, lastVertex, stop.graphVertex);
+                        if(edge == null) edge = this.graph.addEdge(internalStops, lastVertex, stop.graphVertex);
                         pattern.graphEdges.push(edge);    
                     }
                     lastVertex = stop.graphVertex;
@@ -374,6 +410,7 @@ var App = new Class({
 
             }, this);
         }, this);
+
     },
 
     setStyle: function(style) {
