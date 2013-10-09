@@ -1,3 +1,9 @@
+#canvas {
+    width: 500px;
+    height: 500px;
+    border: 1px solid black;
+}
+
 /* default style settings; applied to all pattern styles unless overriden */
 
 .line {

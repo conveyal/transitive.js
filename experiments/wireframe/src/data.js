@@ -39,7 +39,7 @@ var testInput = {
                         },
                         {
                             "stop_id" : "S4",
-                            "stop_index" : 4
+                            "stop_index" : 5
                         }
                     ]
                 }
@@ -118,6 +118,8 @@ var style1 = {
     labelOffsetX: 0,
     labelOffsetY: -12,
     labelRotation: -45,
+
+    capExtension: 10
 };
 
 module.exports.style1 = style1;
@@ -133,6 +135,8 @@ var style2 = {
     labelOffsetX: -5,
     labelOffsetY: 15,
     labelRotation: 45,
+
+    capExtension: 10
 };
 
 module.exports.style2 = style2;
@@ -148,6 +152,8 @@ var style3 = {
     labelOffsetX: 0,
     labelOffsetY: -16,
     labelRotation: -45,
+
+    capExtension: 10
 };
 
 module.exports.style3 = style3;

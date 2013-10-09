@@ -65,17 +65,37 @@ var Pattern = new Class({
         this.line = d3.svg.line() // the line translation function
             .x(_.bind(function(vertex, i) {
                 
-                var xpos = vertex.x; //this.getStopXCoord(stop, i);
+                var vx = vertex.x; //this.getStopXCoord(stop, i);
 
                 // if first/last element, extend the line slightly
-                if(i === 0) x = display.xScale(xpos) - 10;
-                else if(i === this.graphEdges.length) x = display.xScale(xpos) + 10;
-                else x = display.xScale(xpos);
+
+                var edgeIndex = (i === 0) ? 0 : i - 1;
+
+                if(i === 0) {
+                    x = display.xScale(vx) + this.style.capExtension * this.graphEdges[edgeIndex].fromHeading().x;
+                }
+                else if(i === this.graphEdges.length) {
+                    x = display.xScale(vx) + this.style.capExtension * this.graphEdges[edgeIndex].toHeading().x;
+                }
+                else x = display.xScale(vx);
+
                 return x;
 
             }, this))
             .y(_.bind(function(vertex, i) { 
-                var y = display.yScale(vertex.y);
+
+                var vy = vertex.y;
+
+                var edgeIndex = (i === 0) ? 0 : i - 1;
+
+                if(i === 0) {
+                    y = display.yScale(vy) - this.style.capExtension * this.graphEdges[edgeIndex].fromHeading().y;
+                }
+                else if(i === this.graphEdges.length) {
+                    y = display.yScale(vy) - this.style.capExtension * this.graphEdges[edgeIndex].toHeading().y;
+                }
+                else y = display.xScale(vy);
+
                 return y;
             }, this))
             .interpolate("linear");
@@ -86,6 +106,18 @@ var Pattern = new Class({
         // add the stop groups to the pattern
         this.stopSvgGroups = this.svgGroup.selectAll(".stop").data(this.getStopData()).enter().append('g');
 
+        var drag = d3.behavior.drag()
+            .on("dragstart", _.bind(function(d) {
+                d3.event.sourceEvent.stopPropagation(); // silence other listeners
+            }, this))
+            .on("drag", _.bind(function(d,i) {
+                if(!d.stop.graphVertex) return;
+                d.stop.graphVertex.x = display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft);
+                d.stop.graphVertex.y = display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop);
+                this.stopSvgGroups.data(this.getStopData()); 
+                this.refresh(display);
+            }, this));
+
         this.stopSvgGroups.append("circle")
             .attr("class", "stop-circle")
             // set up the mouse hover interactivity:
@@ -94,7 +126,8 @@ var Pattern = new Class({
             })
             .on('mouseleave', function(d) {
                 if(display.zoom.scale() < display.labelZoomThreshold) d3.select('#stop-label-' + d.stop.getId()).style("visibility", "hidden");
-            });
+            })
+            .call(drag);
 
         this.stopSvgGroups.append("text")
             .attr("id", function(d) { return "stop-label-" + d.stop.getId(); })
@@ -104,7 +137,7 @@ var Pattern = new Class({
         display.addElement(this);
     },
 
-    refreshZoom : function(display) {
+    refresh : function(display) {
         // update the line and stop groups
         this.lineGraph.attr("d", this.line(this.getGraphVertices()));
         this.stopSvgGroups.attr('transform', _.bind(function(d, i) { 
@@ -123,6 +156,8 @@ var Pattern = new Class({
     },
 
     applyStyle: function(style) {
+        this.style = style;
+
         this.svgGroup.attr('class', style.className);
 
         this.svgGroup.selectAll('.stop-circle')
@@ -146,7 +181,9 @@ var Pattern = new Class({
         _.each(this.graphEdges, function(edge, i) {
 
             // the "from" vertex stop for this edge (first edge only)
-            if(i === 0) stopData.push({ x: edge.fromVertex.x, y: edge.fromVertex.y, stop: edge.fromVertex.stop });
+            if(i === 0) {
+                stopData.push({ x: edge.fromVertex.x, y: edge.fromVertex.y, stop: edge.fromVertex.stop });
+            }
 
             // the internal stops for this edge
             _.each(edge.stopArray, function(stop, i) {
@@ -186,8 +223,9 @@ var Display = new Class({
 
         _.bindAll(this, "zoomed");
 
-        this.width = width, this.height = height;
-        this.y = 0;//this.height/2; // center the line map vertically in the svg canvas
+        var element = document.getElementById("canvas");
+        this.width = element.clientWidth; this.height = element.clientHeight;
+        this.offsetLeft = element.offsetLeft; this.offsetTop = element.offsetTop;
 
         this.xScale = d3.scale.linear()
             .domain([-2, 2]) //[0, this.width])
@@ -206,10 +244,10 @@ var Display = new Class({
         this.labelZoomThreshold = .75;
 
         // set up the svg display
-        this.svg = d3.select("body").append("svg")
+        this.svg = d3.select("#canvas").append("svg")
             .attr("width", this.width)
             .attr("height", this.height)
-          .append("g")
+        .append("g")
             .call(this.zoom);
 
         // append an overlay to capture pan/zoom events on entire viewport
@@ -225,7 +263,7 @@ var Display = new Class({
 
     zoomed: function() {
         _.each(this.displayedElements, function(element) {
-            element.refreshZoom(this);
+            element.refresh(this);
         }, this);
     }
 
@@ -244,12 +282,15 @@ var App = new Class({
 
         this.loadData(d3app.data.testInput);
 
-        this.display = new Display(600, 400);
+        this.display = new Display(600, 600);
 
-        this.pattern = this.patterns["R1_A"];
-        this.pattern.draw(this.display);
-        this.pattern.applyStyle(d3app.data.style1);
-        this.pattern.refreshZoom(this.display);
+        //this.pattern = this.patterns["R1_A"];
+
+        _.each(_.values(this.patterns), function(pattern) {
+            pattern.draw(this.display);
+            pattern.applyStyle(d3app.data.style1);
+            pattern.refresh(this.display);
+        }, this);
 
     },
 
@@ -336,7 +377,10 @@ var App = new Class({
     },
 
     setStyle: function(style) {
-        this.pattern.applyStyle(style);
+        _.each(_.values(this.patterns), function(pattern) {
+            pattern.applyStyle(style);
+            pattern.refresh(this.display);
+        }, this);
     }
 
 });

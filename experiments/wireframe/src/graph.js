@@ -68,7 +68,21 @@ var Edge = new Class({
         var x = this.fromVertex.x + t*(this.toVertex.x - this.fromVertex.x);
         var y = this.fromVertex.y + t*(this.toVertex.y - this.fromVertex.y);
         return { x: x, y: y };
-    }
+    },
+
+    toHeading : function() {
+        var dx = this.toVertex.x - this.fromVertex.x;
+        var dy = this.toVertex.y - this.fromVertex.y;
+        var l = Math.sqrt(dx*dx + dy*dy);
+        return { x: dx/l, y : dy/l };
+    },
+
+    fromHeading : function() {
+        var dx = this.fromVertex.x - this.toVertex.x;
+        var dy = this.fromVertex.y - this.toVertex.y;
+        var l = Math.sqrt(dx*dx + dy*dy);
+        return { x: dx/l, y : dy/l };
+    },    
 });
 
 module.exports.Edge = Vertex;
