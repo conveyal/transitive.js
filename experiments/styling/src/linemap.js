@@ -117,7 +117,7 @@ var Pattern = new Class({
             return 'translate(' + x +', ' + y +')';
         }, this));
 
-        setStyle(this, display.zoom.scale());
+        setStyle(this, display);
     },
 
     /**
