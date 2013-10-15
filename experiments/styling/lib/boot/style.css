@@ -1,4 +1,9 @@
-/* default style settings; applied to all pattern styles unless overriden */
+
+#canvas {
+  width: 500px;
+  height: 500px;
+  border: 1px solid black;
+}
 
 .line {
   stroke: black;

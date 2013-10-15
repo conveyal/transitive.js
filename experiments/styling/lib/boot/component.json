@@ -1,0 +1,22 @@
+{
+  "name": "boot",
+  "dependencies": {
+    "mbostock/d3": "*",
+    "trevorgerhardt/underscore": "*"
+  },
+  "local": [
+    "graph",
+    "style"
+  ],
+  "scripts": [
+    "data.js",
+    "display.js",
+    "index.js",
+    "pattern.js",
+    "route.js",
+    "stop.js"
+  ],
+  "styles": [
+    "style.css"
+  ]
+}

@@ -1,25 +1,10 @@
 {
   "author": "Conveyal",
-  "name": "d3-template",
-  "description": "D3 Browserify template",
-  "version": "1.0.0",
+  "name": "transitive",
+  "version": "0.0.1",
   "homepage": "http://conveyal.com/",
-  "main": "index.js",
-  "dependencies": {
-    "d3": "3.3.5",
-    "mootools" : "1.4.5",
-    "underscore" : "1.5.2"
-  },
-  "scripts": {
-    "test": "mocha-phantomjs test/index.html"
-  },
   "devDependencies": {
-    "uglify-js": "~2.2.5",
-    "mocha": "~1.9",
-    "browserify": "2.22.0"
-  },
-  "optionalDependencies": {},
-  "engines": {
-    "node": "*"
+    "component": "*",
+    "jshint": "*"
   }
 }

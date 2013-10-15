@@ -1,0 +1,7 @@
+{
+  "name": "style",
+  "scripts": [
+    "index.js",
+    "rules.js"
+  ]
+}

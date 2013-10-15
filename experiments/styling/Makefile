@@ -1,22 +1,32 @@
-UGLIFY = node_modules/.bin/uglifyjs
-BROWSERIFY = node_modules/.bin/browserify
 
-# make library
-all: \
-	dist/d3app.js \
-	dist/d3app.uncompressed.js
+COMPONENT = ./node_modules/.bin/component
+JSHINT = ./node_modules/.bin/jshint
 
-node_modules/.install: package.json
-	npm install && touch node_modules/.install
+CSS := $(shell find lib -name '*.css' -print)
+HTML := $(shell find lib -name '*.html' -print)
+JS := $(shell find lib -name '*.js' -print)
+JSON := $(shell find lib -name '*.json' -print)
 
-dist:
-	mkdir -p dist
+build: build/build.js
 
-dist/d3app.uncompressed.js: node_modules/.install dist $(shell $(BROWSERIFY) --list index.js)
-	$(BROWSERIFY) --debug index.js > $@
-
-dist/d3app.js: dist/d3app.uncompressed.js
-	$(UGLIFY) $< -c -m -o $@
+build/build.js: components $(JS) $(CSS) $(HTML)
+	$(MAKE) lint
+	$(COMPONENT) build --dev --verbose --copy
 
 clean:
-	rm -rf dist/*
+	rm -rf build components
+
+components: $(JSON)
+	$(COMPONENT) install --dev --verbose
+
+install:
+	npm install
+	$(MAKE) build
+
+lint: $(JS)
+	$(JSHINT) --verbose $(JS)
+
+watch:
+	watch $(MAKE) build
+
+.PHONY: build lint watch
