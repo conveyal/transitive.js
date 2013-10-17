@@ -3,6 +3,10 @@ transitive.js
 
 Transit data visualization FTW!
 
+## Demo
+
+[Demo](http://conveyal.github.io/transitive.js/example/index.html "Demo")
+
 ## Experiments
 
 [Wireframe](http://conveyal.github.io/transitive.js/experiments/wireframe/client/index.html "Wireframe Demo")

@@ -1,0 +1,15 @@
+{
+  "name": "transitive",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ],
+  "local": [
+    "graph",
+    "linemap",
+    "style"
+  ],
+  "paths": [
+    "lib"
+  ]
+}

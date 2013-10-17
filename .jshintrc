@@ -1,0 +1,10 @@
+{
+  "boss": true,
+  "browser": true,
+  "indent": 2,
+  "laxbreak": true,
+  "node": true,
+  "quotmark": "single",
+  "trailing": true,
+  "undef": true
+}

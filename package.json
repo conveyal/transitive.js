@@ -1,0 +1,19 @@
+{
+  "author": "Conveyal",
+  "name": "transitive",
+  "version": "0.0.1",
+  "homepage": "http://conveyal.com/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/conveyal/transitive.js.git"
+  },
+  "dependencies": {
+    "d3": "*"
+  },
+  "devDependencies": {
+    "component": "*",
+    "component-uglifyjs": "*",
+    "jshint": "*",
+    "serve": "*"
+  }
+}
