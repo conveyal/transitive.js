@@ -1,0 +1,11 @@
+{
+  "name": "styler",
+  "dependencies": {
+    "component/each": "*"
+  },
+  "scripts": [
+    "computed.js",
+    "index.js",
+    "static.js"
+  ]
+}

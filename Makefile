@@ -28,10 +28,10 @@ server:
 
 transitive.js: components $(JS)
 	$(MAKE) lint
-	$(COMPONENT) build --dev --verbose --standalone transitive --out . --name transitive
+	$(COMPONENT) build --dev --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
-	$(COMPONENT) build --verbose --use component-uglifyjs --standalone transitive --out . --name transitive.min
+	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
 
 watch:
 	watch $(MAKE) build

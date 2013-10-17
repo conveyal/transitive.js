@@ -1,0 +1,9 @@
+{
+  "name": "app",
+  "local": [
+    "styler"
+  ],
+  "scripts": [
+    "index.js"
+  ]
+}

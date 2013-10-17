@@ -15,12 +15,9 @@
 
     <script src="d3.v3.js"></script>
     <script src="data.js"></script>
-    <script src="rules.js"></script>
     <script src="../transitive.js"></script>
     <script>
-      transitive.loadData(DEFAULT_DATA);
-      transitive.loadRules(DEFAULT_RULES);
-      transitive.renderTo(document.getElementById('canvas'));
+      var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA, {}, []);
     </script>
   </body>
 </html>

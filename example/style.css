@@ -1,0 +1,27 @@
+
+#canvas {
+  width: 500px;
+  height: 500px;
+  border: 1px solid black;
+}
+
+.line {
+  stroke: black;
+  stroke-width: 15px;
+  fill: none;
+}
+
+.stop-circle {
+  fill: white;
+}
+
+.stop-label {
+  color: black;
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}

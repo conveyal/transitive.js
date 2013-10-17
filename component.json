@@ -5,9 +5,7 @@
     "index.js"
   ],
   "local": [
-    "graph",
-    "linemap",
-    "style"
+    "app"
   ],
   "paths": [
     "lib"
