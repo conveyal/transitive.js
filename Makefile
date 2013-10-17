@@ -3,7 +3,6 @@ COMPONENT := ./node_modules/.bin/component
 JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
 
-CSS := $(shell find lib -name '*.css' -print)
 JS := $(shell find lib -name '*.js' -print)
 JSON := $(shell find lib -name '*.json' -print)
 
@@ -27,7 +26,7 @@ lint: $(JS)
 server:
 	@$(SERVE) --port $(PORT)
 
-transitive.js: components $(JS) $(CSS)
+transitive.js: components $(JS)
 	$(MAKE) lint
 	$(COMPONENT) build --standalone transitive --out . --name transitive
 
