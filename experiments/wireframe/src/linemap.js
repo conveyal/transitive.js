@@ -72,12 +72,14 @@ var Pattern = new Class({
                 var edgeIndex = (i === 0) ? 0 : i - 1;
 
                 if(i === 0) {
-                    x = display.xScale(vx) + this.style.capExtension * stopInfo.outEdge.heading().x;
+                    x = display.xScale(vx) + this.style.capExtension * stopInfo.outEdge.vector.x;
                 }
                 else if(i === this.stops.length-1) {
-                    x = display.xScale(vx) - this.style.capExtension * stopInfo.inEdge.heading().x;
+                    x = display.xScale(vx) - this.style.capExtension * stopInfo.inEdge.vector.x;
                 }
                 else x = display.xScale(vx);
+
+                if(stopInfo.offsetX) x -= stopInfo.offsetX;
 
                 return x;
 
@@ -89,10 +91,10 @@ var Pattern = new Class({
                 var edgeIndex = (i === 0) ? 0 : i - 1;
 
                 if(i === 0) {
-                    y = display.yScale(vy) - this.style.capExtension * stopInfo.outEdge.heading().y;
+                    y = display.yScale(vy) - this.style.capExtension * stopInfo.outEdge.vector.y;
                 }
                 else if(i === this.stops.length-1) {
-                    y = display.yScale(vy) + this.style.capExtension * stopInfo.inEdge.heading().y;
+                    y = display.yScale(vy) + this.style.capExtension * stopInfo.inEdge.vector.y;
                 }
                 else y = display.yScale(vy);
 
@@ -114,8 +116,10 @@ var Pattern = new Class({
             }, this))
             .on("drag", _.bind(function(d,i) {
                 if(!d.stop.graphVertex) return;
-                d.stop.graphVertex.x = display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft);
-                d.stop.graphVertex.y = display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop);
+                d.stop.graphVertex.moveTo(
+                    display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft),
+                    display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop)
+                );
                 display.refreshAll();
             }, this));
 
@@ -146,7 +150,7 @@ var Pattern = new Class({
         
         this.stopSvgGroups.data(stopData); 
         this.stopSvgGroups.attr('transform', _.bind(function(d, i) { 
-            var x = display.xScale(d.x);
+            var x = display.xScale(d.x) - d.offsetX;
             var y = display.yScale(d.y) + d.offsetY;
             return 'translate(' + x +', ' + y +')';
         }, this));
@@ -193,6 +197,8 @@ var Pattern = new Class({
 
         _.each(this.graphEdges, function(edge, i) {
 
+            var prevEdge = (i > 0) ? this.graphEdges[i-1] : null;
+            var nextEdge = (i < this.graphEdges.length - 1) ? this.graphEdges[i+1] : null;
 
             // the "from" vertex stop for this edge (first edge only)
             if(i === 0) {
@@ -203,7 +209,8 @@ var Pattern = new Class({
                     inEdge: null,
                     outEdge: edge
                 };
-                stopInfo.offsetY = this.offset ? this.offset * this.lineWidth : 0;
+                stopInfo.offsetX = this.offset ? edge.rightVector.x * this.lineWidth * this.offset : 0;
+                stopInfo.offsetY = this.offset ? edge.rightVector.y * this.lineWidth * this.offset : 0;
                 stopData.push(stopInfo);
             }
 
@@ -212,10 +219,16 @@ var Pattern = new Class({
                 var stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));
                 _.extend(stopInfo, {
                     stop: stop,
-                    offsetY: this.offset ? this.offset * this.lineWidth : 0,
                     inEdge: edge,
                     outEdge: edge
                 });
+                if(this.offset) {
+                    stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;
+                    stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;
+                }
+                else {
+                    stopInfo.offsetX = stopInfo.offsetY = 0;
+                }
                 stopData.push(stopInfo);
             }, this);
 
@@ -227,7 +240,30 @@ var Pattern = new Class({
                 inEdge: edge,
                 outEdge: null
             };
-            stopInfo.offsetY = this.offset ? this.offset * this.lineWidth : 0;
+
+            if(this.offset) {
+                if(nextEdge && nextEdge.rightVector.x !== edge.rightVector.x && nextEdge.rightVector.y !== edge.rightVector.y) {
+                    var added = { 
+                        x: nextEdge.rightVector.x + edge.rightVector.x,
+                        y: nextEdge.rightVector.y + edge.rightVector.y,
+                    }
+                    var len = Math.sqrt(added.x * added.x + added.y * added.y);
+                    var normalized = { x : added.x / len, y : added.y / len };
+
+                    var opp = Math.sqrt(Math.pow(nextEdge.rightVector.x - edge.rightVector.x, 2) + Math.pow(nextEdge.rightVector.y - edge.rightVector.y, 2))/2;
+                    var l = 1/(Math.sqrt(1-opp*opp)); // sqrt(1-x*x) = sin(acos(x))                   
+
+                    stopInfo.offsetX = normalized.x * this.lineWidth * this.offset * l;
+                    stopInfo.offsetY = normalized.y * this.lineWidth * this.offset * l;
+                }
+                else {
+                    stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;
+                    stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;                        
+                }
+            }
+            else {
+                stopInfo.offsetX = stopInfo.offsetY = 0;
+            }
             stopData.push(stopInfo);
         }, this);
         

@@ -64,6 +64,14 @@ var Vertex = new Class({
         this.x = x;
         this.y = y;
         this.edges = [];
+    },
+
+    moveTo : function(x, y) {
+        this.x = x;
+        this.y = y;
+        this.edges.forEach(function(edge) {
+            edge.calculateVectors();
+        });
     }
 });
 
@@ -76,6 +84,8 @@ var Edge = new Class({
         this.stopArray = stopArray;
         this.fromVertex = fromVertex;
         this.toVertex = toVertex;
+
+        this.calculateVectors();
     },
 
     pointAlongEdge : function(t) {
@@ -85,12 +95,25 @@ var Edge = new Class({
         return { x: x, y: y };
     },
 
-    heading : function() {
+    calculateVectors : function() {
+        var dx = this.fromVertex.x - this.toVertex.x;
+        var dy = this.fromVertex.y - this.toVertex.y;
+        var l = Math.sqrt(dx*dx + dy*dy);
+        this.vector = { x: dx/l, y : dy/l };
+        this.leftVector = { x : -this.vector.y, y : this.vector.x};
+        this.rightVector = { x : this.vector.y, y : -this.vector.x};
+    },
+
+    toString : function() {
+        return this.fromVertex.stop.getId() + "_" + this.toVertex.stop.getId();
+    }
+
+    /*heading : function() {
         var dx = this.fromVertex.x - this.toVertex.x;
         var dy = this.fromVertex.y - this.toVertex.y;
         var l = Math.sqrt(dx*dx + dy*dy);
         return { x: dx/l, y : dy/l };
-    },    
+    },*/   
 });
 
 module.exports.Edge = Vertex;
