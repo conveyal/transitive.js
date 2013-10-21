@@ -9772,7 +9772,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       if (i === 0) {\n\
         x = display.xScale(vx)\n\
           + capExtension * stopInfo.outEdge.vector.x;\n\
-      } else if(i === this.stops.length-1) {\n\
+      } else if (i === this.stops.length-1) {\n\
         x = display.xScale(vx)\n\
           - capExtension * stopInfo.inEdge.vector.x;\n\
       } else {\n\
@@ -9830,17 +9830,6 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
 \n\
   this.stopSvgGroups.append('circle')\n\
     .attr('class', 'transitive-stop-circle')\n\
-    // set up the mouse hover interactivity:\n\
-    .on('mouseenter', function (d) {\n\
-      d3.select('#transitive-stop-label-' + d.stop.getId())\n\
-        .style('visibility', 'visible');\n\
-    })\n\
-    .on('mouseleave', function (d) {\n\
-      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
-        d3.select('#transitive-stop-label-' + d.stop.getId())\n\
-          .style('visibility', 'hidden');\n\
-      }\n\
-    })\n\
     .call(drag);\n\
 \n\
   this.stopSvgGroups.append('text')\n\
@@ -9880,7 +9869,6 @@ Pattern.prototype.refresh = function(display) {\n\
  */\n\
 \n\
 Pattern.prototype.getStopData = function() {\n\
-\n\
   var stopData = [];\n\
 \n\
   this.graphEdges.forEach(function (edge, i) {\n\
@@ -9916,7 +9904,7 @@ Pattern.prototype.getStopData = function() {\n\
     }\n\
 \n\
     // the internal stops for this edge\n\
-    edge.stopArray.forEach(function(stop, i) {\n\
+    edge.stopArray.forEach(function (stop, i) {\n\
       stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));\n\
       stopInfo.stop = stop;\n\
       stopInfo.inEdge = stopInfo.outEdge = edge;\n\
@@ -10285,7 +10273,27 @@ require.register("styler/computed.js", Function("exports, require, module",
  * Computed rules\n\
  */\n\
 \n\
-module.exports = [];\n\
+module.exports = [\n\
+  showLabelsOnHover\n\
+];\n\
+\n\
+/**\n\
+ * Show labels on hover\n\
+ */\n\
+\n\
+function showLabelsOnHover(pattern, display) {\n\
+  pattern.selectAll('.transitive-stop-circle')\n\
+    .on('mouseenter', function (data) {\n\
+      pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
+        .style('visibility', 'visible');\n\
+    })\n\
+    .on('mouseleave', function (data) {\n\
+      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
+        pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
+          .style('visibility', 'hidden');\n\
+      }\n\
+    });\n\
+}\n\
 //@ sourceURL=styler/computed.js"
 ));
 require.register("styler/index.js", Function("exports, require, module",
