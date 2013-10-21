@@ -9486,7 +9486,7 @@ function Display(el) {\n\
   this.labelZoomThreshold = 0.75;\n\
 \n\
   // set up the svg display\n\
-  this.svg = d3.select('#canvas')\n\
+  this.svg = d3.select(el)\n\
     .append('svg')\n\
       .attr('width', this.width)\n\
       .attr('height', this.height)\n\
