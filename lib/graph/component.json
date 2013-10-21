@@ -1,6 +1,8 @@
 {
   "name": "graph",
   "scripts": [
-    "index.js"
+    "edge.js",
+    "index.js",
+    "vertex.js"
   ]
 }

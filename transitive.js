@@ -200,532 +200,6 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("component-to-function/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `toFunction()`.\n\
- */\n\
-\n\
-module.exports = toFunction;\n\
-\n\
-/**\n\
- * Convert `obj` to a `Function`.\n\
- *\n\
- * @param {Mixed} obj\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function toFunction(obj) {\n\
-  switch ({}.toString.call(obj)) {\n\
-    case '[object Object]':\n\
-      return objectToFunction(obj);\n\
-    case '[object Function]':\n\
-      return obj;\n\
-    case '[object String]':\n\
-      return stringToFunction(obj);\n\
-    case '[object RegExp]':\n\
-      return regexpToFunction(obj);\n\
-    default:\n\
-      return defaultToFunction(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Default to strict equality.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function defaultToFunction(val) {\n\
-  return function(obj){\n\
-    return val === obj;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert `re` to a function.\n\
- *\n\
- * @param {RegExp} re\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function regexpToFunction(re) {\n\
-  return function(obj){\n\
-    return re.test(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert property `str` to a function.\n\
- *\n\
- * @param {String} str\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function stringToFunction(str) {\n\
-  // immediate such as \"> 20\"\n\
-  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
-\n\
-  // properties such as \"name.first\" or \"age > 18\"\n\
-  return new Function('_', 'return _.' + str);\n\
-}\n\
-\n\
-/**\n\
- * Convert `object` to a function.\n\
- *\n\
- * @param {Object} object\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function objectToFunction(obj) {\n\
-  var match = {}\n\
-  for (var key in obj) {\n\
-    match[key] = typeof obj[key] === 'string'\n\
-      ? defaultToFunction(obj[key])\n\
-      : toFunction(obj[key])\n\
-  }\n\
-  return function(val){\n\
-    if (typeof val !== 'object') return false;\n\
-    for (var key in match) {\n\
-      if (!(key in val)) return false;\n\
-      if (!match[key](val[key])) return false;\n\
-    }\n\
-    return true;\n\
-  }\n\
-}\n\
-//@ sourceURL=component-to-function/index.js"
-));
-require.register("component-type/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * toString ref.\n\
- */\n\
-\n\
-var toString = Object.prototype.toString;\n\
-\n\
-/**\n\
- * Return the type of `val`.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(val){\n\
-  switch (toString.call(val)) {\n\
-    case '[object Function]': return 'function';\n\
-    case '[object Date]': return 'date';\n\
-    case '[object RegExp]': return 'regexp';\n\
-    case '[object Arguments]': return 'arguments';\n\
-    case '[object Array]': return 'array';\n\
-    case '[object String]': return 'string';\n\
-  }\n\
-\n\
-  if (val === null) return 'null';\n\
-  if (val === undefined) return 'undefined';\n\
-  if (val && val.nodeType === 1) return 'element';\n\
-  if (val === Object(val)) return 'object';\n\
-\n\
-  return typeof val;\n\
-};\n\
-//@ sourceURL=component-type/index.js"
-));
-require.register("component-each/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var toFunction = require('to-function');\n\
-var type;\n\
-\n\
-try {\n\
-  type = require('type-component');\n\
-} catch (e) {\n\
-  type = require('type');\n\
-}\n\
-\n\
-/**\n\
- * HOP reference.\n\
- */\n\
-\n\
-var has = Object.prototype.hasOwnProperty;\n\
-\n\
-/**\n\
- * Iterate the given `obj` and invoke `fn(val, i)`.\n\
- *\n\
- * @param {String|Array|Object} obj\n\
- * @param {Function} fn\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(obj, fn){\n\
-  fn = toFunction(fn);\n\
-  switch (type(obj)) {\n\
-    case 'array':\n\
-      return array(obj, fn);\n\
-    case 'object':\n\
-      if ('number' == typeof obj.length) return array(obj, fn);\n\
-      return object(obj, fn);\n\
-    case 'string':\n\
-      return string(obj, fn);\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Iterate string chars.\n\
- *\n\
- * @param {String} obj\n\
- * @param {Function} fn\n\
- * @api private\n\
- */\n\
-\n\
-function string(obj, fn) {\n\
-  for (var i = 0; i < obj.length; ++i) {\n\
-    fn(obj.charAt(i), i);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Iterate object keys.\n\
- *\n\
- * @param {Object} obj\n\
- * @param {Function} fn\n\
- * @api private\n\
- */\n\
-\n\
-function object(obj, fn) {\n\
-  for (var key in obj) {\n\
-    if (has.call(obj, key)) {\n\
-      fn(key, obj[key]);\n\
-    }\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Iterate array-ish.\n\
- *\n\
- * @param {Array|Object} obj\n\
- * @param {Function} fn\n\
- * @api private\n\
- */\n\
-\n\
-function array(obj, fn) {\n\
-  for (var i = 0; i < obj.length; ++i) {\n\
-    fn(obj[i], i);\n\
-  }\n\
-}\n\
-//@ sourceURL=component-each/index.js"
-));
-require.register("styler/computed.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Computed rules\n\
- */\n\
-\n\
-module.exports = [];\n\
-//@ sourceURL=styler/computed.js"
-));
-require.register("styler/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var each = require('each');\n\
-\n\
-/**\n\
- * List of CSS style rules\n\
- */\n\
-\n\
-var styles = [\n\
-  'color',\n\
-  'fill',\n\
-  'font',\n\
-  'font-family',\n\
-  'font-size',\n\
-  'stroke',\n\
-  'stroke-width'\n\
-];\n\
-\n\
-/**\n\
- * Expose `Styler`\n\
- */\n\
-\n\
-module.exports = Styler;\n\
-\n\
-/**\n\
- * Styler object\n\
- */\n\
-\n\
-function Styler(static, computed) {\n\
-  if (!(this instanceof Styler)) {\n\
-    return new Styler();\n\
-  }\n\
-\n\
-  this.computed = require('./computed');\n\
-  this.static = require('./static');\n\
-\n\
-  if (static) {\n\
-    this.load(static);\n\
-  }\n\
-\n\
-  if (computed) {\n\
-    this.computed = this.computed.push(computed);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Load a set of rules\n\
- *\n\
- * @param {Object} a set of rules\n\
- */\n\
-\n\
-Styler.prototype.load = function(set) {\n\
-  each(set, function (rules, selector) {\n\
-    if (!this.static[selector]) {\n\
-      this.static[selector] = rules;\n\
-    } else {\n\
-      each(rules, function (rule, name) {\n\
-        this.static[selector][name] = rule;\n\
-      }.bind(this));\n\
-    }\n\
-  }.bind(this));\n\
-};\n\
-\n\
-/**\n\
- * Render elements against these rules\n\
- *\n\
- * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
- */\n\
-\n\
-Styler.prototype.render = function render(el, display) {\n\
-  // apply static rules\n\
-  each(this.static, function (rules, selector) {\n\
-    applyAttrAndStyle(el.svgGroup.selectAll(selector), display, rules);\n\
-  });\n\
-\n\
-  // apply computed rules\n\
-  each(this.computed, function (rule) {\n\
-    rule(el, display);\n\
-  });\n\
-};\n\
-\n\
-/**\n\
- * Check if it's an attribute or a style and apply accordingly\n\
- *\n\
- * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
- * @param {Object} the rules to apply to the elements\n\
- */\n\
-\n\
-function applyAttrAndStyle(el, display, rules) {\n\
-  for (var name in rules) {\n\
-    var type = isStyle(name)\n\
-      ? 'style'\n\
-      : 'attr';\n\
-\n\
-    el[type](name, computeRule(rules[name]));\n\
-  }\n\
-\n\
-  function computeRule(rule) {\n\
-    return function (data, index) {\n\
-      return isFunction(rule)\n\
-        ? rule.call(rules, data, display, index)\n\
-        : rule;\n\
-    };\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Is function?\n\
- */\n\
-\n\
-function isFunction(val) {\n\
-  return Object.prototype.toString.call(val) === '[object Function]';\n\
-}\n\
-\n\
-/**\n\
- * Is style?\n\
- */\n\
-\n\
-function isStyle(val) {\n\
-  return styles.indexOf(val) !== -1;\n\
-}\n\
-//@ sourceURL=styler/index.js"
-));
-require.register("styler/static.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Default static rules\n\
- */\n\
-\n\
-module.exports = {\n\
-\n\
-  /**\n\
-   * All stops\n\
-   */\n\
-\n\
-  '.stop-circle': {\n\
-    cx: 0,\n\
-    cy: 0,\n\
-    fill: 'white',\n\
-    r: 5,\n\
-    stroke: 'none'\n\
-  },\n\
-\n\
-  /**\n\
-   * All labels\n\
-   */\n\
-\n\
-  '.stop-label': {\n\
-    'font-family': 'sans-serif',\n\
-    'font-size': function(data, display, index) {\n\
-      if (data.stop.stop_id === 'S3') {\n\
-        return '20px';\n\
-      } else {\n\
-        return '12px';\n\
-      }\n\
-    },\n\
-    transform: function(data, display, index) {\n\
-      return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
-    },\n\
-    visibility: function(data, display, index) {\n\
-      if (display.zoom.scale() < 0.75) {\n\
-        return 'hidden';\n\
-      } else {\n\
-        return 'visible';\n\
-      }\n\
-    },\n\
-    x: 0,\n\
-    y: -12\n\
-  },\n\
-\n\
-  /**\n\
-   * All lines\n\
-   */\n\
-\n\
-  '.line': {\n\
-    stroke: 'blue',\n\
-    'stroke-width': '15px',\n\
-    fill: 'none'\n\
-  }\n\
-};\n\
-//@ sourceURL=styler/static.js"
-));
-require.register("graph/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Graph\n\
- */\n\
-\n\
-\n\
-/**\n\
- *  An graph representing the underlying 'wireframe' network\n\
- */\n\
-\n\
-function NetworkGraph() {\n\
-\n\
-  this.vertices = [];\n\
-  this.edges = [];\n\
-}\n\
-\n\
-NetworkGraph.prototype.addVertex = function(stop, x, y) {\n\
-  if(!x) x = stop.stop_lon;\n\
-  if(!y) y = stop.stop_lat;\n\
-  var vertex = new Vertex(stop, x, y);\n\
-  this.vertices.push(vertex);\n\
-  return vertex;\n\
-};\n\
-\n\
-NetworkGraph.prototype.addEdge = function(stopArray, fromVertex, toVertex) {\n\
-  if(this.vertices.indexOf(fromVertex) === -1) {\n\
-    console.log('Error: NetworkGraph does not contain Edge fromVertex');\n\
-    return;\n\
-  }\n\
-  if(this.vertices.indexOf(toVertex) === -1) {\n\
-    console.log('Error: NetworkGraph does not contain Edge toVertex');\n\
-    return;\n\
-  }\n\
-  var edge = new Edge(stopArray, fromVertex, toVertex);\n\
-  this.edges.push(edge);\n\
-  fromVertex.edges.push(edge);\n\
-  toVertex.edges.push(edge);\n\
-  return edge;\n\
-};\n\
-\n\
-NetworkGraph.prototype.getEquivalentEdge = function(stopArray, fromVertex, toVertex) {\n\
-  for(var e = 0; e < this.edges.length; e++) {\n\
-    var edge = this.edges[e];\n\
-    if(edge.fromVertex !== fromVertex || edge.toVertex !== toVertex || stopArray.length !== edge.stopArray.length) continue;\n\
-    var matches = 0;\n\
-    for(var s = 0; s < stopArray.length; s++) {\n\
-      if(stopArray[s] === edge.stopArray[s]) matches++;\n\
-    }\n\
-    if(matches !== stopArray.length) continue;\n\
-    return edge;\n\
-  }\n\
-\n\
-  return null;\n\
-};\n\
-\n\
-module.exports.NetworkGraph = NetworkGraph;\n\
-\n\
-\n\
-function Vertex(stop, x, y) {\n\
-  this.stop = stop;\n\
-  this.x = x;\n\
-  this.y = y;\n\
-  this.edges = [];\n\
-}\n\
-\n\
-Vertex.prototype.moveTo = function(x, y) {\n\
-  this.x = x;\n\
-  this.y = y;\n\
-  this.edges.forEach(function(edge) {\n\
-    edge.calculateVectors();\n\
-  });\n\
-};\n\
-\n\
-module.exports.Vertex = Vertex;\n\
-\n\
-\n\
-function Edge(stopArray, fromVertex, toVertex) {\n\
-  this.stopArray = stopArray;\n\
-  this.fromVertex = fromVertex;\n\
-  this.toVertex = toVertex;\n\
-\n\
-  this.calculateVectors();\n\
-}\n\
-\n\
-Edge.prototype.pointAlongEdge = function(t) {\n\
-  var x = this.fromVertex.x + t*(this.toVertex.x - this.fromVertex.x);\n\
-  var y = this.fromVertex.y + t*(this.toVertex.y - this.fromVertex.y);\n\
-  return { x: x, y: y };\n\
-};\n\
-\n\
-Edge.prototype.calculateVectors = function() {\n\
-  var dx = this.fromVertex.x - this.toVertex.x;\n\
-  var dy = this.fromVertex.y - this.toVertex.y;\n\
-  var l = Math.sqrt(dx*dx + dy*dy);\n\
-  this.vector = { x: dx/l, y : dy/l };\n\
-  this.leftVector = { x : -this.vector.y, y : this.vector.x};\n\
-  this.rightVector = { x : this.vector.y, y : -this.vector.x};\n\
-};\n\
-\n\
-Edge.prototype.toString = function() {\n\
-  return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();\n\
-};\n\
-\n\
-module.exports.Edge = Vertex;//@ sourceURL=graph/index.js"
-));
 require.register("mbostock-d3/d3.js", Function("exports, require, module",
 "d3 = function() {\n\
   var d3 = {\n\
@@ -9971,65 +9445,311 @@ module.exports = d3;\n\
 (function () { delete this.d3; })(); // unset global\n\
 //@ sourceURL=mbostock-d3/index-browserify.js"
 ));
-require.register("linemap/index.js", Function("exports, require, module",
+require.register("display/index.js", Function("exports, require, module",
 "\n\
 /**\n\
- * Linemap\n\
+ * Dependencies\n\
  */\n\
 \n\
 var d3 = require('d3');\n\
 \n\
 /**\n\
- *  A transit Route, as defined in the input data. Routes contain one or more Patterns\n\
+ * Expose `Display`\n\
  */\n\
 \n\
-function Route(data) {\n\
-  //_.extend(this, _.omit(data, 'patterns'));\n\
-  for(var key in data) {\n\
-    if(key === 'patterns') continue;\n\
-    this[key] = data[key];\n\
-  }\n\
-  this.patterns = [];\n\
-}\n\
-\n\
-Route.prototype.addPattern = function(pattern) {\n\
-  this.patterns.push(pattern);\n\
-  pattern.route = this;\n\
-};\n\
-\n\
-module.exports.Route = Route;\n\
-\n\
+module.exports = Display;\n\
 \n\
 /**\n\
- *  A transit Stop, as defined in the input data. Stops are shared between Patterns\n\
+ *  The D3-based SVG display.\n\
  */\n\
 \n\
-function Stop(data) {\n\
-  //_.extend(this, _.omit(data, 'patterns'));\n\
-  for(var key in data) {\n\
-    if(key === 'patterns') continue;\n\
-    this[key] = data[key];\n\
-  }\n\
+function Display(el) {\n\
 \n\
-  this.patterns = [];\n\
+  this.displayedElements = [];\n\
+\n\
+  this.refreshAll = this.refreshAll.bind(this);\n\
+\n\
+  this.width = el.clientWidth;\n\
+  this.height = el.clientHeight;\n\
+  this.offsetLeft = el.offsetLeft;\n\
+  this.offsetTop = el.offsetTop;\n\
+\n\
+  this.xScale = d3.scale.linear()\n\
+    .domain([ -2, 2 ]) // [0, this.width])\n\
+    .range([0, this.width]);\n\
+\n\
+  this.yScale = d3.scale.linear()\n\
+    .domain([ -2, 2 ]) //[0, this.height])\n\
+    .range([this.height, 0]);\n\
+\n\
+  // set up the pan/zoom behavior\n\
+  this.zoom  = d3.behavior.zoom()\n\
+    .x(this.xScale)\n\
+    .y(this.yScale)\n\
+    .scaleExtent([ 0.25, 4 ])\n\
+    .on('zoom', this.refreshAll);\n\
+\n\
+  this.labelZoomThreshold = 0.75;\n\
+\n\
+  // set up the svg display\n\
+  this.svg = d3.select('#canvas')\n\
+    .append('svg')\n\
+      .attr('width', this.width)\n\
+      .attr('height', this.height)\n\
+    .append('g')\n\
+      .call(this.zoom);\n\
+\n\
+  // append an overlay to capture pan/zoom events on entire viewport\n\
+  this.svg.append('rect')\n\
+    .attr('class', 'overlay')\n\
+    .attr('width', this.width)\n\
+    .attr('height', this.height);\n\
 }\n\
 \n\
-Stop.prototype.getId = function() {\n\
-  return this.stop_id;\n\
+/**\n\
+ * Add Element\n\
+ */\n\
+\n\
+Display.prototype.addElement = function(element) {\n\
+  this.displayedElements.push(element);\n\
 };\n\
 \n\
-module.exports.Stop = Stop;\n\
+/**\n\
+ * Refresh All\n\
+ */\n\
 \n\
+Display.prototype.refreshAll = function() {\n\
+  this.displayedElements.forEach(function (element) {\n\
+    element.refresh(this);\n\
+  }, this);\n\
+};\n\
+//@ sourceURL=display/index.js"
+));
+require.register("graph/edge.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `Edge`\n\
+ */\n\
+\n\
+module.exports = Edge;\n\
+\n\
+/**\n\
+ * Initialize a new edge\n\
+ *\n\
+ * @param {Array}\n\
+ * @param {Vertex}\n\
+ * @param {Vertex}\n\
+ */\n\
+\n\
+function Edge(stopArray, fromVertex, toVertex) {\n\
+  this.stopArray = stopArray;\n\
+  this.fromVertex = fromVertex;\n\
+  this.toVertex = toVertex;\n\
+\n\
+  this.calculateVectors();\n\
+}\n\
+\n\
+/**\n\
+ *\n\
+ */\n\
+\n\
+Edge.prototype.pointAlongEdge = function(t) {\n\
+  var x = this.fromVertex.x + t * (this.toVertex.x - this.fromVertex.x);\n\
+  var y = this.fromVertex.y + t * (this.toVertex.y - this.fromVertex.y);\n\
+  return {\n\
+    x: x,\n\
+    y: y\n\
+  };\n\
+};\n\
+\n\
+/**\n\
+ *\n\
+ */\n\
+\n\
+Edge.prototype.calculateVectors = function() {\n\
+  var dx = this.fromVertex.x - this.toVertex.x;\n\
+  var dy = this.fromVertex.y - this.toVertex.y;\n\
+  var l = Math.sqrt(dx * dx + dy * dy);\n\
+\n\
+  this.vector = {\n\
+    x: dx / l,\n\
+    y : dy / l\n\
+  };\n\
+\n\
+  this.leftVector = {\n\
+    x : -this.vector.y,\n\
+    y : this.vector.x\n\
+  };\n\
+\n\
+  this.rightVector = {\n\
+    x : this.vector.y,\n\
+    y : -this.vector.x\n\
+  };\n\
+};\n\
+\n\
+/**\n\
+ *\n\
+ */\n\
+\n\
+Edge.prototype.toString = function() {\n\
+  return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();\n\
+};\n\
+//@ sourceURL=graph/edge.js"
+));
+require.register("graph/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var Edge = require('./edge');\n\
+var Vertex = require('./vertex');\n\
+\n\
+/**\n\
+ * Expose `Graph`\n\
+ */\n\
+\n\
+module.exports = NetworkGraph;\n\
+\n\
+/**\n\
+ *  An graph representing the underlying 'wireframe' network\n\
+ */\n\
+\n\
+function NetworkGraph() {\n\
+  this.vertices = [];\n\
+  this.edges = [];\n\
+}\n\
+\n\
+/**\n\
+ * Add Vertex\n\
+ */\n\
+\n\
+NetworkGraph.prototype.addVertex = function(stop, x, y) {\n\
+  if(!x) x = stop.stop_lon;\n\
+  if(!y) y = stop.stop_lat;\n\
+  var vertex = new Vertex(stop, x, y);\n\
+  this.vertices.push(vertex);\n\
+  return vertex;\n\
+};\n\
+\n\
+/**\n\
+ * Add Edge\n\
+ */\n\
+\n\
+NetworkGraph.prototype.addEdge = function(stopArray, fromVertex, toVertex) {\n\
+  if (this.vertices.indexOf(fromVertex) === -1) {\n\
+    console.log('Error: NetworkGraph does not contain Edge fromVertex');\n\
+    return;\n\
+  }\n\
+\n\
+  if (this.vertices.indexOf(toVertex) === -1) {\n\
+    console.log('Error: NetworkGraph does not contain Edge toVertex');\n\
+    return;\n\
+  }\n\
+\n\
+  var edge = new Edge(stopArray, fromVertex, toVertex);\n\
+  this.edges.push(edge);\n\
+  fromVertex.edges.push(edge);\n\
+  toVertex.edges.push(edge);\n\
+\n\
+  return edge;\n\
+};\n\
+\n\
+/**\n\
+ * Get the equivalent edge\n\
+ */\n\
+\n\
+NetworkGraph.prototype.getEquivalentEdge = function(stopArray, from, to) {\n\
+  for (var e = 0; e < this.edges.length; e++) {\n\
+    var edge = this.edges[e];\n\
+    if (edge.fromVertex === from\n\
+      && edge.toVertex === to\n\
+      && stopArray.length === edge.stopArray.length\n\
+      && equal(stopArray, edge.stopArray)) {\n\
+      return edge;\n\
+    }\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Check if arrays are equal\n\
+ */\n\
+\n\
+function equal(a, b) {\n\
+  if (a.length !== b.length) {\n\
+    return false;\n\
+  }\n\
+\n\
+  for (var i in a) {\n\
+    if (a[i] !== b[i]) {\n\
+      return false;\n\
+    }\n\
+  }\n\
+\n\
+  return true;\n\
+}\n\
+//@ sourceURL=graph/index.js"
+));
+require.register("graph/vertex.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `Vertex`\n\
+ */\n\
+\n\
+module.exports = Vertex;\n\
+\n\
+/**\n\
+ * Initialize new Vertex\n\
+ *\n\
+ * @param {}\n\
+ * @param {Number}\n\
+ * @param {Number}\n\
+ */\n\
+\n\
+function Vertex(stop, x, y) {\n\
+  this.stop = stop;\n\
+  this.x = x;\n\
+  this.y = y;\n\
+  this.edges = [];\n\
+}\n\
+\n\
+/**\n\
+ * Move to new coordinate\n\
+ *\n\
+ * @param {Number}\n\
+ * @param {Number}\n\
+ */\n\
+\n\
+Vertex.prototype.moveTo = function(x, y) {\n\
+  this.x = x;\n\
+  this.y = y;\n\
+  this.edges.forEach(function (edge) {\n\
+    edge.calculateVectors();\n\
+  });\n\
+};\n\
+//@ sourceURL=graph/vertex.js"
+));
+require.register("pattern/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var d3 = require('d3');\n\
+\n\
+/**\n\
+ * Expose `Pattern`\n\
+ */\n\
+\n\
+module.exports = Pattern;\n\
 \n\
 /**\n\
  *  A Route Pattern -- a unique sequence of stops\n\
  */\n\
 \n\
 function Pattern(data) {\n\
-\n\
-  //_.extend(this, _.omit(data, \"stops\"));\n\
-  for(var key in data) {\n\
-    if(key === 'stops') continue;\n\
+  for (var key in data) {\n\
+    if (key === 'stops') continue;\n\
     this[key] = data[key];\n\
   }\n\
 \n\
@@ -10037,157 +9757,165 @@ function Pattern(data) {\n\
 \n\
   // the pattern represented as an ordered sequence of edges in the NetworkGraph\n\
   this.graphEdges = [];\n\
-\n\
 }\n\
 \n\
+/**\n\
+ * Draw\n\
+ */\n\
 \n\
-Pattern.prototype.draw = function(display) {\n\
+Pattern.prototype.draw = function(display, capExtension) {\n\
   // create the pattern as an empty svg group\n\
   this.svgGroup = display.svg.append('g');\n\
 \n\
   // add the line to the pattern\n\
 \n\
   this.line = d3.svg.line() // the line translation function\n\
-    .x((function(stopInfo, i) {\n\
-      \n\
+    .x(function (stopInfo, i) {\n\
+\n\
       var vx = stopInfo.x, x;\n\
 \n\
       // if first/last element, extend the line slightly\n\
+      var edgeIndex = i === 0\n\
+        ? 0\n\
+        : i - 1;\n\
 \n\
-      var edgeIndex = (i === 0) ? 0 : i - 1;\n\
-\n\
-      if(i === 0) {\n\
-        x = display.xScale(vx) + this.style.capExtension * stopInfo.outEdge.vector.x;\n\
+      if (i === 0) {\n\
+        x = display.xScale(vx)\n\
+          + capExtension * stopInfo.outEdge.vector.x;\n\
+      } else if(i === this.stops.length-1) {\n\
+        x = display.xScale(vx)\n\
+          - capExtension * stopInfo.inEdge.vector.x;\n\
+      } else {\n\
+        x = display.xScale(vx);\n\
       }\n\
-      else if(i === this.stops.length-1) {\n\
-        x = display.xScale(vx) - this.style.capExtension * stopInfo.inEdge.vector.x;\n\
-      }\n\
-      else x = display.xScale(vx);\n\
 \n\
-      if(stopInfo.offsetX) x -= stopInfo.offsetX;\n\
+      if (stopInfo.offsetX) x -= stopInfo.offsetX;\n\
 \n\
       return x;\n\
-\n\
-    }).bind(this))\n\
-    .y((function(stopInfo, i) {\n\
+    }.bind(this))\n\
+    .y(function (stopInfo, i) {\n\
 \n\
       var vy = stopInfo.y, y;\n\
 \n\
       var edgeIndex = (i === 0) ? 0 : i - 1;\n\
 \n\
-      if(i === 0) {\n\
-        y = display.yScale(vy) - this.style.capExtension * stopInfo.outEdge.vector.y;\n\
+      if (i === 0) {\n\
+        y = display.yScale(vy)\n\
+          - capExtension * stopInfo.outEdge.vector.y;\n\
+      } else if (i === this.stops.length-1) {\n\
+        y = display.yScale(vy)\n\
+          + capExtension * stopInfo.inEdge.vector.y;\n\
+      } else {\n\
+        y = display.yScale(vy);\n\
       }\n\
-      else if(i === this.stops.length-1) {\n\
-        y = display.yScale(vy) + this.style.capExtension * stopInfo.inEdge.vector.y;\n\
-      }\n\
-      else y = display.yScale(vy);\n\
 \n\
-      if(stopInfo.offsetY) y += stopInfo.offsetY;\n\
+      if (stopInfo.offsetY) y += stopInfo.offsetY;\n\
 \n\
       return y;\n\
-    }).bind(this))\n\
+    }.bind(this))\n\
     .interpolate('linear');\n\
 \n\
   this.lineGraph = this.svgGroup.append('path')\n\
     .attr('class', 'line');\n\
-  \n\
+\n\
   // add the stop groups to the pattern\n\
-  this.stopSvgGroups = this.svgGroup.selectAll('.stop').data(this.getStopData()).enter().append('g');\n\
+  this.stopSvgGroups = this.svgGroup.selectAll('.stop')\n\
+    .data(this.getStopData())\n\
+    .enter()\n\
+    .append('g');\n\
 \n\
   var drag = d3.behavior.drag()\n\
-    .on('dragstart', (function(d) {\n\
+    .on('dragstart', function (d) {\n\
       d3.event.sourceEvent.stopPropagation(); // silence other listeners\n\
-    }).bind(this))\n\
-    .on('drag', (function(d,i) {\n\
-      if(!d.stop.graphVertex) return;\n\
+    })\n\
+    .on('drag', function (d,i) {\n\
+      if (!d.stop.graphVertex) return;\n\
       d.stop.graphVertex.moveTo(\n\
         display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft),\n\
         display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop)\n\
       );\n\
+\n\
       display.refreshAll();\n\
-    }).bind(this));\n\
+    });\n\
 \n\
   this.stopSvgGroups.append('circle')\n\
     .attr('class', 'stop-circle')\n\
     // set up the mouse hover interactivity:\n\
-    .on('mouseenter', function(d) {\n\
-      d3.select('#stop-label-' + d.stop.getId()).style('visibility', 'visible');\n\
+    .on('mouseenter', function (d) {\n\
+      d3.select('#stop-label-' + d.stop.getId())\n\
+        .style('visibility', 'visible');\n\
     })\n\
-    .on('mouseleave', function(d) {\n\
-      if(display.zoom.scale() < display.labelZoomThreshold) d3.select('#stop-label-' + d.stop.getId()).style('visibility', 'hidden');\n\
+    .on('mouseleave', function (d) {\n\
+      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
+        d3.select('#stop-label-' + d.stop.getId())\n\
+          .style('visibility', 'hidden');\n\
+      }\n\
     })\n\
     .call(drag);\n\
 \n\
   this.stopSvgGroups.append('text')\n\
-    .attr('id', function(d) { return 'stop-label-' + d.stop.getId(); })\n\
-    .text(function(d) { return d.stop.stop_name; })\n\
+    .attr('id', function (d) {\n\
+      return 'stop-label-' + d.stop.getId();\n\
+    })\n\
+    .text(function (d) {\n\
+      return d.stop.stop_name;\n\
+    })\n\
     .attr('class', 'stop-label');\n\
 \n\
   display.addElement(this);\n\
 };\n\
+\n\
+/**\n\
+ * Refresh\n\
+ */\n\
 \n\
 Pattern.prototype.refresh = function(display) {\n\
 \n\
   // update the line and stop groups\n\
   var stopData = this.getStopData();\n\
   this.lineGraph.attr('d', this.line(stopData));\n\
-  \n\
+\n\
   this.stopSvgGroups.data(stopData);\n\
-  this.stopSvgGroups.attr('transform', (function(d, i) {\n\
+  this.stopSvgGroups.attr('transform', function (d, i) {\n\
     var x = display.xScale(d.x) - d.offsetX;\n\
     var y = display.yScale(d.y) + d.offsetY;\n\
     return 'translate(' + x +', ' + y +')';\n\
-  }).bind(this));\n\
-\n\
-  // hide/show the stop labels if needed\n\
-  if(display.zoom.scale() < display.labelZoomThreshold) {\n\
-    d3.selectAll('.stop-label').style('visibility', 'hidden');\n\
-  }\n\
-  else {\n\
-    d3.selectAll('.stop-label').style('visibility', 'visible');\n\
-  }\n\
-};\n\
-\n\
-Pattern.prototype.applyStyle = function(style) {\n\
-  this.style = style;\n\
-\n\
-  this.svgGroup.attr('class', style.className);\n\
-\n\
-  // override the pattern-specified color, if applicable\n\
-  if(this.color) this.lineGraph.style('stroke', this.color);\n\
-\n\
-  // store the line stroke width as an int field\n\
-  var widthStr = this.lineGraph.style('stroke-width');\n\
-  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2), 10);\n\
-\n\
-  this.svgGroup.selectAll('.stop-circle')\n\
-    .attr('cx', style.stopOffsetX)\n\
-    .attr('cy', style.stopOffsetY)\n\
-    .attr('r', style.stopRadius);\n\
-\n\
-  this.svgGroup.selectAll('.stop-label')\n\
-    .attr('x', style.labelOffsetX).attr('y', style.labelOffsetY)\n\
-    .attr('transform', 'rotate(' + style.labelRotation + ', ' + style.labelOffsetX + ', ' + style.labelOffsetY + ')');\n\
+  });\n\
 };\n\
 \n\
 /**\n\
- *  Returns an array of \"stop info\" objects, each consisting of the stop x/y coordinates in \n\
- *  the Display coordinate space, and a reference to the original Stop instance\n\
+ * Apply Style\n\
  */\n\
+\n\
+Pattern.prototype.applyStyle = function() {\n\
+  // store the line stroke width as an int field\n\
+  var widthStr = this.lineGraph.style('stroke-width');\n\
+  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2), 10);\n\
+};\n\
+\n\
+/**\n\
+ * Returns an array of \"stop info\" objects, each consisting of the stop x/y\n\
+ * coordinates in the Display coordinate space, and a reference to the original\n\
+ * Stop instance\n\
+ */\n\
+\n\
 Pattern.prototype.getStopData = function() {\n\
-  \n\
+\n\
   var stopData = [];\n\
-  \n\
 \n\
-  this.graphEdges.forEach(function(edge, i) {\n\
+  this.graphEdges.forEach(function (edge, i) {\n\
 \n\
-    var prevEdge = (i > 0) ? this.graphEdges[i-1] : null;\n\
-    var nextEdge = (i < this.graphEdges.length - 1) ? this.graphEdges[i+1] : null;\n\
+    var prevEdge = i > 0\n\
+      ? this.graphEdges[i - 1]\n\
+      : null;\n\
+    var nextEdge = i < this.graphEdges.length - 1\n\
+      ? this.graphEdges[i + 1]\n\
+      : null;\n\
+\n\
     var stopInfo;\n\
 \n\
     // the \"from\" vertex stop for this edge (first edge only)\n\
-    if(i === 0) {\n\
+    if (i === 0) {\n\
       stopInfo = {\n\
         x: edge.fromVertex.x,\n\
         y: edge.fromVertex.y,\n\
@@ -10195,8 +9923,15 @@ Pattern.prototype.getStopData = function() {\n\
         inEdge: null,\n\
         outEdge: edge\n\
       };\n\
-      stopInfo.offsetX = this.offset ? edge.rightVector.x * this.lineWidth * this.offset : 0;\n\
-      stopInfo.offsetY = this.offset ? edge.rightVector.y * this.lineWidth * this.offset : 0;\n\
+\n\
+      stopInfo.offsetX = this.offset\n\
+        ? edge.rightVector.x * this.lineWidth * this.offset\n\
+        : 0;\n\
+\n\
+      stopInfo.offsetY = this.offset\n\
+        ? edge.rightVector.y * this.lineWidth * this.offset\n\
+        : 0;\n\
+\n\
       stopData.push(stopInfo);\n\
     }\n\
 \n\
@@ -10224,8 +9959,11 @@ Pattern.prototype.getStopData = function() {\n\
       outEdge: null\n\
     };\n\
 \n\
-    if(this.offset) {\n\
-      if(nextEdge && nextEdge.rightVector.x !== edge.rightVector.x && nextEdge.rightVector.y !== edge.rightVector.y) {\n\
+    if (this.offset) {\n\
+      if (nextEdge\n\
+        && nextEdge.rightVector.x !== edge.rightVector.x\n\
+        && nextEdge.rightVector.y !== edge.rightVector.y) {\n\
+\n\
         var added = {\n\
           x: nextEdge.rightVector.x + edge.rightVector.x,\n\
           y: nextEdge.rightVector.y + edge.rightVector.y,\n\
@@ -10233,96 +9971,403 @@ Pattern.prototype.getStopData = function() {\n\
         var len = Math.sqrt(added.x * added.x + added.y * added.y);\n\
         var normalized = { x : added.x / len, y : added.y / len };\n\
 \n\
-        var opp = Math.sqrt(Math.pow(nextEdge.rightVector.x - edge.rightVector.x, 2) + Math.pow(nextEdge.rightVector.y - edge.rightVector.y, 2))/2;\n\
-        var l = 1/(Math.sqrt(1-opp*opp)); // sqrt(1-x*x) = sin(acos(x))                   \n\
+        var opp = Math.sqrt(\n\
+          Math.pow(nextEdge.rightVector.x - edge.rightVector.x, 2)\n\
+          + Math.pow(nextEdge.rightVector.y - edge.rightVector.y, 2)\n\
+          ) / 2;\n\
+\n\
+        var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))\n\
 \n\
         stopInfo.offsetX = normalized.x * this.lineWidth * this.offset * l;\n\
         stopInfo.offsetY = normalized.y * this.lineWidth * this.offset * l;\n\
-      }\n\
-      else {\n\
+      } else {\n\
         stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;\n\
         stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;\n\
       }\n\
-    }\n\
-    else {\n\
+    } else {\n\
       stopInfo.offsetX = stopInfo.offsetY = 0;\n\
     }\n\
+\n\
     stopData.push(stopInfo);\n\
   }, this);\n\
-  \n\
+\n\
   return stopData;\n\
 };\n\
 \n\
+/**\n\
+ * Get graph vertices\n\
+ */\n\
+\n\
 Pattern.prototype.getGraphVertices = function() {\n\
   var vertices = [];\n\
-  this.graphEdges.forEach(function(edge, i) {\n\
-    if(i === 0) vertices.push(edge.fromVertex);\n\
+  this.graphEdges.forEach(function (edge, i) {\n\
+    if (i === 0) vertices.push(edge.fromVertex);\n\
     vertices.push(edge.toVertex);\n\
   }, this);\n\
   return vertices;\n\
 };\n\
-\n\
-module.exports.Pattern = Pattern;\n\
-\n\
-\n\
+//@ sourceURL=pattern/index.js"
+));
+require.register("stop/index.js", Function("exports, require, module",
+"\n\
 /**\n\
- *  The D3-based SVG display. \n\
+ * Expose `Stop`\n\
  */\n\
 \n\
-function Display() {\n\
+module.exports = Stop;\n\
 \n\
-  this.displayedElements = [];\n\
+/**\n\
+ * A transit Stop, as defined in the input data.\n\
+ * Stops are shared between Patterns.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
 \n\
-  this.refreshAll = this.refreshAll.bind(this);\n\
+function Stop(data) {\n\
+  for (var key in data) {\n\
+    if (key === 'patterns') continue;\n\
+    this[key] = data[key];\n\
+  }\n\
 \n\
-  var element = document.getElementById('canvas');\n\
-  this.width = element.clientWidth;\n\
-  this.height = element.clientHeight;\n\
-  this.offsetLeft = element.offsetLeft;\n\
-  this.offsetTop = element.offsetTop;\n\
-\n\
-  this.xScale = d3.scale.linear()\n\
-    .domain([-2, 2]) //[0, this.width])\n\
-    .range([0, this.width]);\n\
-\n\
-  this.yScale = d3.scale.linear()\n\
-    .domain([-2, 2]) //[0, this.height])\n\
-    .range([this.height, 0]);\n\
-\n\
-  // set up the pan/zoom behavior\n\
-  this.zoom  = d3.behavior.zoom()\n\
-    .x(this.xScale).y(this.yScale)\n\
-    .scaleExtent([0.25, 4])\n\
-    .on('zoom', this.refreshAll);\n\
-\n\
-  this.labelZoomThreshold = 0.75;\n\
-\n\
-  // set up the svg display\n\
-  this.svg = d3.select('#canvas').append('svg')\n\
-    .attr('width', this.width)\n\
-    .attr('height', this.height)\n\
-  .append('g')\n\
-    .call(this.zoom);\n\
-\n\
-  // append an overlay to capture pan/zoom events on entire viewport\n\
-  this.svg.append('rect')\n\
-    .attr('class', 'overlay')\n\
-    .attr('width', this.width)\n\
-    .attr('height', this.height);\n\
+  this.patterns = [];\n\
 }\n\
 \n\
-Display.prototype.addElement = function(element) {\n\
-  this.displayedElements.push(element);\n\
+/**\n\
+ * Get id\n\
+ */\n\
+\n\
+Stop.prototype.getId = function() {\n\
+  return this.stop_id;\n\
+};\n\
+//@ sourceURL=stop/index.js"
+));
+require.register("component-type/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * toString ref.\n\
+ */\n\
+\n\
+var toString = Object.prototype.toString;\n\
+\n\
+/**\n\
+ * Return the type of `val`.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(val){\n\
+  switch (toString.call(val)) {\n\
+    case '[object Function]': return 'function';\n\
+    case '[object Date]': return 'date';\n\
+    case '[object RegExp]': return 'regexp';\n\
+    case '[object Arguments]': return 'arguments';\n\
+    case '[object Array]': return 'array';\n\
+    case '[object String]': return 'string';\n\
+  }\n\
+\n\
+  if (val === null) return 'null';\n\
+  if (val === undefined) return 'undefined';\n\
+  if (val && val.nodeType === 1) return 'element';\n\
+  if (val === Object(val)) return 'object';\n\
+\n\
+  return typeof val;\n\
+};\n\
+//@ sourceURL=component-type/index.js"
+));
+require.register("cristiandouce-merge-util/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var has = Object.prototype.hasOwnProperty;\n\
+\n\
+try {\n\
+  var type = require('type-component');\n\
+} catch (err) {\n\
+  var type = require('type');\n\
+}\n\
+\n\
+/**\n\
+ * Expose merge\n\
+ */\n\
+\n\
+module.exports = merge;\n\
+\n\
+/**\n\
+ * Merge `b` into `a`.\n\
+ *\n\
+ * @param {Object} a\n\
+ * @param {Object} b\n\
+ * @return {Object} a\n\
+ * @api public\n\
+ */\n\
+\n\
+function merge (a, b){\n\
+  for (var key in b) {\n\
+    if (has.call(b, key) && b[key] != null) {\n\
+      if (!a) a = {};\n\
+      if ('object' === type(b[key])) {\n\
+        a[key] = merge(a[key], b[key]);\n\
+      } else {\n\
+        a[key] = b[key];\n\
+      }\n\
+    }\n\
+  }\n\
+  return a;\n\
+};//@ sourceURL=cristiandouce-merge-util/index.js"
+));
+require.register("yields-svg-attributes/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * SVG Attributes\n\
+ *\n\
+ * http://www.w3.org/TR/SVG/attindex.html\n\
+ */\n\
+\n\
+module.exports = [\n\
+  'height',\n\
+  'target',\n\
+  'title',\n\
+  'width',\n\
+  'y1',\n\
+  'y2',\n\
+  'x1',\n\
+  'x2',\n\
+  'cx',\n\
+  'cy',\n\
+  'dx',\n\
+  'dy',\n\
+  'rx',\n\
+  'ry',\n\
+  'd',\n\
+  'r',\n\
+  'y',\n\
+  'x'\n\
+];\n\
+//@ sourceURL=yields-svg-attributes/index.js"
+));
+require.register("styler/computed.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Computed rules\n\
+ */\n\
+\n\
+module.exports = [];\n\
+//@ sourceURL=styler/computed.js"
+));
+require.register("styler/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var merge = require('merge-util');\n\
+var svgAttributes = require('svg-attributes');\n\
+\n\
+/**\n\
+ * Add transform\n\
+ */\n\
+\n\
+svgAttributes.push('transform');\n\
+\n\
+/**\n\
+ * Expose `Styler`\n\
+ */\n\
+\n\
+module.exports = Styler;\n\
+\n\
+/**\n\
+ * Styler object\n\
+ */\n\
+\n\
+function Styler(passive, computed) {\n\
+  if (!(this instanceof Styler)) {\n\
+    return new Styler();\n\
+  }\n\
+\n\
+  this.computed = require('./computed');\n\
+  this.passive = require('./passive');\n\
+\n\
+  this.load(passive, computed);\n\
+}\n\
+\n\
+/**\n\
+ * Load rules\n\
+ *\n\
+ * @param {Object} a set of rules\n\
+ */\n\
+\n\
+Styler.prototype.load = function(passive, computed) {\n\
+  if (passive) {\n\
+    this.passive = merge(this.passive, passive);\n\
+  }\n\
+\n\
+  if (computed) {\n\
+    this.computed = this.computed.concat(computed);\n\
+  }\n\
 };\n\
 \n\
-Display.prototype.refreshAll = function() {\n\
-  this.displayedElements.forEach(function(element) {\n\
-    element.refresh(this);\n\
-  }, this);\n\
+/**\n\
+ * Render elements against these rules\n\
+ *\n\
+ * @param {Object} a D3 list of elements\n\
+ * @param {Object} the D3 display object\n\
+ */\n\
+\n\
+Styler.prototype.render = function(el, display) {\n\
+  // apply passive rules\n\
+  for (var selector in this.passive) {\n\
+    var selection = el.svgGroup.selectAll(selector);\n\
+    applyAttrAndStyle(selection, display, this.passive[selector]);\n\
+  }\n\
+\n\
+  // apply computed rules\n\
+  this.computed.forEach(function (rule) {\n\
+    rule(el, display);\n\
+  });\n\
 };\n\
 \n\
-module.exports.Display = Display;\n\
-//@ sourceURL=linemap/index.js"
+/**\n\
+ * Reset rules\n\
+ */\n\
+\n\
+Styler.prototype.reset = function reset() {\n\
+  this.passive = {};\n\
+  this.computed = [];\n\
+};\n\
+\n\
+/**\n\
+ * Check if it's an attribute or a style and apply accordingly\n\
+ *\n\
+ * @param {Object} a D3 list of elements\n\
+ * @param {Object} the D3 display object\n\
+ * @param {Object} the rules to apply to the elements\n\
+ */\n\
+\n\
+function applyAttrAndStyle(el, display, rules) {\n\
+  for (var name in rules) {\n\
+    var type = svgAttributes.indexOf(name) === -1\n\
+      ? 'style'\n\
+      : 'attr';\n\
+\n\
+    el[type](name, computeRule(rules[name]));\n\
+  }\n\
+\n\
+  function computeRule(rule) {\n\
+    return function (data, index) {\n\
+      return isFunction(rule)\n\
+        ? rule.call(rules, data, display, index)\n\
+        : rule;\n\
+    };\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Is function?\n\
+ */\n\
+\n\
+function isFunction(val) {\n\
+  return Object.prototype.toString.call(val) === '[object Function]';\n\
+}\n\
+//@ sourceURL=styler/index.js"
+));
+require.register("styler/passive.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Default static rules\n\
+ */\n\
+\n\
+module.exports = {\n\
+\n\
+  /**\n\
+   * All stops\n\
+   */\n\
+\n\
+  '.stop-circle': {\n\
+    cx: 0,\n\
+    cy: 0,\n\
+    fill: 'white',\n\
+    r: 5,\n\
+    stroke: 'none'\n\
+  },\n\
+\n\
+  /**\n\
+   * All labels\n\
+   */\n\
+\n\
+  '.stop-label': {\n\
+    color: 'black',\n\
+    'font-family': 'sans-serif',\n\
+    'font-size': function(data, display, index) {\n\
+      if (data.stop.stop_id === 'S3') {\n\
+        return '20px';\n\
+      } else {\n\
+        return '10px';\n\
+      }\n\
+    },\n\
+    transform: function (data, display, index) {\n\
+      return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
+    },\n\
+    visibility: function (data, display, index) {\n\
+      if (display.zoom.scale() < 0.75) {\n\
+        return 'hidden';\n\
+      } else {\n\
+        return 'visible';\n\
+      }\n\
+    },\n\
+    x: 0,\n\
+    y: -12\n\
+  },\n\
+\n\
+  /**\n\
+   * All lines\n\
+   */\n\
+\n\
+  '.line': {\n\
+    stroke: 'blue',\n\
+    'stroke-width': '15px',\n\
+    fill: 'none'\n\
+  }\n\
+};\n\
+//@ sourceURL=styler/passive.js"
+));
+require.register("route/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `Route`\n\
+ */\n\
+\n\
+module.exports = Route;\n\
+\n\
+/**\n\
+ * A transit Route, as defined in the input data.\n\
+ * Routes contain one or more Patterns.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+function Route(data) {\n\
+  for (var key in data) {\n\
+    if (key === 'patterns') continue;\n\
+    this[key] = data[key];\n\
+  }\n\
+\n\
+  this.patterns = [];\n\
+}\n\
+\n\
+/**\n\
+ * Add Pattern\n\
+ *\n\
+ * @param {Pattern}\n\
+ */\n\
+\n\
+Route.prototype.addPattern = function(pattern) {\n\
+  this.patterns.push(pattern);\n\
+  pattern.route = this;\n\
+};\n\
+//@ sourceURL=route/index.js"
 ));
 require.register("app/index.js", Function("exports, require, module",
 "\n\
@@ -10330,25 +10375,12 @@ require.register("app/index.js", Function("exports, require, module",
  * Dependencies\n\
  */\n\
 \n\
-var Styler = require('styler');\n\
+var Display = require('display');\n\
 var Graph = require('graph');\n\
-var Linemap = require('linemap');\n\
-\n\
-\n\
-var STYLE1 = {\n\
-  className: 'style1',\n\
-\n\
-  stopRadius: 5,\n\
-  stopOffsetX: 0,\n\
-  stopOffsetY: 0,\n\
-\n\
-  labelOffsetX: 0,\n\
-  labelOffsetY: -12,\n\
-  labelRotation: -45,\n\
-\n\
-  capExtension: 10\n\
-};\n\
-\n\
+var Pattern = require('pattern');\n\
+var Route = require('route');\n\
+var Stop = require('stop');\n\
+var Styler = require('styler');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
@@ -10360,16 +10392,15 @@ module.exports = Transitive;\n\
  * Main object\n\
  */\n\
 \n\
-function Transitive(el, data, staticStyle, computedStyles) {\n\
+function Transitive(el, data, passiveStyles, computedStyles) {\n\
   if (!(this instanceof Transitive)) {\n\
-    return new Transitive();\n\
+    return new Transitive(el, data, passiveStyles, computedStyles);\n\
   }\n\
 \n\
-  this.graph = new Graph.NetworkGraph();\n\
-  this.display = new Linemap.Display(600, 600);\n\
-\n\
+  this.display = new Display(el);\n\
   this.el = el;\n\
-  this.styler = new Styler(staticStyle, computedStyles);\n\
+  this.graph = new Graph();\n\
+  this.style = new Styler(passiveStyles, computedStyles);\n\
 \n\
   this.load(data);\n\
   this.render();\n\
@@ -10381,34 +10412,30 @@ function Transitive(el, data, staticStyle, computedStyles) {\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
 \n\
-  this.stops = {};\n\
-  data.stops.forEach(function(stopData) {\n\
-    var stop = new Linemap.Stop(stopData);\n\
-    this.stops[stop.stop_id] = stop;\n\
-  }, this);\n\
+  this.stops = generateStops(data.stops);\n\
 \n\
   this.routes = {};\n\
   this.patterns = {};\n\
 \n\
-  // A list of stops that will become vertices in the network graph. This includes all stops\n\
-  // that serve as a pattern endpoint and/or a convergence/divergence point between patterns \n\
+  // A list of stops that will become vertices in the network graph.\n\
+  // This includes all stops that serve as a pattern endpoint and/or\n\
+  // a convergence/divergence point between patterns\n\
   var vertexStops = {};\n\
 \n\
-  data.routes.forEach(function(routeData) {\n\
-    \n\
+  data.routes.forEach(function (routeData) {\n\
     // set up the Route object\n\
-    var route = new Linemap.Route(routeData);\n\
+    var route = new Route(routeData);\n\
     this.routes[route.route_id] = route;\n\
 \n\
     // iterate through the Route's constituent Patterns\n\
-    routeData.patterns.forEach(function(patternData) {\n\
+    routeData.patterns.forEach(function (patternData) {\n\
 \n\
       // set up the Pattern object\n\
-      var pattern = new Linemap.Pattern(patternData);\n\
+      var pattern = new Pattern(patternData);\n\
       this.patterns[patternData.pattern_id] = pattern;\n\
       route.addPattern(pattern);\n\
 \n\
-      patternData.stops.forEach(function(stopInfo) {\n\
+      patternData.stops.forEach(function (stopInfo) {\n\
         var stop = this.stops[stopInfo.stop_id];\n\
         pattern.stops.push(stop);\n\
         stop.patterns.push(pattern);\n\
@@ -10416,65 +10443,41 @@ Transitive.prototype.load = function(data) {\n\
 \n\
       // add the start and end stops to the vertexStops collection\n\
       var firstStop = pattern.stops[0];\n\
-      if(!(firstStop.getId() in vertexStops)) vertexStops[firstStop.getId()] = firstStop;\n\
+      if(!(firstStop.getId() in vertexStops)) {\n\
+        vertexStops[firstStop.getId()] = firstStop;\n\
+      }\n\
 \n\
       var lastStop = pattern.stops[pattern.stops.length-1];\n\
-      if(!(lastStop.getId() in vertexStops)) vertexStops[lastStop.getId()] = lastStop;\n\
-\n\
+      if(!(lastStop.getId() in vertexStops)) {\n\
+        vertexStops[lastStop.getId()] = lastStop;\n\
+      }\n\
     }, this);\n\
-\n\
   }, this);\n\
 \n\
-\n\
-\n\
   // populate the graph vertices\n\
-  for(var stopId in vertexStops) {\n\
+  for (var stopId in vertexStops) {\n\
     var stop = vertexStops[stopId];\n\
     var vertex = this.graph.addVertex(stop, 0, 0);\n\
     stop.graphVertex = vertex;\n\
   }\n\
 \n\
-  // populate the graph edges\n\
-  var patterns = [];\n\
-  for(var key in this.patterns) patterns.push(this.patterns[key]);\n\
-  patterns.forEach(function(pattern) {\n\
-    // the vertex associated with the last vertex stop we passed in this sequence \n\
-    var lastVertex = null;\n\
-    \n\
-    // the collection of 'internal' (i.e. non-vertex) stops passed since the last vertex stop \n\
-    var internalStops = [];\n\
-    \n\
-    pattern.stops.forEach(function(stop) {\n\
-      \n\
-      if(stop.graphVertex) { // this is a vertex stop\n\
-        if(lastVertex !== null) {\n\
-          var edge = this.graph.getEquivalentEdge(internalStops, lastVertex, stop.graphVertex);\n\
-          if(edge === null) edge = this.graph.addEdge(internalStops, lastVertex, stop.graphVertex);\n\
-          pattern.graphEdges.push(edge);\n\
-        }\n\
-        lastVertex = stop.graphVertex;\n\
-        internalStops = [];\n\
-      }\n\
-\n\
-      else { // this is an internal stop\n\
-        internalStops.push(stop);\n\
-      }\n\
-\n\
-    }, this);\n\
-  }, this);\n\
+  populateGraphEdges(this.patterns, this.graph);\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render\n\
  */\n\
 \n\
 Transitive.prototype.render = function() {\n\
-  // render ?\n\
-  for(var key in this.patterns) {\n\
+  for (var key in this.patterns) {\n\
     var pattern = this.patterns[key];\n\
-    pattern.draw(this.display);\n\
-    pattern.applyStyle(STYLE1);\n\
+\n\
+    pattern.draw(this.display, 10);\n\
+\n\
+    this.style.render(pattern, this.display);\n\
+\n\
+    pattern.applyStyle();\n\
+\n\
     pattern.refresh(this.display);\n\
   }\n\
 };\n\
@@ -10487,6 +10490,58 @@ Transitive.prototype.setElement = function(el) {\n\
   this.el = el;\n\
   this.render();\n\
 };\n\
+\n\
+/**\n\
+ * Generate Stops\n\
+ */\n\
+\n\
+function generateStops(data) {\n\
+  var stops = {};\n\
+\n\
+  data.forEach(function (stop) {\n\
+    stops[stop.stop_id] = new Stop(stop);\n\
+  });\n\
+\n\
+  return stops;\n\
+}\n\
+\n\
+/**\n\
+ * Populate the graph edges\n\
+ */\n\
+\n\
+function populateGraphEdges(patterns, graph) {\n\
+  // vertex associated with the last vertex stop we passed in this sequence\n\
+  var lastVertex = null;\n\
+\n\
+  // collection of 'internal' (i.e. non-vertex) stops passed\n\
+  // since the last vertex stop\n\
+  var internalStops = [];\n\
+\n\
+  for (var id in patterns) {\n\
+    var pattern = patterns[id];\n\
+\n\
+    for (var stopId in pattern.stops) {\n\
+      var stop = pattern.stops[stopId];\n\
+      if (stop.graphVertex) { // this is a vertex stop\n\
+        if (lastVertex !== null) {\n\
+          var edge = graph.getEquivalentEdge(internalStops, lastVertex,\n\
+            stop.graphVertex);\n\
+\n\
+          if (!edge) {\n\
+            edge = graph.addEdge(internalStops, lastVertex, stop.graphVertex);\n\
+          }\n\
+\n\
+          pattern.graphEdges.push(edge);\n\
+        }\n\
+\n\
+        lastVertex = stop.graphVertex;\n\
+        internalStops = [];\n\
+      } else { // this is an internal stop\n\
+        internalStops.push(stop);\n\
+      }\n\
+    }\n\
+  }\n\
+}\n\
 //@ sourceURL=app/index.js"
 ));
 require.register("transitive/index.js", Function("exports, require, module",
@@ -10502,23 +10557,40 @@ module.exports = require('app');\n\
 
 
 
+
+
+
 require.alias("app/index.js", "transitive/deps/app/index.js");
 require.alias("app/index.js", "app/index.js");
+require.alias("display/index.js", "app/deps/display/index.js");
+require.alias("mbostock-d3/d3.js", "display/deps/d3/d3.js");
+require.alias("mbostock-d3/index-browserify.js", "display/deps/d3/index-browserify.js");
+require.alias("mbostock-d3/index-browserify.js", "display/deps/d3/index.js");
+require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
+require.alias("graph/edge.js", "app/deps/graph/edge.js");
+require.alias("graph/index.js", "app/deps/graph/index.js");
+require.alias("graph/vertex.js", "app/deps/graph/vertex.js");
+
+require.alias("pattern/index.js", "app/deps/pattern/index.js");
+require.alias("mbostock-d3/d3.js", "pattern/deps/d3/d3.js");
+require.alias("mbostock-d3/index-browserify.js", "pattern/deps/d3/index-browserify.js");
+require.alias("mbostock-d3/index-browserify.js", "pattern/deps/d3/index.js");
+require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
+require.alias("stop/index.js", "app/deps/stop/index.js");
+
 require.alias("styler/computed.js", "app/deps/styler/computed.js");
 require.alias("styler/index.js", "app/deps/styler/index.js");
-require.alias("styler/static.js", "app/deps/styler/static.js");
-require.alias("component-each/index.js", "styler/deps/each/index.js");
-require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+require.alias("styler/passive.js", "app/deps/styler/passive.js");
+require.alias("cristiandouce-merge-util/index.js", "styler/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "styler/deps/merge-util/index.js");
+require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
 
-require.alias("component-type/index.js", "component-each/deps/type/index.js");
+require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
+require.alias("route/index.js", "app/deps/route/index.js");
 
-require.alias("graph/index.js", "app/deps/graph/index.js");
-
-require.alias("linemap/index.js", "app/deps/linemap/index.js");
-require.alias("mbostock-d3/d3.js", "linemap/deps/d3/d3.js");
-require.alias("mbostock-d3/index-browserify.js", "linemap/deps/d3/index-browserify.js");
-require.alias("mbostock-d3/index-browserify.js", "linemap/deps/d3/index.js");
-require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
 require.alias("transitive/index.js", "transitive/index.js");if (typeof exports == "object") {
   module.exports = require("transitive");
 } else if (typeof define == "function" && define.amd) {

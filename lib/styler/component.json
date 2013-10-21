@@ -1,11 +1,12 @@
 {
   "name": "styler",
   "dependencies": {
-    "component/each": "*"
+    "cristiandouce/merge-util": "*",
+    "yields/svg-attributes": "*"
   },
   "scripts": [
     "computed.js",
     "index.js",
-    "static.js"
+    "passive.js"
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "name": "display",
+  "dependencies": {
+    "mbostock/d3": "*"
+  },
+  "scripts": [
+    "index.js"
+  ]
+}
