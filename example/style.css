@@ -25,3 +25,12 @@
   fill: none;
   pointer-events: all;
 }
+
+
+
+/* pattern style 1 custom values -- temporary / test code */
+
+.style1 .line {
+    stroke: blue;
+    stroke-width: 15px;
+}

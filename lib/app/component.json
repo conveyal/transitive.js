@@ -1,7 +1,9 @@
 {
   "name": "app",
   "local": [
-    "styler"
+    "styler",
+    "graph",
+    "linemap"
   ],
   "scripts": [
     "index.js"
