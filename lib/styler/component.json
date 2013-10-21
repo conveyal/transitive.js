@@ -2,6 +2,7 @@
   "name": "styler",
   "dependencies": {
     "cristiandouce/merge-util": "*",
+    "trevorgerhardt/stylesheet": "*",
     "yields/svg-attributes": "*"
   },
   "scripts": [

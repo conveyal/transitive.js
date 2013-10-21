@@ -9464,11 +9464,6 @@ module.exports = Display;\n\
  */\n\
 \n\
 function Display(el) {\n\
-\n\
-  this.displayedElements = [];\n\
-\n\
-  this.refreshAll = this.refreshAll.bind(this);\n\
-\n\
   this.width = el.clientWidth;\n\
   this.height = el.clientHeight;\n\
   this.offsetLeft = el.offsetLeft;\n\
@@ -9486,8 +9481,7 @@ function Display(el) {\n\
   this.zoom  = d3.behavior.zoom()\n\
     .x(this.xScale)\n\
     .y(this.yScale)\n\
-    .scaleExtent([ 0.25, 4 ])\n\
-    .on('zoom', this.refreshAll);\n\
+    .scaleExtent([ 0.25, 4 ]);\n\
 \n\
   this.labelZoomThreshold = 0.75;\n\
 \n\
@@ -9505,24 +9499,6 @@ function Display(el) {\n\
     .attr('width', this.width)\n\
     .attr('height', this.height);\n\
 }\n\
-\n\
-/**\n\
- * Add Element\n\
- */\n\
-\n\
-Display.prototype.addElement = function(element) {\n\
-  this.displayedElements.push(element);\n\
-};\n\
-\n\
-/**\n\
- * Refresh All\n\
- */\n\
-\n\
-Display.prototype.refreshAll = function() {\n\
-  this.displayedElements.forEach(function (element) {\n\
-    element.refresh(this);\n\
-  }, this);\n\
-};\n\
 //@ sourceURL=display/index.js"
 ));
 require.register("graph/edge.js", Function("exports, require, module",
@@ -9861,8 +9837,6 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       return d.stop.stop_name;\n\
     })\n\
     .attr('class', 'stop-label');\n\
-\n\
-  display.addElement(this);\n\
 };\n\
 \n\
 /**\n\
@@ -9870,6 +9844,8 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
  */\n\
 \n\
 Pattern.prototype.refresh = function(display) {\n\
+  var widthStr = this.lineGraph.style('stroke-width');\n\
+  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2), 10);\n\
 \n\
   // update the line and stop groups\n\
   var stopData = this.getStopData();\n\
@@ -9881,16 +9857,6 @@ Pattern.prototype.refresh = function(display) {\n\
     var y = display.yScale(d.y) + d.offsetY;\n\
     return 'translate(' + x +', ' + y +')';\n\
   });\n\
-};\n\
-\n\
-/**\n\
- * Apply Style\n\
- */\n\
-\n\
-Pattern.prototype.applyStyle = function() {\n\
-  // store the line stroke width as an int field\n\
-  var widthStr = this.lineGraph.style('stroke-width');\n\
-  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2), 10);\n\
 };\n\
 \n\
 /**\n\
@@ -10118,6 +10084,157 @@ function merge (a, b){\n\
   return a;\n\
 };//@ sourceURL=cristiandouce-merge-util/index.js"
 ));
+require.register("trevorgerhardt-stylesheet/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `StyleSheet`\n\
+ */\n\
+\n\
+module.exports = StyleSheet;\n\
+\n\
+/**\n\
+ * Create an instance of StyleSheet\n\
+ *\n\
+ * @param {Object} pre-defined variables\n\
+ */\n\
+\n\
+function StyleSheet(rules, vars) {\n\
+  if (!(this instanceof StyleSheet)) {\n\
+    return new StyleSheet(rules, vars);\n\
+  }\n\
+\n\
+  this.vars = {};\n\
+  this.rules = {};\n\
+  this.elem = null;\n\
+\n\
+  if (rules) {\n\
+    this.add(rules);\n\
+  }\n\
+\n\
+  if (vars) {\n\
+    this.define(vars);\n\
+  }\n\
+\n\
+  this.load();\n\
+}\n\
+\n\
+/**\n\
+ * Define new variables.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+StyleSheet.prototype.define = function(vars) {\n\
+  for (var name in vars) {\n\
+    this.vars[name] = vars[name];\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Add new css but won't refresh the style element's content.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+StyleSheet.prototype.add = function(rules) {\n\
+  for (var selector in rules) {\n\
+    if (!this.rules[selector]) {\n\
+      this.rules[selector] = {};\n\
+    }\n\
+\n\
+    for (var rule in rules[selector]) {\n\
+      this.rules[selector][rule] = rules[selector][rule];\n\
+    }\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Append new css to the style element or refresh its content.\n\
+ */\n\
+\n\
+StyleSheet.prototype.load = function() {\n\
+  if (!this.elem) {\n\
+    this.elem = createStyleSheetElement();\n\
+  }\n\
+\n\
+  refresh(this.elem, this.rules, this.vars);\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Clear the style and varialbes.\n\
+ */\n\
+\n\
+StyleSheet.prototype.clear = function() {\n\
+  this.elem.innerHTML = '';\n\
+  this.rules = '';\n\
+  this.vars = {};\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Remove the style element completely.\n\
+ */\n\
+\n\
+StyleSheet.prototype.remove = function() {\n\
+  var elem = this.elem;\n\
+  if (elem && elem.parentNode) {\n\
+    this.clear();\n\
+    this.elem = null;\n\
+    elem.parentNode.removeChild(elem);\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/*\n\
+ * Create new stylesheet.\n\
+ */\n\
+\n\
+function createStyleSheetElement() {\n\
+  var elem = document.createElement('style');\n\
+  var head = document.getElementsByTagName('head')[0];\n\
+\n\
+  head.appendChild(elem);\n\
+  return elem;\n\
+}\n\
+\n\
+/*\n\
+ * Refresh the content with the rules and defined variables.\n\
+ */\n\
+\n\
+function refresh(elem, rules, vars) {\n\
+  var list = '';\n\
+  for (var selector in rules) {\n\
+    list += selector + '{';\n\
+    for (var rule in rules[selector]) {\n\
+      list += rule + ':' + substitute(rules[selector][rule], vars) + ';';\n\
+    }\n\
+\n\
+    list += '}';\n\
+  }\n\
+  elem.innerHTML = list;\n\
+}\n\
+\n\
+/**\n\
+ * Substitute variables in the string with defined vars.\n\
+ */\n\
+\n\
+function substitute(str, vars) {\n\
+  for (var name in vars) {\n\
+    str = str.replace(new RegExp('@' + name, 'gi'), vars[name]);\n\
+  }\n\
+\n\
+  return str;\n\
+}\n\
+//@ sourceURL=trevorgerhardt-stylesheet/index.js"
+));
 require.register("yields-svg-attributes/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -10164,6 +10281,7 @@ require.register("styler/index.js", Function("exports, require, module",
  */\n\
 \n\
 var merge = require('merge-util');\n\
+var StyleSheet = require('stylesheet');\n\
 var svgAttributes = require('svg-attributes');\n\
 \n\
 /**\n\
@@ -10189,6 +10307,7 @@ function Styler(passive, computed) {\n\
 \n\
   this.computed = require('./computed');\n\
   this.passive = require('./passive');\n\
+  this.stylesheet = new StyleSheet();\n\
 \n\
   this.load(passive, computed);\n\
 }\n\
@@ -10216,16 +10335,16 @@ Styler.prototype.load = function(passive, computed) {\n\
  * @param {Object} the D3 display object\n\
  */\n\
 \n\
-Styler.prototype.render = function(el, display) {\n\
+Styler.prototype.render = function(pattern, display) {\n\
   // apply passive rules\n\
   for (var selector in this.passive) {\n\
-    var selection = el.svgGroup.selectAll(selector);\n\
-    applyAttrAndStyle(selection, display, this.passive[selector]);\n\
+    applyAttrAndStyle(pattern.selectAll(selector), display,\n\
+      this.passive[selector]);\n\
   }\n\
 \n\
   // apply computed rules\n\
   this.computed.forEach(function (rule) {\n\
-    rule(el, display);\n\
+    rule(pattern, display);\n\
   });\n\
 };\n\
 \n\
@@ -10246,13 +10365,13 @@ Styler.prototype.reset = function reset() {\n\
  * @param {Object} the rules to apply to the elements\n\
  */\n\
 \n\
-function applyAttrAndStyle(el, display, rules) {\n\
+function applyAttrAndStyle(elements, display, rules) {\n\
   for (var name in rules) {\n\
     var type = svgAttributes.indexOf(name) === -1\n\
       ? 'style'\n\
       : 'attr';\n\
 \n\
-    el[type](name, computeRule(rules[name]));\n\
+    elements[type](name, computeRule(rules[name]));\n\
   }\n\
 \n\
   function computeRule(rule) {\n\
@@ -10397,8 +10516,8 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
     return new Transitive(el, data, passiveStyles, computedStyles);\n\
   }\n\
 \n\
-  this.display = new Display(el);\n\
-  this.el = el;\n\
+  this.setElement(el);\n\
+\n\
   this.graph = new Graph();\n\
   this.style = new Styler(passiveStyles, computedStyles);\n\
 \n\
@@ -10473,11 +10592,20 @@ Transitive.prototype.render = function() {\n\
     var pattern = this.patterns[key];\n\
 \n\
     pattern.draw(this.display, 10);\n\
+  }\n\
 \n\
-    this.style.render(pattern, this.display);\n\
+  this.refresh();\n\
+};\n\
 \n\
-    pattern.applyStyle();\n\
+/**\n\
+ * Refresh\n\
+ */\n\
 \n\
+Transitive.prototype.refresh = function() {\n\
+  for (var key in this.patterns) {\n\
+    var pattern = this.patterns[key];\n\
+\n\
+    this.style.render(pattern.svgGroup, this.display);\n\
     pattern.refresh(this.display);\n\
   }\n\
 };\n\
@@ -10487,8 +10615,12 @@ Transitive.prototype.render = function() {\n\
  */\n\
 \n\
 Transitive.prototype.setElement = function(el) {\n\
-  this.el = el;\n\
-  this.render();\n\
+  if (this.display) {\n\
+    this.display.zoom.on('zoom', null);\n\
+  }\n\
+\n\
+  this.display = new Display(el);\n\
+  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
 };\n\
 \n\
 /**\n\
@@ -10560,6 +10692,7 @@ module.exports = require('app');\n\
 
 
 
+
 require.alias("app/index.js", "transitive/deps/app/index.js");
 require.alias("app/index.js", "app/index.js");
 require.alias("display/index.js", "app/deps/display/index.js");
@@ -10586,6 +10719,9 @@ require.alias("cristiandouce-merge-util/index.js", "styler/deps/merge-util/index
 require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
 
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
 require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
