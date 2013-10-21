@@ -9464,41 +9464,55 @@ module.exports = Display;\n\
  */\n\
 \n\
 function Display(el) {\n\
-  this.width = el.clientWidth;\n\
-  this.height = el.clientHeight;\n\
-  this.offsetLeft = el.offsetLeft;\n\
-  this.offsetTop = el.offsetTop;\n\
+  this.labelZoomThreshold = 0.75;\n\
 \n\
+  // set up the scales\n\
   this.xScale = d3.scale.linear()\n\
-    .domain([ -2, 2 ]) // [0, this.width])\n\
-    .range([0, this.width]);\n\
+    .domain([ -2, 2 ]); // [0, this.width])\n\
 \n\
   this.yScale = d3.scale.linear()\n\
-    .domain([ -2, 2 ]) //[0, this.height])\n\
-    .range([this.height, 0]);\n\
+    .domain([ -2, 2 ]); //[0, this.height])\n\
 \n\
   // set up the pan/zoom behavior\n\
   this.zoom  = d3.behavior.zoom()\n\
-    .x(this.xScale)\n\
-    .y(this.yScale)\n\
     .scaleExtent([ 0.25, 4 ]);\n\
-\n\
-  this.labelZoomThreshold = 0.75;\n\
 \n\
   // set up the svg display\n\
   this.svg = d3.select(el)\n\
     .append('svg')\n\
-      .attr('width', this.width)\n\
-      .attr('height', this.height)\n\
     .append('g')\n\
       .call(this.zoom);\n\
 \n\
   // append an overlay to capture pan/zoom events on entire viewport\n\
   this.svg.append('rect')\n\
-    .attr('class', 'overlay')\n\
-    .attr('width', this.width)\n\
-    .attr('height', this.height);\n\
+    .attr('class', 'overlay');\n\
+\n\
+  this.setElement(el);\n\
 }\n\
+\n\
+/**\n\
+ * Set the element\n\
+ */\n\
+\n\
+Display.prototype.setElement = function(el) {\n\
+  var width = el.clientWidth;\n\
+  var height = el.clientHeight;\n\
+\n\
+  this.xScale.range([ 0, width ]);\n\
+  this.yScale.range([ height, 0 ]);\n\
+\n\
+  this.zoom\n\
+    .x(this.xScale)\n\
+    .y(this.yScale);\n\
+\n\
+  this.svg\n\
+    .attr('width', width)\n\
+    .attr('height', height);\n\
+\n\
+  this.svg.select('rect')\n\
+    .attr('width', width)\n\
+    .attr('height', height);\n\
+};\n\
 //@ sourceURL=display/index.js"
 ));
 require.register("graph/edge.js", Function("exports, require, module",
@@ -9792,10 +9806,10 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
     .interpolate('linear');\n\
 \n\
   this.lineGraph = this.svgGroup.append('path')\n\
-    .attr('class', 'line');\n\
+    .attr('class', 'transitive-line');\n\
 \n\
   // add the stop groups to the pattern\n\
-  this.stopSvgGroups = this.svgGroup.selectAll('.stop')\n\
+  this.stopSvgGroups = this.svgGroup.selectAll('.transitive-stop')\n\
     .data(this.getStopData())\n\
     .enter()\n\
     .append('g');\n\
@@ -9815,15 +9829,15 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
     });\n\
 \n\
   this.stopSvgGroups.append('circle')\n\
-    .attr('class', 'stop-circle')\n\
+    .attr('class', 'transitive-stop-circle')\n\
     // set up the mouse hover interactivity:\n\
     .on('mouseenter', function (d) {\n\
-      d3.select('#stop-label-' + d.stop.getId())\n\
+      d3.select('#transitive-stop-label-' + d.stop.getId())\n\
         .style('visibility', 'visible');\n\
     })\n\
     .on('mouseleave', function (d) {\n\
       if (display.zoom.scale() < display.labelZoomThreshold) {\n\
-        d3.select('#stop-label-' + d.stop.getId())\n\
+        d3.select('#transitive-stop-label-' + d.stop.getId())\n\
           .style('visibility', 'hidden');\n\
       }\n\
     })\n\
@@ -9831,12 +9845,12 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
 \n\
   this.stopSvgGroups.append('text')\n\
     .attr('id', function (d) {\n\
-      return 'stop-label-' + d.stop.getId();\n\
+      return 'transitive-stop-label-' + d.stop.getId();\n\
     })\n\
     .text(function (d) {\n\
       return d.stop.stop_name;\n\
     })\n\
-    .attr('class', 'stop-label');\n\
+    .attr('class', 'transitive-stop-label');\n\
 };\n\
 \n\
 /**\n\
@@ -10404,7 +10418,7 @@ module.exports = {\n\
    * All stops\n\
    */\n\
 \n\
-  '.stop-circle': {\n\
+  '.transitive-stop-circle': {\n\
     cx: 0,\n\
     cy: 0,\n\
     fill: 'white',\n\
@@ -10416,7 +10430,7 @@ module.exports = {\n\
    * All labels\n\
    */\n\
 \n\
-  '.stop-label': {\n\
+  '.transitive-stop-label': {\n\
     color: 'black',\n\
     'font-family': 'sans-serif',\n\
     'font-size': function(data, display, index) {\n\
@@ -10444,7 +10458,7 @@ module.exports = {\n\
    * All lines\n\
    */\n\
 \n\
-  '.line': {\n\
+  '.transitive-line': {\n\
     stroke: 'blue',\n\
     'stroke-width': '15px',\n\
     fill: 'none'\n\
@@ -10516,7 +10530,8 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
     return new Transitive(el, data, passiveStyles, computedStyles);\n\
   }\n\
 \n\
-  this.setElement(el);\n\
+  this.display = new Display(el);\n\
+  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
 \n\
   this.graph = new Graph();\n\
   this.style = new Styler(passiveStyles, computedStyles);\n\
@@ -10530,7 +10545,6 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
  */\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
-\n\
   this.stops = generateStops(data.stops);\n\
 \n\
   this.routes = {};\n\
@@ -10589,9 +10603,7 @@ Transitive.prototype.load = function(data) {\n\
 \n\
 Transitive.prototype.render = function() {\n\
   for (var key in this.patterns) {\n\
-    var pattern = this.patterns[key];\n\
-\n\
-    pattern.draw(this.display, 10);\n\
+    this.patterns[key].draw(this.display, 10);\n\
   }\n\
 \n\
   this.refresh();\n\
@@ -10615,12 +10627,8 @@ Transitive.prototype.refresh = function() {\n\
  */\n\
 \n\
 Transitive.prototype.setElement = function(el) {\n\
-  if (this.display) {\n\
-    this.display.zoom.on('zoom', null);\n\
-  }\n\
-\n\
-  this.display = new Display(el);\n\
-  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
+  this.display.setElement(el);\n\
+  this.render();\n\
 };\n\
 \n\
 /**\n\
