@@ -1,5 +1,8 @@
 {
   "name": "app",
+  "dependencies": {
+    "mbostock/d3": "*"
+  },
   "local": [
     "display",
     "graph",

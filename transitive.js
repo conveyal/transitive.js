@@ -9464,6 +9464,8 @@ module.exports = Display;\n\
  */\n\
 \n\
 function Display(el) {\n\
+  this.offsetLeft = el.offsetLeft;\n\
+  this.offsetTop = el.offsetTop;\n\
   this.labelZoomThreshold = 0.75;\n\
 \n\
   // set up the scales\n\
@@ -9745,7 +9747,7 @@ function Pattern(data) {\n\
 \n\
   this.stops = [];\n\
 \n\
-  // the pattern represented as an ordered sequence of edges in the NetworkGraph\n\
+  // the pattern represented as an ordered sequence of edges in the graph\n\
   this.graphEdges = [];\n\
 }\n\
 \n\
@@ -9754,14 +9756,14 @@ function Pattern(data) {\n\
  */\n\
 \n\
 Pattern.prototype.draw = function(display, capExtension) {\n\
+  var stops = this.stops;\n\
+\n\
   // create the pattern as an empty svg group\n\
   this.svgGroup = display.svg.append('g');\n\
 \n\
   // add the line to the pattern\n\
-\n\
   this.line = d3.svg.line() // the line translation function\n\
     .x(function (stopInfo, i) {\n\
-\n\
       var vx = stopInfo.x, x;\n\
 \n\
       // if first/last element, extend the line slightly\n\
@@ -9772,19 +9774,20 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       if (i === 0) {\n\
         x = display.xScale(vx)\n\
           + capExtension * stopInfo.outEdge.vector.x;\n\
-      } else if (i === this.stops.length-1) {\n\
+      } else if (i === stops.length-1) {\n\
         x = display.xScale(vx)\n\
           - capExtension * stopInfo.inEdge.vector.x;\n\
       } else {\n\
         x = display.xScale(vx);\n\
       }\n\
 \n\
-      if (stopInfo.offsetX) x -= stopInfo.offsetX;\n\
+      if (stopInfo.offsetX) {\n\
+        x -= stopInfo.offsetX;\n\
+      }\n\
 \n\
       return x;\n\
-    }.bind(this))\n\
+    })\n\
     .y(function (stopInfo, i) {\n\
-\n\
       var vy = stopInfo.y, y;\n\
 \n\
       var edgeIndex = (i === 0) ? 0 : i - 1;\n\
@@ -9792,17 +9795,19 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       if (i === 0) {\n\
         y = display.yScale(vy)\n\
           - capExtension * stopInfo.outEdge.vector.y;\n\
-      } else if (i === this.stops.length-1) {\n\
+      } else if (i === stops.length-1) {\n\
         y = display.yScale(vy)\n\
           + capExtension * stopInfo.inEdge.vector.y;\n\
       } else {\n\
         y = display.yScale(vy);\n\
       }\n\
 \n\
-      if (stopInfo.offsetY) y += stopInfo.offsetY;\n\
+      if (stopInfo.offsetY) {\n\
+        y += stopInfo.offsetY;\n\
+      }\n\
 \n\
       return y;\n\
-    }.bind(this))\n\
+    })\n\
     .interpolate('linear');\n\
 \n\
   this.lineGraph = this.svgGroup.append('path')\n\
@@ -9814,23 +9819,8 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
     .enter()\n\
     .append('g');\n\
 \n\
-  var drag = d3.behavior.drag()\n\
-    .on('dragstart', function (d) {\n\
-      d3.event.sourceEvent.stopPropagation(); // silence other listeners\n\
-    })\n\
-    .on('drag', function (d,i) {\n\
-      if (!d.stop.graphVertex) return;\n\
-      d.stop.graphVertex.moveTo(\n\
-        display.xScale.invert(d3.event.sourceEvent.pageX - display.offsetLeft),\n\
-        display.yScale.invert(d3.event.sourceEvent.pageY - display.offsetTop)\n\
-      );\n\
-\n\
-      display.refreshAll();\n\
-    });\n\
-\n\
   this.stopSvgGroups.append('circle')\n\
-    .attr('class', 'transitive-stop-circle')\n\
-    .call(drag);\n\
+    .attr('class', 'transitive-stop-circle');\n\
 \n\
   this.stopSvgGroups.append('text')\n\
     .attr('id', function (d) {\n\
@@ -9848,7 +9838,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
 \n\
 Pattern.prototype.refresh = function(display) {\n\
   var widthStr = this.lineGraph.style('stroke-width');\n\
-  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length-2), 10);\n\
+  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length - 2), 10);\n\
 \n\
   // update the line and stop groups\n\
   var stopData = this.getStopData();\n\
@@ -9969,9 +9959,11 @@ Pattern.prototype.getStopData = function() {\n\
 Pattern.prototype.getGraphVertices = function() {\n\
   var vertices = [];\n\
   this.graphEdges.forEach(function (edge, i) {\n\
-    if (i === 0) vertices.push(edge.fromVertex);\n\
+    if (i === 0) {\n\
+      vertices.push(edge.fromVertex);\n\
+    }\n\
     vertices.push(edge.toVertex);\n\
-  }, this);\n\
+  });\n\
   return vertices;\n\
 };\n\
 //@ sourceURL=pattern/index.js"
@@ -10516,6 +10508,7 @@ require.register("app/index.js", Function("exports, require, module",
  * Dependencies\n\
  */\n\
 \n\
+var d3 = require('d3');\n\
 var Display = require('display');\n\
 var Graph = require('graph');\n\
 var Pattern = require('pattern');\n\
@@ -10610,11 +10603,35 @@ Transitive.prototype.load = function(data) {\n\
  */\n\
 \n\
 Transitive.prototype.render = function() {\n\
+  var display = this.display;\n\
+  var offsetLeft = display.offsetLeft;\n\
+  var offsetTop = display.offsetTop;\n\
+  var refresh = this.refresh.bind(this);\n\
+\n\
+  // Need to find a better place to add behaviors...\n\
+  var drag = d3.behavior.drag()\n\
+    .on('dragstart', function () {\n\
+      d3.event.sourceEvent.stopPropagation(); // silence other listeners\n\
+    })\n\
+    .on('drag', function (data, index) {\n\
+      if (data.stop.graphVertex) {\n\
+        data.stop.graphVertex.moveTo(\n\
+          display.xScale.invert(d3.event.sourceEvent.pageX - offsetLeft),\n\
+          display.yScale.invert(d3.event.sourceEvent.pageY - offsetTop)\n\
+        );\n\
+\n\
+        refresh();\n\
+      }\n\
+    });\n\
+\n\
   for (var key in this.patterns) {\n\
-    this.patterns[key].draw(this.display, 10);\n\
+    var pattern = this.patterns[key];\n\
+\n\
+    pattern.draw(this.display, 10);\n\
+    pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);\n\
   }\n\
 \n\
-  this.refresh();\n\
+  refresh();\n\
 };\n\
 \n\
 /**\n\
@@ -10709,8 +10726,13 @@ module.exports = require('app');\n\
 
 
 
+
 require.alias("app/index.js", "transitive/deps/app/index.js");
 require.alias("app/index.js", "app/index.js");
+require.alias("mbostock-d3/d3.js", "app/deps/d3/d3.js");
+require.alias("mbostock-d3/index-browserify.js", "app/deps/d3/index-browserify.js");
+require.alias("mbostock-d3/index-browserify.js", "app/deps/d3/index.js");
+require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
 require.alias("display/index.js", "app/deps/display/index.js");
 require.alias("mbostock-d3/d3.js", "display/deps/d3/d3.js");
 require.alias("mbostock-d3/index-browserify.js", "display/deps/d3/index-browserify.js");
