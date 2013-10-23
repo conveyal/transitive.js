@@ -10081,6 +10081,12 @@ function merge (a, b){\n\
 require.register("trevorgerhardt-stylesheet/index.js", Function("exports, require, module",
 "\n\
 /**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var merge = require('merge-util');\n\
+\n\
+/**\n\
  * Expose `StyleSheet`\n\
  */\n\
 \n\
@@ -10089,27 +10095,25 @@ module.exports = StyleSheet;\n\
 /**\n\
  * Create an instance of StyleSheet\n\
  *\n\
- * @param {Object} pre-defined variables\n\
+ * @param {Object} CSS rules\n\
+ * @param {Object} variables to substitute\n\
  */\n\
 \n\
-function StyleSheet(rules, vars) {\n\
+function StyleSheet(rules, variables) {\n\
   if (!(this instanceof StyleSheet)) {\n\
-    return new StyleSheet(rules, vars);\n\
+    return new StyleSheet(rules, variables);\n\
   }\n\
 \n\
-  this.vars = {};\n\
+  this.variables = {};\n\
   this.rules = {};\n\
-  this.elem = null;\n\
 \n\
   if (rules) {\n\
     this.add(rules);\n\
   }\n\
 \n\
-  if (vars) {\n\
-    this.define(vars);\n\
+  if (variables) {\n\
+    this.define(variables);\n\
   }\n\
-\n\
-  this.load();\n\
 }\n\
 \n\
 /**\n\
@@ -10118,10 +10122,8 @@ function StyleSheet(rules, vars) {\n\
  * @param {Object}\n\
  */\n\
 \n\
-StyleSheet.prototype.define = function(vars) {\n\
-  for (var name in vars) {\n\
-    this.vars[name] = vars[name];\n\
-  }\n\
+StyleSheet.prototype.define = function(variables) {\n\
+  this.variables = merge(this.variables, variables);\n\
 \n\
   return this;\n\
 };\n\
@@ -10133,15 +10135,7 @@ StyleSheet.prototype.define = function(vars) {\n\
  */\n\
 \n\
 StyleSheet.prototype.add = function(rules) {\n\
-  for (var selector in rules) {\n\
-    if (!this.rules[selector]) {\n\
-      this.rules[selector] = {};\n\
-    }\n\
-\n\
-    for (var rule in rules[selector]) {\n\
-      this.rules[selector][rule] = rules[selector][rule];\n\
-    }\n\
-  }\n\
+  this.rules = merge(this.rules, rules);\n\
 \n\
   return this;\n\
 };\n\
@@ -10150,38 +10144,37 @@ StyleSheet.prototype.add = function(rules) {\n\
  * Append new css to the style element or refresh its content.\n\
  */\n\
 \n\
-StyleSheet.prototype.load = function() {\n\
-  if (!this.elem) {\n\
-    this.elem = createStyleSheetElement();\n\
+StyleSheet.prototype.render = function() {\n\
+  if (!this.el) {\n\
+    this.el = createStyleSheetElement();\n\
   }\n\
 \n\
-  refresh(this.elem, this.rules, this.vars);\n\
+  this.el.innerHTML = generateCSS(this.rules, this.variables);\n\
 \n\
   return this;\n\
 };\n\
 \n\
 /**\n\
- * Clear the style and varialbes.\n\
+ * Clear the styles & variables.\n\
  */\n\
 \n\
 StyleSheet.prototype.clear = function() {\n\
-  this.elem.innerHTML = '';\n\
+  this.el.innerHTML = '';\n\
   this.rules = '';\n\
-  this.vars = {};\n\
+  this.variables = {};\n\
 \n\
   return this;\n\
 };\n\
 \n\
 /**\n\
- * Remove the style element completely.\n\
+ * Remove the style element.\n\
  */\n\
 \n\
 StyleSheet.prototype.remove = function() {\n\
-  var elem = this.elem;\n\
-  if (elem && elem.parentNode) {\n\
-    this.clear();\n\
-    this.elem = null;\n\
-    elem.parentNode.removeChild(elem);\n\
+  var el = this.el;\n\
+  if (el && el.parentNode) {\n\
+    el.parentNode.removeChild(el);\n\
+    this.el = null;\n\
   }\n\
 \n\
   return this;\n\
@@ -10200,32 +10193,47 @@ function createStyleSheetElement() {\n\
 }\n\
 \n\
 /*\n\
- * Refresh the content with the rules and defined variables.\n\
+ * Generate CSS subsituting in the variables\n\
  */\n\
 \n\
-function refresh(elem, rules, vars) {\n\
+function generateCSS(rules, variables) {\n\
   var list = '';\n\
+  var value;\n\
   for (var selector in rules) {\n\
     list += selector + '{';\n\
     for (var rule in rules[selector]) {\n\
-      list += rule + ':' + substitute(rules[selector][rule], vars) + ';';\n\
+      value = rules[selector][rule];\n\
+\n\
+      if (isFunction(value)) {\n\
+        value = value();\n\
+      }\n\
+\n\
+      list += rule + ':' + value + ';';\n\
     }\n\
 \n\
     list += '}';\n\
   }\n\
-  elem.innerHTML = list;\n\
+\n\
+  // substitue in the variables\n\
+  for (var name in variables) {\n\
+    value = variables[name];\n\
+\n\
+    if (isFunction(value)) {\n\
+      value = value();\n\
+    }\n\
+\n\
+    list = list.replace(new RegExp('@' + name, 'gi'), value);\n\
+  }\n\
+\n\
+  return list;\n\
 }\n\
 \n\
 /**\n\
- * Substitute variables in the string with defined vars.\n\
+ * Is function?\n\
  */\n\
 \n\
-function substitute(str, vars) {\n\
-  for (var name in vars) {\n\
-    str = str.replace(new RegExp('@' + name, 'gi'), vars[name]);\n\
-  }\n\
-\n\
-  return str;\n\
+function isFunction(val) {\n\
+  return Object.prototype.toString.call(val) === '[object Function]';\n\
 }\n\
 //@ sourceURL=trevorgerhardt-stylesheet/index.js"
 ));
@@ -10759,6 +10767,11 @@ require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/ind
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
 require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
 require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
+
+require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
 require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
 require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
