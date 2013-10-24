@@ -10693,6 +10693,8 @@ function populateGraphEdges(patterns, graph) {\n\
   for (var id in patterns) {\n\
     var pattern = patterns[id];\n\
 \n\
+    lastVertex = null;\n\
+\n\
     for (var stopId in pattern.stops) {\n\
       var stop = pattern.stops[stopId];\n\
       if (stop.graphVertex) { // this is a vertex stop\n\
