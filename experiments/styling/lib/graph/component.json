@@ -1,9 +1,0 @@
-{
-  "name": "graph",
-  "dependencies": {
-    "trevorgerhardt/underscore": "*"
-  },
-  "scripts": [
-    "index.js"
-  ]
-}
