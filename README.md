@@ -1,7 +1,9 @@
 transitive.js
 =============
 
-Transit data visualization FTW!
+## Badges
+
+[![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
 
 ## Demo
 
