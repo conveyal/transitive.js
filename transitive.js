@@ -200,6 +200,83 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-type/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * toString ref.\n\
+ */\n\
+\n\
+var toString = Object.prototype.toString;\n\
+\n\
+/**\n\
+ * Return the type of `val`.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(val){\n\
+  switch (toString.call(val)) {\n\
+    case '[object Function]': return 'function';\n\
+    case '[object Date]': return 'date';\n\
+    case '[object RegExp]': return 'regexp';\n\
+    case '[object Arguments]': return 'arguments';\n\
+    case '[object Array]': return 'array';\n\
+    case '[object String]': return 'string';\n\
+  }\n\
+\n\
+  if (val === null) return 'null';\n\
+  if (val === undefined) return 'undefined';\n\
+  if (val && val.nodeType === 1) return 'element';\n\
+  if (val === Object(val)) return 'object';\n\
+\n\
+  return typeof val;\n\
+};\n\
+//@ sourceURL=component-type/index.js"
+));
+require.register("cristiandouce-merge-util/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var has = Object.prototype.hasOwnProperty;\n\
+\n\
+try {\n\
+  var type = require('type-component');\n\
+} catch (err) {\n\
+  var type = require('type');\n\
+}\n\
+\n\
+/**\n\
+ * Expose merge\n\
+ */\n\
+\n\
+module.exports = merge;\n\
+\n\
+/**\n\
+ * Merge `b` into `a`.\n\
+ *\n\
+ * @param {Object} a\n\
+ * @param {Object} b\n\
+ * @return {Object} a\n\
+ * @api public\n\
+ */\n\
+\n\
+function merge (a, b){\n\
+  for (var key in b) {\n\
+    if (has.call(b, key) && b[key] != null) {\n\
+      if (!a) a = {};\n\
+      if ('object' === type(b[key])) {\n\
+        a[key] = merge(a[key], b[key]);\n\
+      } else {\n\
+        a[key] = b[key];\n\
+      }\n\
+    }\n\
+  }\n\
+  return a;\n\
+};//@ sourceURL=cristiandouce-merge-util/index.js"
+));
 require.register("mbostock-d3/d3.js", Function("exports, require, module",
 "d3 = function() {\n\
   var d3 = {\n\
@@ -9445,79 +9522,196 @@ module.exports = d3;\n\
 (function () { delete this.d3; })(); // unset global\n\
 //@ sourceURL=mbostock-d3/index-browserify.js"
 ));
-require.register("display/index.js", Function("exports, require, module",
+require.register("trevorgerhardt-stylesheet/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var d3 = require('d3');\n\
+var merge = require('merge-util');\n\
 \n\
 /**\n\
- * Expose `Display`\n\
+ * Expose `StyleSheet`\n\
  */\n\
 \n\
-module.exports = Display;\n\
+module.exports = StyleSheet;\n\
 \n\
 /**\n\
- *  The D3-based SVG display.\n\
+ * Create an instance of StyleSheet\n\
+ *\n\
+ * @param {Object} CSS rules\n\
+ * @param {Object} variables to substitute\n\
  */\n\
 \n\
-function Display(el) {\n\
-  this.offsetLeft = el.offsetLeft;\n\
-  this.offsetTop = el.offsetTop;\n\
-  this.labelZoomThreshold = 0.75;\n\
+function StyleSheet(rules, variables) {\n\
+  if (!(this instanceof StyleSheet)) {\n\
+    return new StyleSheet(rules, variables);\n\
+  }\n\
 \n\
-  // set up the scales\n\
-  this.xScale = d3.scale.linear()\n\
-    .domain([ -2, 2 ]); // [0, this.width])\n\
+  this.variables = {};\n\
+  this.rules = {};\n\
 \n\
-  this.yScale = d3.scale.linear()\n\
-    .domain([ -2, 2 ]); //[0, this.height])\n\
+  if (rules) {\n\
+    this.add(rules);\n\
+  }\n\
 \n\
-  // set up the pan/zoom behavior\n\
-  this.zoom  = d3.behavior.zoom()\n\
-    .scaleExtent([ 0.25, 4 ]);\n\
-\n\
-  // set up the svg display\n\
-  this.svg = d3.select(el)\n\
-    .append('svg')\n\
-    .append('g')\n\
-      .call(this.zoom);\n\
-\n\
-  // append an overlay to capture pan/zoom events on entire viewport\n\
-  this.svg.append('rect')\n\
-    .attr('class', 'overlay');\n\
-\n\
-  this.setElement(el);\n\
+  if (variables) {\n\
+    this.define(variables);\n\
+  }\n\
 }\n\
 \n\
 /**\n\
- * Set the element\n\
+ * Define new variables.\n\
+ *\n\
+ * @param {Object}\n\
  */\n\
 \n\
-Display.prototype.setElement = function(el) {\n\
-  var width = el.clientWidth;\n\
-  var height = el.clientHeight;\n\
+StyleSheet.prototype.define = function(variables) {\n\
+  this.variables = merge(this.variables, variables);\n\
 \n\
-  this.xScale.range([ 0, width ]);\n\
-  this.yScale.range([ height, 0 ]);\n\
-\n\
-  this.zoom\n\
-    .x(this.xScale)\n\
-    .y(this.yScale);\n\
-\n\
-  this.svg\n\
-    .attr('width', width)\n\
-    .attr('height', height);\n\
-\n\
-  this.svg.select('rect')\n\
-    .attr('width', width)\n\
-    .attr('height', height);\n\
+  return this;\n\
 };\n\
-//@ sourceURL=display/index.js"
+\n\
+/**\n\
+ * Add new css but won't refresh the style element's content.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+StyleSheet.prototype.add = function(rules) {\n\
+  this.rules = merge(this.rules, rules);\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Append new css to the style element or refresh its content.\n\
+ */\n\
+\n\
+StyleSheet.prototype.render = function() {\n\
+  if (!this.el) {\n\
+    this.el = createStyleSheetElement();\n\
+  }\n\
+\n\
+  this.el.innerHTML = generateCSS(this.rules, this.variables);\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Clear the styles & variables.\n\
+ */\n\
+\n\
+StyleSheet.prototype.clear = function() {\n\
+  this.el.innerHTML = '';\n\
+  this.rules = '';\n\
+  this.variables = {};\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Remove the style element.\n\
+ */\n\
+\n\
+StyleSheet.prototype.remove = function() {\n\
+  var el = this.el;\n\
+  if (el && el.parentNode) {\n\
+    el.parentNode.removeChild(el);\n\
+    this.el = null;\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/*\n\
+ * Create new stylesheet.\n\
+ */\n\
+\n\
+function createStyleSheetElement() {\n\
+  var elem = document.createElement('style');\n\
+  var head = document.getElementsByTagName('head')[0];\n\
+\n\
+  head.appendChild(elem);\n\
+  return elem;\n\
+}\n\
+\n\
+/*\n\
+ * Generate CSS subsituting in the variables\n\
+ */\n\
+\n\
+function generateCSS(rules, variables) {\n\
+  var list = '';\n\
+  var value;\n\
+  for (var selector in rules) {\n\
+    list += selector + '{';\n\
+    for (var rule in rules[selector]) {\n\
+      value = rules[selector][rule];\n\
+\n\
+      if (isFunction(value)) {\n\
+        value = value();\n\
+      }\n\
+\n\
+      list += rule + ':' + value + ';';\n\
+    }\n\
+\n\
+    list += '}';\n\
+  }\n\
+\n\
+  // substitue in the variables\n\
+  for (var name in variables) {\n\
+    value = variables[name];\n\
+\n\
+    if (isFunction(value)) {\n\
+      value = value();\n\
+    }\n\
+\n\
+    list = list.replace(new RegExp('@' + name, 'gi'), value);\n\
+  }\n\
+\n\
+  return list;\n\
+}\n\
+\n\
+/**\n\
+ * Is function?\n\
+ */\n\
+\n\
+function isFunction(val) {\n\
+  return Object.prototype.toString.call(val) === '[object Function]';\n\
+}\n\
+//@ sourceURL=trevorgerhardt-stylesheet/index.js"
 ));
-require.register("graph/edge.js", Function("exports, require, module",
+require.register("yields-svg-attributes/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * SVG Attributes\n\
+ *\n\
+ * http://www.w3.org/TR/SVG/attindex.html\n\
+ */\n\
+\n\
+module.exports = [\n\
+  'height',\n\
+  'target',\n\
+  'title',\n\
+  'width',\n\
+  'y1',\n\
+  'y2',\n\
+  'x1',\n\
+  'x2',\n\
+  'cx',\n\
+  'cy',\n\
+  'dx',\n\
+  'dy',\n\
+  'rx',\n\
+  'ry',\n\
+  'd',\n\
+  'r',\n\
+  'y',\n\
+  'x'\n\
+];\n\
+//@ sourceURL=yields-svg-attributes/index.js"
+));
+require.register("transitive/lib/graph/edge.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Edge`\n\
@@ -9586,9 +9780,9 @@ Edge.prototype.calculateVectors = function() {\n\
 Edge.prototype.toString = function() {\n\
   return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();\n\
 };\n\
-//@ sourceURL=graph/edge.js"
+//@ sourceURL=transitive/lib/graph/edge.js"
 ));
-require.register("graph/index.js", Function("exports, require, module",
+require.register("transitive/lib/graph/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
@@ -9680,9 +9874,9 @@ function equal(a, b) {\n\
 \n\
   return true;\n\
 }\n\
-//@ sourceURL=graph/index.js"
+//@ sourceURL=transitive/lib/graph/index.js"
 ));
-require.register("graph/vertex.js", Function("exports, require, module",
+require.register("transitive/lib/graph/vertex.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Vertex`\n\
@@ -9719,9 +9913,288 @@ Vertex.prototype.moveTo = function(x, y) {\n\
     edge.calculateVectors();\n\
   });\n\
 };\n\
-//@ sourceURL=graph/vertex.js"
+//@ sourceURL=transitive/lib/graph/vertex.js"
 ));
-require.register("pattern/index.js", Function("exports, require, module",
+require.register("transitive/lib/styler/computed.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Computed rules\n\
+ */\n\
+\n\
+module.exports = [\n\
+  showLabelsOnHover\n\
+];\n\
+\n\
+/**\n\
+ * Show labels on hover\n\
+ */\n\
+\n\
+function showLabelsOnHover(pattern, display) {\n\
+  pattern.selectAll('.transitive-stop-circle')\n\
+    .on('mouseenter', function (data) {\n\
+      pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
+        .style('visibility', 'visible');\n\
+    })\n\
+    .on('mouseleave', function (data) {\n\
+      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
+        pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
+          .style('visibility', 'hidden');\n\
+      }\n\
+    });\n\
+}\n\
+//@ sourceURL=transitive/lib/styler/computed.js"
+));
+require.register("transitive/lib/styler/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var merge = require('merge-util');\n\
+var StyleSheet = require('stylesheet');\n\
+var svgAttributes = require('svg-attributes');\n\
+\n\
+/**\n\
+ * Add transform\n\
+ */\n\
+\n\
+svgAttributes.push('transform');\n\
+\n\
+/**\n\
+ * Expose `Styler`\n\
+ */\n\
+\n\
+module.exports = Styler;\n\
+\n\
+/**\n\
+ * Styler object\n\
+ */\n\
+\n\
+function Styler(passive, computed) {\n\
+  if (!(this instanceof Styler)) {\n\
+    return new Styler();\n\
+  }\n\
+\n\
+  this.computed = require('./computed');\n\
+  this.passive = require('./passive');\n\
+  this.stylesheet = new StyleSheet();\n\
+\n\
+  this.load(passive, computed);\n\
+}\n\
+\n\
+/**\n\
+ * Load rules\n\
+ *\n\
+ * @param {Object} a set of rules\n\
+ */\n\
+\n\
+Styler.prototype.load = function(passive, computed) {\n\
+  if (passive) {\n\
+    this.passive = merge(this.passive, passive);\n\
+  }\n\
+\n\
+  if (computed) {\n\
+    this.computed = this.computed.concat(computed);\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Render elements against these rules\n\
+ *\n\
+ * @param {Object} a D3 list of elements\n\
+ * @param {Object} the D3 display object\n\
+ */\n\
+\n\
+Styler.prototype.render = function(pattern, display) {\n\
+  // apply passive rules\n\
+  for (var selector in this.passive) {\n\
+    applyAttrAndStyle(pattern.selectAll(selector), display,\n\
+      this.passive[selector]);\n\
+  }\n\
+\n\
+  // apply computed rules\n\
+  this.computed.forEach(function (rule) {\n\
+    rule(pattern, display);\n\
+  });\n\
+};\n\
+\n\
+/**\n\
+ * Reset rules\n\
+ */\n\
+\n\
+Styler.prototype.reset = function reset() {\n\
+  this.passive = {};\n\
+  this.computed = [];\n\
+};\n\
+\n\
+/**\n\
+ * Check if it's an attribute or a style and apply accordingly\n\
+ *\n\
+ * @param {Object} a D3 list of elements\n\
+ * @param {Object} the D3 display object\n\
+ * @param {Object} the rules to apply to the elements\n\
+ */\n\
+\n\
+function applyAttrAndStyle(elements, display, rules) {\n\
+  for (var name in rules) {\n\
+    var type = svgAttributes.indexOf(name) === -1\n\
+      ? 'style'\n\
+      : 'attr';\n\
+\n\
+    elements[type](name, computeRule(rules[name]));\n\
+  }\n\
+\n\
+  function computeRule(rule) {\n\
+    return function (data, index) {\n\
+      return isFunction(rule)\n\
+        ? rule.call(rules, data, display, index)\n\
+        : rule;\n\
+    };\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Is function?\n\
+ */\n\
+\n\
+function isFunction(val) {\n\
+  return Object.prototype.toString.call(val) === '[object Function]';\n\
+}\n\
+//@ sourceURL=transitive/lib/styler/index.js"
+));
+require.register("transitive/lib/styler/passive.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Default static rules\n\
+ */\n\
+\n\
+module.exports = {\n\
+\n\
+  /**\n\
+   * All stops\n\
+   */\n\
+\n\
+  '.transitive-stop-circle': {\n\
+    cx: 0,\n\
+    cy: 0,\n\
+    fill: 'white',\n\
+    r: 5,\n\
+    stroke: 'none'\n\
+  },\n\
+\n\
+  /**\n\
+   * All labels\n\
+   */\n\
+\n\
+  '.transitive-stop-label': {\n\
+    color: 'black',\n\
+    'font-family': 'sans-serif',\n\
+    'font-size': function(data, display, index) {\n\
+      if (data.stop.stop_id === 'S3') {\n\
+        return '20px';\n\
+      } else {\n\
+        return '10px';\n\
+      }\n\
+    },\n\
+    transform: function (data, display, index) {\n\
+      return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
+    },\n\
+    visibility: function (data, display, index) {\n\
+      if (display.zoom.scale() < 0.75) {\n\
+        return 'hidden';\n\
+      } else {\n\
+        return 'visible';\n\
+      }\n\
+    },\n\
+    x: 0,\n\
+    y: -12\n\
+  },\n\
+\n\
+  /**\n\
+   * All lines\n\
+   */\n\
+\n\
+  '.transitive-line': {\n\
+    stroke: 'blue',\n\
+    'stroke-width': '15px',\n\
+    fill: 'none'\n\
+  }\n\
+};\n\
+//@ sourceURL=transitive/lib/styler/passive.js"
+));
+require.register("transitive/lib/display.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var d3 = require('d3');\n\
+\n\
+/**\n\
+ * Expose `Display`\n\
+ */\n\
+\n\
+module.exports = Display;\n\
+\n\
+/**\n\
+ *  The D3-based SVG display.\n\
+ */\n\
+\n\
+function Display(el) {\n\
+  this.offsetLeft = el.offsetLeft;\n\
+  this.offsetTop = el.offsetTop;\n\
+  this.labelZoomThreshold = 0.75;\n\
+\n\
+  // set up the scales\n\
+  this.xScale = d3.scale.linear()\n\
+    .domain([ -2, 2 ]); // [0, this.width])\n\
+\n\
+  this.yScale = d3.scale.linear()\n\
+    .domain([ -2, 2 ]); //[0, this.height])\n\
+\n\
+  // set up the pan/zoom behavior\n\
+  this.zoom  = d3.behavior.zoom()\n\
+    .scaleExtent([ 0.25, 4 ]);\n\
+\n\
+  // set up the svg display\n\
+  this.svg = d3.select(el)\n\
+    .append('svg')\n\
+    .append('g')\n\
+      .call(this.zoom);\n\
+\n\
+  // append an overlay to capture pan/zoom events on entire viewport\n\
+  this.svg.append('rect')\n\
+    .attr('class', 'overlay');\n\
+\n\
+  this.setElement(el);\n\
+}\n\
+\n\
+/**\n\
+ * Set the element\n\
+ */\n\
+\n\
+Display.prototype.setElement = function(el) {\n\
+  var width = el.clientWidth;\n\
+  var height = el.clientHeight;\n\
+\n\
+  this.xScale.range([ 0, width ]);\n\
+  this.yScale.range([ height, 0 ]);\n\
+\n\
+  this.zoom\n\
+    .x(this.xScale)\n\
+    .y(this.yScale);\n\
+\n\
+  this.svg\n\
+    .attr('width', width)\n\
+    .attr('height', height);\n\
+\n\
+  this.svg.select('rect')\n\
+    .attr('width', width)\n\
+    .attr('height', height);\n\
+};\n\
+//@ sourceURL=transitive/lib/display.js"
+));
+require.register("transitive/lib/pattern.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
@@ -9966,507 +10439,9 @@ Pattern.prototype.getGraphVertices = function() {\n\
   });\n\
   return vertices;\n\
 };\n\
-//@ sourceURL=pattern/index.js"
+//@ sourceURL=transitive/lib/pattern.js"
 ));
-require.register("stop/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `Stop`\n\
- */\n\
-\n\
-module.exports = Stop;\n\
-\n\
-/**\n\
- * A transit Stop, as defined in the input data.\n\
- * Stops are shared between Patterns.\n\
- *\n\
- * @param {Object}\n\
- */\n\
-\n\
-function Stop(data) {\n\
-  for (var key in data) {\n\
-    if (key === 'patterns') continue;\n\
-    this[key] = data[key];\n\
-  }\n\
-\n\
-  this.patterns = [];\n\
-}\n\
-\n\
-/**\n\
- * Get id\n\
- */\n\
-\n\
-Stop.prototype.getId = function() {\n\
-  return this.stop_id;\n\
-};\n\
-//@ sourceURL=stop/index.js"
-));
-require.register("component-type/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * toString ref.\n\
- */\n\
-\n\
-var toString = Object.prototype.toString;\n\
-\n\
-/**\n\
- * Return the type of `val`.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(val){\n\
-  switch (toString.call(val)) {\n\
-    case '[object Function]': return 'function';\n\
-    case '[object Date]': return 'date';\n\
-    case '[object RegExp]': return 'regexp';\n\
-    case '[object Arguments]': return 'arguments';\n\
-    case '[object Array]': return 'array';\n\
-    case '[object String]': return 'string';\n\
-  }\n\
-\n\
-  if (val === null) return 'null';\n\
-  if (val === undefined) return 'undefined';\n\
-  if (val && val.nodeType === 1) return 'element';\n\
-  if (val === Object(val)) return 'object';\n\
-\n\
-  return typeof val;\n\
-};\n\
-//@ sourceURL=component-type/index.js"
-));
-require.register("cristiandouce-merge-util/index.js", Function("exports, require, module",
-"/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var has = Object.prototype.hasOwnProperty;\n\
-\n\
-try {\n\
-  var type = require('type-component');\n\
-} catch (err) {\n\
-  var type = require('type');\n\
-}\n\
-\n\
-/**\n\
- * Expose merge\n\
- */\n\
-\n\
-module.exports = merge;\n\
-\n\
-/**\n\
- * Merge `b` into `a`.\n\
- *\n\
- * @param {Object} a\n\
- * @param {Object} b\n\
- * @return {Object} a\n\
- * @api public\n\
- */\n\
-\n\
-function merge (a, b){\n\
-  for (var key in b) {\n\
-    if (has.call(b, key) && b[key] != null) {\n\
-      if (!a) a = {};\n\
-      if ('object' === type(b[key])) {\n\
-        a[key] = merge(a[key], b[key]);\n\
-      } else {\n\
-        a[key] = b[key];\n\
-      }\n\
-    }\n\
-  }\n\
-  return a;\n\
-};//@ sourceURL=cristiandouce-merge-util/index.js"
-));
-require.register("trevorgerhardt-stylesheet/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `StyleSheet`\n\
- */\n\
-\n\
-module.exports = StyleSheet;\n\
-\n\
-/**\n\
- * Create an instance of StyleSheet\n\
- *\n\
- * @param {Object} pre-defined variables\n\
- */\n\
-\n\
-function StyleSheet(rules, vars) {\n\
-  if (!(this instanceof StyleSheet)) {\n\
-    return new StyleSheet(rules, vars);\n\
-  }\n\
-\n\
-  this.vars = {};\n\
-  this.rules = {};\n\
-  this.elem = null;\n\
-\n\
-  if (rules) {\n\
-    this.add(rules);\n\
-  }\n\
-\n\
-  if (vars) {\n\
-    this.define(vars);\n\
-  }\n\
-\n\
-  this.load();\n\
-}\n\
-\n\
-/**\n\
- * Define new variables.\n\
- *\n\
- * @param {Object}\n\
- */\n\
-\n\
-StyleSheet.prototype.define = function(vars) {\n\
-  for (var name in vars) {\n\
-    this.vars[name] = vars[name];\n\
-  }\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Add new css but won't refresh the style element's content.\n\
- *\n\
- * @param {Object}\n\
- */\n\
-\n\
-StyleSheet.prototype.add = function(rules) {\n\
-  for (var selector in rules) {\n\
-    if (!this.rules[selector]) {\n\
-      this.rules[selector] = {};\n\
-    }\n\
-\n\
-    for (var rule in rules[selector]) {\n\
-      this.rules[selector][rule] = rules[selector][rule];\n\
-    }\n\
-  }\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Append new css to the style element or refresh its content.\n\
- */\n\
-\n\
-StyleSheet.prototype.load = function() {\n\
-  if (!this.elem) {\n\
-    this.elem = createStyleSheetElement();\n\
-  }\n\
-\n\
-  refresh(this.elem, this.rules, this.vars);\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Clear the style and varialbes.\n\
- */\n\
-\n\
-StyleSheet.prototype.clear = function() {\n\
-  this.elem.innerHTML = '';\n\
-  this.rules = '';\n\
-  this.vars = {};\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Remove the style element completely.\n\
- */\n\
-\n\
-StyleSheet.prototype.remove = function() {\n\
-  var elem = this.elem;\n\
-  if (elem && elem.parentNode) {\n\
-    this.clear();\n\
-    this.elem = null;\n\
-    elem.parentNode.removeChild(elem);\n\
-  }\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/*\n\
- * Create new stylesheet.\n\
- */\n\
-\n\
-function createStyleSheetElement() {\n\
-  var elem = document.createElement('style');\n\
-  var head = document.getElementsByTagName('head')[0];\n\
-\n\
-  head.appendChild(elem);\n\
-  return elem;\n\
-}\n\
-\n\
-/*\n\
- * Refresh the content with the rules and defined variables.\n\
- */\n\
-\n\
-function refresh(elem, rules, vars) {\n\
-  var list = '';\n\
-  for (var selector in rules) {\n\
-    list += selector + '{';\n\
-    for (var rule in rules[selector]) {\n\
-      list += rule + ':' + substitute(rules[selector][rule], vars) + ';';\n\
-    }\n\
-\n\
-    list += '}';\n\
-  }\n\
-  elem.innerHTML = list;\n\
-}\n\
-\n\
-/**\n\
- * Substitute variables in the string with defined vars.\n\
- */\n\
-\n\
-function substitute(str, vars) {\n\
-  for (var name in vars) {\n\
-    str = str.replace(new RegExp('@' + name, 'gi'), vars[name]);\n\
-  }\n\
-\n\
-  return str;\n\
-}\n\
-//@ sourceURL=trevorgerhardt-stylesheet/index.js"
-));
-require.register("yields-svg-attributes/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * SVG Attributes\n\
- *\n\
- * http://www.w3.org/TR/SVG/attindex.html\n\
- */\n\
-\n\
-module.exports = [\n\
-  'height',\n\
-  'target',\n\
-  'title',\n\
-  'width',\n\
-  'y1',\n\
-  'y2',\n\
-  'x1',\n\
-  'x2',\n\
-  'cx',\n\
-  'cy',\n\
-  'dx',\n\
-  'dy',\n\
-  'rx',\n\
-  'ry',\n\
-  'd',\n\
-  'r',\n\
-  'y',\n\
-  'x'\n\
-];\n\
-//@ sourceURL=yields-svg-attributes/index.js"
-));
-require.register("styler/computed.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Computed rules\n\
- */\n\
-\n\
-module.exports = [\n\
-  showLabelsOnHover\n\
-];\n\
-\n\
-/**\n\
- * Show labels on hover\n\
- */\n\
-\n\
-function showLabelsOnHover(pattern, display) {\n\
-  pattern.selectAll('.transitive-stop-circle')\n\
-    .on('mouseenter', function (data) {\n\
-      pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
-        .style('visibility', 'visible');\n\
-    })\n\
-    .on('mouseleave', function (data) {\n\
-      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
-        pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
-          .style('visibility', 'hidden');\n\
-      }\n\
-    });\n\
-}\n\
-//@ sourceURL=styler/computed.js"
-));
-require.register("styler/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var merge = require('merge-util');\n\
-var StyleSheet = require('stylesheet');\n\
-var svgAttributes = require('svg-attributes');\n\
-\n\
-/**\n\
- * Add transform\n\
- */\n\
-\n\
-svgAttributes.push('transform');\n\
-\n\
-/**\n\
- * Expose `Styler`\n\
- */\n\
-\n\
-module.exports = Styler;\n\
-\n\
-/**\n\
- * Styler object\n\
- */\n\
-\n\
-function Styler(passive, computed) {\n\
-  if (!(this instanceof Styler)) {\n\
-    return new Styler();\n\
-  }\n\
-\n\
-  this.computed = require('./computed');\n\
-  this.passive = require('./passive');\n\
-  this.stylesheet = new StyleSheet();\n\
-\n\
-  this.load(passive, computed);\n\
-}\n\
-\n\
-/**\n\
- * Load rules\n\
- *\n\
- * @param {Object} a set of rules\n\
- */\n\
-\n\
-Styler.prototype.load = function(passive, computed) {\n\
-  if (passive) {\n\
-    this.passive = merge(this.passive, passive);\n\
-  }\n\
-\n\
-  if (computed) {\n\
-    this.computed = this.computed.concat(computed);\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Render elements against these rules\n\
- *\n\
- * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
- */\n\
-\n\
-Styler.prototype.render = function(pattern, display) {\n\
-  // apply passive rules\n\
-  for (var selector in this.passive) {\n\
-    applyAttrAndStyle(pattern.selectAll(selector), display,\n\
-      this.passive[selector]);\n\
-  }\n\
-\n\
-  // apply computed rules\n\
-  this.computed.forEach(function (rule) {\n\
-    rule(pattern, display);\n\
-  });\n\
-};\n\
-\n\
-/**\n\
- * Reset rules\n\
- */\n\
-\n\
-Styler.prototype.reset = function reset() {\n\
-  this.passive = {};\n\
-  this.computed = [];\n\
-};\n\
-\n\
-/**\n\
- * Check if it's an attribute or a style and apply accordingly\n\
- *\n\
- * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
- * @param {Object} the rules to apply to the elements\n\
- */\n\
-\n\
-function applyAttrAndStyle(elements, display, rules) {\n\
-  for (var name in rules) {\n\
-    var type = svgAttributes.indexOf(name) === -1\n\
-      ? 'style'\n\
-      : 'attr';\n\
-\n\
-    elements[type](name, computeRule(rules[name]));\n\
-  }\n\
-\n\
-  function computeRule(rule) {\n\
-    return function (data, index) {\n\
-      return isFunction(rule)\n\
-        ? rule.call(rules, data, display, index)\n\
-        : rule;\n\
-    };\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Is function?\n\
- */\n\
-\n\
-function isFunction(val) {\n\
-  return Object.prototype.toString.call(val) === '[object Function]';\n\
-}\n\
-//@ sourceURL=styler/index.js"
-));
-require.register("styler/passive.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Default static rules\n\
- */\n\
-\n\
-module.exports = {\n\
-\n\
-  /**\n\
-   * All stops\n\
-   */\n\
-\n\
-  '.transitive-stop-circle': {\n\
-    cx: 0,\n\
-    cy: 0,\n\
-    fill: 'white',\n\
-    r: 5,\n\
-    stroke: 'none'\n\
-  },\n\
-\n\
-  /**\n\
-   * All labels\n\
-   */\n\
-\n\
-  '.transitive-stop-label': {\n\
-    color: 'black',\n\
-    'font-family': 'sans-serif',\n\
-    'font-size': function(data, display, index) {\n\
-      if (data.stop.stop_id === 'S3') {\n\
-        return '20px';\n\
-      } else {\n\
-        return '10px';\n\
-      }\n\
-    },\n\
-    transform: function (data, display, index) {\n\
-      return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
-    },\n\
-    visibility: function (data, display, index) {\n\
-      if (display.zoom.scale() < 0.75) {\n\
-        return 'hidden';\n\
-      } else {\n\
-        return 'visible';\n\
-      }\n\
-    },\n\
-    x: 0,\n\
-    y: -12\n\
-  },\n\
-\n\
-  /**\n\
-   * All lines\n\
-   */\n\
-\n\
-  '.transitive-line': {\n\
-    stroke: 'blue',\n\
-    'stroke-width': '15px',\n\
-    fill: 'none'\n\
-  }\n\
-};\n\
-//@ sourceURL=styler/passive.js"
-));
-require.register("route/index.js", Function("exports, require, module",
+require.register("transitive/lib/route.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Route`\n\
@@ -10500,27 +10475,72 @@ Route.prototype.addPattern = function(pattern) {\n\
   this.patterns.push(pattern);\n\
   pattern.route = this;\n\
 };\n\
-//@ sourceURL=route/index.js"
+//@ sourceURL=transitive/lib/route.js"
 ));
-require.register("app/index.js", Function("exports, require, module",
+require.register("transitive/lib/stop.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `Stop`\n\
+ */\n\
+\n\
+module.exports = Stop;\n\
+\n\
+/**\n\
+ * A transit Stop, as defined in the input data.\n\
+ * Stops are shared between Patterns.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+function Stop(data) {\n\
+  for (var key in data) {\n\
+    if (key === 'patterns') continue;\n\
+    this[key] = data[key];\n\
+  }\n\
+\n\
+  this.patterns = [];\n\
+}\n\
+\n\
+/**\n\
+ * Get id\n\
+ */\n\
+\n\
+Stop.prototype.getId = function() {\n\
+  return this.stop_id;\n\
+};\n\
+//@ sourceURL=transitive/lib/stop.js"
+));
+require.register("transitive/lib/transitive.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
 var d3 = require('d3');\n\
-var Display = require('display');\n\
-var Graph = require('graph');\n\
-var Pattern = require('pattern');\n\
-var Route = require('route');\n\
-var Stop = require('stop');\n\
-var Styler = require('styler');\n\
+var Display = require('./display');\n\
+var Graph = require('./graph');\n\
+var Pattern = require('./pattern');\n\
+var Route = require('./route');\n\
+var Stop = require('./stop');\n\
+var Styler = require('./styler');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
  */\n\
 \n\
 module.exports = Transitive;\n\
+\n\
+/**\n\
+ * Make `d3` accessible\n\
+ */\n\
+\n\
+module.exports.d3 = d3;\n\
+\n\
+/**\n\
+ * Version\n\
+ */\n\
+\n\
+module.exports.version = '0.0.0';\n\
 \n\
 /**\n\
  * Main object\n\
@@ -10709,65 +10729,37 @@ function populateGraphEdges(patterns, graph) {\n\
     }\n\
   }\n\
 }\n\
-//@ sourceURL=app/index.js"
-));
-require.register("transitive/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `app`\n\
- */\n\
-\n\
-module.exports = require('app');\n\
-//@ sourceURL=transitive/index.js"
+//@ sourceURL=transitive/lib/transitive.js"
 ));
 
 
 
 
-
-
-
-
-
-require.alias("app/index.js", "transitive/deps/app/index.js");
-require.alias("app/index.js", "app/index.js");
-require.alias("mbostock-d3/d3.js", "app/deps/d3/d3.js");
-require.alias("mbostock-d3/index-browserify.js", "app/deps/d3/index-browserify.js");
-require.alias("mbostock-d3/index-browserify.js", "app/deps/d3/index.js");
-require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
-require.alias("display/index.js", "app/deps/display/index.js");
-require.alias("mbostock-d3/d3.js", "display/deps/d3/d3.js");
-require.alias("mbostock-d3/index-browserify.js", "display/deps/d3/index-browserify.js");
-require.alias("mbostock-d3/index-browserify.js", "display/deps/d3/index.js");
-require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
-require.alias("graph/edge.js", "app/deps/graph/edge.js");
-require.alias("graph/index.js", "app/deps/graph/index.js");
-require.alias("graph/vertex.js", "app/deps/graph/vertex.js");
-
-require.alias("pattern/index.js", "app/deps/pattern/index.js");
-require.alias("mbostock-d3/d3.js", "pattern/deps/d3/d3.js");
-require.alias("mbostock-d3/index-browserify.js", "pattern/deps/d3/index-browserify.js");
-require.alias("mbostock-d3/index-browserify.js", "pattern/deps/d3/index.js");
-require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
-require.alias("stop/index.js", "app/deps/stop/index.js");
-
-require.alias("styler/computed.js", "app/deps/styler/computed.js");
-require.alias("styler/index.js", "app/deps/styler/index.js");
-require.alias("styler/passive.js", "app/deps/styler/passive.js");
-require.alias("cristiandouce-merge-util/index.js", "styler/deps/merge-util/index.js");
-require.alias("cristiandouce-merge-util/index.js", "styler/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "merge-util/index.js");
 require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
 
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
-require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
-require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
-require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
-require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
-require.alias("yields-svg-attributes/index.js", "styler/deps/svg-attributes/index.js");
-require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
-require.alias("route/index.js", "app/deps/route/index.js");
+require.alias("mbostock-d3/d3.js", "transitive/deps/d3/d3.js");
+require.alias("mbostock-d3/index-browserify.js", "transitive/deps/d3/index-browserify.js");
+require.alias("mbostock-d3/index-browserify.js", "transitive/deps/d3/index.js");
+require.alias("mbostock-d3/index-browserify.js", "d3/index.js");
+require.alias("mbostock-d3/index-browserify.js", "mbostock-d3/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "transitive/deps/stylesheet/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "transitive/deps/stylesheet/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "stylesheet/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
 
-require.alias("transitive/index.js", "transitive/index.js");if (typeof exports == "object") {
+require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
+require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
+require.alias("transitive/lib/transitive.js", "transitive/index.js");if (typeof exports == "object") {
   module.exports = require("transitive");
 } else if (typeof define == "function" && define.amd) {
   define(function(){ return require("transitive"); });

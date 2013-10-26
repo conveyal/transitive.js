@@ -1,13 +1,23 @@
 {
   "name": "transitive",
-  "main": "index.js",
+  "dependencies": {
+    "cristiandouce/merge-util": "*",
+    "mbostock/d3": "*",
+    "trevorgerhardt/stylesheet": "*",
+    "yields/svg-attributes": "*"
+  },
+  "main": "lib/transitive.js",
   "scripts": [
-    "index.js"
-  ],
-  "local": [
-    "app"
-  ],
-  "paths": [
-    "lib"
+    "lib/graph/edge.js",
+    "lib/graph/index.js",
+    "lib/graph/vertex.js",
+    "lib/styler/computed.js",
+    "lib/styler/index.js",
+    "lib/styler/passive.js",
+    "lib/display.js",
+    "lib/pattern.js",
+    "lib/route.js",
+    "lib/stop.js",
+    "lib/transitive.js"
   ]
 }

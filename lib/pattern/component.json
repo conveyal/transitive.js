@@ -1,9 +1,0 @@
-{
-  "name": "pattern",
-  "scripts": [
-    "index.js"
-  ],
-  "dependencies": {
-    "mbostock/d3": "*"
-  }
-}
