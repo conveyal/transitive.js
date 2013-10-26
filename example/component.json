@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "yields/select": "*"
+  },
+  "scripts": [
+    "index.js"
+  ]
+}

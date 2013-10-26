@@ -16,7 +16,36 @@
     <script src="data.js"></script>
     <script src="../transitive.js"></script>
     <script>
-      var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
+      var d3 = Transitive.d3;
+      d3.xhr('/example/data/wmata/index.json', function (err, xhr) {
+        if (err) {
+          window.alert(err);
+        } else {
+          var index = JSON.parse(xhr.response);
+          var routes = getRoutes(index.routes);
+
+          for (var i in routes) {
+
+          }
+
+          var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
+        }
+      });
+
+      function getRoutes(routes) {
+        return routes.map(function (route) {
+          return {
+            value: route.route_id,
+            name: route.route_short_name,
+            patterns: route.patterns.map(function (pattern) {
+              return {
+                value: pattern.pattern_id,
+                name: pattern.pattern_name
+              };
+            })
+          };
+        });
+      }
     </script>
   </body>
 </html>
