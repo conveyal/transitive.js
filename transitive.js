@@ -10633,7 +10633,6 @@ function Transitive(el, data, passiveStyles, computedStyles) {
     return new Transitive(el, data, passiveStyles, computedStyles);
   }
 
-
   this.graph = new Graph();
   this.load(data);
 
