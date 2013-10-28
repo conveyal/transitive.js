@@ -5,48 +5,12 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <form>
-      <label>Route to display:</label>
-      <select></select>
-      <label>Patterns to display:</label>
-      <select multiple="multiple"></select>
-    </form>
+    <div id="select-route"></div>
+    <div id="select-pattern"></div>
     <div id="canvas"></div>
 
     <script src="data.js"></script>
     <script src="../build/build.js"></script>
-    <script>
-      var Transitive = require('transitive');
-      var d3 = Transitive.d3;
-      d3.xhr('/example/data/wmata/index.json', function (err, xhr) {
-        if (err) {
-          window.alert(err);
-        } else {
-          var index = JSON.parse(xhr.response);
-          var routes = getRoutes(index.routes);
-
-          for (var i in routes) {
-
-          }
-
-          var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
-        }
-      });
-
-      function getRoutes(routes) {
-        return routes.map(function (route) {
-          return {
-            value: route.route_id,
-            name: route.route_short_name,
-            patterns: route.patterns.map(function (pattern) {
-              return {
-                value: pattern.pattern_id,
-                name: pattern.pattern_name
-              };
-            })
-          };
-        });
-      }
-    </script>
+    <script src="index.js"></script>
   </body>
 </html>

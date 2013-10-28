@@ -8,6 +8,9 @@
     "trevorgerhardt/stylesheet": "*",
     "yields/svg-attributes": "*"
   },
+  "development": {
+    "yields/select": "*"
+  },
   "main": "lib/transitive.js",
   "scripts": [
     "lib/graph/edge.js",

@@ -31,7 +31,7 @@ server:
 	$(SERVE) --port $(PORT)
 
 transitive.js: build
-	$(COMPONENT) build --dev --verbose --standalone Transitive --out . --name transitive
+	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
 	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
