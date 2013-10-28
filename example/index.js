@@ -11,6 +11,10 @@ var Transitive = require('transitive');
 var $canvas = document.getElementById('canvas');
 var $form = document.getElementById('form');
 
+// set the canvas height
+
+setHeight($canvas);
+
 // create transitive
 
 new Transitive($canvas, DEFAULT_DATA);
@@ -38,10 +42,13 @@ Routes.on('select', function (option) {
     routes: [ route ],
     stops: getStops(INDEX_FULL.stops, route)
   });
+
+  setHeight($canvas);
 });
 
 Patterns.on('change', function (patterns) {
   console.log(patterns.values());
+  setHeight($canvas);
 })
 
 for (var i in INDEX.routes) {
@@ -70,5 +77,9 @@ function getStops(stops, route) {
   return stops.filter(function (stop) {
     return stop_ids.has(stop.stop_id);
   })
+}
+
+function setHeight(el) {
+  el.style.height = (window.innerHeight - 60 - el.offsetTop) + 'px';
 }
 
