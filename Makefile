@@ -30,7 +30,7 @@ release: transitive.min.js
 server:
 	$(SERVE) --port $(PORT)
 
-transitive.js: build
+transitive.js:
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
