@@ -9750,174 +9750,6 @@ module.exports = [\n\
 ];\n\
 //@ sourceURL=yields-svg-attributes/index.js"
 ));
-require.register("component-matches-selector/index.js", Function("exports, require, module",
-"/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var query = require('query');\n\
-\n\
-/**\n\
- * Element prototype.\n\
- */\n\
-\n\
-var proto = Element.prototype;\n\
-\n\
-/**\n\
- * Vendor function.\n\
- */\n\
-\n\
-var vendor = proto.matches\n\
-  || proto.webkitMatchesSelector\n\
-  || proto.mozMatchesSelector\n\
-  || proto.msMatchesSelector\n\
-  || proto.oMatchesSelector;\n\
-\n\
-/**\n\
- * Expose `match()`.\n\
- */\n\
-\n\
-module.exports = match;\n\
-\n\
-/**\n\
- * Match `el` to `selector`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} selector\n\
- * @return {Boolean}\n\
- * @api public\n\
- */\n\
-\n\
-function match(el, selector) {\n\
-  if (vendor) return vendor.call(el, selector);\n\
-  var nodes = query.all(selector, el.parentNode);\n\
-  for (var i = 0; i < nodes.length; ++i) {\n\
-    if (nodes[i] == el) return true;\n\
-  }\n\
-  return false;\n\
-}\n\
-//@ sourceURL=component-matches-selector/index.js"
-));
-require.register("yields-traverse/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * dependencies\n\
- */\n\
-\n\
-var matches = require('matches-selector');\n\
-\n\
-/**\n\
- * Traverse with the given `el`, `selector` and `len`.\n\
- *\n\
- * @param {String} type\n\
- * @param {Element} el\n\
- * @param {String} selector\n\
- * @param {Number} len\n\
- * @return {Array}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(type, el, selector, len){\n\
-  var el = el[type]\n\
-    , n = len || 1\n\
-    , ret = [];\n\
-\n\
-  if (!el) return ret;\n\
-\n\
-  do {\n\
-    if (n == ret.length) break;\n\
-    if (1 != el.nodeType) continue;\n\
-    if (matches(el, selector)) ret.push(el);\n\
-    if (!selector) ret.push(el);\n\
-  } while (el = el[type]);\n\
-\n\
-  return ret;\n\
-}\n\
-//@ sourceURL=yields-traverse/index.js"
-));
-require.register("ianstormtaylor-previous-sibling/index.js", Function("exports, require, module",
-"\n\
-var traverse = require('traverse');\n\
-\n\
-\n\
-/**\n\
- * Expose `previousSibling`.\n\
- */\n\
-\n\
-module.exports = previousSibling;\n\
-\n\
-\n\
-/**\n\
- * Get the previous sibling for an `el`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} selector (optional)\n\
- */\n\
-\n\
-function previousSibling (el, selector) {\n\
-  el = traverse('previousSibling', el, selector)[0];\n\
-  return el || null;\n\
-}//@ sourceURL=ianstormtaylor-previous-sibling/index.js"
-));
-require.register("ianstormtaylor-next-sibling/index.js", Function("exports, require, module",
-"\n\
-var traverse = require('traverse');\n\
-\n\
-\n\
-/**\n\
- * Expose `nextSibling`.\n\
- */\n\
-\n\
-module.exports = nextSibling;\n\
-\n\
-\n\
-/**\n\
- * Get the next sibling for an `el`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} selector (optional)\n\
- */\n\
-\n\
-function nextSibling (el, selector) {\n\
-  el = traverse('nextSibling', el, selector)[0];\n\
-  return el || null;\n\
-}//@ sourceURL=ianstormtaylor-next-sibling/index.js"
-));
-require.register("component-debounce/index.js", Function("exports, require, module",
-"/**\n\
- * Debounces a function by the given threshold.\n\
- *\n\
- * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/\n\
- * @param {Function} function to wrap\n\
- * @param {Number} timeout in ms (`100`)\n\
- * @param {Boolean} whether to execute at the beginning (`false`)\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function debounce(func, threshold, execAsap){\n\
-  var timeout;\n\
-\n\
-  return function debounced(){\n\
-    var obj = this, args = arguments;\n\
-\n\
-    function delayed () {\n\
-      if (!execAsap) {\n\
-        func.apply(obj, args);\n\
-      }\n\
-      timeout = null;\n\
-    }\n\
-\n\
-    if (timeout) {\n\
-      clearTimeout(timeout);\n\
-    } else if (execAsap) {\n\
-      func.apply(obj, args);\n\
-    }\n\
-\n\
-    timeout = setTimeout(delayed, threshold || 100);\n\
-  };\n\
-};\n\
-//@ sourceURL=component-debounce/index.js"
-));
 require.register("component-set/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -10108,6 +9940,174 @@ Set.prototype.isEmpty = function(){\n\
 };\n\
 \n\
 //@ sourceURL=component-set/index.js"
+));
+require.register("component-matches-selector/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var query = require('query');\n\
+\n\
+/**\n\
+ * Element prototype.\n\
+ */\n\
+\n\
+var proto = Element.prototype;\n\
+\n\
+/**\n\
+ * Vendor function.\n\
+ */\n\
+\n\
+var vendor = proto.matches\n\
+  || proto.webkitMatchesSelector\n\
+  || proto.mozMatchesSelector\n\
+  || proto.msMatchesSelector\n\
+  || proto.oMatchesSelector;\n\
+\n\
+/**\n\
+ * Expose `match()`.\n\
+ */\n\
+\n\
+module.exports = match;\n\
+\n\
+/**\n\
+ * Match `el` to `selector`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} selector\n\
+ * @return {Boolean}\n\
+ * @api public\n\
+ */\n\
+\n\
+function match(el, selector) {\n\
+  if (vendor) return vendor.call(el, selector);\n\
+  var nodes = query.all(selector, el.parentNode);\n\
+  for (var i = 0; i < nodes.length; ++i) {\n\
+    if (nodes[i] == el) return true;\n\
+  }\n\
+  return false;\n\
+}\n\
+//@ sourceURL=component-matches-selector/index.js"
+));
+require.register("yields-traverse/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * dependencies\n\
+ */\n\
+\n\
+var matches = require('matches-selector');\n\
+\n\
+/**\n\
+ * Traverse with the given `el`, `selector` and `len`.\n\
+ *\n\
+ * @param {String} type\n\
+ * @param {Element} el\n\
+ * @param {String} selector\n\
+ * @param {Number} len\n\
+ * @return {Array}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(type, el, selector, len){\n\
+  var el = el[type]\n\
+    , n = len || 1\n\
+    , ret = [];\n\
+\n\
+  if (!el) return ret;\n\
+\n\
+  do {\n\
+    if (n == ret.length) break;\n\
+    if (1 != el.nodeType) continue;\n\
+    if (matches(el, selector)) ret.push(el);\n\
+    if (!selector) ret.push(el);\n\
+  } while (el = el[type]);\n\
+\n\
+  return ret;\n\
+}\n\
+//@ sourceURL=yields-traverse/index.js"
+));
+require.register("ianstormtaylor-previous-sibling/index.js", Function("exports, require, module",
+"\n\
+var traverse = require('traverse');\n\
+\n\
+\n\
+/**\n\
+ * Expose `previousSibling`.\n\
+ */\n\
+\n\
+module.exports = previousSibling;\n\
+\n\
+\n\
+/**\n\
+ * Get the previous sibling for an `el`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} selector (optional)\n\
+ */\n\
+\n\
+function previousSibling (el, selector) {\n\
+  el = traverse('previousSibling', el, selector)[0];\n\
+  return el || null;\n\
+}//@ sourceURL=ianstormtaylor-previous-sibling/index.js"
+));
+require.register("ianstormtaylor-next-sibling/index.js", Function("exports, require, module",
+"\n\
+var traverse = require('traverse');\n\
+\n\
+\n\
+/**\n\
+ * Expose `nextSibling`.\n\
+ */\n\
+\n\
+module.exports = nextSibling;\n\
+\n\
+\n\
+/**\n\
+ * Get the next sibling for an `el`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} selector (optional)\n\
+ */\n\
+\n\
+function nextSibling (el, selector) {\n\
+  el = traverse('nextSibling', el, selector)[0];\n\
+  return el || null;\n\
+}//@ sourceURL=ianstormtaylor-next-sibling/index.js"
+));
+require.register("component-debounce/index.js", Function("exports, require, module",
+"/**\n\
+ * Debounces a function by the given threshold.\n\
+ *\n\
+ * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/\n\
+ * @param {Function} function to wrap\n\
+ * @param {Number} timeout in ms (`100`)\n\
+ * @param {Boolean} whether to execute at the beginning (`false`)\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function debounce(func, threshold, execAsap){\n\
+  var timeout;\n\
+\n\
+  return function debounced(){\n\
+    var obj = this, args = arguments;\n\
+\n\
+    function delayed () {\n\
+      if (!execAsap) {\n\
+        func.apply(obj, args);\n\
+      }\n\
+      timeout = null;\n\
+    }\n\
+\n\
+    if (timeout) {\n\
+      clearTimeout(timeout);\n\
+    } else if (execAsap) {\n\
+      func.apply(obj, args);\n\
+    }\n\
+\n\
+    timeout = setTimeout(delayed, threshold || 100);\n\
+  };\n\
+};\n\
+//@ sourceURL=component-debounce/index.js"
 ));
 require.register("component-pillbox/index.js", Function("exports, require, module",
 "\n\
@@ -12979,7 +12979,7 @@ Transitive.prototype.render = function() {\n\
   var offsetTop = display.offsetTop;\n\
   var refresh = this.refresh.bind(this);\n\
 \n\
-  // Need to find a better place to add behaviors...\n\
+  /* Need to find a better place to add behaviors...\n\
   var drag = d3.behavior.drag()\n\
     .on('dragstart', function () {\n\
       d3.event.sourceEvent.stopPropagation(); // silence other listeners\n\
@@ -12993,13 +12993,13 @@ Transitive.prototype.render = function() {\n\
 \n\
         refresh();\n\
       }\n\
-    });\n\
+    }); */\n\
 \n\
   for (var key in this.patterns) {\n\
     var pattern = this.patterns[key];\n\
 \n\
     pattern.draw(this.display, 10);\n\
-    pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);\n\
+    //pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);\n\
   }\n\
 \n\
   refresh();\n\
@@ -13120,6 +13120,8 @@ function populateGraphEdges(patterns, graph) {\n\
 
 
 
+
+
 require.register("yields-select/template.html", Function("exports, require, module",
 "module.exports = '<div class=\\'select select-single\\'>\\n\
   <div class=\\'select-box\\'>\\n\
@@ -13155,6 +13157,9 @@ require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
+require.alias("component-set/index.js", "transitive/deps/set/index.js");
+require.alias("component-set/index.js", "set/index.js");
+
 require.alias("yields-select/index.js", "transitive/deps/select/index.js");
 require.alias("yields-select/index.js", "transitive/deps/select/index.js");
 require.alias("yields-select/index.js", "select/index.js");
