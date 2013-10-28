@@ -10135,6 +10135,7 @@ module.exports = {\n\
       } else {\n\
         return '10px';\n\
       }\n\
+<<<<<<< HEAD
     },\n\
     transform: function (data, display, index) {\n\
       return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
@@ -10159,6 +10160,73 @@ module.exports = {\n\
     'stroke-width': '15px',\n\
     fill: 'none'\n\
   }\n\
+=======
+    }\n\
+  }\n\
+  return a;\n\
+};//@ sourceURL=cristiandouce-merge-util/index.js"
+));
+require.register("trevorgerhardt-stylesheet/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Dependencies\n\
+ */\n\
+\n\
+var merge = require('merge-util');\n\
+\n\
+/**\n\
+ * Expose `StyleSheet`\n\
+ */\n\
+\n\
+module.exports = StyleSheet;\n\
+\n\
+/**\n\
+ * Create an instance of StyleSheet\n\
+ *\n\
+ * @param {Object} CSS rules\n\
+ * @param {Object} variables to substitute\n\
+ */\n\
+\n\
+function StyleSheet(rules, variables) {\n\
+  if (!(this instanceof StyleSheet)) {\n\
+    return new StyleSheet(rules, variables);\n\
+  }\n\
+\n\
+  this.variables = {};\n\
+  this.rules = {};\n\
+\n\
+  if (rules) {\n\
+    this.add(rules);\n\
+  }\n\
+\n\
+  if (variables) {\n\
+    this.define(variables);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Define new variables.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+StyleSheet.prototype.define = function(variables) {\n\
+  this.variables = merge(this.variables, variables);\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Add new css but won't refresh the style element's content.\n\
+ *\n\
+ * @param {Object}\n\
+ */\n\
+\n\
+StyleSheet.prototype.add = function(rules) {\n\
+  this.rules = merge(this.rules, rules);\n\
+\n\
+  return this;\n\
+>>>>>>> 67038ca3ef9a84422b427cc938767f5e4fe77359
 };\n\
 //@ sourceURL=transitive/lib/styler/passive.js"
 ));
@@ -10168,6 +10236,7 @@ require.register("transitive/lib/display.js", Function("exports, require, module
  * Dependencies\n\
  */\n\
 \n\
+<<<<<<< HEAD
 var d3 = require('d3');\n\
 \n\
 /**\n\
@@ -10184,6 +10253,43 @@ function Display(el) {\n\
   this.offsetLeft = el.offsetLeft;\n\
   this.offsetTop = el.offsetTop;\n\
   this.labelZoomThreshold = 0.75;\n\
+=======
+StyleSheet.prototype.render = function() {\n\
+  if (!this.el) {\n\
+    this.el = createStyleSheetElement();\n\
+  }\n\
+\n\
+  this.el.innerHTML = generateCSS(this.rules, this.variables);\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Clear the styles & variables.\n\
+ */\n\
+\n\
+StyleSheet.prototype.clear = function() {\n\
+  this.el.innerHTML = '';\n\
+  this.rules = '';\n\
+  this.variables = {};\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Remove the style element.\n\
+ */\n\
+\n\
+StyleSheet.prototype.remove = function() {\n\
+  var el = this.el;\n\
+  if (el && el.parentNode) {\n\
+    el.parentNode.removeChild(el);\n\
+    this.el = null;\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+>>>>>>> 67038ca3ef9a84422b427cc938767f5e4fe77359
 \n\
   // set up the scales\n\
   this.xScale = d3.scale.linear()\n\
@@ -10196,6 +10302,7 @@ function Display(el) {\n\
   this.zoom  = d3.behavior.zoom()\n\
     .scaleExtent([ 0.25, 4 ]);\n\
 \n\
+<<<<<<< HEAD
   // set up the svg display\n\
   this.svg = d3.select(el)\n\
     .append('svg')\n\
@@ -10233,6 +10340,52 @@ Display.prototype.setElement = function(el) {\n\
     .attr('height', height);\n\
 };\n\
 //@ sourceURL=transitive/lib/display.js"
+=======
+/*\n\
+ * Generate CSS subsituting in the variables\n\
+ */\n\
+\n\
+function generateCSS(rules, variables) {\n\
+  var list = '';\n\
+  var value;\n\
+  for (var selector in rules) {\n\
+    list += selector + '{';\n\
+    for (var rule in rules[selector]) {\n\
+      value = rules[selector][rule];\n\
+\n\
+      if (isFunction(value)) {\n\
+        value = value();\n\
+      }\n\
+\n\
+      list += rule + ':' + value + ';';\n\
+    }\n\
+\n\
+    list += '}';\n\
+  }\n\
+\n\
+  // substitue in the variables\n\
+  for (var name in variables) {\n\
+    value = variables[name];\n\
+\n\
+    if (isFunction(value)) {\n\
+      value = value();\n\
+    }\n\
+\n\
+    list = list.replace(new RegExp('@' + name, 'gi'), value);\n\
+  }\n\
+\n\
+  return list;\n\
+}\n\
+\n\
+/**\n\
+ * Is function?\n\
+ */\n\
+\n\
+function isFunction(val) {\n\
+  return Object.prototype.toString.call(val) === '[object Function]';\n\
+}\n\
+//@ sourceURL=trevorgerhardt-stylesheet/index.js"
+>>>>>>> 67038ca3ef9a84422b427cc938767f5e4fe77359
 ));
 require.register("transitive/lib/pattern.js", Function("exports, require, module",
 "\n\
@@ -10798,6 +10951,16 @@ require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/de
 require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
 
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+<<<<<<< HEAD
+=======
+require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
+require.alias("trevorgerhardt-stylesheet/index.js", "styler/deps/stylesheet/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "trevorgerhardt-stylesheet/deps/merge-util/index.js");
+require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
+
+require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+>>>>>>> 67038ca3ef9a84422b427cc938767f5e4fe77359
 require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
