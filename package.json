@@ -1,7 +1,9 @@
 {
-  "author": "Conveyal",
   "name": "transitive",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "Conveyal",
   "homepage": "http://conveyal.com/",
   "repository": {
     "type": "git",

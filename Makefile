@@ -4,30 +4,33 @@ JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
 
 JS := $(shell find lib -name '*.js' -print)
-JSON := $(shell find lib -name '*.json' -print)
 
 PORT = 3000
 
-build: transitive.js
+build: components $(JS)
+	$(MAKE) lint
+	$(COMPONENT) build --dev --verbose
 
 clean:
-	rm -rf build components
+	rm -rf build components node_modules
 
-components: $(JSON)
+components: component.json
 	$(COMPONENT) install --dev --verbose
 
-install:
-	npm install
-	$(MAKE) build
+install: node_modules
 
 lint: $(JS)
-	@$(JSHINT) --verbose $(JS)
+	$(JSHINT) --verbose $(JS)
+
+node_modules: package.json
+	npm install
+
+release: transitive.min.js
 
 server:
-	@$(SERVE) --port $(PORT)
+	$(SERVE) --port $(PORT)
 
-transitive.js: components $(JS)
-	$(MAKE) lint
+transitive.js: build
 	$(COMPONENT) build --dev --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
@@ -36,4 +39,4 @@ transitive.min.js: transitive.js
 watch:
 	watch $(MAKE) build
 
-.PHONY: lint
+.PHONY: clean install lint release server watch

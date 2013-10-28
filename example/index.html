@@ -14,8 +14,9 @@
     <div id="canvas"></div>
 
     <script src="data.js"></script>
-    <script src="../transitive.js"></script>
+    <script src="../build/build.js"></script>
     <script>
+      var Transitive = require('transitive');
       var d3 = Transitive.d3;
       d3.xhr('/example/data/wmata/index.json', function (err, xhr) {
         if (err) {

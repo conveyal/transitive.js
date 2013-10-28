@@ -280,7 +280,7 @@ function merge (a, b){\n\
 require.register("mbostock-d3/d3.js", Function("exports, require, module",
 "d3 = function() {\n\
   var d3 = {\n\
-    version: \"3.3.8\"\n\
+    version: \"3.3.9\"\n\
   };\n\
   if (!Date.now) Date.now = function() {\n\
     return +new Date();\n\
@@ -1339,13 +1339,16 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
       }\n\
     };\n\
   }\n\
-  var d3_event_dragSelect = d3_vendorSymbol(d3_documentElement.style, \"userSelect\"), d3_event_dragId = 0;\n\
+  var d3_event_dragSelect = \"onselectstart\" in d3_document ? null : d3_vendorSymbol(d3_documentElement.style, \"userSelect\"), d3_event_dragId = 0;\n\
   function d3_event_dragSuppress() {\n\
-    var name = \".dragsuppress-\" + ++d3_event_dragId, touchmove = \"touchmove\" + name, selectstart = \"selectstart\" + name, dragstart = \"dragstart\" + name, click = \"click\" + name, w = d3.select(d3_window).on(touchmove, d3_eventPreventDefault).on(selectstart, d3_eventPreventDefault).on(dragstart, d3_eventPreventDefault), style = d3_documentElement.style, select = style[d3_event_dragSelect];\n\
-    style[d3_event_dragSelect] = \"none\";\n\
+    var name = \".dragsuppress-\" + ++d3_event_dragId, click = \"click\" + name, w = d3.select(d3_window).on(\"touchmove\" + name, d3_eventPreventDefault).on(\"dragstart\" + name, d3_eventPreventDefault).on(\"selectstart\" + name, d3_eventPreventDefault);\n\
+    if (d3_event_dragSelect) {\n\
+      var style = d3_documentElement.style, select = style[d3_event_dragSelect];\n\
+      style[d3_event_dragSelect] = \"none\";\n\
+    }\n\
     return function(suppressClick) {\n\
       w.on(name, null);\n\
-      style[d3_event_dragSelect] = select;\n\
+      if (d3_event_dragSelect) style[d3_event_dragSelect] = select;\n\
       if (suppressClick) {\n\
         function off() {\n\
           w.on(click, null);\n\
@@ -3794,6 +3797,15 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
   function d3_geo_resample(project) {\n\
     var δ2 = .5, cosMinDistance = Math.cos(30 * d3_radians), maxDepth = 16;\n\
     function resample(stream) {\n\
+      return (maxDepth ? resampleRecursive : resampleNone)(stream);\n\
+    }\n\
+    function resampleNone(stream) {\n\
+      return d3_geo_transformPoint(stream, function(x, y) {\n\
+        x = project(x, y);\n\
+        stream.point(x[0], x[1]);\n\
+      });\n\
+    }\n\
+    function resampleRecursive(stream) {\n\
       var λ00, φ00, x00, y00, a00, b00, c00, λ0, x0, y0, a0, b0, c0;\n\
       var resample = {\n\
         point: point,\n\
@@ -3860,38 +3872,6 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
     };\n\
     return resample;\n\
   }\n\
-  d3.geo.transform = function(methods) {\n\
-    return {\n\
-      stream: function(stream) {\n\
-        var transform = new d3_geo_transform(stream);\n\
-        for (var k in methods) transform[k] = methods[k];\n\
-        return transform;\n\
-      }\n\
-    };\n\
-  };\n\
-  function d3_geo_transform(stream) {\n\
-    this.stream = stream;\n\
-  }\n\
-  d3_geo_transform.prototype = {\n\
-    point: function(x, y) {\n\
-      this.stream.point(x, y);\n\
-    },\n\
-    sphere: function() {\n\
-      this.stream.sphere();\n\
-    },\n\
-    lineStart: function() {\n\
-      this.stream.lineStart();\n\
-    },\n\
-    lineEnd: function() {\n\
-      this.stream.lineEnd();\n\
-    },\n\
-    polygonStart: function() {\n\
-      this.stream.polygonStart();\n\
-    },\n\
-    polygonEnd: function() {\n\
-      this.stream.polygonEnd();\n\
-    }\n\
-  };\n\
   d3.geo.path = function() {\n\
     var pointRadius = 4.5, projection, context, projectStream, contextStream, cacheStream;\n\
     function path(object) {\n\
@@ -3944,11 +3924,59 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
       return project([ x * d3_degrees, y * d3_degrees ]);\n\
     });\n\
     return function(stream) {\n\
-      var transform = new d3_geo_transform(stream = resample(stream));\n\
-      transform.point = function(x, y) {\n\
-        stream.point(x * d3_radians, y * d3_radians);\n\
-      };\n\
-      return transform;\n\
+      return d3_geo_projectionRadians(resample(stream));\n\
+    };\n\
+  }\n\
+  d3.geo.transform = function(methods) {\n\
+    return {\n\
+      stream: function(stream) {\n\
+        var transform = new d3_geo_transform(stream);\n\
+        for (var k in methods) transform[k] = methods[k];\n\
+        return transform;\n\
+      }\n\
+    };\n\
+  };\n\
+  function d3_geo_transform(stream) {\n\
+    this.stream = stream;\n\
+  }\n\
+  d3_geo_transform.prototype = {\n\
+    point: function(x, y) {\n\
+      this.stream.point(x, y);\n\
+    },\n\
+    sphere: function() {\n\
+      this.stream.sphere();\n\
+    },\n\
+    lineStart: function() {\n\
+      this.stream.lineStart();\n\
+    },\n\
+    lineEnd: function() {\n\
+      this.stream.lineEnd();\n\
+    },\n\
+    polygonStart: function() {\n\
+      this.stream.polygonStart();\n\
+    },\n\
+    polygonEnd: function() {\n\
+      this.stream.polygonEnd();\n\
+    }\n\
+  };\n\
+  function d3_geo_transformPoint(stream, point) {\n\
+    return {\n\
+      point: point,\n\
+      sphere: function() {\n\
+        stream.sphere();\n\
+      },\n\
+      lineStart: function() {\n\
+        stream.lineStart();\n\
+      },\n\
+      lineEnd: function() {\n\
+        stream.lineEnd();\n\
+      },\n\
+      polygonStart: function() {\n\
+        stream.polygonStart();\n\
+      },\n\
+      polygonEnd: function() {\n\
+        stream.polygonEnd();\n\
+      }\n\
     };\n\
   }\n\
   d3.geo.projection = d3_geo_projection;\n\
@@ -4031,11 +4059,9 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
     };\n\
   }\n\
   function d3_geo_projectionRadians(stream) {\n\
-    var transform = new d3_geo_transform(stream);\n\
-    transform.point = function(λ, φ) {\n\
-      stream.point(λ * d3_radians, φ * d3_radians);\n\
-    };\n\
-    return transform;\n\
+    return d3_geo_transformPoint(stream, function(x, y) {\n\
+      stream.point(x * d3_radians, y * d3_radians);\n\
+    });\n\
   }\n\
   function d3_geo_equirectangular(λ, φ) {\n\
     return [ λ, φ ];\n\
@@ -7238,10 +7264,24 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
     return d3.range.apply(d3, d3_scale_linearTickRange(domain, m));\n\
   }\n\
   function d3_scale_linearTickFormat(domain, m, format) {\n\
-    var precision = -Math.floor(Math.log(d3_scale_linearTickRange(domain, m)[2]) / Math.LN10 + .01);\n\
+    var range = d3_scale_linearTickRange(domain, m);\n\
     return d3.format(format ? format.replace(d3_format_re, function(a, b, c, d, e, f, g, h, i, j) {\n\
-      return [ b, c, d, e, f, g, h, i || \".\" + (precision - (j === \"%\") * 2), j ].join(\"\");\n\
-    }) : \",.\" + precision + \"f\");\n\
+      return [ b, c, d, e, f, g, h, i || \".\" + d3_scale_linearFormatPrecision(j, range), j ].join(\"\");\n\
+    }) : \",.\" + d3_scale_linearPrecision(range[2]) + \"f\");\n\
+  }\n\
+  var d3_scale_linearFormatSignificant = {\n\
+    s: 1,\n\
+    g: 1,\n\
+    p: 1,\n\
+    r: 1,\n\
+    e: 1\n\
+  };\n\
+  function d3_scale_linearPrecision(value) {\n\
+    return -Math.floor(Math.log(value) / Math.LN10 + .01);\n\
+  }\n\
+  function d3_scale_linearFormatPrecision(type, range) {\n\
+    var p = d3_scale_linearPrecision(range[2]);\n\
+    return type in d3_scale_linearFormatSignificant ? Math.abs(p - d3_scale_linearPrecision(Math.max(Math.abs(range[0]), Math.abs(range[1])))) + +(type !== \"e\") : p - (type === \"%\") * 2;\n\
   }\n\
   d3.scale.log = function() {\n\
     return d3_scale_log(d3.scale.linear().domain([ 0, 1 ]), 10, true, [ 1, 10 ]);\n\
@@ -10731,6 +10771,10 @@ function populateGraphEdges(patterns, graph) {\n\
 }\n\
 //@ sourceURL=transitive/lib/transitive.js"
 ));
+
+
+
+
 
 
 
