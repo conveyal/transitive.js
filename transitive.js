@@ -10699,6 +10699,8 @@ Transitive.prototype.load = function(data) {
   }
 
   populateGraphEdges(this.patterns, this.graph);
+
+  return this;
 };
 
 /**
@@ -10735,6 +10737,8 @@ Transitive.prototype.render = function() {
   }
 
   refresh();
+
+  return this;
 };
 
 /**
@@ -10748,6 +10752,8 @@ Transitive.prototype.refresh = function() {
     this.style.render(pattern.svgGroup, this.display);
     pattern.refresh(this.display);
   }
+
+  return this;
 };
 
 /**
@@ -10757,6 +10763,8 @@ Transitive.prototype.refresh = function() {
 Transitive.prototype.setElement = function(el) {
   this.display.setElement(el);
   this.render();
+
+  return this;
 };
 
 /**

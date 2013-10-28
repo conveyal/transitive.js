@@ -1,9 +1,15 @@
 
+// dependencies
+
 var d3 = require('d3');
 var select = require('select');
 var Transitive = require('transitive');
 
-var Index = null;
+// create transitive
+
+var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
+
+// create and handle route/pattern selection
 
 var $canvas = document.getElementById('canvas');
 var $form = document.getElementById('form');
@@ -16,27 +22,21 @@ document.getElementById('select-pattern').appendChild(Patterns.el);
 
 Routes.on('select', function (option) {
   Patterns.empty();
-  var route = getRoute(Index.routes, option.value);
+  var route = getRoute(INDEX.routes, option.value);
   for (var i in route.patterns) {
     var pattern = route.patterns[i];
     Patterns.add(pattern.pattern_name, pattern.pattern_id);
     Patterns.select(pattern.pattern_name.toLowerCase());
   }
+
+  // load the route data & render
+  transitive.load(route).render();
 });
 
-d3.xhr('/example/data/wmata/index_full.json', function (err, xhr) {
-  if (err) {
-    console.error(err);
-  } else {
-    Index = JSON.parse(xhr.response);
-
-    for (var i in Index.routes) {
-      var route = Index.routes[i];
-      Routes.add(route.route_short_name || route.route_id, route.route_id);
-    }
-  }
-  var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
-});
+for (var i in INDEX.routes) {
+  var route = INDEX.routes[i];
+  Routes.add(route.route_short_name || route.route_id, route.route_id);
+}
 
 function getRoute(routes, id) {
   for (var i in routes) {
@@ -46,3 +46,4 @@ function getRoute(routes, id) {
     }
   }
 }
+
