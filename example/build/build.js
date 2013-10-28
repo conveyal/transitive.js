@@ -12965,6 +12965,8 @@ Transitive.prototype.load = function(data) {\n\
   }\n\
 \n\
   populateGraphEdges(this.patterns, this.graph);\n\
+\n\
+  return this;\n\
 };\n\
 \n\
 /**\n\
@@ -13001,6 +13003,8 @@ Transitive.prototype.render = function() {\n\
   }\n\
 \n\
   refresh();\n\
+\n\
+  return this;\n\
 };\n\
 \n\
 /**\n\
@@ -13014,6 +13018,8 @@ Transitive.prototype.refresh = function() {\n\
     this.style.render(pattern.svgGroup, this.display);\n\
     pattern.refresh(this.display);\n\
   }\n\
+\n\
+  return this;\n\
 };\n\
 \n\
 /**\n\
@@ -13023,6 +13029,8 @@ Transitive.prototype.refresh = function() {\n\
 Transitive.prototype.setElement = function(el) {\n\
   this.display.setElement(el);\n\
   this.render();\n\
+\n\
+  return this;\n\
 };\n\
 \n\
 /**\n\
