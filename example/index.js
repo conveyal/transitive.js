@@ -11,6 +11,10 @@ var Transitive = require('transitive');
 var $canvas = document.getElementById('canvas');
 var $form = document.getElementById('form');
 
+// set the canvas height
+
+setHeight($canvas);
+
 // create transitive
 
 new Transitive($canvas, DEFAULT_DATA);
@@ -70,5 +74,9 @@ function getStops(stops, route) {
   return stops.filter(function (stop) {
     return stop_ids.has(stop.stop_id);
   })
+}
+
+function setHeight(el) {
+  el.style.height = (window.innerHeight - 60 - el.offsetTop) + 'px';
 }
 
