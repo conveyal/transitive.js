@@ -26,7 +26,7 @@ Routes.on('select', function (option) {
 
 d3.xhr('/example/data/wmata/index_full.json', function (err, xhr) {
   if (err) {
-    window.alert(err);
+    console.error(err);
   } else {
     Index = JSON.parse(xhr.response);
 
@@ -34,9 +34,8 @@ d3.xhr('/example/data/wmata/index_full.json', function (err, xhr) {
       var route = Index.routes[i];
       Routes.add(route.route_short_name || route.route_id, route.route_id);
     }
-
-    var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
   }
+  var transitive = new Transitive(document.getElementById('canvas'), DEFAULT_DATA);
 });
 
 function getRoute(routes, id) {
