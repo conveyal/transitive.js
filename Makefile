@@ -7,9 +7,7 @@ JS := $(shell find lib -name '*.js' -print)
 
 PORT = 3000
 
-build: components $(JS)
-	$(MAKE) lint
-	$(COMPONENT) build --dev --verbose
+build: transitive.js
 
 clean:
 	rm -rf build components node_modules
@@ -30,7 +28,9 @@ release: transitive.min.js
 server:
 	$(SERVE) --port $(PORT)
 
-transitive.js: build
+transitive.js: components $(JS)
+	$(MAKE) lint
+	$(COMPONENT) build --dev --verbose --out example/build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
@@ -39,4 +39,4 @@ transitive.min.js: transitive.js
 watch:
 	watch $(MAKE) build
 
-.PHONY: clean install lint release server watch
+.PHONY: build clean install lint release server watch

@@ -1,0 +1,71 @@
+.pillbox {
+  display: inline-block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.pillbox input,
+.pillbox input:focus {
+  border: none;
+  outline: none;
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * Select.
+ *
+ * div.select(.open)
+ *   div.select-box
+ *     input.select-input[type=text]
+ *   div.select-dropdown
+ *     ul.select-options
+ *       li.select-option(.selected)(.highlighted)([disabled])([hidden])
+ *       ...
+ */
+
+.select {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+.select-box {
+  width: 100%;
+  cursor: pointer;
+}
+
+.select-dropdown {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+}
+
+.select-options {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.select-option {
+  cursor: pointer;
+  display: block;
+}
+
+.select-option[disabled] {
+  pointer-events: none;
+}
+
+.select-option.selected {
+  display: none;
+}
