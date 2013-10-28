@@ -42,10 +42,13 @@ Routes.on('select', function (option) {
     routes: [ route ],
     stops: getStops(INDEX_FULL.stops, route)
   });
+
+  setHeight($canvas);
 });
 
 Patterns.on('change', function (patterns) {
   console.log(patterns.values());
+  setHeight($canvas);
 })
 
 for (var i in INDEX.routes) {
