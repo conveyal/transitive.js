@@ -1,4 +1,3 @@
-
 COMPONENT := ./node_modules/.bin/component
 JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
@@ -34,7 +33,7 @@ transitive.js: components $(JS)
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
-	#$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
+	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
 
 watch:
 	watch $(MAKE) build
