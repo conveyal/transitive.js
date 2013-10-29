@@ -34,7 +34,7 @@ transitive.js: components $(JS)
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
-	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
+	#$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
 
 watch:
 	watch $(MAKE) build
