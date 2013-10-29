@@ -11,14 +11,6 @@ var Transitive = require('transitive');
 var $canvas = document.getElementById('canvas');
 var $form = document.getElementById('form');
 
-// set the canvas height
-
-setHeight($canvas);
-
-// create transitive
-
-new Transitive($canvas, DEFAULT_DATA);
-
 // handle selects
 
 var Routes = select().label('Routes');
@@ -28,6 +20,8 @@ document.getElementById('select-route').appendChild(Routes.el);
 document.getElementById('select-pattern').appendChild(Patterns.el);
 
 Routes.on('select', function (option) {
+  localStorage.setItem('selected-route', option.name);
+
   Patterns.empty();
   var route = getRoute(INDEX_FULL.routes, option.value) || getRoute(INDEX_FULL.routes, option.name);
   for (var i in route.patterns) {
@@ -42,19 +36,20 @@ Routes.on('select', function (option) {
     routes: [ route ],
     stops: getStops(INDEX_FULL.stops, route)
   });
-
-  setHeight($canvas);
 });
 
-Patterns.on('change', function (patterns) {
-  console.log(patterns.values());
-  setHeight($canvas);
-})
+// add routes
 
 for (var i in INDEX.routes) {
   var route = INDEX.routes[i];
   Routes.add(route.route_short_name || route.route_id, route.route_id);
 }
+
+// Select the first route
+
+Routes.select(localStorage.getItem('selected-route') || INDEX.routes[0].route_short_name.toLowerCase());
+
+// get a route
 
 function getRoute(routes, id) {
   for (var i in routes) {
@@ -64,6 +59,8 @@ function getRoute(routes, id) {
     }
   }
 }
+
+// get the stops for a route
 
 function getStops(stops, route) {
   var stop_ids = new Set();
@@ -78,8 +75,3 @@ function getStops(stops, route) {
     return stop_ids.has(stop.stop_id);
   })
 }
-
-function setHeight(el) {
-  el.style.height = (window.innerHeight - 60 - el.offsetTop) + 'px';
-}
-
