@@ -1,9 +1,12 @@
 
 #canvas {
-  height: 500px;
+  height: auto;
+  min-height: 300px;
   border: 1px solid #ddd;
+  border-radius: 3px;
   margin: 0 auto;
   clear: both;
+  background-color: #fff;
 }
 
 .overlay {
@@ -76,6 +79,7 @@
   width: 100%;
   border: 1px solid #ddd;
   padding: 4px 0;
+  background-color: #fff;
 }
 
 .select .select-box {
@@ -108,16 +112,29 @@
   display: none;
 }
 
-
-
-
-
-
 body {
   padding: 20px;
   font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif;
   font-size: 12px;
   font-weight: 300;
+  background-color: #e3ffec;
+}
+
+h1 {
+  font-weight: 100;
+  font-size: 3em;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+h1 a {
+  color: #40bb6a;
+  text-decoration: none;
+}
+
+h1 a:hover {
+  color: #2e874c;
 }
 
 .select {
