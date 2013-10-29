@@ -32,6 +32,8 @@ transitive.js: components $(JS)
 	$(COMPONENT) build --dev --verbose --out example/build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
+
+
 transitive.min.js: transitive.js
 
 
