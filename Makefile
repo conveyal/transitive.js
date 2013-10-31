@@ -1,4 +1,3 @@
-
 COMPONENT := ./node_modules/.bin/component
 JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
