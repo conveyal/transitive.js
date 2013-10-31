@@ -9768,6 +9768,7 @@ function Edge(stopArray, fromVertex, toVertex) {
   this.stopArray = stopArray;
   this.fromVertex = fromVertex;
   this.toVertex = toVertex;
+  this.patterns = [];
 
   this.calculateVectors();
 }
@@ -9810,6 +9811,27 @@ Edge.prototype.calculateVectors = function() {
   };
 };
 
+
+/**
+ *  Add a pattern to the edge
+ */
+
+Edge.prototype.addPattern = function(pattern) {
+  if(this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);
+};
+
+
+/**
+ *  Gets the vertex opposite another vertex on an edge
+ */
+
+Edge.prototype.oppositeVertex = function(vertex) {
+  if(vertex === this.toVertex) return this.fromVertex;
+  if(vertex === this.fromVertex) return this.toVertex;
+  return null;
+};
+
+
 /**
  *
  */
@@ -9817,6 +9839,7 @@ Edge.prototype.calculateVectors = function() {
 Edge.prototype.toString = function() {
   return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();
 };
+
 
 });
 require.register("transitive/lib/graph/index.js", function(exports, require, module){
@@ -9894,6 +9917,157 @@ NetworkGraph.prototype.getEquivalentEdge = function(stopArray, from, to) {
   }
 };
 
+
+/**
+ * Convert the graph coordinates to a linear 1-d display. Assumes a branch-based, acyclic graph
+ */
+
+NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {
+
+  // find the "trunk" edge; i.e. the one with the most patterns
+  var trunkEdge = null;
+  var maxPatterns = 0;
+
+  for (var e = 0; e < this.edges.length; e++) {
+    var edge = this.edges[e];
+    if(edge.patterns.length > maxPatterns) {
+      trunkEdge = edge;
+      maxPatterns = edge.patterns.length;
+    }
+  }
+  this.exploredVertices = [trunkEdge.fromVertex, trunkEdge.toVertex];
+
+  //console.log('trunk edge: ');
+  //console.log(trunkEdge);
+
+  // determine the direction relative to the trunk edge
+  var llDir = trunkEdge.toVertex.x - trunkEdge.fromVertex.x;
+  if(llDir === 0) llDir = trunkEdge.toVertex.y - trunkEdge.fromVertex.y;
+
+  if(llDir > 0) {
+    // make the trunk edge from (0,0) to (x,0)
+    trunkEdge.fromVertex.moveTo(0, 0);
+    trunkEdge.toVertex.moveTo(trunkEdge.stopArray.length + 1, 0);
+
+    // explore the graph in both directions
+    this.extend1D(trunkEdge, trunkEdge.fromVertex, -1, 0);
+    this.extend1D(trunkEdge, trunkEdge.toVertex, 1, 0);
+  }
+  else {
+    // make the trunk edge from (x,0) to (0,0)
+    trunkEdge.toVertex.moveTo(0, 0);
+    trunkEdge.fromVertex.moveTo(trunkEdge.stopArray.length + 1, 0);
+
+    // explore the graph in both directions
+    this.extend1D(trunkEdge, trunkEdge.fromVertex, 1, 0);
+    this.extend1D(trunkEdge, trunkEdge.toVertex, -1, 0);
+  }
+};
+
+NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
+
+  var edges = vertex.incidentEdges(edge);
+  if(edges.length === 0) { // no additional edges to explore; we're done
+    return;
+  }
+  else if(edges.length === 1) { // exactly one other edge to explore
+    var extEdge = edges[0];
+    var oppVertex = extEdge.oppositeVertex(vertex);
+
+    if(this.exploredVertices.indexOf(oppVertex) !== -1) {
+      console.log('Warning: found cycle in 1d graph');
+      return;
+    }
+    this.exploredVertices.push(oppVertex);
+
+    oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);
+    this.extend1D(extEdge, oppVertex, direction, y);
+  }
+  else { // branch case
+    //console.log('branch:');
+    edges.forEach(function(extEdge, i) {
+      var oppVertex = extEdge.oppositeVertex(vertex);
+
+      if(this.exploredVertices.indexOf(oppVertex) !== -1) {
+        console.log('Warning: found cycle in 1d graph (branch)');
+        return;
+      }
+      this.exploredVertices.push(oppVertex);
+
+      if(i === 0) {
+        oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);
+        this.extend1D(extEdge, oppVertex, direction, y);
+      }
+      else {
+        //console.log('branch y+'+i);
+        var branchY = y+i;
+
+        if(extEdge.stopArray.length === 0) {
+          oppVertex.moveTo(vertex.x + 1 * direction, branchY);
+          return;
+        }
+
+        var newVertexStop;
+        if(extEdge.fromVertex === vertex) {
+          newVertexStop = extEdge.stopArray[0];
+          extEdge.stopArray.splice(0, 1);
+        }
+        else if(extEdge.toVertex === vertex) {
+          newVertexStop = extEdge.stopArray[extEdge.stopArray.length-1];
+          extEdge.stopArray.splice(0, extEdge.stopArray.length-1);
+        }
+
+        var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);
+        //console.log('newVertex:');
+        //console.log(newVertex);
+        
+        this.splitEdge(extEdge, newVertex, vertex);
+
+        oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);
+        this.extend1D(extEdge, oppVertex, direction, branchY);
+      }
+      //console.log(extEdge);
+    }, this);
+  }
+};
+
+
+/**
+ *
+ */
+
+NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
+  
+  // attach the existing edge to the inserted vertex
+  if(edge.fromVertex === adjacentVertex) {
+    edge.fromVertex = newVertex;
+  }
+  else if(edge.toVertex === adjacentVertex) {
+    edge.toVertex = newVertex;
+  }
+  else { // invalid params
+    console.log('Warning: invalid params to graph.splitEdge');
+    return;
+  }
+
+  // create new edge and copy the patterns
+  var newEdge = this.addEdge([], adjacentVertex, newVertex);
+  edge.patterns.forEach(function(pattern) {
+    newEdge.addPattern(pattern);
+  });
+
+  // associate both edges with the new vertex
+  newVertex.edges = [newEdge, edge];
+
+  // update the affected patterns' edge lists
+  edge.patterns.forEach(function(pattern) {
+    var i = pattern.graphEdges.indexOf(edge);
+    pattern.graphEdges.splice(i, 0, newEdge);
+  });
+
+};
+
+
 /**
  * Check if arrays are equal
  */
@@ -9936,6 +10110,7 @@ function Vertex(stop, x, y) {
   this.edges = [];
 }
 
+
 /**
  * Move to new coordinate
  *
@@ -9949,6 +10124,21 @@ Vertex.prototype.moveTo = function(x, y) {
   this.edges.forEach(function (edge) {
     edge.calculateVectors();
   });
+};
+
+
+/**
+ * Get array of edges incident to vertex. Allows specification of "incoming" edge that will not be included in results
+ *
+ * @param {Edge}
+ */
+
+Vertex.prototype.incidentEdges = function(inEdge) {
+	var results = [];
+	this.edges.forEach(function(edge) {
+		if(edge !== inEdge) results.push(edge);
+	});
+	return results;
 };
 
 });
@@ -10635,6 +10825,7 @@ function Transitive(el, data, passiveStyles, computedStyles) {
 
   this.graph = new Graph();
   this.load(data);
+  this.graph.convertTo1D();
 
   this.display = new Display(el, this.graph);
   this.display.zoom.on('zoom', this.refresh.bind(this));
@@ -10659,23 +10850,50 @@ Transitive.prototype.load = function(data) {
   // a convergence/divergence point between patterns
   var vertexStops = {};
 
+  // object maps stop ids to arrays of unique stop_ids reachable from that stop
+  var adjacentStops = {};
+
   data.routes.forEach(function (routeData) {
     // set up the Route object
     var route = new Route(routeData);
     this.routes[route.route_id] = route;
 
+    var patternCount = routeData.patterns.length;
+
     // iterate through the Route's constituent Patterns
-    routeData.patterns.forEach(function (patternData) {
+    routeData.patterns.forEach(function (patternData, i) {
+
+      // temp: only look at direction=0 patterns
+      if(parseInt(patternData.direction_id, 10) === 0) {
+        return;
+      }
+
+      //console.log('processing pattern: ');
+      //console.log(patternData);
 
       // set up the Pattern object
       var pattern = new Pattern(patternData);
       this.patterns[patternData.pattern_id] = pattern;
       route.addPattern(pattern);
 
+      // temporary offset assigmemt
+      pattern.offset = (-i + patternCount/2) * 1.2;
+
+      // iterate through this pattern's stops, associating stops/patterns with each other
+      // and initializing the adjacentStops table
+      var previousStop = null;
       patternData.stops.forEach(function (stopInfo) {
         var stop = this.stops[stopInfo.stop_id];
+        //console.log(' - '+stop.getId()+' / ' + stop.stop_name);
+
         pattern.stops.push(stop);
         stop.patterns.push(pattern);
+
+        if(previousStop) { // this block called for each pair of adjacent stops in pattern
+          addStopAdjacency(adjacentStops, stop, previousStop);
+          addStopAdjacency(adjacentStops, previousStop, stop);
+        }
+        previousStop = stop;
       }, this);
 
       // add the start and end stops to the vertexStops collection
@@ -10691,8 +10909,18 @@ Transitive.prototype.load = function(data) {
     }, this);
   }, this);
 
-  // populate the graph vertices
-  for (var stopId in vertexStops) {
+  //console.log('adj stops:');
+  //console.log(adjacentStops);
+  
+  // determine the convergence/divergence vertex stops by looking for stops w/ >2 adjacent stops
+  for(var stopId in adjacentStops) {
+    if(adjacentStops[stopId].length > 2) {
+      vertexStops[stopId] = this.stops[stopId];
+    }
+  }
+
+  // populate the vertices in the graph object
+  for (stopId in vertexStops) {
     var stop = vertexStops[stopId];
     var vertex = this.graph.addVertex(stop, 0, 0);
     stop.graphVertex = vertex;
@@ -10702,6 +10930,16 @@ Transitive.prototype.load = function(data) {
 
   return this;
 };
+
+// helper function for stopAjacency table
+function addStopAdjacency(adjacentStops, stopA, stopB) {
+  if(!adjacentStops[stopA.getId()]) {
+    adjacentStops[stopA.getId()] = [];
+  }
+  if(adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {
+    adjacentStops[stopA.getId()].push(stopB.getId());
+  }
+}
 
 /**
  * Render
@@ -10713,7 +10951,7 @@ Transitive.prototype.render = function() {
   var offsetTop = display.offsetTop;
   var refresh = this.refresh.bind(this);
 
-  /* Need to find a better place to add behaviors...
+  // Need to find a better place to add behaviors...
   var drag = d3.behavior.drag()
     .on('dragstart', function () {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
@@ -10727,13 +10965,13 @@ Transitive.prototype.render = function() {
 
         refresh();
       }
-    }); */
+    });
 
   for (var key in this.patterns) {
     var pattern = this.patterns[key];
 
     pattern.draw(this.display, 10);
-    //pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);
+    pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);
   }
 
   refresh();
@@ -10810,6 +11048,7 @@ function populateGraphEdges(patterns, graph) {
           }
 
           pattern.graphEdges.push(edge);
+          edge.addPattern(pattern);
         }
 
         lastVertex = stop.graphVertex;
