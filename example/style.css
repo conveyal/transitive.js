@@ -1,8 +1,8 @@
 
 #canvas {
-  height: auto;
-  min-height: 300px;
-  border: 1px solid #ddd;
+  height: 400px; /*auto;
+  min-height: 300px;*/
+  border: 1px solid # ddd;
   border-radius: 3px;
   margin: 0 auto;
   clear: both;
