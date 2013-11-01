@@ -11,6 +11,10 @@ var Transitive = require('transitive');
 var $canvas = document.getElementById('canvas');
 var $form = document.getElementById('form');
 
+// transitive instance
+
+var transitive;
+
 // handle selects
 
 var Routes = select().label('Routes');
@@ -30,12 +34,17 @@ Routes.on('select', function (option) {
     Patterns.select(pattern.pattern_name.toLowerCase());
   }
 
-  /* load the route data & render */
-  $canvas.innerHTML = '';
-  new Transitive($canvas, {
+  var data = {
     routes: [ route ],
     stops: getStops(INDEX_FULL.stops, route)
-  });
+  };
+
+  /* load the route data & render */
+  if (!transitive) {
+    transitive = new Transitive($canvas, data);
+  } else {
+    transitive.load(data).render();
+  }
 });
 
 // add routes
