@@ -9962,6 +9962,8 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {
     this.extend1D(trunkEdge, trunkEdge.fromVertex, 1, 0);
     this.extend1D(trunkEdge, trunkEdge.toVertex, -1, 0);
   }
+
+  this.apply1DOffsets();
 };
 
 NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
@@ -10062,9 +10064,24 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
   // update the affected patterns' edge lists
   edge.patterns.forEach(function(pattern) {
     var i = pattern.graphEdges.indexOf(edge);
-    pattern.graphEdges.splice(i, 0, newEdge);
+    pattern.insertEdge(i, newEdge);
   });
 
+};
+
+
+NetworkGraph.prototype.apply1DOffsets = function() {
+  this.edges.forEach(function(edge) {
+    if(edge.toVertex.y !== edge.fromVertex.y) return;
+    if(edge.patterns.length === 1) {
+      edge.patterns[0].setEdgeOffset(edge, 0);
+    }
+    else {
+      edge.patterns.forEach(function(pattern, i) {
+        pattern.setEdgeOffset(edge, (-i + edge.patterns.length/2) * 1.2);
+      });
+    }
+  }, this);
 };
 
 
@@ -10163,7 +10180,7 @@ function showLabelsOnHover(pattern, display) {
         .style('visibility', 'visible');
     })
     .on('mouseleave', function (data) {
-      if (display.zoom.scale() < display.labelZoomThreshold) {
+      if (display.zoom.scale() < 0.75) {
         pattern.select('#transitive-stop-label-' + data.stop.getId())
           .style('visibility', 'hidden');
       }
@@ -10367,38 +10384,39 @@ module.exports = Display;
  *  The D3-based SVG display.
  */
 
-function Display(el, graph) {
-  this.offsetLeft = el.offsetLeft;
-  this.offsetTop = el.offsetTop;
-  this.labelZoomThreshold = 0.75;
-
-  this.initScales(el, graph);
-
+function Display(el) {
   // set up the pan/zoom behavior
-  this.zoom  = d3.behavior.zoom()
+  this.zoom = d3.behavior.zoom()
     .scaleExtent([ 0.25, 4 ]);
 
   // set up the svg display
-  this.svgGroup = this.svg = d3.select(el)
+  this.svg = d3.select(el)
     .append('svg')
     .append('g');
-  
-  this.svgGroup.call(this.zoom);
+
+  // call the zoom behavior
+  this.svg.call(this.zoom);
 
   // append an overlay to capture pan/zoom events on entire viewport
   this.svg.append('rect')
-    .attr('class', 'overlay');
-
-  this.setElement(el);
+    .style('fill', 'none')
+    .style('pointer-events', 'all');
 }
 
 /**
- * Set the element
+ * Empty the display
  */
 
-Display.prototype.setElement = function(el) {
-  var width = el.clientWidth;
-  var height = el.clientHeight;
+Display.prototype.empty = function() {
+  this.svg.selectAll('g').remove();
+};
+
+/**
+ * Set the scale
+ */
+
+Display.prototype.setScale = function(height, width, graph) {
+  setScales(this, height, width, graph);
 
   this.xScale.range([ 0, width ]);
   this.yScale.range([ height, 0 ]);
@@ -10420,7 +10438,7 @@ Display.prototype.setElement = function(el) {
  * Initialize the x/y coordinate space domain to fit the graph.
  */
 
-Display.prototype.initScales = function(el, graph) {
+function setScales(display, height, width, graph) {
   var minX = Number.MAX_VALUE, maxX = -Number.MAX_VALUE;
   var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;
 
@@ -10432,13 +10450,13 @@ Display.prototype.initScales = function(el, graph) {
   });
 
   var xRange = maxX - minX, yRange = maxY - minY;
-  var displayAspect = el.clientWidth / el.clientHeight;
+  var displayAspect = width / height;
   var graphAspect = xRange / (yRange === 0 ? Number.MIN_VALUE : yRange);
-  
+
   var paddingFactor = 0.2, padding;
   var dispX1, dispX2, dispY1, dispY2;
 
-  if(displayAspect > graphAspect) { // y-axis is dominant
+  if (displayAspect > graphAspect) { // y-axis is dominant
     padding = paddingFactor * yRange;
     dispY1 = minY - padding;
     dispY2 = maxY + padding;
@@ -10446,8 +10464,7 @@ Display.prototype.initScales = function(el, graph) {
     var xMidpoint = (maxX + minX) / 2;
     dispX1 = xMidpoint - dispXRange / 2;
     dispX2 = xMidpoint + dispXRange / 2;
-  }
-  else { // x-axis dominant
+  } else { // x-axis dominant
     padding = paddingFactor * xRange;
     dispX1 = minX - padding;
     dispX2 = maxX + padding;
@@ -10458,13 +10475,12 @@ Display.prototype.initScales = function(el, graph) {
   }
 
   // set up the scales
-  this.xScale = d3.scale.linear()
-    .domain([ dispX1, dispX2]);
+  display.xScale = d3.scale.linear()
+    .domain([ dispX1, dispX2 ]);
 
-  this.yScale = d3.scale.linear()
+  display.yScale = d3.scale.linear()
     .domain([ dispY1, dispY2 ]);
-
-};
+}
 });
 require.register("transitive/lib/pattern.js", function(exports, require, module){
 
@@ -10492,9 +10508,49 @@ function Pattern(data) {
 
   this.stops = [];
 
-  // the pattern represented as an ordered sequence of edges in the graph
+  // The pattern as an ordered sequence of edges in the graph w/ associated metadata.
+  // Array of objects containing the following fields:
+  //  - edge : the Edge object  
+  //  - offset : the offset for rendering, expressed as a factor of the line width and relative to the 'forward' direction of the pattern
   this.graphEdges = [];
 }
+
+/**
+ * addEdge: add a new edge to the end of this pattern's edge list
+ */
+
+Pattern.prototype.addEdge = function(edge) {
+  this.graphEdges.push({
+    edge: edge,
+    offset: 0
+  });
+};
+
+
+/**
+ * insertEdge: insert an edge into this patterns edge list at a specified index
+ */
+
+Pattern.prototype.insertEdge = function(index, edge) {
+  this.graphEdges.splice(index, 0, {
+    edge: edge,
+    offset: 0
+  });
+};
+
+
+/**
+ * setEdgeOffset: applies a specified offset to a specified edge in the pattern
+ */
+
+Pattern.prototype.setEdgeOffset = function(edge, offset) {
+  this.graphEdges.forEach(function(edgeInfo) {
+    if(edgeInfo.edge === edge) {
+      edgeInfo.offset = offset;
+    }
+  });
+};
+
 
 /**
  * Draw
@@ -10606,13 +10662,15 @@ Pattern.prototype.refresh = function(display) {
 Pattern.prototype.getStopData = function() {
   var stopData = [];
 
-  this.graphEdges.forEach(function (edge, i) {
+  this.graphEdges.forEach(function (edgeInfo, i) {
+
+    var edge = edgeInfo.edge;
 
     var prevEdge = i > 0
-      ? this.graphEdges[i - 1]
+      ? this.graphEdges[i - 1].edge
       : null;
     var nextEdge = i < this.graphEdges.length - 1
-      ? this.graphEdges[i + 1]
+      ? this.graphEdges[i + 1].edge
       : null;
 
     var stopInfo;
@@ -10627,12 +10685,12 @@ Pattern.prototype.getStopData = function() {
         outEdge: edge
       };
 
-      stopInfo.offsetX = this.offset
-        ? edge.rightVector.x * this.lineWidth * this.offset
+      stopInfo.offsetX = edgeInfo.offset
+        ? edge.rightVector.x * this.lineWidth * edgeInfo.offset
         : 0;
 
-      stopInfo.offsetY = this.offset
-        ? edge.rightVector.y * this.lineWidth * this.offset
+      stopInfo.offsetY = edgeInfo.offset
+        ? edge.rightVector.y * this.lineWidth * edgeInfo.offset
         : 0;
 
       stopData.push(stopInfo);
@@ -10643,9 +10701,9 @@ Pattern.prototype.getStopData = function() {
       stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));
       stopInfo.stop = stop;
       stopInfo.inEdge = stopInfo.outEdge = edge;
-      if(this.offset) {
-        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;
-        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;
+      if(edgeInfo.offset) {
+        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;
+        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;
       }
       else {
         stopInfo.offsetX = stopInfo.offsetY = 0;
@@ -10662,7 +10720,7 @@ Pattern.prototype.getStopData = function() {
       outEdge: null
     };
 
-    if (this.offset) {
+    if (edgeInfo.offset) {
       if (nextEdge
         && nextEdge.rightVector.x !== edge.rightVector.x
         && nextEdge.rightVector.y !== edge.rightVector.y) {
@@ -10681,11 +10739,11 @@ Pattern.prototype.getStopData = function() {
 
         var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))
 
-        stopInfo.offsetX = normalized.x * this.lineWidth * this.offset * l;
-        stopInfo.offsetY = normalized.y * this.lineWidth * this.offset * l;
+        stopInfo.offsetX = normalized.x * this.lineWidth * edgeInfo.offset * l;
+        stopInfo.offsetY = normalized.y * this.lineWidth * edgeInfo.offset * l;
       } else {
-        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;
-        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;
+        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;
+        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;
       }
     } else {
       stopInfo.offsetX = stopInfo.offsetY = 0;
@@ -10823,16 +10881,10 @@ function Transitive(el, data, passiveStyles, computedStyles) {
     return new Transitive(el, data, passiveStyles, computedStyles);
   }
 
-  this.graph = new Graph();
-  this.load(data);
-  this.graph.convertTo1D();
-
-  this.display = new Display(el, this.graph);
-  this.display.zoom.on('zoom', this.refresh.bind(this));
-
   this.style = new Styler(passiveStyles, computedStyles);
 
-  this.render();
+  this.load(data);
+  this.renderTo(el);
 }
 
 /**
@@ -10840,6 +10892,8 @@ function Transitive(el, data, passiveStyles, computedStyles) {
  */
 
 Transitive.prototype.load = function(data) {
+  this.graph = new Graph();
+
   this.stops = generateStops(data.stops);
 
   this.routes = {};
@@ -10876,9 +10930,6 @@ Transitive.prototype.load = function(data) {
       this.patterns[patternData.pattern_id] = pattern;
       route.addPattern(pattern);
 
-      // temporary offset assigmemt
-      pattern.offset = (-i + patternCount/2) * 1.2;
-
       // iterate through this pattern's stops, associating stops/patterns with each other
       // and initializing the adjacentStops table
       var previousStop = null;
@@ -10911,7 +10962,7 @@ Transitive.prototype.load = function(data) {
 
   //console.log('adj stops:');
   //console.log(adjacentStops);
-  
+
   // determine the convergence/divergence vertex stops by looking for stops w/ >2 adjacent stops
   for(var stopId in adjacentStops) {
     if(adjacentStops[stopId].length > 2) {
@@ -10928,15 +10979,25 @@ Transitive.prototype.load = function(data) {
 
   populateGraphEdges(this.patterns, this.graph);
 
+  this.graph.convertTo1D();
+
+  if (this.display && this.el) {
+    this.display.setScale(this.el.clientHeight, this.el.clientWidth, this.graph);
+  }
+
   return this;
 };
 
-// helper function for stopAjacency table
+/**
+ * Helper function for stopAjacency table
+ */
+
 function addStopAdjacency(adjacentStops, stopA, stopB) {
-  if(!adjacentStops[stopA.getId()]) {
+  if (!adjacentStops[stopA.getId()]) {
     adjacentStops[stopA.getId()] = [];
   }
-  if(adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {
+
+  if (adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {
     adjacentStops[stopA.getId()].push(stopB.getId());
   }
 }
@@ -10947,8 +11008,8 @@ function addStopAdjacency(adjacentStops, stopA, stopB) {
 
 Transitive.prototype.render = function() {
   var display = this.display;
-  var offsetLeft = display.offsetLeft;
-  var offsetTop = display.offsetTop;
+  var offsetLeft = this.el.offsetLeft;
+  var offsetTop = this.el.offsetTop;
   var refresh = this.refresh.bind(this);
 
   // Need to find a better place to add behaviors...
@@ -10967,6 +11028,9 @@ Transitive.prototype.render = function() {
       }
     });
 
+  // remove all old patterns
+  this.display.empty();
+
   for (var key in this.patterns) {
     var pattern = this.patterns[key];
 
@@ -10975,6 +11039,17 @@ Transitive.prototype.render = function() {
   }
 
   refresh();
+
+  return this;
+};
+
+/**
+ * Render to
+ */
+
+Transitive.prototype.renderTo = function(el) {
+  this.setElement(el);
+  this.render();
 
   return this;
 };
@@ -10999,8 +11074,13 @@ Transitive.prototype.refresh = function() {
  */
 
 Transitive.prototype.setElement = function(el) {
-  this.display.setElement(el);
-  this.render();
+  if (this.el) this.el.innerHTML = null;
+
+  this.el = el;
+
+  this.display = new Display(el);
+  this.display.zoom.on('zoom', this.refresh.bind(this));
+  this.display.setScale(el.clientHeight, el.clientWidth, this.graph);
 
   return this;
 };
@@ -11047,7 +11127,7 @@ function populateGraphEdges(patterns, graph) {
             edge = graph.addEdge(internalStops, lastVertex, stop.graphVertex);
           }
 
-          pattern.graphEdges.push(edge);
+          pattern.addEdge(edge);
           edge.addPattern(pattern);
         }
 

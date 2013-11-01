@@ -12228,6 +12228,8 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
     this.extend1D(trunkEdge, trunkEdge.fromVertex, 1, 0);\n\
     this.extend1D(trunkEdge, trunkEdge.toVertex, -1, 0);\n\
   }\n\
+\n\
+  this.apply1DOffsets();\n\
 };\n\
 \n\
 NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
@@ -12328,9 +12330,24 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
   // update the affected patterns' edge lists\n\
   edge.patterns.forEach(function(pattern) {\n\
     var i = pattern.graphEdges.indexOf(edge);\n\
-    pattern.graphEdges.splice(i, 0, newEdge);\n\
+    pattern.insertEdge(i, newEdge);\n\
   });\n\
 \n\
+};\n\
+\n\
+\n\
+NetworkGraph.prototype.apply1DOffsets = function() {\n\
+  this.edges.forEach(function(edge) {\n\
+    if(edge.toVertex.y !== edge.fromVertex.y) return;\n\
+    if(edge.patterns.length === 1) {\n\
+      edge.patterns[0].setEdgeOffset(edge, 0);\n\
+    }\n\
+    else {\n\
+      edge.patterns.forEach(function(pattern, i) {\n\
+        pattern.setEdgeOffset(edge, (-i + edge.patterns.length/2) * 1.2);\n\
+      });\n\
+    }\n\
+  }, this);\n\
 };\n\
 \n\
 \n\
@@ -12429,7 +12446,7 @@ function showLabelsOnHover(pattern, display) {\n\
         .style('visibility', 'visible');\n\
     })\n\
     .on('mouseleave', function (data) {\n\
-      if (display.zoom.scale() < display.labelZoomThreshold) {\n\
+      if (display.zoom.scale() < 0.75) {\n\
         pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
           .style('visibility', 'hidden');\n\
       }\n\
@@ -12633,38 +12650,39 @@ module.exports = Display;\n\
  *  The D3-based SVG display.\n\
  */\n\
 \n\
-function Display(el, graph) {\n\
-  this.offsetLeft = el.offsetLeft;\n\
-  this.offsetTop = el.offsetTop;\n\
-  this.labelZoomThreshold = 0.75;\n\
-\n\
-  this.initScales(el, graph);\n\
-\n\
+function Display(el) {\n\
   // set up the pan/zoom behavior\n\
-  this.zoom  = d3.behavior.zoom()\n\
+  this.zoom = d3.behavior.zoom()\n\
     .scaleExtent([ 0.25, 4 ]);\n\
 \n\
   // set up the svg display\n\
-  this.svgGroup = this.svg = d3.select(el)\n\
+  this.svg = d3.select(el)\n\
     .append('svg')\n\
     .append('g');\n\
-  \n\
-  this.svgGroup.call(this.zoom);\n\
+\n\
+  // call the zoom behavior\n\
+  this.svg.call(this.zoom);\n\
 \n\
   // append an overlay to capture pan/zoom events on entire viewport\n\
   this.svg.append('rect')\n\
-    .attr('class', 'overlay');\n\
-\n\
-  this.setElement(el);\n\
+    .style('fill', 'none')\n\
+    .style('pointer-events', 'all');\n\
 }\n\
 \n\
 /**\n\
- * Set the element\n\
+ * Empty the display\n\
  */\n\
 \n\
-Display.prototype.setElement = function(el) {\n\
-  var width = el.clientWidth;\n\
-  var height = el.clientHeight;\n\
+Display.prototype.empty = function() {\n\
+  this.svg.selectAll('g').remove();\n\
+};\n\
+\n\
+/**\n\
+ * Set the scale\n\
+ */\n\
+\n\
+Display.prototype.setScale = function(height, width, graph) {\n\
+  setScales(this, height, width, graph);\n\
 \n\
   this.xScale.range([ 0, width ]);\n\
   this.yScale.range([ height, 0 ]);\n\
@@ -12686,7 +12704,7 @@ Display.prototype.setElement = function(el) {\n\
  * Initialize the x/y coordinate space domain to fit the graph.\n\
  */\n\
 \n\
-Display.prototype.initScales = function(el, graph) {\n\
+function setScales(display, height, width, graph) {\n\
   var minX = Number.MAX_VALUE, maxX = -Number.MAX_VALUE;\n\
   var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;\n\
 \n\
@@ -12698,13 +12716,13 @@ Display.prototype.initScales = function(el, graph) {\n\
   });\n\
 \n\
   var xRange = maxX - minX, yRange = maxY - minY;\n\
-  var displayAspect = el.clientWidth / el.clientHeight;\n\
+  var displayAspect = width / height;\n\
   var graphAspect = xRange / (yRange === 0 ? Number.MIN_VALUE : yRange);\n\
-  \n\
+\n\
   var paddingFactor = 0.2, padding;\n\
   var dispX1, dispX2, dispY1, dispY2;\n\
 \n\
-  if(displayAspect > graphAspect) { // y-axis is dominant\n\
+  if (displayAspect > graphAspect) { // y-axis is dominant\n\
     padding = paddingFactor * yRange;\n\
     dispY1 = minY - padding;\n\
     dispY2 = maxY + padding;\n\
@@ -12712,8 +12730,7 @@ Display.prototype.initScales = function(el, graph) {\n\
     var xMidpoint = (maxX + minX) / 2;\n\
     dispX1 = xMidpoint - dispXRange / 2;\n\
     dispX2 = xMidpoint + dispXRange / 2;\n\
-  }\n\
-  else { // x-axis dominant\n\
+  } else { // x-axis dominant\n\
     padding = paddingFactor * xRange;\n\
     dispX1 = minX - padding;\n\
     dispX2 = maxX + padding;\n\
@@ -12724,13 +12741,12 @@ Display.prototype.initScales = function(el, graph) {\n\
   }\n\
 \n\
   // set up the scales\n\
-  this.xScale = d3.scale.linear()\n\
-    .domain([ dispX1, dispX2]);\n\
+  display.xScale = d3.scale.linear()\n\
+    .domain([ dispX1, dispX2 ]);\n\
 \n\
-  this.yScale = d3.scale.linear()\n\
+  display.yScale = d3.scale.linear()\n\
     .domain([ dispY1, dispY2 ]);\n\
-\n\
-};//@ sourceURL=transitive/lib/display.js"
+}//@ sourceURL=transitive/lib/display.js"
 ));
 require.register("transitive/lib/pattern.js", Function("exports, require, module",
 "\n\
@@ -12758,9 +12774,49 @@ function Pattern(data) {\n\
 \n\
   this.stops = [];\n\
 \n\
-  // the pattern represented as an ordered sequence of edges in the graph\n\
+  // The pattern as an ordered sequence of edges in the graph w/ associated metadata.\n\
+  // Array of objects containing the following fields:\n\
+  //  - edge : the Edge object  \n\
+  //  - offset : the offset for rendering, expressed as a factor of the line width and relative to the 'forward' direction of the pattern\n\
   this.graphEdges = [];\n\
 }\n\
+\n\
+/**\n\
+ * addEdge: add a new edge to the end of this pattern's edge list\n\
+ */\n\
+\n\
+Pattern.prototype.addEdge = function(edge) {\n\
+  this.graphEdges.push({\n\
+    edge: edge,\n\
+    offset: 0\n\
+  });\n\
+};\n\
+\n\
+\n\
+/**\n\
+ * insertEdge: insert an edge into this patterns edge list at a specified index\n\
+ */\n\
+\n\
+Pattern.prototype.insertEdge = function(index, edge) {\n\
+  this.graphEdges.splice(index, 0, {\n\
+    edge: edge,\n\
+    offset: 0\n\
+  });\n\
+};\n\
+\n\
+\n\
+/**\n\
+ * setEdgeOffset: applies a specified offset to a specified edge in the pattern\n\
+ */\n\
+\n\
+Pattern.prototype.setEdgeOffset = function(edge, offset) {\n\
+  this.graphEdges.forEach(function(edgeInfo) {\n\
+    if(edgeInfo.edge === edge) {\n\
+      edgeInfo.offset = offset;\n\
+    }\n\
+  });\n\
+};\n\
+\n\
 \n\
 /**\n\
  * Draw\n\
@@ -12872,13 +12928,15 @@ Pattern.prototype.refresh = function(display) {\n\
 Pattern.prototype.getStopData = function() {\n\
   var stopData = [];\n\
 \n\
-  this.graphEdges.forEach(function (edge, i) {\n\
+  this.graphEdges.forEach(function (edgeInfo, i) {\n\
+\n\
+    var edge = edgeInfo.edge;\n\
 \n\
     var prevEdge = i > 0\n\
-      ? this.graphEdges[i - 1]\n\
+      ? this.graphEdges[i - 1].edge\n\
       : null;\n\
     var nextEdge = i < this.graphEdges.length - 1\n\
-      ? this.graphEdges[i + 1]\n\
+      ? this.graphEdges[i + 1].edge\n\
       : null;\n\
 \n\
     var stopInfo;\n\
@@ -12893,12 +12951,12 @@ Pattern.prototype.getStopData = function() {\n\
         outEdge: edge\n\
       };\n\
 \n\
-      stopInfo.offsetX = this.offset\n\
-        ? edge.rightVector.x * this.lineWidth * this.offset\n\
+      stopInfo.offsetX = edgeInfo.offset\n\
+        ? edge.rightVector.x * this.lineWidth * edgeInfo.offset\n\
         : 0;\n\
 \n\
-      stopInfo.offsetY = this.offset\n\
-        ? edge.rightVector.y * this.lineWidth * this.offset\n\
+      stopInfo.offsetY = edgeInfo.offset\n\
+        ? edge.rightVector.y * this.lineWidth * edgeInfo.offset\n\
         : 0;\n\
 \n\
       stopData.push(stopInfo);\n\
@@ -12909,9 +12967,9 @@ Pattern.prototype.getStopData = function() {\n\
       stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));\n\
       stopInfo.stop = stop;\n\
       stopInfo.inEdge = stopInfo.outEdge = edge;\n\
-      if(this.offset) {\n\
-        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;\n\
-        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;\n\
+      if(edgeInfo.offset) {\n\
+        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;\n\
+        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;\n\
       }\n\
       else {\n\
         stopInfo.offsetX = stopInfo.offsetY = 0;\n\
@@ -12928,7 +12986,7 @@ Pattern.prototype.getStopData = function() {\n\
       outEdge: null\n\
     };\n\
 \n\
-    if (this.offset) {\n\
+    if (edgeInfo.offset) {\n\
       if (nextEdge\n\
         && nextEdge.rightVector.x !== edge.rightVector.x\n\
         && nextEdge.rightVector.y !== edge.rightVector.y) {\n\
@@ -12947,11 +13005,11 @@ Pattern.prototype.getStopData = function() {\n\
 \n\
         var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))\n\
 \n\
-        stopInfo.offsetX = normalized.x * this.lineWidth * this.offset * l;\n\
-        stopInfo.offsetY = normalized.y * this.lineWidth * this.offset * l;\n\
+        stopInfo.offsetX = normalized.x * this.lineWidth * edgeInfo.offset * l;\n\
+        stopInfo.offsetY = normalized.y * this.lineWidth * edgeInfo.offset * l;\n\
       } else {\n\
-        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * this.offset;\n\
-        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * this.offset;\n\
+        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;\n\
+        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;\n\
       }\n\
     } else {\n\
       stopInfo.offsetX = stopInfo.offsetY = 0;\n\
@@ -13089,16 +13147,10 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
     return new Transitive(el, data, passiveStyles, computedStyles);\n\
   }\n\
 \n\
-  this.graph = new Graph();\n\
-  this.load(data);\n\
-  this.graph.convertTo1D();\n\
-\n\
-  this.display = new Display(el, this.graph);\n\
-  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
-\n\
   this.style = new Styler(passiveStyles, computedStyles);\n\
 \n\
-  this.render();\n\
+  this.load(data);\n\
+  this.renderTo(el);\n\
 }\n\
 \n\
 /**\n\
@@ -13106,6 +13158,8 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
  */\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
+  this.graph = new Graph();\n\
+\n\
   this.stops = generateStops(data.stops);\n\
 \n\
   this.routes = {};\n\
@@ -13142,9 +13196,6 @@ Transitive.prototype.load = function(data) {\n\
       this.patterns[patternData.pattern_id] = pattern;\n\
       route.addPattern(pattern);\n\
 \n\
-      // temporary offset assigmemt\n\
-      pattern.offset = (-i + patternCount/2) * 1.2;\n\
-\n\
       // iterate through this pattern's stops, associating stops/patterns with each other\n\
       // and initializing the adjacentStops table\n\
       var previousStop = null;\n\
@@ -13177,7 +13228,7 @@ Transitive.prototype.load = function(data) {\n\
 \n\
   //console.log('adj stops:');\n\
   //console.log(adjacentStops);\n\
-  \n\
+\n\
   // determine the convergence/divergence vertex stops by looking for stops w/ >2 adjacent stops\n\
   for(var stopId in adjacentStops) {\n\
     if(adjacentStops[stopId].length > 2) {\n\
@@ -13194,15 +13245,25 @@ Transitive.prototype.load = function(data) {\n\
 \n\
   populateGraphEdges(this.patterns, this.graph);\n\
 \n\
+  this.graph.convertTo1D();\n\
+\n\
+  if (this.display && this.el) {\n\
+    this.display.setScale(this.el.clientHeight, this.el.clientWidth, this.graph);\n\
+  }\n\
+\n\
   return this;\n\
 };\n\
 \n\
-// helper function for stopAjacency table\n\
+/**\n\
+ * Helper function for stopAjacency table\n\
+ */\n\
+\n\
 function addStopAdjacency(adjacentStops, stopA, stopB) {\n\
-  if(!adjacentStops[stopA.getId()]) {\n\
+  if (!adjacentStops[stopA.getId()]) {\n\
     adjacentStops[stopA.getId()] = [];\n\
   }\n\
-  if(adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {\n\
+\n\
+  if (adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {\n\
     adjacentStops[stopA.getId()].push(stopB.getId());\n\
   }\n\
 }\n\
@@ -13213,8 +13274,8 @@ function addStopAdjacency(adjacentStops, stopA, stopB) {\n\
 \n\
 Transitive.prototype.render = function() {\n\
   var display = this.display;\n\
-  var offsetLeft = display.offsetLeft;\n\
-  var offsetTop = display.offsetTop;\n\
+  var offsetLeft = this.el.offsetLeft;\n\
+  var offsetTop = this.el.offsetTop;\n\
   var refresh = this.refresh.bind(this);\n\
 \n\
   // Need to find a better place to add behaviors...\n\
@@ -13233,6 +13294,9 @@ Transitive.prototype.render = function() {\n\
       }\n\
     });\n\
 \n\
+  // remove all old patterns\n\
+  this.display.empty();\n\
+\n\
   for (var key in this.patterns) {\n\
     var pattern = this.patterns[key];\n\
 \n\
@@ -13241,6 +13305,17 @@ Transitive.prototype.render = function() {\n\
   }\n\
 \n\
   refresh();\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Render to\n\
+ */\n\
+\n\
+Transitive.prototype.renderTo = function(el) {\n\
+  this.setElement(el);\n\
+  this.render();\n\
 \n\
   return this;\n\
 };\n\
@@ -13265,8 +13340,13 @@ Transitive.prototype.refresh = function() {\n\
  */\n\
 \n\
 Transitive.prototype.setElement = function(el) {\n\
-  this.display.setElement(el);\n\
-  this.render();\n\
+  if (this.el) this.el.innerHTML = null;\n\
+\n\
+  this.el = el;\n\
+\n\
+  this.display = new Display(el);\n\
+  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
+  this.display.setScale(el.clientHeight, el.clientWidth, this.graph);\n\
 \n\
   return this;\n\
 };\n\
@@ -13313,7 +13393,7 @@ function populateGraphEdges(patterns, graph) {\n\
             edge = graph.addEdge(internalStops, lastVertex, stop.graphVertex);\n\
           }\n\
 \n\
-          pattern.graphEdges.push(edge);\n\
+          pattern.addEdge(edge);\n\
           edge.addPattern(pattern);\n\
         }\n\
 \n\
