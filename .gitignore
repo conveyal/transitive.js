@@ -16,3 +16,6 @@ results
 node_modules
 components
 npm-debug.log
+
+transitive.js
+transitive.min.js

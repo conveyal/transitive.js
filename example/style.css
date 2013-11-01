@@ -2,16 +2,11 @@
 #canvas {
   height: 400px; /*auto;
   min-height: 300px;*/
-  border: 1px solid # ddd;
+  border: 1px solid #ddd;
   border-radius: 3px;
   margin: 0 auto;
   clear: both;
   background-color: #fff;
-}
-
-.overlay {
-  fill: none;
-  pointer-events: all;
 }
 
 /* pattern style 1 custom values -- temporary / test code */
