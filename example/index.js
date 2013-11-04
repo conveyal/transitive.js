@@ -1,5 +1,7 @@
 
-// dependencies
+/**
+ * Dependencies
+ */
 
 var select = require('select');
 var Set = require('set');
@@ -12,23 +14,20 @@ var ROUTE = null;
 var STOPS = new Set();
 
 // handle selects
-
-var Routes = select()
-  .label('Routes');
-
-var Patterns = select()
-  .multiple()
-  .label('Patterns');
+var Routes = select().label('Routes');
+var Patterns = select().multiple().label('Patterns');
 
 document.getElementById('select-route').appendChild(Routes.el);
 document.getElementById('select-pattern').appendChild(Patterns.el);
 
 // transitive instance
-
-var transitive = new Transitive(document.getElementById('canvas'), INDEX_FULL);
+var transitive = new Transitive(
+  document.getElementById('canvas'), // element
+  INDEX_FULL, // data
+  {}, // passive styles
+  COMPUTED);
 
 // Set up filters
-
 transitive
   .filter('stops', function (stop) {
     return STOPS.has(stop.stop_id);
@@ -41,25 +40,20 @@ transitive
   });
 
 // Direction check box
-
 var $reverse = document.getElementById('reverse-direction');
 
 // on direction change
-
 $reverse.addEventListener('change', function (event) {
   DIRECTION = event.target.checked
     ? '1'
     : '0';
 
   // only show appropriate patterns
-  updatePatterns(ROUTE, DIRECTION);
-
-  // render
+  updatePatterns(Patterns, ROUTE, DIRECTION);
   transitive.render();
 });
 
 // On route selection change
-
 Routes.on('select', function (option) {
   localStorage.setItem('selected-route', option.name);
 
@@ -67,41 +61,37 @@ Routes.on('select', function (option) {
   STOPS = getStopIds(ROUTE);
 
   // only show appropriate patterns
-  updatePatterns(ROUTE, DIRECTION);
-
-  // render
+  updatePatterns(Patterns, ROUTE, DIRECTION);
   transitive.render();
 });
 
 // add routes
-
 for (var i in INDEX.routes) {
   var route = INDEX.routes[i];
   Routes.add(route.route_id);
 }
 
 // Select the first route
-
 Routes.select(localStorage.getItem('selected-route') || INDEX.routes[0].route_id.toLowerCase());
 
-// update patterns
+/**
+ * Update patterns
+ */
 
-function updatePatterns(route, direction) {
+function updatePatterns(patterns, route, direction) {
   // unbind all events
-  Patterns.off('change');
-
-  // empty the select
-  Patterns.empty();
+  patterns.off('change');
+  patterns.empty();
 
   for (var i in route.patterns) {
     var pattern = route.patterns[i];
     if (pattern.direction_id === direction) {
-      Patterns.add(pattern.pattern_name, pattern.pattern_id);
-      Patterns.select(pattern.pattern_name.toLowerCase());
+      patterns.add(pattern.pattern_name, pattern.pattern_id);
+      patterns.select(pattern.pattern_name.toLowerCase());
     }
   }
 
-  Patterns.on('change', function() {
+  patterns.on('change', function() {
     transitive.render();
   });
 }
