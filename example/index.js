@@ -1,91 +1,116 @@
 
 // dependencies
 
-var d3 = require('d3');
 var select = require('select');
 var Set = require('set');
 var Transitive = require('transitive');
 
-// create and handle route/pattern selection
+// Globals
 
-var $canvas = document.getElementById('canvas');
-var $form = document.getElementById('form');
-var $reverse = document.getElementById('reverse-direction');
-
-// transitive instance
-
-var transitive = new Transitive($canvas);
+var DIRECTION = '0';
+var ROUTE = null;
+var STOPS = new Set();
 
 // handle selects
 
-var Routes = select().label('Routes');
-var Patterns = select().multiple().label('Patterns');
+var Routes = select()
+  .label('Routes');
+
+var Patterns = select()
+  .multiple()
+  .label('Patterns');
 
 document.getElementById('select-route').appendChild(Routes.el);
 document.getElementById('select-pattern').appendChild(Patterns.el);
 
-// current_route
+// transitive instance
 
-var ROUTE = null;
+var transitive = new Transitive(document.getElementById('canvas'), INDEX_FULL);
 
-// On check
+// Set up filters
 
-$reverse.addEventListener('change', showRoute);
+transitive
+  .filter('stops', function (stop) {
+    return STOPS.has(stop.stop_id);
+  })
+  .filter('routes', function (route) {
+    return ROUTE.route_id === route.route_id;
+  })
+  .filter('patterns', function (pattern) {
+    return Patterns.values().indexOf(pattern.pattern_id) !== -1;
+  });
+
+// Direction check box
+
+var $reverse = document.getElementById('reverse-direction');
+
+// on direction change
+
+$reverse.addEventListener('change', function (event) {
+  DIRECTION = event.target.checked
+    ? '1'
+    : '0';
+
+  // only show appropriate patterns
+  updatePatterns(ROUTE, DIRECTION);
+
+  // render
+  transitive.render();
+});
 
 // On route selection change
 
 Routes.on('select', function (option) {
   localStorage.setItem('selected-route', option.name);
 
-  ROUTE = getRoute(INDEX_FULL.routes, option.value) || getRoute(INDEX_FULL.routes, option.name);
-  console.log('selected route:', ROUTE);
+  ROUTE = getRoute(option.name);
+  STOPS = getStopIds(ROUTE);
 
-  showRoute();
+  // only show appropriate patterns
+  updatePatterns(ROUTE, DIRECTION);
+
+  // render
+  transitive.render();
 });
 
 // add routes
 
 for (var i in INDEX.routes) {
   var route = INDEX.routes[i];
-  Routes.add(route.route_short_name || route.route_id, route.route_id);
+  Routes.add(route.route_id);
 }
 
 // Select the first route
 
-Routes.select(localStorage.getItem('selected-route') || INDEX.routes[0].route_short_name.toLowerCase());
+Routes.select(localStorage.getItem('selected-route') || INDEX.routes[0].route_id.toLowerCase());
 
-// show a route
+// update patterns
 
-function showRoute() {
-  transitive.direction = $reverse.checked
-    ? 1
-    : 0;
+function updatePatterns(route, direction) {
+  // unbind all events
+  Patterns.off('change');
 
-  console.log(transitive.direction);
-
+  // empty the select
   Patterns.empty();
-  for (var i in ROUTE.patterns) {
-    var pattern = ROUTE.patterns[i];
-    if (parseInt(pattern.direction_id, 10) === transitive.direction) {
-      Patterns.add(pattern.pattern_name, pattern.pattern_id);
-      Patterns.select(pattern.pattern_name.toLowerCase());
+
+  for (var i in route.patterns) {
+    var pattern = route.patterns[i];
+    if (pattern.direction_id === direction) {
+      Patterns.add(pattern.pattern_id);
+      Patterns.select(pattern.pattern_id.toLowerCase());
     }
   }
 
-  var data = {
-    routes: [ ROUTE ],
-    stops: getStops(INDEX_FULL.stops, ROUTE)
-  };
-
-  // load the route data & render
-  transitive.load(data).render();
+  Patterns.on('change', function() {
+    transitive.render();
+  });
 }
 
 // get a route
 
-function getRoute(routes, id) {
-  for (var i in routes) {
-    var route = routes[i];
+function getRoute(id) {
+  for (var i in INDEX_FULL.routes) {
+    var route = INDEX_FULL.routes[i];
     if (route.route_id.toLowerCase() === id) {
       return route;
     }
@@ -94,7 +119,7 @@ function getRoute(routes, id) {
 
 // get the stops for a route
 
-function getStops(stops, route) {
+function getStopIds(route) {
   var stop_ids = new Set();
   for (var i in route.patterns) {
     var pattern = route.patterns[i];
@@ -103,7 +128,5 @@ function getStops(stops, route) {
     }
   }
 
-  return stops.filter(function (stop) {
-    return stop_ids.has(stop.stop_id);
-  });
+  return stop_ids;
 }
