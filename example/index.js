@@ -96,8 +96,8 @@ function updatePatterns(route, direction) {
   for (var i in route.patterns) {
     var pattern = route.patterns[i];
     if (pattern.direction_id === direction) {
-      Patterns.add(pattern.pattern_id);
-      Patterns.select(pattern.pattern_id.toLowerCase());
+      Patterns.add(pattern.pattern_name, pattern.pattern_id);
+      Patterns.select(pattern.pattern_name.toLowerCase());
     }
   }
 
