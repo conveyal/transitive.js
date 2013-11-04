@@ -12318,6 +12318,9 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
     return;\n\
   }\n\
 \n\
+  // de-associate the existing edge from the adjacentVertex\n\
+  adjacentVertex.removeEdge(edge);\n\
+\n\
   // create new edge and copy the patterns\n\
   var newEdge = this.addEdge([], adjacentVertex, newVertex);\n\
   edge.patterns.forEach(function(pattern) {\n\
@@ -12336,18 +12339,84 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
 };\n\
 \n\
 \n\
+/**\n\
+ *  Compute offsets for a 1.5D line map rendering\n\
+ */\n\
+\n\
 NetworkGraph.prototype.apply1DOffsets = function() {\n\
-  this.edges.forEach(function(edge) {\n\
+  \n\
+  // initialize the bundle comparisons\n\
+  this.bundleComparisons = {};\n\
+  this.vertices.forEach(function(vertex) {\n\
+    if(vertex.edges.length <= 2) return;\n\
+\n\
+    vertex.edges.forEach(function(edge) {\n\
+      if(edge.patterns.length < 2) return;\n\
+\n\
+      // compare each pattern pair \n\
+      for(var i = 0; i < edge.patterns.length; i++) {\n\
+        for(var j = i+1; j < edge.patterns.length; j++) {\n\
+          var p1 = edge.patterns[i], p2 = edge.patterns[j];\n\
+          var adjEdge1 = p1.getAdjacentEdge(edge, vertex);\n\
+          var adjEdge2 = p2.getAdjacentEdge(edge, vertex);\n\
+          if(adjEdge1 !== null && adjEdge2 !== null || adjEdge1 !== adjEdge2) {\n\
+            var oppVertex1 = adjEdge1.oppositeVertex(vertex);\n\
+            var oppVertex2 = adjEdge2.oppositeVertex(vertex);\n\
+\n\
+            if(oppVertex1.y < oppVertex2.y) {\n\
+              this.bundleComparison(p1, p2);\n\
+            }\n\
+            else if(oppVertex1.y > oppVertex2.y) {\n\
+              this.bundleComparison(p2, p1);\n\
+            }\n\
+          }\n\
+        }\n\
+      }\n\
+    }, this);\n\
+  }, this);\n\
+\n\
+  // create a copy of the array, sorted by bundle size (decreasing)\n\
+  var sortedEdges = this.edges.concat().sort(function compare(a,b) {\n\
+    if(a.patterns.length > b.patterns.length) return -1;\n\
+    if(a.patterns.length < b.patterns.length) return 1;\n\
+    return 0;\n\
+  });\n\
+\n\
+  sortedEdges.forEach(function(edge) {\n\
     if(edge.toVertex.y !== edge.fromVertex.y) return;\n\
+    //console.log('edge w/ ' + edge.patterns.length + ' to offset');\n\
     if(edge.patterns.length === 1) {\n\
       edge.patterns[0].setEdgeOffset(edge, 0);\n\
     }\n\
     else {\n\
-      edge.patterns.forEach(function(pattern, i) {\n\
-        pattern.setEdgeOffset(edge, (-i + edge.patterns.length/2) * 1.2);\n\
+      var this_ = this;\n\
+      var sortedPatterns = edge.patterns.concat().sort(function compare(a, b) {\n\
+        var key = a.pattern_id + ',' + b.pattern_id;\n\
+        var compValue = this_.bundleComparisons[key];\n\
+        if(compValue < 0) return -1;\n\
+        if(compValue > 0) return 1;\n\
+        return 0;\n\
+      });\n\
+      sortedPatterns.forEach(function(pattern, i) {\n\
+        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, true);\n\
       });\n\
     }\n\
   }, this);\n\
+};\n\
+\n\
+\n\
+/**\n\
+ *  Helper method for creating comparisons between patterns for bundle offsetting\n\
+ */\n\
+\n\
+NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
+  var key = p1.pattern_id + ',' + p2.pattern_id;\n\
+  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
+  this.bundleComparisons[key] += 1;\n\
+\n\
+  key = p2.pattern_id + ',' + p1.pattern_id;\n\
+  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
+  this.bundleComparisons[key] -= 1;\n\
 };\n\
 \n\
 \n\
@@ -12423,7 +12492,18 @@ Vertex.prototype.incidentEdges = function(inEdge) {\n\
 \t});\n\
 \treturn results;\n\
 };\n\
-//@ sourceURL=transitive/lib/graph/vertex.js"
+\n\
+\n\
+/**\n\
+ * Remove an edge from the vertex's edge list\n\
+ *\n\
+ * @param {Edge}\n\
+ */\n\
+\n\
+Vertex.prototype.removeEdge = function(edge) {\n\
+  var index = this.edges.indexOf(edge);\n\
+  if(index !== -1) this.edges.splice(index, 1);\n\
+};//@ sourceURL=transitive/lib/graph/vertex.js"
 ));
 require.register("transitive/lib/styler/computed.js", Function("exports, require, module",
 "\n\
@@ -12788,7 +12868,7 @@ function Pattern(data) {\n\
 Pattern.prototype.addEdge = function(edge) {\n\
   this.graphEdges.push({\n\
     edge: edge,\n\
-    offset: 0\n\
+    offset: null\n\
   });\n\
 };\n\
 \n\
@@ -12800,7 +12880,7 @@ Pattern.prototype.addEdge = function(edge) {\n\
 Pattern.prototype.insertEdge = function(index, edge) {\n\
   this.graphEdges.splice(index, 0, {\n\
     edge: edge,\n\
-    offset: 0\n\
+    offset: null\n\
   });\n\
 };\n\
 \n\
@@ -12809,14 +12889,35 @@ Pattern.prototype.insertEdge = function(index, edge) {\n\
  * setEdgeOffset: applies a specified offset to a specified edge in the pattern\n\
  */\n\
 \n\
-Pattern.prototype.setEdgeOffset = function(edge, offset) {\n\
-  this.graphEdges.forEach(function(edgeInfo) {\n\
-    if(edgeInfo.edge === edge) {\n\
+Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {\n\
+  //console.log('- set offset: '+offset);\n\
+  this.graphEdges.forEach(function(edgeInfo, i) {\n\
+    if(edgeInfo.edge === edge && edgeInfo.offset === null) {\n\
       edgeInfo.offset = offset;\n\
+      if(extend) this.extend1DEdgeOffset(i);\n\
     }\n\
-  });\n\
+  }, this);\n\
 };\n\
 \n\
+\n\
+/**\n\
+ * extend1DEdgeOffset\n\
+ */\n\
+\n\
+Pattern.prototype.extend1DEdgeOffset = function(edgeIndex) {\n\
+  var offset = this.graphEdges[edgeIndex].offset;\n\
+  var edgeInfo;\n\
+  for(var i = edgeIndex; i < this.graphEdges.length; i++) {\n\
+    edgeInfo = this.graphEdges[i];\n\
+    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;\n\
+    if(edgeInfo.offset === null) edgeInfo.offset = offset;\n\
+  }\n\
+  for(i = edgeIndex; i >= 0; i--) {\n\
+    edgeInfo = this.graphEdges[i];\n\
+    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;\n\
+    if(edgeInfo.offset === null) edgeInfo.offset = offset;\n\
+  }\n\
+};\n\
 \n\
 /**\n\
  * Draw\n\
@@ -13035,7 +13136,36 @@ Pattern.prototype.getGraphVertices = function() {\n\
   });\n\
   return vertices;\n\
 };\n\
-//@ sourceURL=transitive/lib/pattern.js"
+\n\
+Pattern.prototype.getEdgeIndex = function(edge) {\n\
+  for(var i = 0; i < this.graphEdges.length; i++) {\n\
+    if(this.graphEdges[i].edge === edge) return i;\n\
+  }\n\
+  return -1;\n\
+};\n\
+\n\
+Pattern.prototype.getAdjacentEdge = function(edge, vertex) {\n\
+\n\
+  // ensure that edge/vertex pair is valid\n\
+  if(edge.toVertex !== vertex && edge.fromVertex !== vertex) return null;\n\
+\n\
+  var index = this.getEdgeIndex(edge);\n\
+  if(index === -1) return null;\n\
+\n\
+  // check previous edge\n\
+  if(index > 0) {\n\
+    var prevEdge = this.graphEdges[index-1].edge;\n\
+    if(prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;\n\
+  }\n\
+\n\
+  // check next edge\n\
+  if(index < this.graphEdges.length-1) {\n\
+    var nextEdge = this.graphEdges[index+1].edge;\n\
+    if(nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;\n\
+  }\n\
+\n\
+  return null;\n\
+};//@ sourceURL=transitive/lib/pattern.js"
 ));
 require.register("transitive/lib/route.js", Function("exports, require, module",
 "\n\
@@ -13149,8 +13279,14 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
 \n\
   this.style = new Styler(passiveStyles, computedStyles);\n\
 \n\
-  this.load(data);\n\
-  this.renderTo(el);\n\
+  if (data) {\n\
+    this.load(data);\n\
+    this.renderTo(el);\n\
+  } else {\n\
+    this.setElement(el);\n\
+  }\n\
+\n\
+  this.direction = 0;\n\
 }\n\
 \n\
 /**\n\
@@ -13184,7 +13320,7 @@ Transitive.prototype.load = function(data) {\n\
     routeData.patterns.forEach(function (patternData, i) {\n\
 \n\
       // temp: only look at direction=0 patterns\n\
-      if(parseInt(patternData.direction_id, 10) === 0) {\n\
+      if(parseInt(patternData.direction_id, 10) === this.direction) {\n\
         return;\n\
       }\n\
 \n\
@@ -13346,7 +13482,9 @@ Transitive.prototype.setElement = function(el) {\n\
 \n\
   this.display = new Display(el);\n\
   this.display.zoom.on('zoom', this.refresh.bind(this));\n\
-  this.display.setScale(el.clientHeight, el.clientWidth, this.graph);\n\
+\n\
+  if (this.graph)\n\
+    this.display.setScale(el.clientHeight, el.clientWidth, this.graph);\n\
 \n\
   return this;\n\
 };\n\

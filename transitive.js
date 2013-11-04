@@ -10052,6 +10052,9 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
     return;
   }
 
+  // de-associate the existing edge from the adjacentVertex
+  adjacentVertex.removeEdge(edge);
+
   // create new edge and copy the patterns
   var newEdge = this.addEdge([], adjacentVertex, newVertex);
   edge.patterns.forEach(function(pattern) {
@@ -10070,18 +10073,84 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
 };
 
 
+/**
+ *  Compute offsets for a 1.5D line map rendering
+ */
+
 NetworkGraph.prototype.apply1DOffsets = function() {
-  this.edges.forEach(function(edge) {
+  
+  // initialize the bundle comparisons
+  this.bundleComparisons = {};
+  this.vertices.forEach(function(vertex) {
+    if(vertex.edges.length <= 2) return;
+
+    vertex.edges.forEach(function(edge) {
+      if(edge.patterns.length < 2) return;
+
+      // compare each pattern pair 
+      for(var i = 0; i < edge.patterns.length; i++) {
+        for(var j = i+1; j < edge.patterns.length; j++) {
+          var p1 = edge.patterns[i], p2 = edge.patterns[j];
+          var adjEdge1 = p1.getAdjacentEdge(edge, vertex);
+          var adjEdge2 = p2.getAdjacentEdge(edge, vertex);
+          if(adjEdge1 !== null && adjEdge2 !== null || adjEdge1 !== adjEdge2) {
+            var oppVertex1 = adjEdge1.oppositeVertex(vertex);
+            var oppVertex2 = adjEdge2.oppositeVertex(vertex);
+
+            if(oppVertex1.y < oppVertex2.y) {
+              this.bundleComparison(p1, p2);
+            }
+            else if(oppVertex1.y > oppVertex2.y) {
+              this.bundleComparison(p2, p1);
+            }
+          }
+        }
+      }
+    }, this);
+  }, this);
+
+  // create a copy of the array, sorted by bundle size (decreasing)
+  var sortedEdges = this.edges.concat().sort(function compare(a,b) {
+    if(a.patterns.length > b.patterns.length) return -1;
+    if(a.patterns.length < b.patterns.length) return 1;
+    return 0;
+  });
+
+  sortedEdges.forEach(function(edge) {
     if(edge.toVertex.y !== edge.fromVertex.y) return;
+    //console.log('edge w/ ' + edge.patterns.length + ' to offset');
     if(edge.patterns.length === 1) {
       edge.patterns[0].setEdgeOffset(edge, 0);
     }
     else {
-      edge.patterns.forEach(function(pattern, i) {
-        pattern.setEdgeOffset(edge, (-i + edge.patterns.length/2) * 1.2);
+      var this_ = this;
+      var sortedPatterns = edge.patterns.concat().sort(function compare(a, b) {
+        var key = a.pattern_id + ',' + b.pattern_id;
+        var compValue = this_.bundleComparisons[key];
+        if(compValue < 0) return -1;
+        if(compValue > 0) return 1;
+        return 0;
+      });
+      sortedPatterns.forEach(function(pattern, i) {
+        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, true);
       });
     }
   }, this);
+};
+
+
+/**
+ *  Helper method for creating comparisons between patterns for bundle offsetting
+ */
+
+NetworkGraph.prototype.bundleComparison = function(p1, p2) {
+  var key = p1.pattern_id + ',' + p2.pattern_id;
+  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;
+  this.bundleComparisons[key] += 1;
+
+  key = p2.pattern_id + ',' + p1.pattern_id;
+  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;
+  this.bundleComparisons[key] -= 1;
 };
 
 
@@ -10158,6 +10227,17 @@ Vertex.prototype.incidentEdges = function(inEdge) {
 	return results;
 };
 
+
+/**
+ * Remove an edge from the vertex's edge list
+ *
+ * @param {Edge}
+ */
+
+Vertex.prototype.removeEdge = function(edge) {
+  var index = this.edges.indexOf(edge);
+  if(index !== -1) this.edges.splice(index, 1);
+};
 });
 require.register("transitive/lib/styler/computed.js", function(exports, require, module){
 
@@ -10522,7 +10602,7 @@ function Pattern(data) {
 Pattern.prototype.addEdge = function(edge) {
   this.graphEdges.push({
     edge: edge,
-    offset: 0
+    offset: null
   });
 };
 
@@ -10534,7 +10614,7 @@ Pattern.prototype.addEdge = function(edge) {
 Pattern.prototype.insertEdge = function(index, edge) {
   this.graphEdges.splice(index, 0, {
     edge: edge,
-    offset: 0
+    offset: null
   });
 };
 
@@ -10543,14 +10623,35 @@ Pattern.prototype.insertEdge = function(index, edge) {
  * setEdgeOffset: applies a specified offset to a specified edge in the pattern
  */
 
-Pattern.prototype.setEdgeOffset = function(edge, offset) {
-  this.graphEdges.forEach(function(edgeInfo) {
-    if(edgeInfo.edge === edge) {
+Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {
+  //console.log('- set offset: '+offset);
+  this.graphEdges.forEach(function(edgeInfo, i) {
+    if(edgeInfo.edge === edge && edgeInfo.offset === null) {
       edgeInfo.offset = offset;
+      if(extend) this.extend1DEdgeOffset(i);
     }
-  });
+  }, this);
 };
 
+
+/**
+ * extend1DEdgeOffset
+ */
+
+Pattern.prototype.extend1DEdgeOffset = function(edgeIndex) {
+  var offset = this.graphEdges[edgeIndex].offset;
+  var edgeInfo;
+  for(var i = edgeIndex; i < this.graphEdges.length; i++) {
+    edgeInfo = this.graphEdges[i];
+    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;
+    if(edgeInfo.offset === null) edgeInfo.offset = offset;
+  }
+  for(i = edgeIndex; i >= 0; i--) {
+    edgeInfo = this.graphEdges[i];
+    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;
+    if(edgeInfo.offset === null) edgeInfo.offset = offset;
+  }
+};
 
 /**
  * Draw
@@ -10770,6 +10871,35 @@ Pattern.prototype.getGraphVertices = function() {
   return vertices;
 };
 
+Pattern.prototype.getEdgeIndex = function(edge) {
+  for(var i = 0; i < this.graphEdges.length; i++) {
+    if(this.graphEdges[i].edge === edge) return i;
+  }
+  return -1;
+};
+
+Pattern.prototype.getAdjacentEdge = function(edge, vertex) {
+
+  // ensure that edge/vertex pair is valid
+  if(edge.toVertex !== vertex && edge.fromVertex !== vertex) return null;
+
+  var index = this.getEdgeIndex(edge);
+  if(index === -1) return null;
+
+  // check previous edge
+  if(index > 0) {
+    var prevEdge = this.graphEdges[index-1].edge;
+    if(prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;
+  }
+
+  // check next edge
+  if(index < this.graphEdges.length-1) {
+    var nextEdge = this.graphEdges[index+1].edge;
+    if(nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;
+  }
+
+  return null;
+};
 });
 require.register("transitive/lib/route.js", function(exports, require, module){
 
@@ -10883,8 +11013,14 @@ function Transitive(el, data, passiveStyles, computedStyles) {
 
   this.style = new Styler(passiveStyles, computedStyles);
 
-  this.load(data);
-  this.renderTo(el);
+  if (data) {
+    this.load(data);
+    this.renderTo(el);
+  } else {
+    this.setElement(el);
+  }
+
+  this.direction = 0;
 }
 
 /**
@@ -10918,7 +11054,7 @@ Transitive.prototype.load = function(data) {
     routeData.patterns.forEach(function (patternData, i) {
 
       // temp: only look at direction=0 patterns
-      if(parseInt(patternData.direction_id, 10) === 0) {
+      if(parseInt(patternData.direction_id, 10) === this.direction) {
         return;
       }
 
@@ -11080,7 +11216,9 @@ Transitive.prototype.setElement = function(el) {
 
   this.display = new Display(el);
   this.display.zoom.on('zoom', this.refresh.bind(this));
-  this.display.setScale(el.clientHeight, el.clientWidth, this.graph);
+
+  if (this.graph)
+    this.display.setScale(el.clientHeight, el.clientWidth, this.graph);
 
   return this;
 };
