@@ -17,10 +17,16 @@
 }
 
 #select-route,
+#select-direction,
 #select-pattern {
   padding-right: 30px;
   padding-bottom: 20px;
   float: left;
+}
+
+#select-direction label {
+  padding: 5px;
+  display: block;
 }
 
 /**
