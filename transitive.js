@@ -200,6 +200,107 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-to-function/index.js", function(exports, require, module){
+
+/**
+ * Expose `toFunction()`.
+ */
+
+module.exports = toFunction;
+
+/**
+ * Convert `obj` to a `Function`.
+ *
+ * @param {Mixed} obj
+ * @return {Function}
+ * @api private
+ */
+
+function toFunction(obj) {
+  switch ({}.toString.call(obj)) {
+    case '[object Object]':
+      return objectToFunction(obj);
+    case '[object Function]':
+      return obj;
+    case '[object String]':
+      return stringToFunction(obj);
+    case '[object RegExp]':
+      return regexpToFunction(obj);
+    default:
+      return defaultToFunction(obj);
+  }
+}
+
+/**
+ * Default to strict equality.
+ *
+ * @param {Mixed} val
+ * @return {Function}
+ * @api private
+ */
+
+function defaultToFunction(val) {
+  return function(obj){
+    return val === obj;
+  }
+}
+
+/**
+ * Convert `re` to a function.
+ *
+ * @param {RegExp} re
+ * @return {Function}
+ * @api private
+ */
+
+function regexpToFunction(re) {
+  return function(obj){
+    return re.test(obj);
+  }
+}
+
+/**
+ * Convert property `str` to a function.
+ *
+ * @param {String} str
+ * @return {Function}
+ * @api private
+ */
+
+function stringToFunction(str) {
+  // immediate such as "> 20"
+  if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str);
+
+  // properties such as "name.first" or "age > 18"
+  return new Function('_', 'return _.' + str);
+}
+
+/**
+ * Convert `object` to a function.
+ *
+ * @param {Object} object
+ * @return {Function}
+ * @api private
+ */
+
+function objectToFunction(obj) {
+  var match = {}
+  for (var key in obj) {
+    match[key] = typeof obj[key] === 'string'
+      ? defaultToFunction(obj[key])
+      : toFunction(obj[key])
+  }
+  return function(val){
+    if (typeof val !== 'object') return false;
+    for (var key in match) {
+      if (!(key in val)) return false;
+      if (!match[key](val[key])) return false;
+    }
+    return true;
+  }
+}
+
+});
 require.register("component-type/index.js", function(exports, require, module){
 
 /**
@@ -9923,6 +10024,7 @@ NetworkGraph.prototype.getEquivalentEdge = function(stopArray, from, to) {
  */
 
 NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {
+  if (this.edges.length === 0) return;
 
   // find the "trunk" edge; i.e. the one with the most patterns
   var trunkEdge = null;
@@ -10022,7 +10124,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);
         //console.log('newVertex:');
         //console.log(newVertex);
-        
+
         this.splitEdge(extEdge, newVertex, vertex);
 
         oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);
@@ -10039,7 +10141,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
  */
 
 NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
-  
+
   // attach the existing edge to the inserted vertex
   if(edge.fromVertex === adjacentVertex) {
     edge.fromVertex = newVertex;
@@ -10078,7 +10180,7 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
  */
 
 NetworkGraph.prototype.apply1DOffsets = function() {
-  
+
   // initialize the bundle comparisons
   this.bundleComparisons = {};
   this.vertices.forEach(function(vertex) {
@@ -10087,7 +10189,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {
     vertex.edges.forEach(function(edge) {
       if(edge.patterns.length < 2) return;
 
-      // compare each pattern pair 
+      // compare each pattern pair
       for(var i = 0; i < edge.patterns.length; i++) {
         for(var j = i+1; j < edge.patterns.length; j++) {
           var p1 = edge.patterns[i], p2 = edge.patterns[j];
@@ -10983,6 +11085,7 @@ var Pattern = require('./pattern');
 var Route = require('./route');
 var Stop = require('./stop');
 var Styler = require('./styler');
+var toFunction = require('to-function');
 
 /**
  * Expose `Transitive`
@@ -11011,17 +11114,43 @@ function Transitive(el, data, passiveStyles, computedStyles) {
     return new Transitive(el, data, passiveStyles, computedStyles);
   }
 
+  this.clearFilters();
+  this.data = data;
+  this.setElement(el);
   this.style = new Styler(passiveStyles, computedStyles);
+}
 
-  if (data) {
-    this.load(data);
-    this.renderTo(el);
+/**
+ * Add a filter
+ *
+ * @param {String|Object|Function} filter
+ */
+
+Transitive.prototype.addFilter =
+Transitive.prototype.filter = function(type, filter) {
+  if (!this._filter[type]) this._filter[type] = [];
+  this._filter[type].push(toFunction(filter));
+
+  return this;
+};
+
+/**
+ * Clear all filters
+ */
+
+Transitive.prototype.clearFilters = function(type) {
+  if (type) {
+    this._filter[type] = [];
   } else {
-    this.setElement(el);
+    this._filter = {
+      patterns: [],
+      routes: [],
+      stops: []
+    };
   }
 
-  this.direction = 0;
-}
+  return this;
+};
 
 /**
  * Load
@@ -11030,7 +11159,7 @@ function Transitive(el, data, passiveStyles, computedStyles) {
 Transitive.prototype.load = function(data) {
   this.graph = new Graph();
 
-  this.stops = generateStops(data.stops);
+  this.stops = generateStops(applyFilters(data.stops, this._filter.stops));
 
   this.routes = {};
   this.patterns = {};
@@ -11043,24 +11172,13 @@ Transitive.prototype.load = function(data) {
   // object maps stop ids to arrays of unique stop_ids reachable from that stop
   var adjacentStops = {};
 
-  data.routes.forEach(function (routeData) {
+  applyFilters(data.routes, this._filter.routes).forEach(function (routeData) {
     // set up the Route object
     var route = new Route(routeData);
     this.routes[route.route_id] = route;
 
-    var patternCount = routeData.patterns.length;
-
     // iterate through the Route's constituent Patterns
-    routeData.patterns.forEach(function (patternData, i) {
-
-      // temp: only look at direction=0 patterns
-      if(parseInt(patternData.direction_id, 10) === this.direction) {
-        return;
-      }
-
-      //console.log('processing pattern: ');
-      //console.log(patternData);
-
+    applyFilters(routeData.patterns, this._filter.patterns).forEach(function (patternData, i) {
       // set up the Pattern object
       var pattern = new Pattern(patternData);
       this.patterns[patternData.pattern_id] = pattern;
@@ -11116,10 +11234,7 @@ Transitive.prototype.load = function(data) {
   populateGraphEdges(this.patterns, this.graph);
 
   this.graph.convertTo1D();
-
-  if (this.display && this.el) {
-    this.display.setScale(this.el.clientHeight, this.el.clientWidth, this.graph);
-  }
+  this.setScale();
 
   return this;
 };
@@ -11143,6 +11258,8 @@ function addStopAdjacency(adjacentStops, stopA, stopB) {
  */
 
 Transitive.prototype.render = function() {
+  this.load(this.data);
+
   var display = this.display;
   var offsetLeft = this.el.offsetLeft;
   var offsetTop = this.el.offsetTop;
@@ -11217,10 +11334,20 @@ Transitive.prototype.setElement = function(el) {
   this.display = new Display(el);
   this.display.zoom.on('zoom', this.refresh.bind(this));
 
-  if (this.graph)
-    this.display.setScale(el.clientHeight, el.clientWidth, this.graph);
+  this.setScale();
 
   return this;
+};
+
+/**
+ * Set scale
+ */
+
+Transitive.prototype.setScale = function() {
+  if (this.display && this.el && this.graph) {
+    this.display.setScale(this.el.clientHeight, this.el.clientWidth,
+      this.graph);
+  }
 };
 
 /**
@@ -11278,6 +11405,21 @@ function populateGraphEdges(patterns, graph) {
   }
 }
 
+/**
+ * Apply an array of filters to an array of data
+ *
+ * @param {Array} data
+ * @param {Array} filters
+ */
+
+function applyFilters(data, filters) {
+  filters.forEach(function (filter) {
+    data = data.filter(filter);
+  });
+
+  return data;
+}
+
 });
 
 
@@ -11286,6 +11428,11 @@ function populateGraphEdges(patterns, graph) {
 
 
 
+
+
+
+require.alias("component-to-function/index.js", "transitive/deps/to-function/index.js");
+require.alias("component-to-function/index.js", "to-function/index.js");
 
 require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
 require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");

@@ -199,6 +199,107 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-to-function/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `toFunction()`.\n\
+ */\n\
+\n\
+module.exports = toFunction;\n\
+\n\
+/**\n\
+ * Convert `obj` to a `Function`.\n\
+ *\n\
+ * @param {Mixed} obj\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function toFunction(obj) {\n\
+  switch ({}.toString.call(obj)) {\n\
+    case '[object Object]':\n\
+      return objectToFunction(obj);\n\
+    case '[object Function]':\n\
+      return obj;\n\
+    case '[object String]':\n\
+      return stringToFunction(obj);\n\
+    case '[object RegExp]':\n\
+      return regexpToFunction(obj);\n\
+    default:\n\
+      return defaultToFunction(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Default to strict equality.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function defaultToFunction(val) {\n\
+  return function(obj){\n\
+    return val === obj;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert `re` to a function.\n\
+ *\n\
+ * @param {RegExp} re\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function regexpToFunction(re) {\n\
+  return function(obj){\n\
+    return re.test(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert property `str` to a function.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function stringToFunction(str) {\n\
+  // immediate such as \"> 20\"\n\
+  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
+\n\
+  // properties such as \"name.first\" or \"age > 18\"\n\
+  return new Function('_', 'return _.' + str);\n\
+}\n\
+\n\
+/**\n\
+ * Convert `object` to a function.\n\
+ *\n\
+ * @param {Object} object\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function objectToFunction(obj) {\n\
+  var match = {}\n\
+  for (var key in obj) {\n\
+    match[key] = typeof obj[key] === 'string'\n\
+      ? defaultToFunction(obj[key])\n\
+      : toFunction(obj[key])\n\
+  }\n\
+  return function(val){\n\
+    if (typeof val !== 'object') return false;\n\
+    for (var key in match) {\n\
+      if (!(key in val)) return false;\n\
+      if (!match[key](val[key])) return false;\n\
+    }\n\
+    return true;\n\
+  }\n\
+}\n\
+//@ sourceURL=component-to-function/index.js"
+));
 require.register("component-type/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -11099,107 +11200,6 @@ exports.engine = function(obj){\n\
 };\n\
 //@ sourceURL=component-query/index.js"
 ));
-require.register("component-to-function/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `toFunction()`.\n\
- */\n\
-\n\
-module.exports = toFunction;\n\
-\n\
-/**\n\
- * Convert `obj` to a `Function`.\n\
- *\n\
- * @param {Mixed} obj\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function toFunction(obj) {\n\
-  switch ({}.toString.call(obj)) {\n\
-    case '[object Object]':\n\
-      return objectToFunction(obj);\n\
-    case '[object Function]':\n\
-      return obj;\n\
-    case '[object String]':\n\
-      return stringToFunction(obj);\n\
-    case '[object RegExp]':\n\
-      return regexpToFunction(obj);\n\
-    default:\n\
-      return defaultToFunction(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Default to strict equality.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function defaultToFunction(val) {\n\
-  return function(obj){\n\
-    return val === obj;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert `re` to a function.\n\
- *\n\
- * @param {RegExp} re\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function regexpToFunction(re) {\n\
-  return function(obj){\n\
-    return re.test(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert property `str` to a function.\n\
- *\n\
- * @param {String} str\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function stringToFunction(str) {\n\
-  // immediate such as \"> 20\"\n\
-  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
-\n\
-  // properties such as \"name.first\" or \"age > 18\"\n\
-  return new Function('_', 'return _.' + str);\n\
-}\n\
-\n\
-/**\n\
- * Convert `object` to a function.\n\
- *\n\
- * @param {Object} object\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function objectToFunction(obj) {\n\
-  var match = {}\n\
-  for (var key in obj) {\n\
-    match[key] = typeof obj[key] === 'string'\n\
-      ? defaultToFunction(obj[key])\n\
-      : toFunction(obj[key])\n\
-  }\n\
-  return function(val){\n\
-    if (typeof val !== 'object') return false;\n\
-    for (var key in match) {\n\
-      if (!(key in val)) return false;\n\
-      if (!match[key](val[key])) return false;\n\
-    }\n\
-    return true;\n\
-  }\n\
-}\n\
-//@ sourceURL=component-to-function/index.js"
-));
 require.register("component-each/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -12189,6 +12189,7 @@ NetworkGraph.prototype.getEquivalentEdge = function(stopArray, from, to) {\n\
  */\n\
 \n\
 NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
+  if (this.edges.length === 0) return;\n\
 \n\
   // find the \"trunk\" edge; i.e. the one with the most patterns\n\
   var trunkEdge = null;\n\
@@ -12288,7 +12289,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);\n\
         //console.log('newVertex:');\n\
         //console.log(newVertex);\n\
-        \n\
+\n\
         this.splitEdge(extEdge, newVertex, vertex);\n\
 \n\
         oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);\n\
@@ -12305,7 +12306,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
  */\n\
 \n\
 NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n\
-  \n\
+\n\
   // attach the existing edge to the inserted vertex\n\
   if(edge.fromVertex === adjacentVertex) {\n\
     edge.fromVertex = newVertex;\n\
@@ -12344,7 +12345,7 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
  */\n\
 \n\
 NetworkGraph.prototype.apply1DOffsets = function() {\n\
-  \n\
+\n\
   // initialize the bundle comparisons\n\
   this.bundleComparisons = {};\n\
   this.vertices.forEach(function(vertex) {\n\
@@ -12353,7 +12354,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {\n\
     vertex.edges.forEach(function(edge) {\n\
       if(edge.patterns.length < 2) return;\n\
 \n\
-      // compare each pattern pair \n\
+      // compare each pattern pair\n\
       for(var i = 0; i < edge.patterns.length; i++) {\n\
         for(var j = i+1; j < edge.patterns.length; j++) {\n\
           var p1 = edge.patterns[i], p2 = edge.patterns[j];\n\
@@ -13249,6 +13250,7 @@ var Pattern = require('./pattern');\n\
 var Route = require('./route');\n\
 var Stop = require('./stop');\n\
 var Styler = require('./styler');\n\
+var toFunction = require('to-function');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
@@ -13277,17 +13279,43 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
     return new Transitive(el, data, passiveStyles, computedStyles);\n\
   }\n\
 \n\
+  this.clearFilters();\n\
+  this.data = data;\n\
+  this.setElement(el);\n\
   this.style = new Styler(passiveStyles, computedStyles);\n\
+}\n\
 \n\
-  if (data) {\n\
-    this.load(data);\n\
-    this.renderTo(el);\n\
+/**\n\
+ * Add a filter\n\
+ *\n\
+ * @param {String|Object|Function} filter\n\
+ */\n\
+\n\
+Transitive.prototype.addFilter =\n\
+Transitive.prototype.filter = function(type, filter) {\n\
+  if (!this._filter[type]) this._filter[type] = [];\n\
+  this._filter[type].push(toFunction(filter));\n\
+\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Clear all filters\n\
+ */\n\
+\n\
+Transitive.prototype.clearFilters = function(type) {\n\
+  if (type) {\n\
+    this._filter[type] = [];\n\
   } else {\n\
-    this.setElement(el);\n\
+    this._filter = {\n\
+      patterns: [],\n\
+      routes: [],\n\
+      stops: []\n\
+    };\n\
   }\n\
 \n\
-  this.direction = 0;\n\
-}\n\
+  return this;\n\
+};\n\
 \n\
 /**\n\
  * Load\n\
@@ -13296,7 +13324,7 @@ function Transitive(el, data, passiveStyles, computedStyles) {\n\
 Transitive.prototype.load = function(data) {\n\
   this.graph = new Graph();\n\
 \n\
-  this.stops = generateStops(data.stops);\n\
+  this.stops = generateStops(applyFilters(data.stops, this._filter.stops));\n\
 \n\
   this.routes = {};\n\
   this.patterns = {};\n\
@@ -13309,24 +13337,13 @@ Transitive.prototype.load = function(data) {\n\
   // object maps stop ids to arrays of unique stop_ids reachable from that stop\n\
   var adjacentStops = {};\n\
 \n\
-  data.routes.forEach(function (routeData) {\n\
+  applyFilters(data.routes, this._filter.routes).forEach(function (routeData) {\n\
     // set up the Route object\n\
     var route = new Route(routeData);\n\
     this.routes[route.route_id] = route;\n\
 \n\
-    var patternCount = routeData.patterns.length;\n\
-\n\
     // iterate through the Route's constituent Patterns\n\
-    routeData.patterns.forEach(function (patternData, i) {\n\
-\n\
-      // temp: only look at direction=0 patterns\n\
-      if(parseInt(patternData.direction_id, 10) === this.direction) {\n\
-        return;\n\
-      }\n\
-\n\
-      //console.log('processing pattern: ');\n\
-      //console.log(patternData);\n\
-\n\
+    applyFilters(routeData.patterns, this._filter.patterns).forEach(function (patternData, i) {\n\
       // set up the Pattern object\n\
       var pattern = new Pattern(patternData);\n\
       this.patterns[patternData.pattern_id] = pattern;\n\
@@ -13382,10 +13399,7 @@ Transitive.prototype.load = function(data) {\n\
   populateGraphEdges(this.patterns, this.graph);\n\
 \n\
   this.graph.convertTo1D();\n\
-\n\
-  if (this.display && this.el) {\n\
-    this.display.setScale(this.el.clientHeight, this.el.clientWidth, this.graph);\n\
-  }\n\
+  this.setScale();\n\
 \n\
   return this;\n\
 };\n\
@@ -13409,6 +13423,8 @@ function addStopAdjacency(adjacentStops, stopA, stopB) {\n\
  */\n\
 \n\
 Transitive.prototype.render = function() {\n\
+  this.load(this.data);\n\
+\n\
   var display = this.display;\n\
   var offsetLeft = this.el.offsetLeft;\n\
   var offsetTop = this.el.offsetTop;\n\
@@ -13483,10 +13499,20 @@ Transitive.prototype.setElement = function(el) {\n\
   this.display = new Display(el);\n\
   this.display.zoom.on('zoom', this.refresh.bind(this));\n\
 \n\
-  if (this.graph)\n\
-    this.display.setScale(el.clientHeight, el.clientWidth, this.graph);\n\
+  this.setScale();\n\
 \n\
   return this;\n\
+};\n\
+\n\
+/**\n\
+ * Set scale\n\
+ */\n\
+\n\
+Transitive.prototype.setScale = function() {\n\
+  if (this.display && this.el && this.graph) {\n\
+    this.display.setScale(this.el.clientHeight, this.el.clientWidth,\n\
+      this.graph);\n\
+  }\n\
 };\n\
 \n\
 /**\n\
@@ -13543,8 +13569,25 @@ function populateGraphEdges(patterns, graph) {\n\
     }\n\
   }\n\
 }\n\
+\n\
+/**\n\
+ * Apply an array of filters to an array of data\n\
+ *\n\
+ * @param {Array} data\n\
+ * @param {Array} filters\n\
+ */\n\
+\n\
+function applyFilters(data, filters) {\n\
+  filters.forEach(function (filter) {\n\
+    data = data.filter(filter);\n\
+  });\n\
+\n\
+  return data;\n\
+}\n\
 //@ sourceURL=transitive/lib/transitive.js"
 ));
+
+
 
 
 
@@ -13590,6 +13633,9 @@ require.register("yields-select/template.html", Function("exports, require, modu
 </div>\\n\
 ';//@ sourceURL=yields-select/template.html"
 ));
+require.alias("component-to-function/index.js", "transitive/deps/to-function/index.js");
+require.alias("component-to-function/index.js", "to-function/index.js");
+
 require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
 require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
 require.alias("cristiandouce-merge-util/index.js", "merge-util/index.js");
