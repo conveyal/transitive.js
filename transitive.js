@@ -10118,7 +10118,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
         }
         else if(extEdge.toVertex === vertex) {
           newVertexStop = extEdge.stopArray[extEdge.stopArray.length-1];
-          extEdge.stopArray.splice(0, extEdge.stopArray.length-1);
+          extEdge.stopArray.splice(extEdge.stopArray.length-1, 1);
         }
 
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);
@@ -10142,11 +10142,14 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
 
 NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
 
+  var newEdge;
   // attach the existing edge to the inserted vertex
   if(edge.fromVertex === adjacentVertex) {
+    newEdge = this.addEdge([], adjacentVertex, newVertex);
     edge.fromVertex = newVertex;
   }
   else if(edge.toVertex === adjacentVertex) {
+    newEdge = this.addEdge([], newVertex, adjacentVertex);
     edge.toVertex = newVertex;
   }
   else { // invalid params
@@ -10158,7 +10161,7 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {
   adjacentVertex.removeEdge(edge);
 
   // create new edge and copy the patterns
-  var newEdge = this.addEdge([], adjacentVertex, newVertex);
+  //var newEdge = this.addEdge([], adjacentVertex, newVertex);
   edge.patterns.forEach(function(pattern) {
     newEdge.addPattern(pattern);
   });
@@ -10199,10 +10202,17 @@ NetworkGraph.prototype.apply1DOffsets = function() {
             var oppVertex1 = adjEdge1.oppositeVertex(vertex);
             var oppVertex2 = adjEdge2.oppositeVertex(vertex);
 
-            if(oppVertex1.y < oppVertex2.y) {
+            var dx = edge.toVertex.x - edge.fromVertex.x;
+            if(dx > 0 && oppVertex1.y < oppVertex2.y) {
+              this.bundleComparison(p2, p1);
+            }
+            else if(dx > 0 && oppVertex1.y > oppVertex2.y) {
               this.bundleComparison(p1, p2);
             }
-            else if(oppVertex1.y > oppVertex2.y) {
+            else if(dx < 0 && oppVertex1.y < oppVertex2.y) {
+              this.bundleComparison(p1, p2);
+            }
+            else if(dx < 0 && oppVertex1.y > oppVertex2.y) {
               this.bundleComparison(p2, p1);
             }
           }
@@ -10246,6 +10256,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {
  */
 
 NetworkGraph.prototype.bundleComparison = function(p1, p2) {
+  
   var key = p1.pattern_id + ',' + p2.pattern_id;
   if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;
   this.bundleComparisons[key] += 1;
@@ -10347,27 +10358,7 @@ require.register("transitive/lib/styler/computed.js", function(exports, require,
  * Computed rules
  */
 
-module.exports = [
-  showLabelsOnHover
-];
-
-/**
- * Show labels on hover
- */
-
-function showLabelsOnHover(pattern, display) {
-  pattern.selectAll('.transitive-stop-circle')
-    .on('mouseenter', function (data) {
-      pattern.select('#transitive-stop-label-' + data.stop.getId())
-        .style('visibility', 'visible');
-    })
-    .on('mouseleave', function (data) {
-      if (display.zoom.scale() < 0.75) {
-        pattern.select('#transitive-stop-label-' + data.stop.getId())
-          .style('visibility', 'hidden');
-      }
-    });
-}
+module.exports = [];
 
 });
 require.register("transitive/lib/styler/index.js", function(exports, require, module){
@@ -10397,9 +10388,7 @@ module.exports = Styler;
  */
 
 function Styler(passive, computed) {
-  if (!(this instanceof Styler)) {
-    return new Styler();
-  }
+  if (!(this instanceof Styler)) return new Styler();
 
   this.computed = require('./computed');
   this.passive = require('./passive');
@@ -10415,32 +10404,27 @@ function Styler(passive, computed) {
  */
 
 Styler.prototype.load = function(passive, computed) {
-  if (passive) {
-    this.passive = merge(this.passive, passive);
-  }
-
-  if (computed) {
-    this.computed = this.computed.concat(computed);
-  }
+  if (passive) this.passive = merge(this.passive, passive);
+  if (computed) this.computed = this.computed.concat(computed);
 };
 
 /**
  * Render elements against these rules
  *
  * @param {Object} a D3 list of elements
- * @param {Object} the D3 display object
+ * @param {Object} the transitive object
  */
 
-Styler.prototype.render = function(pattern, display) {
+Styler.prototype.render = function(transitive, pattern) {
   // apply passive rules
   for (var selector in this.passive) {
-    applyAttrAndStyle(pattern.selectAll(selector), display,
+    applyAttrAndStyle(transitive, pattern, pattern.svgGroup.selectAll(selector),
       this.passive[selector]);
   }
 
   // apply computed rules
   this.computed.forEach(function (rule) {
-    rule(pattern, display);
+    rule(transitive, pattern);
   });
 };
 
@@ -10456,12 +10440,13 @@ Styler.prototype.reset = function reset() {
 /**
  * Check if it's an attribute or a style and apply accordingly
  *
+ * @param {Transitive} the transitive object
+ * @param {Pattern} the Pattern object
  * @param {Object} a D3 list of elements
- * @param {Object} the D3 display object
  * @param {Object} the rules to apply to the elements
  */
 
-function applyAttrAndStyle(elements, display, rules) {
+function applyAttrAndStyle(transitive, pattern, elements, rules) {
   for (var name in rules) {
     var type = svgAttributes.indexOf(name) === -1
       ? 'style'
@@ -10473,7 +10458,7 @@ function applyAttrAndStyle(elements, display, rules) {
   function computeRule(rule) {
     return function (data, index) {
       return isFunction(rule)
-        ? rule.call(rules, data, display, index)
+        ? rule.call(rules, transitive, pattern, data, index)
         : rule;
     };
   }
@@ -10515,22 +10500,13 @@ module.exports = {
   '.transitive-stop-label': {
     color: 'black',
     'font-family': 'sans-serif',
-    'font-size': function(data, display, index) {
-      if (data.stop.stop_id === 'S3') {
-        return '20px';
-      } else {
-        return '10px';
-      }
-    },
-    transform: function (data, display, index) {
+    'font-size': '10px',
+    transform: function (transitive, pattern, data, index) {
       return 'rotate(-45, ' + this.x + ', ' + this.y + ')';
     },
-    visibility: function (data, display, index) {
-      if (display.zoom.scale() < 0.75) {
-        return 'hidden';
-      } else {
-        return 'visible';
-      }
+    visibility: function (transitive, pattern, data, index) {
+      if (transitive.display.zoom.scale() < 0.75) return 'hidden';
+      return 'visible';
     },
     x: 0,
     y: -12
@@ -10541,9 +10517,17 @@ module.exports = {
    */
 
   '.transitive-line': {
-    stroke: 'blue',
+    stroke: function (transitive, pattern) {
+      if (pattern.route.route_color) {
+        return '#' + pattern.route.route_color;
+      } else {
+        return 'grey';
+      }
+    },
     'stroke-width': '15px',
-    fill: 'none'
+    fill: function (transitive, pattern, data, index) {
+      return 'none';
+    }
   }
 };
 
@@ -10692,7 +10676,7 @@ function Pattern(data) {
 
   // The pattern as an ordered sequence of edges in the graph w/ associated metadata.
   // Array of objects containing the following fields:
-  //  - edge : the Edge object  
+  //  - edge : the Edge object
   //  - offset : the offset for rendering, expressed as a factor of the line width and relative to the 'forward' direction of the pattern
   this.graphEdges = [];
 }
@@ -10726,10 +10710,10 @@ Pattern.prototype.insertEdge = function(index, edge) {
  */
 
 Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {
-  //console.log('- set offset: '+offset);
   this.graphEdges.forEach(function(edgeInfo, i) {
     if(edgeInfo.edge === edge && edgeInfo.offset === null) {
       edgeInfo.offset = offset;
+      //console.log('- set offset: '+offset);
       if(extend) this.extend1DEdgeOffset(i);
     }
   }, this);
@@ -10864,7 +10848,6 @@ Pattern.prototype.refresh = function(display) {
 
 Pattern.prototype.getStopData = function() {
   var stopData = [];
-
   this.graphEdges.forEach(function (edgeInfo, i) {
 
     var edge = edgeInfo.edge;
@@ -11002,6 +10985,28 @@ Pattern.prototype.getAdjacentEdge = function(edge, vertex) {
 
   return null;
 };
+
+Pattern.prototype.startVertex = function() {
+  if(!this.graphEdges || this.graphEdges.length === 0) return null;
+  if(this.graphEdges.length === 1) return this.graphEdges[0].fromVertex;
+  var first = this.graphEdges[0].edge, next = this.graphEdges[1].edge;
+  if(first.toVertex == next.toVertex || first.toVertex == next.fromVertex) return first.fromVertex;
+  if(first.fromVertex == next.toVertex || first.fromVertex == next.fromVertex) return first.toVertex;
+  return null;
+};
+
+Pattern.prototype.endVertex = function() {
+  if(!this.graphEdges || this.graphEdges.length === 0) return null;
+  if(this.graphEdges.length === 1) return this.graphEdges[0].toVertex;
+  var last = this.graphEdges[this.graphEdges.length-1].edge, prev = this.graphEdges[this.graphEdges.length-2].edge;
+  if(last.toVertex == prev.toVertex || last.toVertex == prev.fromVertex) return last.fromVertex;
+  if(last.fromVertex == prev.toVertex || last.fromVertex == prev.fromVertex) return last.toVertex;
+  return null;
+};
+
+Pattern.prototype.toString = function() {
+  return this.startVertex().stop.stop_name + ' to ' + this.endVertex().stop.stop_name;
+};
 });
 require.register("transitive/lib/route.js", function(exports, require, module){
 
@@ -11097,7 +11102,7 @@ module.exports = Transitive;
  * Make `d3` accessible
  */
 
-module.exports.d3 = d3;
+module.exports.d3 = Transitive.prototype.d3 = d3;
 
 /**
  * Version
@@ -11263,35 +11268,15 @@ Transitive.prototype.render = function() {
   var display = this.display;
   var offsetLeft = this.el.offsetLeft;
   var offsetTop = this.el.offsetTop;
-  var refresh = this.refresh.bind(this);
-
-  // Need to find a better place to add behaviors...
-  var drag = d3.behavior.drag()
-    .on('dragstart', function () {
-      d3.event.sourceEvent.stopPropagation(); // silence other listeners
-    })
-    .on('drag', function (data, index) {
-      if (data.stop.graphVertex) {
-        data.stop.graphVertex.moveTo(
-          display.xScale.invert(d3.event.sourceEvent.pageX - offsetLeft),
-          display.yScale.invert(d3.event.sourceEvent.pageY - offsetTop)
-        );
-
-        refresh();
-      }
-    });
 
   // remove all old patterns
   this.display.empty();
 
   for (var key in this.patterns) {
-    var pattern = this.patterns[key];
-
-    pattern.draw(this.display, 10);
-    pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);
+    this.patterns[key].draw(this.display, 10);
   }
 
-  refresh();
+  this.refresh();
 
   return this;
 };
@@ -11315,7 +11300,7 @@ Transitive.prototype.refresh = function() {
   for (var key in this.patterns) {
     var pattern = this.patterns[key];
 
-    this.style.render(pattern.svgGroup, this.display);
+    this.style.render(this, pattern);
     pattern.refresh(this.display);
   }
 

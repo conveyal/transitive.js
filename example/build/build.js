@@ -12283,7 +12283,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
         }\n\
         else if(extEdge.toVertex === vertex) {\n\
           newVertexStop = extEdge.stopArray[extEdge.stopArray.length-1];\n\
-          extEdge.stopArray.splice(0, extEdge.stopArray.length-1);\n\
+          extEdge.stopArray.splice(extEdge.stopArray.length-1, 1);\n\
         }\n\
 \n\
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);\n\
@@ -12307,11 +12307,14 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
 \n\
 NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n\
 \n\
+  var newEdge;\n\
   // attach the existing edge to the inserted vertex\n\
   if(edge.fromVertex === adjacentVertex) {\n\
+    newEdge = this.addEdge([], adjacentVertex, newVertex);\n\
     edge.fromVertex = newVertex;\n\
   }\n\
   else if(edge.toVertex === adjacentVertex) {\n\
+    newEdge = this.addEdge([], newVertex, adjacentVertex);\n\
     edge.toVertex = newVertex;\n\
   }\n\
   else { // invalid params\n\
@@ -12323,7 +12326,7 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
   adjacentVertex.removeEdge(edge);\n\
 \n\
   // create new edge and copy the patterns\n\
-  var newEdge = this.addEdge([], adjacentVertex, newVertex);\n\
+  //var newEdge = this.addEdge([], adjacentVertex, newVertex);\n\
   edge.patterns.forEach(function(pattern) {\n\
     newEdge.addPattern(pattern);\n\
   });\n\
@@ -12364,10 +12367,17 @@ NetworkGraph.prototype.apply1DOffsets = function() {\n\
             var oppVertex1 = adjEdge1.oppositeVertex(vertex);\n\
             var oppVertex2 = adjEdge2.oppositeVertex(vertex);\n\
 \n\
-            if(oppVertex1.y < oppVertex2.y) {\n\
+            var dx = edge.toVertex.x - edge.fromVertex.x;\n\
+            if(dx > 0 && oppVertex1.y < oppVertex2.y) {\n\
+              this.bundleComparison(p2, p1);\n\
+            }\n\
+            else if(dx > 0 && oppVertex1.y > oppVertex2.y) {\n\
               this.bundleComparison(p1, p2);\n\
             }\n\
-            else if(oppVertex1.y > oppVertex2.y) {\n\
+            else if(dx < 0 && oppVertex1.y < oppVertex2.y) {\n\
+              this.bundleComparison(p1, p2);\n\
+            }\n\
+            else if(dx < 0 && oppVertex1.y > oppVertex2.y) {\n\
               this.bundleComparison(p2, p1);\n\
             }\n\
           }\n\
@@ -12411,6 +12421,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {\n\
  */\n\
 \n\
 NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
+  \n\
   var key = p1.pattern_id + ',' + p2.pattern_id;\n\
   if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
   this.bundleComparisons[key] += 1;\n\
@@ -12512,27 +12523,7 @@ require.register("transitive/lib/styler/computed.js", Function("exports, require
  * Computed rules\n\
  */\n\
 \n\
-module.exports = [\n\
-  showLabelsOnHover\n\
-];\n\
-\n\
-/**\n\
- * Show labels on hover\n\
- */\n\
-\n\
-function showLabelsOnHover(pattern, display) {\n\
-  pattern.selectAll('.transitive-stop-circle')\n\
-    .on('mouseenter', function (data) {\n\
-      pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
-        .style('visibility', 'visible');\n\
-    })\n\
-    .on('mouseleave', function (data) {\n\
-      if (display.zoom.scale() < 0.75) {\n\
-        pattern.select('#transitive-stop-label-' + data.stop.getId())\n\
-          .style('visibility', 'hidden');\n\
-      }\n\
-    });\n\
-}\n\
+module.exports = [];\n\
 //@ sourceURL=transitive/lib/styler/computed.js"
 ));
 require.register("transitive/lib/styler/index.js", Function("exports, require, module",
@@ -12562,9 +12553,7 @@ module.exports = Styler;\n\
  */\n\
 \n\
 function Styler(passive, computed) {\n\
-  if (!(this instanceof Styler)) {\n\
-    return new Styler();\n\
-  }\n\
+  if (!(this instanceof Styler)) return new Styler();\n\
 \n\
   this.computed = require('./computed');\n\
   this.passive = require('./passive');\n\
@@ -12580,32 +12569,27 @@ function Styler(passive, computed) {\n\
  */\n\
 \n\
 Styler.prototype.load = function(passive, computed) {\n\
-  if (passive) {\n\
-    this.passive = merge(this.passive, passive);\n\
-  }\n\
-\n\
-  if (computed) {\n\
-    this.computed = this.computed.concat(computed);\n\
-  }\n\
+  if (passive) this.passive = merge(this.passive, passive);\n\
+  if (computed) this.computed = this.computed.concat(computed);\n\
 };\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
  *\n\
  * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
+ * @param {Object} the transitive object\n\
  */\n\
 \n\
-Styler.prototype.render = function(pattern, display) {\n\
+Styler.prototype.render = function(transitive, pattern) {\n\
   // apply passive rules\n\
   for (var selector in this.passive) {\n\
-    applyAttrAndStyle(pattern.selectAll(selector), display,\n\
+    applyAttrAndStyle(transitive, pattern, pattern.svgGroup.selectAll(selector),\n\
       this.passive[selector]);\n\
   }\n\
 \n\
   // apply computed rules\n\
   this.computed.forEach(function (rule) {\n\
-    rule(pattern, display);\n\
+    rule(transitive, pattern);\n\
   });\n\
 };\n\
 \n\
@@ -12621,12 +12605,13 @@ Styler.prototype.reset = function reset() {\n\
 /**\n\
  * Check if it's an attribute or a style and apply accordingly\n\
  *\n\
+ * @param {Transitive} the transitive object\n\
+ * @param {Pattern} the Pattern object\n\
  * @param {Object} a D3 list of elements\n\
- * @param {Object} the D3 display object\n\
  * @param {Object} the rules to apply to the elements\n\
  */\n\
 \n\
-function applyAttrAndStyle(elements, display, rules) {\n\
+function applyAttrAndStyle(transitive, pattern, elements, rules) {\n\
   for (var name in rules) {\n\
     var type = svgAttributes.indexOf(name) === -1\n\
       ? 'style'\n\
@@ -12638,7 +12623,7 @@ function applyAttrAndStyle(elements, display, rules) {\n\
   function computeRule(rule) {\n\
     return function (data, index) {\n\
       return isFunction(rule)\n\
-        ? rule.call(rules, data, display, index)\n\
+        ? rule.call(rules, transitive, pattern, data, index)\n\
         : rule;\n\
     };\n\
   }\n\
@@ -12680,22 +12665,13 @@ module.exports = {\n\
   '.transitive-stop-label': {\n\
     color: 'black',\n\
     'font-family': 'sans-serif',\n\
-    'font-size': function(data, display, index) {\n\
-      if (data.stop.stop_id === 'S3') {\n\
-        return '20px';\n\
-      } else {\n\
-        return '10px';\n\
-      }\n\
-    },\n\
-    transform: function (data, display, index) {\n\
+    'font-size': '10px',\n\
+    transform: function (transitive, pattern, data, index) {\n\
       return 'rotate(-45, ' + this.x + ', ' + this.y + ')';\n\
     },\n\
-    visibility: function (data, display, index) {\n\
-      if (display.zoom.scale() < 0.75) {\n\
-        return 'hidden';\n\
-      } else {\n\
-        return 'visible';\n\
-      }\n\
+    visibility: function (transitive, pattern, data, index) {\n\
+      if (transitive.display.zoom.scale() < 0.75) return 'hidden';\n\
+      return 'visible';\n\
     },\n\
     x: 0,\n\
     y: -12\n\
@@ -12706,9 +12682,17 @@ module.exports = {\n\
    */\n\
 \n\
   '.transitive-line': {\n\
-    stroke: 'blue',\n\
+    stroke: function (transitive, pattern) {\n\
+      if (pattern.route.route_color) {\n\
+        return '#' + pattern.route.route_color;\n\
+      } else {\n\
+        return 'grey';\n\
+      }\n\
+    },\n\
     'stroke-width': '15px',\n\
-    fill: 'none'\n\
+    fill: function (transitive, pattern, data, index) {\n\
+      return 'none';\n\
+    }\n\
   }\n\
 };\n\
 //@ sourceURL=transitive/lib/styler/passive.js"
@@ -12857,7 +12841,7 @@ function Pattern(data) {\n\
 \n\
   // The pattern as an ordered sequence of edges in the graph w/ associated metadata.\n\
   // Array of objects containing the following fields:\n\
-  //  - edge : the Edge object  \n\
+  //  - edge : the Edge object\n\
   //  - offset : the offset for rendering, expressed as a factor of the line width and relative to the 'forward' direction of the pattern\n\
   this.graphEdges = [];\n\
 }\n\
@@ -12891,10 +12875,10 @@ Pattern.prototype.insertEdge = function(index, edge) {\n\
  */\n\
 \n\
 Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {\n\
-  //console.log('- set offset: '+offset);\n\
   this.graphEdges.forEach(function(edgeInfo, i) {\n\
     if(edgeInfo.edge === edge && edgeInfo.offset === null) {\n\
       edgeInfo.offset = offset;\n\
+      //console.log('- set offset: '+offset);\n\
       if(extend) this.extend1DEdgeOffset(i);\n\
     }\n\
   }, this);\n\
@@ -13029,7 +13013,6 @@ Pattern.prototype.refresh = function(display) {\n\
 \n\
 Pattern.prototype.getStopData = function() {\n\
   var stopData = [];\n\
-\n\
   this.graphEdges.forEach(function (edgeInfo, i) {\n\
 \n\
     var edge = edgeInfo.edge;\n\
@@ -13166,6 +13149,28 @@ Pattern.prototype.getAdjacentEdge = function(edge, vertex) {\n\
   }\n\
 \n\
   return null;\n\
+};\n\
+\n\
+Pattern.prototype.startVertex = function() {\n\
+  if(!this.graphEdges || this.graphEdges.length === 0) return null;\n\
+  if(this.graphEdges.length === 1) return this.graphEdges[0].fromVertex;\n\
+  var first = this.graphEdges[0].edge, next = this.graphEdges[1].edge;\n\
+  if(first.toVertex == next.toVertex || first.toVertex == next.fromVertex) return first.fromVertex;\n\
+  if(first.fromVertex == next.toVertex || first.fromVertex == next.fromVertex) return first.toVertex;\n\
+  return null;\n\
+};\n\
+\n\
+Pattern.prototype.endVertex = function() {\n\
+  if(!this.graphEdges || this.graphEdges.length === 0) return null;\n\
+  if(this.graphEdges.length === 1) return this.graphEdges[0].toVertex;\n\
+  var last = this.graphEdges[this.graphEdges.length-1].edge, prev = this.graphEdges[this.graphEdges.length-2].edge;\n\
+  if(last.toVertex == prev.toVertex || last.toVertex == prev.fromVertex) return last.fromVertex;\n\
+  if(last.fromVertex == prev.toVertex || last.fromVertex == prev.fromVertex) return last.toVertex;\n\
+  return null;\n\
+};\n\
+\n\
+Pattern.prototype.toString = function() {\n\
+  return this.startVertex().stop.stop_name + ' to ' + this.endVertex().stop.stop_name;\n\
 };//@ sourceURL=transitive/lib/pattern.js"
 ));
 require.register("transitive/lib/route.js", Function("exports, require, module",
@@ -13262,7 +13267,7 @@ module.exports = Transitive;\n\
  * Make `d3` accessible\n\
  */\n\
 \n\
-module.exports.d3 = d3;\n\
+module.exports.d3 = Transitive.prototype.d3 = d3;\n\
 \n\
 /**\n\
  * Version\n\
@@ -13428,35 +13433,15 @@ Transitive.prototype.render = function() {\n\
   var display = this.display;\n\
   var offsetLeft = this.el.offsetLeft;\n\
   var offsetTop = this.el.offsetTop;\n\
-  var refresh = this.refresh.bind(this);\n\
-\n\
-  // Need to find a better place to add behaviors...\n\
-  var drag = d3.behavior.drag()\n\
-    .on('dragstart', function () {\n\
-      d3.event.sourceEvent.stopPropagation(); // silence other listeners\n\
-    })\n\
-    .on('drag', function (data, index) {\n\
-      if (data.stop.graphVertex) {\n\
-        data.stop.graphVertex.moveTo(\n\
-          display.xScale.invert(d3.event.sourceEvent.pageX - offsetLeft),\n\
-          display.yScale.invert(d3.event.sourceEvent.pageY - offsetTop)\n\
-        );\n\
-\n\
-        refresh();\n\
-      }\n\
-    });\n\
 \n\
   // remove all old patterns\n\
   this.display.empty();\n\
 \n\
   for (var key in this.patterns) {\n\
-    var pattern = this.patterns[key];\n\
-\n\
-    pattern.draw(this.display, 10);\n\
-    pattern.stopSvgGroups.selectAll('.transitive-stop-circle').call(drag);\n\
+    this.patterns[key].draw(this.display, 10);\n\
   }\n\
 \n\
-  refresh();\n\
+  this.refresh();\n\
 \n\
   return this;\n\
 };\n\
@@ -13480,7 +13465,7 @@ Transitive.prototype.refresh = function() {\n\
   for (var key in this.patterns) {\n\
     var pattern = this.patterns[key];\n\
 \n\
-    this.style.render(pattern.svgGroup, this.display);\n\
+    this.style.render(this, pattern);\n\
     pattern.refresh(this.display);\n\
   }\n\
 \n\
