@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "dependencies": {
+    "component/emitter": "*",
     "component/to-function": "*",
     "cristiandouce/merge-util": "*",
     "mbostock/d3": "*",
@@ -10,6 +11,7 @@
     "yields/svg-attributes": "*"
   },
   "development": {
+    "component/each": "*",
     "component/set": "*",
     "yields/select": "*"
   },
@@ -18,9 +20,8 @@
     "lib/graph/edge.js",
     "lib/graph/index.js",
     "lib/graph/vertex.js",
-    "lib/styler/computed.js",
     "lib/styler/index.js",
-    "lib/styler/passive.js",
+    "lib/styler/styles.js",
     "lib/display.js",
     "lib/pattern.js",
     "lib/route.js",
