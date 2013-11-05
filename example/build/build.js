@@ -11558,6 +11558,11 @@ Select.prototype.get = function(name){\n\
   if ('string' == typeof name) {\n\
     name = name.toLowerCase();\n\
     var opt = this.options[name];\n\
+    if (!opt) {\n\
+      each(this.options, function (k, option) {\n\
+        if (option.value === name) opt = option;\n\
+      });\n\
+    }\n\
     if (!opt) throw new Error('option \"' + name + '\" does not exist');\n\
     return opt;\n\
   }\n\
@@ -13017,11 +13022,8 @@ Pattern.prototype.getStopData = function() {\n\
 \n\
     var edge = edgeInfo.edge;\n\
 \n\
-    var prevEdge = i > 0\n\
-      ? this.graphEdges[i - 1].edge\n\
-      : null;\n\
-    var nextEdge = i < this.graphEdges.length - 1\n\
-      ? this.graphEdges[i + 1].edge\n\
+    var nextEdgeInfo = i < this.graphEdges.length - 1\n\
+      ? this.graphEdges[i + 1]\n\
       : null;\n\
 \n\
     var stopInfo;\n\
@@ -13062,49 +13064,68 @@ Pattern.prototype.getStopData = function() {\n\
       stopData.push(stopInfo);\n\
     }, this);\n\
 \n\
-    // the \"to\" vertex stop for this edge\n\
-    stopInfo = {\n\
-      x: edge.toVertex.x,\n\
-      y: edge.toVertex.y,\n\
-      stop: edge.toVertex.stop,\n\
-      inEdge: edge,\n\
-      outEdge: null\n\
-    };\n\
-\n\
-    if (edgeInfo.offset) {\n\
-      if (nextEdge\n\
-        && nextEdge.rightVector.x !== edge.rightVector.x\n\
-        && nextEdge.rightVector.y !== edge.rightVector.y) {\n\
-\n\
-        var added = {\n\
-          x: nextEdge.rightVector.x + edge.rightVector.x,\n\
-          y: nextEdge.rightVector.y + edge.rightVector.y,\n\
-        };\n\
-        var len = Math.sqrt(added.x * added.x + added.y * added.y);\n\
-        var normalized = { x : added.x / len, y : added.y / len };\n\
-\n\
-        var opp = Math.sqrt(\n\
-          Math.pow(nextEdge.rightVector.x - edge.rightVector.x, 2)\n\
-          + Math.pow(nextEdge.rightVector.y - edge.rightVector.y, 2)\n\
-          ) / 2;\n\
-\n\
-        var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))\n\
-\n\
-        stopInfo.offsetX = normalized.x * this.lineWidth * edgeInfo.offset * l;\n\
-        stopInfo.offsetY = normalized.y * this.lineWidth * edgeInfo.offset * l;\n\
-      } else {\n\
-        stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;\n\
-        stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;\n\
-      }\n\
-    } else {\n\
-      stopInfo.offsetX = stopInfo.offsetY = 0;\n\
-    }\n\
-\n\
+    // the \"to\" vertex stop for this edge. handles the 'corner' case between adjacent edges\n\
+    stopInfo = this.constructCornerStopInfo(edgeInfo, edge.toVertex, nextEdgeInfo);\n\
     stopData.push(stopInfo);\n\
+\n\
   }, this);\n\
+  \n\
 \n\
   return stopData;\n\
 };\n\
+\n\
+\n\
+Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo2) {\n\
+  \n\
+  var edge1 = edgeInfo1 ? edgeInfo1.edge : null;\n\
+  var edge2 = edgeInfo2 ? edgeInfo2.edge : null;\n\
+\n\
+  var stopInfo = {\n\
+    x: vertex.x,\n\
+    y: vertex.y,\n\
+    stop: vertex.stop,\n\
+    inEdge: edge1,\n\
+    outEdge: edge2\n\
+  };\n\
+\n\
+  var offset = null;\n\
+  if(edgeInfo1 && edgeInfo1.offset) offset = edgeInfo1.offset;\n\
+  if(edgeInfo2 && edgeInfo2.offset) offset = edgeInfo2.offset;\n\
+\n\
+  if(offset === null) {\n\
+    stopInfo.offsetX = stopInfo.offsetY = 0;\n\
+    return stopInfo;\n\
+  }\n\
+\n\
+  if (edge2\n\
+    && edge2.rightVector.x !== edge1.rightVector.x\n\
+    && edge2.rightVector.y !== edge1.rightVector.y) {\n\
+\n\
+    var added = {\n\
+      x: edge2.rightVector.x + edge1.rightVector.x,\n\
+      y: edge2.rightVector.y + edge1.rightVector.y,\n\
+    };\n\
+\n\
+    var len = Math.sqrt(added.x * added.x + added.y * added.y);\n\
+    var normalized = { x : added.x / len, y : added.y / len };\n\
+\n\
+    var opp = Math.sqrt(\n\
+      Math.pow(edge2.rightVector.x - edge1.rightVector.x, 2)\n\
+      + Math.pow(edge2.rightVector.y - edge1.rightVector.y, 2)\n\
+      ) / 2;\n\
+\n\
+    var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))\n\
+\n\
+    stopInfo.offsetX = normalized.x * this.lineWidth * offset * l;\n\
+    stopInfo.offsetY = normalized.y * this.lineWidth * offset * l;\n\
+  } else {\n\
+    stopInfo.offsetX = edge1.rightVector.x * this.lineWidth * offset;\n\
+    stopInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;\n\
+  }\n\
+\n\
+  return stopInfo;\n\
+};\n\
+\n\
 \n\
 /**\n\
  * Get graph vertices\n\
