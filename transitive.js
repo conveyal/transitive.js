@@ -200,6 +200,182 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-indexof/index.js", function(exports, require, module){
+module.exports = function(arr, obj){
+  if (arr.indexOf) return arr.indexOf(obj);
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] === obj) return i;
+  }
+  return -1;
+};
+});
+require.register("component-emitter/index.js", function(exports, require, module){
+
+/**
+ * Module dependencies.
+ */
+
+var index = require('indexof');
+
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks[event] = this._callbacks[event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  var self = this;
+  this._callbacks = this._callbacks || {};
+
+  function on() {
+    self.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  fn._off = on;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks[event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks[event];
+    return this;
+  }
+
+  // remove specific handler
+  var i = index(callbacks, fn._off || fn);
+  if (~i) callbacks.splice(i, 1);
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks[event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks[event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
+});
 require.register("component-to-function/index.js", function(exports, require, module){
 
 /**
@@ -10186,13 +10362,16 @@ NetworkGraph.prototype.apply1DOffsets = function() {
 
   // initialize the bundle comparisons
   this.bundleComparisons = {};
+
+  // loop through all vertices with order of 3+ (i.e. where pattern convergence/divergence is possible)
   this.vertices.forEach(function(vertex) {
     if(vertex.edges.length <= 2) return;
 
+    // loop through the incident edges with 2+ patterns
     vertex.edges.forEach(function(edge) {
       if(edge.patterns.length < 2) return;
 
-      // compare each pattern pair
+      // compare each pattern pair sharing this edge
       for(var i = 0; i < edge.patterns.length; i++) {
         for(var j = i+1; j < edge.patterns.length; j++) {
           var p1 = edge.patterns[i], p2 = edge.patterns[j];
@@ -10234,8 +10413,10 @@ NetworkGraph.prototype.apply1DOffsets = function() {
     if(edge.patterns.length === 1) {
       edge.patterns[0].setEdgeOffset(edge, 0);
     }
-    else {
+    else { // 2+ patterns
       var this_ = this;
+
+      // compute the offsets for this buncle
       var sortedPatterns = edge.patterns.concat().sort(function compare(a, b) {
         var key = a.pattern_id + ',' + b.pattern_id;
         var compValue = this_.bundleComparisons[key];
@@ -10244,7 +10425,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {
         return 0;
       });
       sortedPatterns.forEach(function(pattern, i) {
-        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, true);
+        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, i, true);
       });
     }
   }, this);
@@ -10352,15 +10533,6 @@ Vertex.prototype.removeEdge = function(edge) {
   if(index !== -1) this.edges.splice(index, 1);
 };
 });
-require.register("transitive/lib/styler/computed.js", function(exports, require, module){
-
-/**
- * Computed rules
- */
-
-module.exports = [];
-
-});
 require.register("transitive/lib/styler/index.js", function(exports, require, module){
 
 /**
@@ -10368,8 +10540,15 @@ require.register("transitive/lib/styler/index.js", function(exports, require, mo
  */
 
 var merge = require('merge-util');
+var styles = require('./styles');
 var StyleSheet = require('stylesheet');
 var svgAttributes = require('svg-attributes');
+
+/**
+ * Element Types
+ */
+
+var types = [ 'labels', 'patterns', 'stops' ];
 
 /**
  * Add transform
@@ -10387,54 +10566,65 @@ module.exports = Styler;
  * Styler object
  */
 
-function Styler(passive, computed) {
-  if (!(this instanceof Styler)) return new Styler();
-
-  this.computed = require('./computed');
-  this.passive = require('./passive');
-  this.stylesheet = new StyleSheet();
-
-  this.load(passive, computed);
+function Styler(styles) {
+  if (!(this instanceof Styler)) return new Styler(styles);
+  if (styles) this.load(styles);
 }
+
+/**
+ * Add the predefined styles
+ */
+
+types.forEach(function (type) {
+  Styler.prototype[type] = styles[type];
+});
 
 /**
  * Load rules
  *
- * @param {Object} a set of rules
+ * @param {Object} a set of style rules
  */
 
-Styler.prototype.load = function(passive, computed) {
-  if (passive) this.passive = merge(this.passive, passive);
-  if (computed) this.computed = this.computed.concat(computed);
+Styler.prototype.load = function(styles) {
+  types.forEach(function (type) {
+    if (styles[type]) this[type] = merge(this[type], styles[type]);
+  });
+};
+
+/**
+ * Render pattern
+ *
+ * @param {Display} display
+ * @param {Pattern} pattern
+ */
+
+Styler.prototype.renderPattern = function(display, pattern) {
+  applyAttrAndStyle(
+    display,
+    pattern.selectAll('.transitive-line'),
+    this.patterns
+  );
 };
 
 /**
  * Render elements against these rules
  *
- * @param {Object} a D3 list of elements
- * @param {Object} the transitive object
+ * @param {Display} a D3 list of elements
+ * @param {Pattern} the transitive object
  */
 
-Styler.prototype.render = function(transitive, pattern) {
-  // apply passive rules
-  for (var selector in this.passive) {
-    applyAttrAndStyle(transitive, pattern, pattern.svgGroup.selectAll(selector),
-      this.passive[selector]);
-  }
+Styler.prototype.renderStop = function(display, pattern) {
+  applyAttrAndStyle(
+    display,
+    pattern.selectAll('.transitive-stop-circle'),
+    this.stops
+  );
 
-  // apply computed rules
-  this.computed.forEach(function (rule) {
-    rule(transitive, pattern);
-  });
-};
-
-/**
- * Reset rules
- */
-
-Styler.prototype.reset = function reset() {
-  this.passive = {};
-  this.computed = [];
+  applyAttrAndStyle(
+    display,
+    pattern.selectAll('.transitive-stop-label'),
+    this.labels
+  );
 };
 
 /**
@@ -10446,7 +10636,7 @@ Styler.prototype.reset = function reset() {
  * @param {Object} the rules to apply to the elements
  */
 
-function applyAttrAndStyle(transitive, pattern, elements, rules) {
+function applyAttrAndStyle(display, elements, rules) {
   for (var name in rules) {
     var type = svgAttributes.indexOf(name) === -1
       ? 'style'
@@ -10458,7 +10648,7 @@ function applyAttrAndStyle(transitive, pattern, elements, rules) {
   function computeRule(rule) {
     return function (data, index) {
       return isFunction(rule)
-        ? rule.call(rules, transitive, pattern, data, index)
+        ? rule.call(rules, display, data, index)
         : rule;
     };
   }
@@ -10473,61 +10663,74 @@ function isFunction(val) {
 }
 
 });
-require.register("transitive/lib/styler/passive.js", function(exports, require, module){
+require.register("transitive/lib/styler/styles.js", function(exports, require, module){
+
+//
+
+var zoom_min = 0.25, zoom_max = 4, zoom_mid = 1;
+function pixels(current_z, min, normal, max) {
+  if (current_z === zoom_mid) return normal;
+  if (current_z < zoom_mid) return min + (current_z - zoom_min) / (zoom_mid - zoom_min) * (normal - min);
+  return normal + (current_z - zoom_mid) / (zoom_max - zoom_mid) * (max - normal);
+}
 
 /**
- * Default static rules
+ * Default stop rules
  */
 
-module.exports = {
-
-  /**
-   * All stops
-   */
-
-  '.transitive-stop-circle': {
-    cx: 0,
-    cy: 0,
-    fill: 'white',
-    r: 5,
-    stroke: 'none'
+exports.stops = {
+  cx: 0,
+  cy: 0,
+  fill: 'white',
+  r: function (display) {
+    return pixels(display.zoom.scale(), 2, 4, 6.5);
   },
+  stroke: '#333',
+  'stroke-width': function (display, data) {
+    return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';
+  }
+};
 
-  /**
-   * All labels
-   */
+/**
+ * Default label rules
+ */
 
-  '.transitive-stop-label': {
-    color: 'black',
-    'font-family': 'sans-serif',
-    'font-size': '10px',
-    transform: function (transitive, pattern, data, index) {
-      return 'rotate(-45, ' + this.x + ', ' + this.y + ')';
-    },
-    visibility: function (transitive, pattern, data, index) {
-      if (transitive.display.zoom.scale() < 0.75) return 'hidden';
-      return 'visible';
-    },
-    x: 0,
-    y: -12
+exports.labels = {
+  color: '#333',
+  'font-family': '\'Lato\', sans-serif',
+  'font-size': function(display) {
+    return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
   },
+  transform: function (display) {
+    return 'rotate(-45,' + this.x + ',' + this.y(display).substr(0, 2) + ')';
+  },
+  visibility: function (display, data) {
+    if (display.zoom.scale() < 0.75) return 'hidden';
+    return 'visible';
+  },
+  x: 0,
+  y: function (display) {
+    return -pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
+  }
+};
 
-  /**
-   * All lines
-   */
+/**
+ * All patterns
+ */
 
-  '.transitive-line': {
-    stroke: function (transitive, pattern) {
-      if (pattern.route.route_color) {
-        return '#' + pattern.route.route_color;
-      } else {
-        return 'grey';
-      }
-    },
-    'stroke-width': '15px',
-    fill: function (transitive, pattern, data, index) {
-      return 'none';
+exports.patterns = {
+  stroke: function (display, data) {
+    if (data.route.route_color) {
+      return '#' + data.route.route_color;
+    } else {
+      return 'grey';
     }
+  },
+  'stroke-width': function (display) {
+    return pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+  },
+  fill: function (display, data, index) {
+    return 'none';
   }
 };
 
@@ -10550,9 +10753,9 @@ module.exports = Display;
  *  The D3-based SVG display.
  */
 
-function Display(el) {
+function Display(el, zoom) {
   // set up the pan/zoom behavior
-  this.zoom = d3.behavior.zoom()
+  this.zoom = zoom || d3.behavior.zoom()
     .scaleExtent([ 0.25, 4 ]);
 
   // set up the svg display
@@ -10679,6 +10882,9 @@ function Pattern(data) {
   //  - edge : the Edge object
   //  - offset : the offset for rendering, expressed as a factor of the line width and relative to the 'forward' direction of the pattern
   this.graphEdges = [];
+
+  // temporarily hardcoding the line width; need to get this from the styler
+  this.lineWidth = 15;
 }
 
 /**
@@ -10709,10 +10915,11 @@ Pattern.prototype.insertEdge = function(index, edge) {
  * setEdgeOffset: applies a specified offset to a specified edge in the pattern
  */
 
-Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {
+Pattern.prototype.setEdgeOffset = function(edge, offset, bundleIndex, extend) {
   this.graphEdges.forEach(function(edgeInfo, i) {
     if(edgeInfo.edge === edge && edgeInfo.offset === null) {
       edgeInfo.offset = offset;
+      edgeInfo.bundleIndex = bundleIndex;
       //console.log('- set offset: '+offset);
       if(extend) this.extend1DEdgeOffset(i);
     }
@@ -10726,16 +10933,23 @@ Pattern.prototype.setEdgeOffset = function(edge, offset, extend) {
 
 Pattern.prototype.extend1DEdgeOffset = function(edgeIndex) {
   var offset = this.graphEdges[edgeIndex].offset;
+  var bundleIndex = this.graphEdges[edgeIndex].bundleIndex;
   var edgeInfo;
   for(var i = edgeIndex; i < this.graphEdges.length; i++) {
     edgeInfo = this.graphEdges[i];
     if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;
-    if(edgeInfo.offset === null) edgeInfo.offset = offset;
+    if(edgeInfo.offset === null) {
+      edgeInfo.offset = offset;
+      edgeInfo.bundleIndex = bundleIndex;
+    }
   }
   for(i = edgeIndex; i >= 0; i--) {
     edgeInfo = this.graphEdges[i];
     if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;
-    if(edgeInfo.offset === null) edgeInfo.offset = offset;
+    if(edgeInfo.offset === null) {
+      edgeInfo.offset = offset;
+      edgeInfo.bundleIndex = bundleIndex;
+    }
   }
 };
 
@@ -10799,45 +11013,21 @@ Pattern.prototype.draw = function(display, capExtension) {
     .interpolate('linear');
 
   this.lineGraph = this.svgGroup.append('path')
-    .attr('class', 'transitive-line');
-
-  // add the stop groups to the pattern
-  this.stopSvgGroups = this.svgGroup.selectAll('.transitive-stop')
-    .data(this.getStopData())
-    .enter()
-    .append('g');
-
-  this.stopSvgGroups.append('circle')
-    .attr('class', 'transitive-stop-circle');
-
-  this.stopSvgGroups.append('text')
-    .attr('id', function (d) {
-      return 'transitive-stop-label-' + d.stop.getId();
-    })
-    .text(function (d) {
-      return d.stop.stop_name;
-    })
-    .attr('class', 'transitive-stop-label');
+    .attr('class', 'transitive-line')
+    .data([ this ]);
 };
 
 /**
  * Refresh
  */
 
-Pattern.prototype.refresh = function(display) {
-  var widthStr = this.lineGraph.style('stroke-width');
-  this.lineWidth = parseInt(widthStr.substring(0, widthStr.length - 2), 10);
+Pattern.prototype.refresh = function(display, styler) {
+  // compute the line width
+  var lw = styler.patterns['stroke-width'](display, this);
+  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) * 16;
 
   // update the line and stop groups
-  var stopData = this.getStopData();
-  this.lineGraph.attr('d', this.line(stopData));
-
-  this.stopSvgGroups.data(stopData);
-  this.stopSvgGroups.attr('transform', function (d, i) {
-    var x = display.xScale(d.x) - d.offsetX;
-    var y = display.yScale(d.y) + d.offsetY;
-    return 'translate(' + x +', ' + y +')';
-  });
+  this.lineGraph.attr('d', this.line(this.renderData));
 };
 
 /**
@@ -10846,8 +11036,8 @@ Pattern.prototype.refresh = function(display) {
  * Stop instance
  */
 
-Pattern.prototype.getStopData = function() {
-  var stopData = [];
+Pattern.prototype.refreshRenderData = function() {
+  this.renderData = [];
   this.graphEdges.forEach(function (edgeInfo, i) {
 
     var edge = edgeInfo.edge;
@@ -10876,7 +11066,8 @@ Pattern.prototype.getStopData = function() {
         ? edge.rightVector.y * this.lineWidth * edgeInfo.offset
         : 0;
 
-      stopData.push(stopInfo);
+      this.renderData.push(stopInfo);
+      edge.fromVertex.stop.renderData.push(stopInfo);
     }
 
     // the internal stops for this edge
@@ -10891,22 +11082,22 @@ Pattern.prototype.getStopData = function() {
       else {
         stopInfo.offsetX = stopInfo.offsetY = 0;
       }
-      stopData.push(stopInfo);
+      if(edgeInfo.bundleIndex === 0) stopInfo.showLabel = true;
+      this.renderData.push(stopInfo);
+      stop.renderData.push(stopInfo);
     }, this);
 
     // the "to" vertex stop for this edge. handles the 'corner' case between adjacent edges
     stopInfo = this.constructCornerStopInfo(edgeInfo, edge.toVertex, nextEdgeInfo);
-    stopData.push(stopInfo);
+    this.renderData.push(stopInfo);
+    edge.toVertex.stop.renderData.push(stopInfo);
 
   }, this);
-  
-
-  return stopData;
 };
 
 
 Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo2) {
-  
+
   var edge1 = edgeInfo1 ? edgeInfo1.edge : null;
   var edge2 = edgeInfo2 ? edgeInfo2.edge : null;
 
@@ -10953,6 +11144,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
     stopInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;
   }
 
+  //stopInfo.showLabel = true;
   return stopInfo;
 };
 
@@ -11082,6 +11274,8 @@ function Stop(data) {
   }
 
   this.patterns = [];
+
+  this.renderData = [];
 }
 
 /**
@@ -11090,6 +11284,55 @@ function Stop(data) {
 
 Stop.prototype.getId = function() {
   return this.stop_id;
+};
+
+
+Stop.prototype.draw = function(display) {
+  if(this.renderData.length === 0) return;
+
+  // set up the main svg group for this stop
+  this.svgGroup = display.svg.append('g');
+
+  // set up the pattern-level markers
+  this.patternMarkers = this.svgGroup.selectAll('.transitive-stop')
+    .data(this.renderData)
+    .enter()
+    .append('g');
+
+  this.patternMarkers.append('circle')
+    .attr('class', 'transitive-stop-circle');
+
+
+  // set up a group for the stop-level labels
+  this.labels = this.svgGroup.append('g');
+
+  // create the main stop label
+  this.labels.append('text')
+    .attr('id', 'transitive-stop-label-' + this.getId())
+    .text(this.stop_name)
+    .attr('class', 'transitive-stop-label');
+};
+
+
+Stop.prototype.refresh = function(display) {
+  if(this.renderData.length === 0) return;
+
+  // refresh the pattern-level markers
+  this.patternMarkers.data(this.renderData);
+  this.patternMarkers.attr('transform', function (d, i) {
+    var x = display.xScale(d.x) - d.offsetX;
+    var y = display.yScale(d.y) + d.offsetY;
+    return 'translate(' + x +', ' + y +')';
+  });
+
+  // refresh the stop-level labels
+  var ld = this.renderData[this.renderData.length-1];
+  this.labels.attr('transform', function (d, i) {
+    var x = display.xScale(ld.x) - ld.offsetX;
+    var y = display.yScale(ld.y) + ld.offsetY;
+    return 'translate(' + x +', ' + y +')';
+  });
+
 };
 
 });
@@ -11101,6 +11344,7 @@ require.register("transitive/lib/transitive.js", function(exports, require, modu
 
 var d3 = require('d3');
 var Display = require('./display');
+var Emitter = require('emitter');
 var Graph = require('./graph');
 var Pattern = require('./pattern');
 var Route = require('./route');
@@ -11115,13 +11359,13 @@ var toFunction = require('to-function');
 module.exports = Transitive;
 
 /**
- * Make `d3` accessible
+ * Expose `d3`
  */
 
 module.exports.d3 = Transitive.prototype.d3 = d3;
 
 /**
- * Version
+ * Expose `version`
  */
 
 module.exports.version = '0.0.0';
@@ -11130,16 +11374,22 @@ module.exports.version = '0.0.0';
  * Main object
  */
 
-function Transitive(el, data, passiveStyles, computedStyles) {
+function Transitive(el, data, styles) {
   if (!(this instanceof Transitive)) {
-    return new Transitive(el, data, passiveStyles, computedStyles);
+    return new Transitive(el, data, styles);
   }
 
   this.clearFilters();
   this.data = data;
   this.setElement(el);
-  this.style = new Styler(passiveStyles, computedStyles);
+  this.style = new Styler(styles);
 }
+
+/**
+ * Mixin `Emitter`
+ */
+
+Emitter(Transitive.prototype);
 
 /**
  * Add a filter
@@ -11257,6 +11507,8 @@ Transitive.prototype.load = function(data) {
   this.graph.convertTo1D();
   this.setScale();
 
+  this.emit('loaded', this);
+
   return this;
 };
 
@@ -11285,14 +11537,24 @@ Transitive.prototype.render = function() {
   var offsetLeft = this.el.offsetLeft;
   var offsetTop = this.el.offsetTop;
 
-  // remove all old patterns
+  // remove all old svg elements
   this.display.empty();
 
+  // initialize the pattern svg elements
   for (var key in this.patterns) {
-    this.patterns[key].draw(this.display, 10);
+    var pattern = this.patterns[key];
+    pattern.refreshRenderData();
+    pattern.draw(this.display, 10);
+  }
+
+  // initialize the stop svg elements
+  for (key in this.stops) {
+    this.stops[key].draw(this.display);
   }
 
   this.refresh();
+
+  this.emit('rendered', this);
 
   return this;
 };
@@ -11313,12 +11575,30 @@ Transitive.prototype.renderTo = function(el) {
  */
 
 Transitive.prototype.refresh = function() {
-  for (var key in this.patterns) {
-    var pattern = this.patterns[key];
-
-    this.style.render(this, pattern);
-    pattern.refresh(this.display);
+  // clear the stop render data
+  for (var key in this.stops) {
+    this.stops[key].renderData = [];
   }
+
+  // refresh the patterns
+  for (key in this.patterns) {
+    var pattern = this.patterns[key];
+    pattern.refreshRenderData(); // also updates the stop-level renderData
+
+    this.style.renderPattern(this.display, pattern.svgGroup);
+    pattern.refresh(this.display, this.style);
+  }
+
+  // refresh the stops
+  for (key in this.stops) {
+    var stop = this.stops[key];
+    if(!stop.svgGroup) continue; // check if this stop is not currently rendered
+
+    this.style.renderStop(this.display, stop.svgGroup);
+    stop.refresh(this.display);
+  }
+
+  this.emit('refreshed', this);
 
   return this;
 };
@@ -11431,6 +11711,12 @@ function applyFilters(data, filters) {
 
 
 
+
+
+
+require.alias("component-emitter/index.js", "transitive/deps/emitter/index.js");
+require.alias("component-emitter/index.js", "emitter/index.js");
+require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
 
 require.alias("component-to-function/index.js", "transitive/deps/to-function/index.js");
 require.alias("component-to-function/index.js", "to-function/index.js");
