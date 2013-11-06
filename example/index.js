@@ -21,11 +21,7 @@ document.getElementById('select-route').appendChild(Routes.el);
 document.getElementById('select-pattern').appendChild(Patterns.el);
 
 // transitive instance
-var transitive = new Transitive(
-  document.getElementById('canvas'), // element
-  INDEX_FULL, // data
-  {}, // passive styles
-  COMPUTED);
+var transitive = new Transitive(document.getElementById('canvas'), INDEX_FULL);
 
 // Set up filters
 transitive
@@ -38,6 +34,13 @@ transitive
   .filter('patterns', function (pattern) {
     return Patterns.values().indexOf(pattern.pattern_id) !== -1;
   });
+
+// on rendered
+transitive.on('rendered', function (transitive) {
+  each(COMPUTED, function (behavior) {
+    behavior(transitive);
+  });
+});
 
 // Direction check box
 var $reverse = document.getElementById('reverse-direction');
