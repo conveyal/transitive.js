@@ -6,4 +6,4 @@ transitive.js
 
 ## Demo
 
-[Demo](http://conveyal.github.io/transitive.js/example/index.html "Demo")
+[Demo](http://conveyal.github.io/transitive.js "Demo")
