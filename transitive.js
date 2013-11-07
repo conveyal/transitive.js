@@ -10701,12 +10701,32 @@ function pixels(current_z, min, normal, max) {
 exports.stops = {
   cx: 0,
   cy: 0,
-  fill: 'white',
-  r: function (display) {
+  fill: function (display, data) {
+    if (data.stop.isBranchPoint) return '#dbdcdd';
+    return '#fff';
+  },
+  r: function (display, data) {
+    if (data.stop.isEndPoint || data.stop.isBranchPoint) {
+      return 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+    }
     return pixels(display.zoom.scale(), 2, 4, 6.5);
   },
-  stroke: '#333',
+  stroke: function (display, data) {
+    if (data.stop.isEndPoint && data.pattern.route.route_color) {
+      return '#' + data.pattern.route.route_color;
+    }
+    if (data.stop.isBranchPoint) {
+      return '#fff';
+    }
+    return '#333';
+  },
   'stroke-width': function (display, data) {
+    if (data.stop.isEndPoint) {
+      return 0.5 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+    }
+    if (data.stop.isBranchPoint) {
+      return '0.333em';
+    }
     return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';
   }
 };
@@ -10721,17 +10741,10 @@ exports.labels = {
   'font-size': function(display) {
     return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
   },
-  /*transform: function (display) {
-    return 'rotate(-45,' + this.x + ',' + this.y(display).substr(0, 2) + ')';
-  },*/
   visibility: function (display, data) {
     if (display.zoom.scale() < 0.75) return 'hidden';
     return 'visible';
-  },
-  /*x: 0,
-  y: function (display) {
-    return -pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
-  }*/
+  }
 };
 
 /**
@@ -11323,6 +11336,12 @@ function Stop(data) {
   this.labelAngle = -45;
   this.labelOffsetX = function() { return  0; };
   this.labelOffsetY = function() { return  0; };
+
+  // flag indicating whether this stop is the endpoint of a pattern
+  this.isEndPoint = false;
+
+  // flag indicating whether this stop is a point of convergence/divergence between 2+ patterns
+  this.isBranchPoint = false;
 }
 
 /**
@@ -11378,7 +11397,7 @@ Stop.prototype.draw = function(display) {
   // create the main stop label
   this.mainLabel = this.labels.append('text')
     .attr('id', 'transitive-stop-label-' + this.getId())
-    .text(this.stop_name)
+    .text(this.stop_name.replace('METRO STATION', ''))
     .attr('class', 'transitive-stop-label');
 
   if(this.labelPosition > 0) { // the 'above' position
@@ -11562,11 +11581,13 @@ Transitive.prototype.load = function(data) {
       var firstStop = pattern.stops[0];
       if(!(firstStop.getId() in vertexStops)) {
         vertexStops[firstStop.getId()] = firstStop;
+        firstStop.isEndPoint = true;
       }
 
       var lastStop = pattern.stops[pattern.stops.length-1];
       if(!(lastStop.getId() in vertexStops)) {
         vertexStops[lastStop.getId()] = lastStop;
+        lastStop.isEndPoint = true;
       }
     }, this);
   }, this);
@@ -11578,6 +11599,7 @@ Transitive.prototype.load = function(data) {
   for(var stopId in adjacentStops) {
     if(adjacentStops[stopId].length > 2) {
       vertexStops[stopId] = this.stops[stopId];
+      this.stops[stopId].isBranchPoint = true;
     }
   }
 
@@ -11595,7 +11617,6 @@ Transitive.prototype.load = function(data) {
   this.setScale();
 
   this.emit('loaded', this);
-
   return this;
 };
 

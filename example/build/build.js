@@ -12690,12 +12690,32 @@ function pixels(current_z, min, normal, max) {\n\
 exports.stops = {\n\
   cx: 0,\n\
   cy: 0,\n\
-  fill: 'white',\n\
-  r: function (display) {\n\
+  fill: function (display, data) {\n\
+    if (data.stop.isBranchPoint) return '#dbdcdd';\n\
+    return '#fff';\n\
+  },\n\
+  r: function (display, data) {\n\
+    if (data.stop.isEndPoint || data.stop.isBranchPoint) {\n\
+      return 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+    }\n\
     return pixels(display.zoom.scale(), 2, 4, 6.5);\n\
   },\n\
-  stroke: '#333',\n\
+  stroke: function (display, data) {\n\
+    if (data.stop.isEndPoint && data.pattern.route.route_color) {\n\
+      return '#' + data.pattern.route.route_color;\n\
+    }\n\
+    if (data.stop.isBranchPoint) {\n\
+      return '#fff';\n\
+    }\n\
+    return '#333';\n\
+  },\n\
   'stroke-width': function (display, data) {\n\
+    if (data.stop.isEndPoint) {\n\
+      return 0.5 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+    }\n\
+    if (data.stop.isBranchPoint) {\n\
+      return '0.333em';\n\
+    }\n\
     return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';\n\
   }\n\
 };\n\
@@ -12710,17 +12730,10 @@ exports.labels = {\n\
   'font-size': function(display) {\n\
     return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';\n\
   },\n\
-  /*transform: function (display) {\n\
-    return 'rotate(-45,' + this.x + ',' + this.y(display).substr(0, 2) + ')';\n\
-  },*/\n\
   visibility: function (display, data) {\n\
     if (display.zoom.scale() < 0.75) return 'hidden';\n\
     return 'visible';\n\
-  },\n\
-  /*x: 0,\n\
-  y: function (display) {\n\
-    return -pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';\n\
-  }*/\n\
+  }\n\
 };\n\
 \n\
 /**\n\
@@ -13312,6 +13325,12 @@ function Stop(data) {\n\
   this.labelAngle = -45;\n\
   this.labelOffsetX = function() { return  0; };\n\
   this.labelOffsetY = function() { return  0; };\n\
+\n\
+  // flag indicating whether this stop is the endpoint of a pattern\n\
+  this.isEndPoint = false;\n\
+\n\
+  // flag indicating whether this stop is a point of convergence/divergence between 2+ patterns\n\
+  this.isBranchPoint = false;\n\
 }\n\
 \n\
 /**\n\
@@ -13367,7 +13386,7 @@ Stop.prototype.draw = function(display) {\n\
   // create the main stop label\n\
   this.mainLabel = this.labels.append('text')\n\
     .attr('id', 'transitive-stop-label-' + this.getId())\n\
-    .text(this.stop_name)\n\
+    .text(this.stop_name.replace('METRO STATION', ''))\n\
     .attr('class', 'transitive-stop-label');\n\
 \n\
   if(this.labelPosition > 0) { // the 'above' position\n\
@@ -13551,11 +13570,13 @@ Transitive.prototype.load = function(data) {\n\
       var firstStop = pattern.stops[0];\n\
       if(!(firstStop.getId() in vertexStops)) {\n\
         vertexStops[firstStop.getId()] = firstStop;\n\
+        firstStop.isEndPoint = true;\n\
       }\n\
 \n\
       var lastStop = pattern.stops[pattern.stops.length-1];\n\
       if(!(lastStop.getId() in vertexStops)) {\n\
         vertexStops[lastStop.getId()] = lastStop;\n\
+        lastStop.isEndPoint = true;\n\
       }\n\
     }, this);\n\
   }, this);\n\
@@ -13567,6 +13588,7 @@ Transitive.prototype.load = function(data) {\n\
   for(var stopId in adjacentStops) {\n\
     if(adjacentStops[stopId].length > 2) {\n\
       vertexStops[stopId] = this.stops[stopId];\n\
+      this.stops[stopId].isBranchPoint = true;\n\
     }\n\
   }\n\
 \n\
@@ -13584,7 +13606,6 @@ Transitive.prototype.load = function(data) {\n\
   this.setScale();\n\
 \n\
   this.emit('loaded', this);\n\
-\n\
   return this;\n\
 };\n\
 \n\
