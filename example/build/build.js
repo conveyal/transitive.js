@@ -12099,13 +12099,26 @@ Edge.prototype.oppositeVertex = function(vertex) {\n\
 \n\
 \n\
 /**\n\
+ *  \n\
+ */\n\
+\n\
+Edge.prototype.setStopLabelPosition = function(pos, skip) {\n\
+  if(this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;\n\
+  if(this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;\n\
+\n\
+  this.stopArray.forEach(function(stop) {\n\
+    if(stop !== skip) stop.labelPosition = pos;\n\
+  });\n\
+};\n\
+\n\
+\n\
+/**\n\
  *\n\
  */\n\
 \n\
 Edge.prototype.toString = function() {\n\
   return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();\n\
 };\n\
-\n\
 //@ sourceURL=transitive/lib/graph/edge.js"
 ));
 require.register("transitive/lib/graph/index.js", Function("exports, require, module",
@@ -12206,6 +12219,7 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
 \n\
   //console.log('trunk edge: ');\n\
   //console.log(trunkEdge);\n\
+  trunkEdge.setStopLabelPosition(-1);\n\
 \n\
   // determine the direction relative to the trunk edge\n\
   var llDir = trunkEdge.toVertex.x - trunkEdge.fromVertex.x;\n\
@@ -12242,6 +12256,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
   else if(edges.length === 1) { // exactly one other edge to explore\n\
     var extEdge = edges[0];\n\
     var oppVertex = extEdge.oppositeVertex(vertex);\n\
+    extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);\n\
 \n\
     if(this.exploredVertices.indexOf(oppVertex) !== -1) {\n\
       console.log('Warning: found cycle in 1d graph');\n\
@@ -12254,6 +12269,8 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
   }\n\
   else { // branch case\n\
     //console.log('branch:');\n\
+\n\
+    // iterate through the branches\n\
     edges.forEach(function(extEdge, i) {\n\
       var oppVertex = extEdge.oppositeVertex(vertex);\n\
 \n\
@@ -12263,11 +12280,15 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
       }\n\
       this.exploredVertices.push(oppVertex);\n\
 \n\
+      // the first branch encountered is rendered as the straight line\n\
+      // TODO: apply logic to this based on trip count, etc.\n\
       if(i === 0) {\n\
         oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);\n\
+        extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);\n\
         this.extend1D(extEdge, oppVertex, direction, y);\n\
       }\n\
-      else {\n\
+      else { // subsequent branches\n\
+\n\
         //console.log('branch y+'+i);\n\
         var branchY = y+i;\n\
 \n\
@@ -12287,10 +12308,9 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
         }\n\
 \n\
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);\n\
-        //console.log('newVertex:');\n\
-        //console.log(newVertex);\n\
 \n\
         this.splitEdge(extEdge, newVertex, vertex);\n\
+        extEdge.setStopLabelPosition((branchY > 0) ? 1 : -1, vertex);\n\
 \n\
         oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);\n\
         this.extend1D(extEdge, oppVertex, direction, branchY);\n\
@@ -12414,7 +12434,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {\n\
         return 0;\n\
       });\n\
       sortedPatterns.forEach(function(pattern, i) {\n\
-        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, i, true);\n\
+        pattern.setEdgeOffset(edge, (-i + (edge.patterns.length-1)/2) * -1.2, i, true);\n\
       });\n\
     }\n\
   }, this);\n\
@@ -12690,17 +12710,17 @@ exports.labels = {\n\
   'font-size': function(display) {\n\
     return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';\n\
   },\n\
-  transform: function (display) {\n\
+  /*transform: function (display) {\n\
     return 'rotate(-45,' + this.x + ',' + this.y(display).substr(0, 2) + ')';\n\
-  },\n\
+  },*/\n\
   visibility: function (display, data) {\n\
     if (display.zoom.scale() < 0.75) return 'hidden';\n\
     return 'visible';\n\
   },\n\
-  x: 0,\n\
+  /*x: 0,\n\
   y: function (display) {\n\
     return -pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';\n\
-  }\n\
+  }*/\n\
 };\n\
 \n\
 /**\n\
@@ -12978,7 +12998,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       }\n\
 \n\
       if (stopInfo.offsetX) {\n\
-        x -= stopInfo.offsetX;\n\
+        x += stopInfo.offsetX;\n\
       }\n\
 \n\
       return x;\n\
@@ -12999,7 +13019,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
       }\n\
 \n\
       if (stopInfo.offsetY) {\n\
-        y += stopInfo.offsetY;\n\
+        y -= stopInfo.offsetY;\n\
       }\n\
 \n\
       return y;\n\
@@ -13045,6 +13065,7 @@ Pattern.prototype.refreshRenderData = function() {\n\
     // the \"from\" vertex stop for this edge (first edge only)\n\
     if (i === 0) {\n\
       stopInfo = {\n\
+        pattern: this,\n\
         x: edge.fromVertex.x,\n\
         y: edge.fromVertex.y,\n\
         stop: edge.fromVertex.stop,\n\
@@ -13061,12 +13082,13 @@ Pattern.prototype.refreshRenderData = function() {\n\
         : 0;\n\
 \n\
       this.renderData.push(stopInfo);\n\
-      edge.fromVertex.stop.renderData.push(stopInfo);\n\
+      edge.fromVertex.stop.addRenderData(stopInfo);\n\
     }\n\
 \n\
     // the internal stops for this edge\n\
     edge.stopArray.forEach(function (stop, i) {\n\
       stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));\n\
+      stopInfo.pattern = this;\n\
       stopInfo.stop = stop;\n\
       stopInfo.inEdge = stopInfo.outEdge = edge;\n\
       if(edgeInfo.offset) {\n\
@@ -13078,13 +13100,13 @@ Pattern.prototype.refreshRenderData = function() {\n\
       }\n\
       if(edgeInfo.bundleIndex === 0) stopInfo.showLabel = true;\n\
       this.renderData.push(stopInfo);\n\
-      stop.renderData.push(stopInfo);\n\
+      stop.addRenderData(stopInfo);\n\
     }, this);\n\
 \n\
     // the \"to\" vertex stop for this edge. handles the 'corner' case between adjacent edges\n\
     stopInfo = this.constructCornerStopInfo(edgeInfo, edge.toVertex, nextEdgeInfo);\n\
     this.renderData.push(stopInfo);\n\
-    edge.toVertex.stop.renderData.push(stopInfo);\n\
+    edge.toVertex.stop.addRenderData(stopInfo);\n\
 \n\
   }, this);\n\
 };\n\
@@ -13096,6 +13118,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
   var edge2 = edgeInfo2 ? edgeInfo2.edge : null;\n\
 \n\
   var stopInfo = {\n\
+    pattern: this,\n\
     x: vertex.x,\n\
     y: vertex.y,\n\
     stop: vertex.stop,\n\
@@ -13137,7 +13160,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
     stopInfo.offsetX = edge1.rightVector.x * this.lineWidth * offset;\n\
     stopInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;\n\
   }\n\
-\n\
+  \n\
   //stopInfo.showLabel = true;\n\
   return stopInfo;\n\
 };\n\
@@ -13186,6 +13209,20 @@ Pattern.prototype.getAdjacentEdge = function(edge, vertex) {\n\
   }\n\
 \n\
   return null;\n\
+};\n\
+\n\
+\n\
+Pattern.prototype.vertexArray = function() {\n\
+  \n\
+  var vertex = this.startVertex();\n\
+  var array = [ vertex ];\n\
+\n\
+  this.graphEdges.forEach(function(edgeInfo) {\n\
+    vertex = edgeInfo.edge.oppositeVertex(vertex);\n\
+    array.push(vertex);\n\
+  });\n\
+\n\
+  return array;\n\
 };\n\
 \n\
 Pattern.prototype.startVertex = function() {\n\
@@ -13270,6 +13307,11 @@ function Stop(data) {\n\
   this.patterns = [];\n\
 \n\
   this.renderData = [];\n\
+\n\
+  this.labelAnchor = null;\n\
+  this.labelAngle = -45;\n\
+  this.labelOffsetX = function() { return  0; };\n\
+  this.labelOffsetY = function() { return  0; };\n\
 }\n\
 \n\
 /**\n\
@@ -13278,6 +13320,28 @@ function Stop(data) {\n\
 \n\
 Stop.prototype.getId = function() {\n\
   return this.stop_id;\n\
+};\n\
+\n\
+Stop.prototype.addRenderData = function(stopInfo) {\n\
+  this.renderData.push(stopInfo);\n\
+\n\
+  // check if this is the 'topmost' stopInfo item received (based on offsets) for labeling purposes\n\
+  if(!this.topAnchor) this.topAnchor = stopInfo;\n\
+  else {\n\
+    if(stopInfo.offsetY > this.topAnchor.offsetY) {\n\
+      this.topAnchor = stopInfo;\n\
+    }\n\
+  }\n\
+\n\
+  // check if this is the 'bottommost' stopInfo iterm received\n\
+  if(!this.bottomAnchor) this.bottomAnchor = stopInfo;\n\
+  else {\n\
+    if(stopInfo.offsetY < this.bottomAnchor.offsetY) {\n\
+      this.bottomAnchor = stopInfo;\n\
+    }\n\
+  }\n\
+\n\
+  //console.log(stopInfo);\n\
 };\n\
 \n\
 \n\
@@ -13301,10 +13365,23 @@ Stop.prototype.draw = function(display) {\n\
   this.labels = this.svgGroup.append('g');\n\
 \n\
   // create the main stop label\n\
-  this.labels.append('text')\n\
+  this.mainLabel = this.labels.append('text')\n\
     .attr('id', 'transitive-stop-label-' + this.getId())\n\
     .text(this.stop_name)\n\
     .attr('class', 'transitive-stop-label');\n\
+\n\
+  if(this.labelPosition > 0) { // the 'above' position\n\
+    this.mainLabel.attr('text-anchor', 'start');\n\
+    this.labelAnchor = this.topAnchor;\n\
+    this.labelOffsetY = function(lineWidth) { return 0.7 * lineWidth; };\n\
+  }\n\
+  else { // the 'below' position\n\
+    this.mainLabel.attr('text-anchor', 'end');\n\
+    this.labelAnchor = this.bottomAnchor;\n\
+    this.labelOffsetX = function(lineWidth) { return 0.4 * lineWidth; };\n\
+    this.labelOffsetY = function(lineWidth) { return -lineWidth; };\n\
+  }\n\
+\n\
 };\n\
 \n\
 \n\
@@ -13314,18 +13391,22 @@ Stop.prototype.refresh = function(display) {\n\
   // refresh the pattern-level markers\n\
   this.patternMarkers.data(this.renderData);\n\
   this.patternMarkers.attr('transform', function (d, i) {\n\
-    var x = display.xScale(d.x) - d.offsetX;\n\
-    var y = display.yScale(d.y) + d.offsetY;\n\
+    var x = display.xScale(d.x) + d.offsetX;\n\
+    var y = display.yScale(d.y) - d.offsetY ;\n\
     return 'translate(' + x +', ' + y +')';\n\
   });\n\
 \n\
   // refresh the stop-level labels\n\
-  var ld = this.renderData[this.renderData.length-1];\n\
-  this.labels.attr('transform', function (d, i) {\n\
-    var x = display.xScale(ld.x) - ld.offsetX;\n\
-    var y = display.yScale(ld.y) + ld.offsetY;\n\
+  this.labels.attr('transform', (function (d, i) {\n\
+    var la = this.labelAnchor;\n\
+    var x = display.xScale(la.x) + la.offsetX + this.labelOffsetX(la.pattern.lineWidth);\n\
+    var y = display.yScale(la.y) - la.offsetY - this.labelOffsetY(la.pattern.lineWidth);\n\
     return 'translate(' + x +', ' + y +')';\n\
-  });\n\
+  }).bind(this));\n\
+\n\
+  this.mainLabel.attr('transform', (function (d, i) {\n\
+    return 'rotate(' + this.labelAngle + ',0,0)';\n\
+  }).bind(this));\n\
 \n\
 };\n\
 //@ sourceURL=transitive/lib/stop.js"
@@ -13499,6 +13580,7 @@ Transitive.prototype.load = function(data) {\n\
   populateGraphEdges(this.patterns, this.graph);\n\
 \n\
   this.graph.convertTo1D();\n\
+  //this.placeStopLabels();\n\
   this.setScale();\n\
 \n\
   this.emit('loaded', this);\n\
@@ -13624,6 +13706,42 @@ Transitive.prototype.setScale = function() {\n\
       this.graph);\n\
   }\n\
 };\n\
+\n\
+\n\
+/**\n\
+ * Place the stop text labels, minimizing overlap\n\
+ */\n\
+\n\
+Transitive.prototype.placeStopLabels = function() {\n\
+\n\
+\n\
+  // determine the y-range of each pattern\n\
+  // refresh the patterns\n\
+\n\
+  for (var key in this.patterns) {\n\
+    var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;\n\
+    var pattern = this.patterns[key];\n\
+    var vertices = pattern.vertexArray();\n\
+    console.log(vertices);\n\
+    //vertices.forEach(function(vertex) {\n\
+    for(var i = 0; i < vertices.length; i++) {\n\
+      var vertex = vertices[i];\n\
+      minY = Math.min(minY, vertex.y);\n\
+      maxY = Math.max(maxY, vertex.y);\n\
+    }\n\
+\n\
+    console.log('p yr: '+minY + ' to '+maxY);\n\
+  }\n\
+\n\
+  //\n\
+  for (key in this.stops) {\n\
+    var stop = this.stops[key];\n\
+    if(stop.patterns.length === 0) continue; // check if this stop is not currently displayed\n\
+\n\
+  }\n\
+\n\
+};\n\
+\n\
 \n\
 /**\n\
  * Generate Stops\n\

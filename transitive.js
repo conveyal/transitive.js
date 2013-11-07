@@ -10110,13 +10110,26 @@ Edge.prototype.oppositeVertex = function(vertex) {
 
 
 /**
+ *  
+ */
+
+Edge.prototype.setStopLabelPosition = function(pos, skip) {
+  if(this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;
+  if(this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;
+
+  this.stopArray.forEach(function(stop) {
+    if(stop !== skip) stop.labelPosition = pos;
+  });
+};
+
+
+/**
  *
  */
 
 Edge.prototype.toString = function() {
   return this.fromVertex.stop.getId() + '_' + this.toVertex.stop.getId();
 };
-
 
 });
 require.register("transitive/lib/graph/index.js", function(exports, require, module){
@@ -10217,6 +10230,7 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {
 
   //console.log('trunk edge: ');
   //console.log(trunkEdge);
+  trunkEdge.setStopLabelPosition(-1);
 
   // determine the direction relative to the trunk edge
   var llDir = trunkEdge.toVertex.x - trunkEdge.fromVertex.x;
@@ -10253,6 +10267,7 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
   else if(edges.length === 1) { // exactly one other edge to explore
     var extEdge = edges[0];
     var oppVertex = extEdge.oppositeVertex(vertex);
+    extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);
 
     if(this.exploredVertices.indexOf(oppVertex) !== -1) {
       console.log('Warning: found cycle in 1d graph');
@@ -10265,6 +10280,8 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
   }
   else { // branch case
     //console.log('branch:');
+
+    // iterate through the branches
     edges.forEach(function(extEdge, i) {
       var oppVertex = extEdge.oppositeVertex(vertex);
 
@@ -10274,11 +10291,15 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
       }
       this.exploredVertices.push(oppVertex);
 
+      // the first branch encountered is rendered as the straight line
+      // TODO: apply logic to this based on trip count, etc.
       if(i === 0) {
         oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);
+        extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);
         this.extend1D(extEdge, oppVertex, direction, y);
       }
-      else {
+      else { // subsequent branches
+
         //console.log('branch y+'+i);
         var branchY = y+i;
 
@@ -10298,10 +10319,9 @@ NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {
         }
 
         var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);
-        //console.log('newVertex:');
-        //console.log(newVertex);
 
         this.splitEdge(extEdge, newVertex, vertex);
+        extEdge.setStopLabelPosition((branchY > 0) ? 1 : -1, vertex);
 
         oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);
         this.extend1D(extEdge, oppVertex, direction, branchY);
@@ -10425,7 +10445,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {
         return 0;
       });
       sortedPatterns.forEach(function(pattern, i) {
-        pattern.setEdgeOffset(edge, (i - (edge.patterns.length-1)/2) * -1.2, i, true);
+        pattern.setEdgeOffset(edge, (-i + (edge.patterns.length-1)/2) * -1.2, i, true);
       });
     }
   }, this);
@@ -10701,17 +10721,17 @@ exports.labels = {
   'font-size': function(display) {
     return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
   },
-  transform: function (display) {
+  /*transform: function (display) {
     return 'rotate(-45,' + this.x + ',' + this.y(display).substr(0, 2) + ')';
-  },
+  },*/
   visibility: function (display, data) {
     if (display.zoom.scale() < 0.75) return 'hidden';
     return 'visible';
   },
-  x: 0,
+  /*x: 0,
   y: function (display) {
     return -pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
-  }
+  }*/
 };
 
 /**
@@ -10989,7 +11009,7 @@ Pattern.prototype.draw = function(display, capExtension) {
       }
 
       if (stopInfo.offsetX) {
-        x -= stopInfo.offsetX;
+        x += stopInfo.offsetX;
       }
 
       return x;
@@ -11010,7 +11030,7 @@ Pattern.prototype.draw = function(display, capExtension) {
       }
 
       if (stopInfo.offsetY) {
-        y += stopInfo.offsetY;
+        y -= stopInfo.offsetY;
       }
 
       return y;
@@ -11056,6 +11076,7 @@ Pattern.prototype.refreshRenderData = function() {
     // the "from" vertex stop for this edge (first edge only)
     if (i === 0) {
       stopInfo = {
+        pattern: this,
         x: edge.fromVertex.x,
         y: edge.fromVertex.y,
         stop: edge.fromVertex.stop,
@@ -11072,12 +11093,13 @@ Pattern.prototype.refreshRenderData = function() {
         : 0;
 
       this.renderData.push(stopInfo);
-      edge.fromVertex.stop.renderData.push(stopInfo);
+      edge.fromVertex.stop.addRenderData(stopInfo);
     }
 
     // the internal stops for this edge
     edge.stopArray.forEach(function (stop, i) {
       stopInfo = edge.pointAlongEdge((i + 1) / (edge.stopArray.length + 1));
+      stopInfo.pattern = this;
       stopInfo.stop = stop;
       stopInfo.inEdge = stopInfo.outEdge = edge;
       if(edgeInfo.offset) {
@@ -11089,13 +11111,13 @@ Pattern.prototype.refreshRenderData = function() {
       }
       if(edgeInfo.bundleIndex === 0) stopInfo.showLabel = true;
       this.renderData.push(stopInfo);
-      stop.renderData.push(stopInfo);
+      stop.addRenderData(stopInfo);
     }, this);
 
     // the "to" vertex stop for this edge. handles the 'corner' case between adjacent edges
     stopInfo = this.constructCornerStopInfo(edgeInfo, edge.toVertex, nextEdgeInfo);
     this.renderData.push(stopInfo);
-    edge.toVertex.stop.renderData.push(stopInfo);
+    edge.toVertex.stop.addRenderData(stopInfo);
 
   }, this);
 };
@@ -11107,6 +11129,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
   var edge2 = edgeInfo2 ? edgeInfo2.edge : null;
 
   var stopInfo = {
+    pattern: this,
     x: vertex.x,
     y: vertex.y,
     stop: vertex.stop,
@@ -11148,7 +11171,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
     stopInfo.offsetX = edge1.rightVector.x * this.lineWidth * offset;
     stopInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;
   }
-
+  
   //stopInfo.showLabel = true;
   return stopInfo;
 };
@@ -11197,6 +11220,20 @@ Pattern.prototype.getAdjacentEdge = function(edge, vertex) {
   }
 
   return null;
+};
+
+
+Pattern.prototype.vertexArray = function() {
+  
+  var vertex = this.startVertex();
+  var array = [ vertex ];
+
+  this.graphEdges.forEach(function(edgeInfo) {
+    vertex = edgeInfo.edge.oppositeVertex(vertex);
+    array.push(vertex);
+  });
+
+  return array;
 };
 
 Pattern.prototype.startVertex = function() {
@@ -11281,6 +11318,11 @@ function Stop(data) {
   this.patterns = [];
 
   this.renderData = [];
+
+  this.labelAnchor = null;
+  this.labelAngle = -45;
+  this.labelOffsetX = function() { return  0; };
+  this.labelOffsetY = function() { return  0; };
 }
 
 /**
@@ -11289,6 +11331,28 @@ function Stop(data) {
 
 Stop.prototype.getId = function() {
   return this.stop_id;
+};
+
+Stop.prototype.addRenderData = function(stopInfo) {
+  this.renderData.push(stopInfo);
+
+  // check if this is the 'topmost' stopInfo item received (based on offsets) for labeling purposes
+  if(!this.topAnchor) this.topAnchor = stopInfo;
+  else {
+    if(stopInfo.offsetY > this.topAnchor.offsetY) {
+      this.topAnchor = stopInfo;
+    }
+  }
+
+  // check if this is the 'bottommost' stopInfo iterm received
+  if(!this.bottomAnchor) this.bottomAnchor = stopInfo;
+  else {
+    if(stopInfo.offsetY < this.bottomAnchor.offsetY) {
+      this.bottomAnchor = stopInfo;
+    }
+  }
+
+  //console.log(stopInfo);
 };
 
 
@@ -11312,10 +11376,23 @@ Stop.prototype.draw = function(display) {
   this.labels = this.svgGroup.append('g');
 
   // create the main stop label
-  this.labels.append('text')
+  this.mainLabel = this.labels.append('text')
     .attr('id', 'transitive-stop-label-' + this.getId())
     .text(this.stop_name)
     .attr('class', 'transitive-stop-label');
+
+  if(this.labelPosition > 0) { // the 'above' position
+    this.mainLabel.attr('text-anchor', 'start');
+    this.labelAnchor = this.topAnchor;
+    this.labelOffsetY = function(lineWidth) { return 0.7 * lineWidth; };
+  }
+  else { // the 'below' position
+    this.mainLabel.attr('text-anchor', 'end');
+    this.labelAnchor = this.bottomAnchor;
+    this.labelOffsetX = function(lineWidth) { return 0.4 * lineWidth; };
+    this.labelOffsetY = function(lineWidth) { return -lineWidth; };
+  }
+
 };
 
 
@@ -11325,18 +11402,22 @@ Stop.prototype.refresh = function(display) {
   // refresh the pattern-level markers
   this.patternMarkers.data(this.renderData);
   this.patternMarkers.attr('transform', function (d, i) {
-    var x = display.xScale(d.x) - d.offsetX;
-    var y = display.yScale(d.y) + d.offsetY;
+    var x = display.xScale(d.x) + d.offsetX;
+    var y = display.yScale(d.y) - d.offsetY ;
     return 'translate(' + x +', ' + y +')';
   });
 
   // refresh the stop-level labels
-  var ld = this.renderData[this.renderData.length-1];
-  this.labels.attr('transform', function (d, i) {
-    var x = display.xScale(ld.x) - ld.offsetX;
-    var y = display.yScale(ld.y) + ld.offsetY;
+  this.labels.attr('transform', (function (d, i) {
+    var la = this.labelAnchor;
+    var x = display.xScale(la.x) + la.offsetX + this.labelOffsetX(la.pattern.lineWidth);
+    var y = display.yScale(la.y) - la.offsetY - this.labelOffsetY(la.pattern.lineWidth);
     return 'translate(' + x +', ' + y +')';
-  });
+  }).bind(this));
+
+  this.mainLabel.attr('transform', (function (d, i) {
+    return 'rotate(' + this.labelAngle + ',0,0)';
+  }).bind(this));
 
 };
 
@@ -11510,6 +11591,7 @@ Transitive.prototype.load = function(data) {
   populateGraphEdges(this.patterns, this.graph);
 
   this.graph.convertTo1D();
+  //this.placeStopLabels();
   this.setScale();
 
   this.emit('loaded', this);
@@ -11635,6 +11717,42 @@ Transitive.prototype.setScale = function() {
       this.graph);
   }
 };
+
+
+/**
+ * Place the stop text labels, minimizing overlap
+ */
+
+Transitive.prototype.placeStopLabels = function() {
+
+
+  // determine the y-range of each pattern
+  // refresh the patterns
+
+  for (var key in this.patterns) {
+    var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;
+    var pattern = this.patterns[key];
+    var vertices = pattern.vertexArray();
+    console.log(vertices);
+    //vertices.forEach(function(vertex) {
+    for(var i = 0; i < vertices.length; i++) {
+      var vertex = vertices[i];
+      minY = Math.min(minY, vertex.y);
+      maxY = Math.max(maxY, vertex.y);
+    }
+
+    console.log('p yr: '+minY + ' to '+maxY);
+  }
+
+  //
+  for (key in this.stops) {
+    var stop = this.stops[key];
+    if(stop.patterns.length === 0) continue; // check if this stop is not currently displayed
+
+  }
+
+};
+
 
 /**
  * Generate Stops
