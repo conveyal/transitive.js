@@ -20,6 +20,7 @@ var COMPUTED = [
 
 function showLabelsOnHover(transitive) {
   each(transitive.stops, function (k, stop) {
+    if (!stop.svgGroup) return;
     stop.svgGroup.selectAll('.transitive-stop-circle')
       .on('mouseenter', function (data) {
         stop.svgGroup.select('#transitive-stop-label-' + data.stop.getId())
@@ -58,6 +59,7 @@ function dragVertices(transitive) {
     });
 
   each(transitive.stops, function (k, stop) {
+    if (!stop.svgGroup) return;
     stop.svgGroup.selectAll('.transitive-stop-circle').call(drag);
   });
 }
