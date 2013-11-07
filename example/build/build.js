@@ -12716,8 +12716,8 @@ exports.patterns = {\n\
     }\n\
   },\n\
   'stroke-dasharray': function (display, data) {\n\
-    if (data.frequency.average < 10) return false;\n\
-    if (data.frequency.average > 20) return '1em, 1em';\n\
+    if (data.frequency.average > 12) return false;\n\
+    if (data.frequency.average > 6) return '1em, 1em';\n\
     return '1em, 0.166em';\n\
   },\n\
   'stroke-width': function (display) {\n\
