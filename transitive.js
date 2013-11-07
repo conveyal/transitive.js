@@ -10702,6 +10702,7 @@ exports.stops = {
   cx: 0,
   cy: 0,
   fill: function (display, data) {
+    if (data.stop.isEndPoint) return '#fff';
     if (data.stop.isBranchPoint) return '#dbdcdd';
     return '#fff';
   },
@@ -10718,7 +10719,7 @@ exports.stops = {
     if (data.stop.isBranchPoint) {
       return '#fff';
     }
-    return '#333';
+    return 'gray';
   },
   'stroke-width': function (display, data) {
     if (data.stop.isEndPoint) {
@@ -10742,8 +10743,10 @@ exports.labels = {
     return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
   },
   visibility: function (display, data) {
-    if (display.zoom.scale() < 0.75) return 'hidden';
-    return 'visible';
+    if (display.zoom.scale() >= 1) return 'visible';
+    if (display.zoom.scale() >= 0.75 && data.stop.isBranchPoint) return 'visible';
+    if (display.zoom.scale() >= 0.5 && data.stop.isEndPoint) return 'visible';
+    return 'hidden';
   }
 };
 
@@ -11396,6 +11399,7 @@ Stop.prototype.draw = function(display) {
 
   // create the main stop label
   this.mainLabel = this.labels.append('text')
+    .data(this.renderData)
     .attr('id', 'transitive-stop-label-' + this.getId())
     .text(this.stop_name.replace('METRO STATION', ''))
     .attr('class', 'transitive-stop-label');
