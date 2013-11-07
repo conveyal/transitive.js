@@ -10641,8 +10641,8 @@ function applyAttrAndStyle(display, elements, rules) {
     var type = svgAttributes.indexOf(name) === -1
       ? 'style'
       : 'attr';
-
-    elements[type](name, computeRule(rules[name]));
+    var value = computeRule(rules[name]);
+    if (!!value) elements[type](name, value);
   }
 
   function computeRule(rule) {
@@ -10725,6 +10725,11 @@ exports.patterns = {
     } else {
       return 'grey';
     }
+  },
+  'stroke-dasharray': function (display, data) {
+    if (data.frequency.average < 10) return false;
+    if (data.frequency.average > 20) return '1em, 1em';
+    return '1em, 0.166em';
   },
   'stroke-width': function (display) {
     return pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';

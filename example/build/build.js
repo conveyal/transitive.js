@@ -12630,8 +12630,8 @@ function applyAttrAndStyle(display, elements, rules) {\n\
     var type = svgAttributes.indexOf(name) === -1\n\
       ? 'style'\n\
       : 'attr';\n\
-\n\
-    elements[type](name, computeRule(rules[name]));\n\
+    var value = computeRule(rules[name]);\n\
+    if (!!value) elements[type](name, value);\n\
   }\n\
 \n\
   function computeRule(rule) {\n\
@@ -12714,6 +12714,11 @@ exports.patterns = {\n\
     } else {\n\
       return 'grey';\n\
     }\n\
+  },\n\
+  'stroke-dasharray': function (display, data) {\n\
+    if (data.frequency.average < 10) return false;\n\
+    if (data.frequency.average > 20) return '1em, 1em';\n\
+    return '1em, 0.166em';\n\
   },\n\
   'stroke-width': function (display) {\n\
     return pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
