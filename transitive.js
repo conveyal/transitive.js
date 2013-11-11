@@ -10691,6 +10691,14 @@ function pixels(current_z, min, normal, max) {
   return normal + (current_z - zoom_mid) / (zoom_max - zoom_mid) * (max - normal);
 }
 
+function strokeWidth(display) {
+  return pixels(display.zoom.scale(), 5, 12, 17);
+}
+
+function fontSize(display, data) {
+  return pixels(display.zoom.scale(), 10, 14, 18);
+}
+
 /**
  * Default stop rules
  */
@@ -10699,22 +10707,21 @@ exports.stops = {
   cx: 0,
   cy: function (display, data) {
     if (data.stop.renderData.length === 2 && data.stop.isEndPoint) {
-      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2 + 'em';
+      return -strokeWidth(display) / 2 + 'px';
     } else if (data.stop.renderData.length === 3 && data.stop.isEndPoint) {
-      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+      return -strokeWidth(display) + 'px';
     }
     return 0;
   },
   fill: function (display, data) {
-    if (data.stop.isEndPoint) return '#fff';
     return '#fff';
   },
   r: function (display, data) {
     if (data.stop.isEndPoint) {
-      var width = 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2;
-      return data.stop.renderData.length * width + 'em';
+      var width = data.stop.renderData.length * strokeWidth(display) / 2;
+      return 1.75 * width + 'px';
     }
-    return pixels(display.zoom.scale(), 2, 4, 6.5);
+    return pixels(display.zoom.scale(), 2, 4, 6.5) + 'px';
   },
   stroke: function (display, data) {
     if (data.stop.isEndPoint && data.pattern.route.route_color) {
@@ -10724,9 +10731,9 @@ exports.stops = {
   },
   'stroke-width': function (display, data) {
     if (data.stop.isEndPoint) {
-      return 0.5 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+      return data.stop.renderData.length * strokeWidth(display) / 2 + 'px';
     }
-    return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';
+    return pixels(display.zoom.scale(), 0.5, 1, 1.5) + 'px';
   },
   visibility: function(display, data) {
     if (data.stop.renderData.length > 1) {
@@ -10743,30 +10750,25 @@ exports.stops = {
 exports.labels = {
   color: '#333',
   'font-family': '\'Lato\', sans-serif',
-  'font-size': function(display) {
-    return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';
+  'font-size': function(display, data) {
+    return fontSize(display, data) + 'px';
   },
   visibility: function (display, data) {
-    if (display.zoom.scale() >= 1) return 'visible';
-    if (display.zoom.scale() >= 0.75 && data.stop.isBranchPoint) return 'visible';
-    if (display.zoom.scale() >= 0.5 && data.stop.isEndPoint) return 'visible';
+    if (display.zoom.scale() >= 0.8) return 'visible';
+    if (display.zoom.scale() >= 0.6 && data.stop.isBranchPoint) return 'visible';
+    if (display.zoom.scale() >= 0.4 && data.stop.isEndPoint) return 'visible';
     return 'hidden';
   },
   x: function (display, data) {
-    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);
+    var width = strokeWidth(display);
     if (data.stop.isEndPoint) {
-      strokeWidth += data.stop.renderData.length / 3;
+      width *= data.stop.renderData.length;
     }
 
-    return 1.25 * strokeWidth * data.stop.labelPosition + 'em';
+    return Math.sqrt(width * width * 2) * data.stop.labelPosition + 'px';
   },
   y: function (display, data) {
-    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);
-    if (data.stop.isEndPoint) {
-      strokeWidth += data.stop.renderData.length / 3;
-    }
-
-    return 0.5 * strokeWidth * (-data.stop.labelPosition) + 'em';
+    return fontSize(display, data)  / 2 * -data.stop.labelPosition + 'px';
   },
   'text-transform': function (display, data) {
     if (data.stop.isEndPoint) {
@@ -10791,11 +10793,11 @@ exports.patterns = {
   },
   'stroke-dasharray': function (display, data) {
     if (data.frequency.average > 12) return false;
-    if (data.frequency.average > 6) return '1em, 1em';
-    return '1em, 0.166em';
+    if (data.frequency.average > 6) return '12px, 12px';
+    return '12px, 2px';
   },
   'stroke-width': function (display) {
-    return pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';
+    return strokeWidth(display) + 'px';
   },
   fill: function (display, data, index) {
     return 'none';
@@ -11089,7 +11091,7 @@ Pattern.prototype.draw = function(display, capExtension) {
 Pattern.prototype.refresh = function(display, styler) {
   // compute the line width
   var lw = styler.patterns['stroke-width'](display, this);
-  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) * 16 - 6;
+  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;
 
   // update the line and stop groups
   this.lineGraph.attr('d', this.line(this.renderData));
@@ -11412,12 +11414,9 @@ Stop.prototype.draw = function(display) {
   var textAnchor = 'start';
   if (this.labelPosition > 0) { // the 'above' position
     this.labelAnchor = this.topAnchor;
-    this.labelOffsetY = function(lineWidth) { return 0.7 * lineWidth; };
   } else { // the 'below' position
     textAnchor = 'end';
     this.labelAnchor = this.bottomAnchor;
-    this.labelOffsetX = function(lineWidth) { return 0.4 * lineWidth; };
-    this.labelOffsetY = function(lineWidth) { return -lineWidth; };
   }
 
   // set up the main svg group for this stop
@@ -11467,8 +11466,8 @@ Stop.prototype.refresh = function(display) {
   /* refresh the stop-level labels */
   this.labels.attr('transform', (function (d, i) {
     var la = this.labelAnchor;
-    var x = display.xScale(la.x) + la.offsetX; // + this.labelOffsetX(la.pattern.lineWidth);
-    var y = display.yScale(la.y) - la.offsetY; // - this.labelOffsetY(la.pattern.lineWidth);
+    var x = display.xScale(la.x) + la.offsetX;
+    var y = display.yScale(la.y) - la.offsetY;
     return 'translate(' + x +',' + y +')';
   }).bind(this));
 };

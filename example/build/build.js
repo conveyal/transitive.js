@@ -12680,6 +12680,14 @@ function pixels(current_z, min, normal, max) {\n\
   return normal + (current_z - zoom_mid) / (zoom_max - zoom_mid) * (max - normal);\n\
 }\n\
 \n\
+function strokeWidth(display) {\n\
+  return pixels(display.zoom.scale(), 5, 12, 17);\n\
+}\n\
+\n\
+function fontSize(display, data) {\n\
+  return pixels(display.zoom.scale(), 10, 14, 18);\n\
+}\n\
+\n\
 /**\n\
  * Default stop rules\n\
  */\n\
@@ -12688,22 +12696,21 @@ exports.stops = {\n\
   cx: 0,\n\
   cy: function (display, data) {\n\
     if (data.stop.renderData.length === 2 && data.stop.isEndPoint) {\n\
-      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2 + 'em';\n\
+      return -strokeWidth(display) / 2 + 'px';\n\
     } else if (data.stop.renderData.length === 3 && data.stop.isEndPoint) {\n\
-      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+      return -strokeWidth(display) + 'px';\n\
     }\n\
     return 0;\n\
   },\n\
   fill: function (display, data) {\n\
-    if (data.stop.isEndPoint) return '#fff';\n\
     return '#fff';\n\
   },\n\
   r: function (display, data) {\n\
     if (data.stop.isEndPoint) {\n\
-      var width = 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2;\n\
-      return data.stop.renderData.length * width + 'em';\n\
+      var width = data.stop.renderData.length * strokeWidth(display) / 2;\n\
+      return 1.75 * width + 'px';\n\
     }\n\
-    return pixels(display.zoom.scale(), 2, 4, 6.5);\n\
+    return pixels(display.zoom.scale(), 2, 4, 6.5) + 'px';\n\
   },\n\
   stroke: function (display, data) {\n\
     if (data.stop.isEndPoint && data.pattern.route.route_color) {\n\
@@ -12713,9 +12720,9 @@ exports.stops = {\n\
   },\n\
   'stroke-width': function (display, data) {\n\
     if (data.stop.isEndPoint) {\n\
-      return 0.5 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+      return data.stop.renderData.length * strokeWidth(display) / 2 + 'px';\n\
     }\n\
-    return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';\n\
+    return pixels(display.zoom.scale(), 0.5, 1, 1.5) + 'px';\n\
   },\n\
   visibility: function(display, data) {\n\
     if (data.stop.renderData.length > 1) {\n\
@@ -12732,30 +12739,25 @@ exports.stops = {\n\
 exports.labels = {\n\
   color: '#333',\n\
   'font-family': '\\'Lato\\', sans-serif',\n\
-  'font-size': function(display) {\n\
-    return pixels(display.zoom.scale(), 1, 1.2, 1.4) + 'em';\n\
+  'font-size': function(display, data) {\n\
+    return fontSize(display, data) + 'px';\n\
   },\n\
   visibility: function (display, data) {\n\
-    if (display.zoom.scale() >= 1) return 'visible';\n\
-    if (display.zoom.scale() >= 0.75 && data.stop.isBranchPoint) return 'visible';\n\
-    if (display.zoom.scale() >= 0.5 && data.stop.isEndPoint) return 'visible';\n\
+    if (display.zoom.scale() >= 0.8) return 'visible';\n\
+    if (display.zoom.scale() >= 0.6 && data.stop.isBranchPoint) return 'visible';\n\
+    if (display.zoom.scale() >= 0.4 && data.stop.isEndPoint) return 'visible';\n\
     return 'hidden';\n\
   },\n\
   x: function (display, data) {\n\
-    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);\n\
+    var width = strokeWidth(display);\n\
     if (data.stop.isEndPoint) {\n\
-      strokeWidth += data.stop.renderData.length / 3;\n\
+      width *= data.stop.renderData.length;\n\
     }\n\
 \n\
-    return 1.25 * strokeWidth * data.stop.labelPosition + 'em';\n\
+    return Math.sqrt(width * width * 2) * data.stop.labelPosition + 'px';\n\
   },\n\
   y: function (display, data) {\n\
-    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);\n\
-    if (data.stop.isEndPoint) {\n\
-      strokeWidth += data.stop.renderData.length / 3;\n\
-    }\n\
-\n\
-    return 0.5 * strokeWidth * (-data.stop.labelPosition) + 'em';\n\
+    return fontSize(display, data)  / 2 * -data.stop.labelPosition + 'px';\n\
   },\n\
   'text-transform': function (display, data) {\n\
     if (data.stop.isEndPoint) {\n\
@@ -12780,11 +12782,11 @@ exports.patterns = {\n\
   },\n\
   'stroke-dasharray': function (display, data) {\n\
     if (data.frequency.average > 12) return false;\n\
-    if (data.frequency.average > 6) return '1em, 1em';\n\
-    return '1em, 0.166em';\n\
+    if (data.frequency.average > 6) return '12px, 12px';\n\
+    return '12px, 2px';\n\
   },\n\
   'stroke-width': function (display) {\n\
-    return pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+    return strokeWidth(display) + 'px';\n\
   },\n\
   fill: function (display, data, index) {\n\
     return 'none';\n\
@@ -13078,7 +13080,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
 Pattern.prototype.refresh = function(display, styler) {\n\
   // compute the line width\n\
   var lw = styler.patterns['stroke-width'](display, this);\n\
-  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) * 16 - 6;\n\
+  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
 \n\
   // update the line and stop groups\n\
   this.lineGraph.attr('d', this.line(this.renderData));\n\
@@ -13401,12 +13403,9 @@ Stop.prototype.draw = function(display) {\n\
   var textAnchor = 'start';\n\
   if (this.labelPosition > 0) { // the 'above' position\n\
     this.labelAnchor = this.topAnchor;\n\
-    this.labelOffsetY = function(lineWidth) { return 0.7 * lineWidth; };\n\
   } else { // the 'below' position\n\
     textAnchor = 'end';\n\
     this.labelAnchor = this.bottomAnchor;\n\
-    this.labelOffsetX = function(lineWidth) { return 0.4 * lineWidth; };\n\
-    this.labelOffsetY = function(lineWidth) { return -lineWidth; };\n\
   }\n\
 \n\
   // set up the main svg group for this stop\n\
@@ -13456,8 +13455,8 @@ Stop.prototype.refresh = function(display) {\n\
   /* refresh the stop-level labels */\n\
   this.labels.attr('transform', (function (d, i) {\n\
     var la = this.labelAnchor;\n\
-    var x = display.xScale(la.x) + la.offsetX; // + this.labelOffsetX(la.pattern.lineWidth);\n\
-    var y = display.yScale(la.y) - la.offsetY; // - this.labelOffsetY(la.pattern.lineWidth);\n\
+    var x = display.xScale(la.x) + la.offsetX;\n\
+    var y = display.yScale(la.y) - la.offsetY;\n\
     return 'translate(' + x +',' + y +')';\n\
   }).bind(this));\n\
 };\n\
