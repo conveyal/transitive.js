@@ -40,7 +40,7 @@ function showLabelsOnHover(transitive) {
  */
 
 function dragVertices(transitive) {
-  var d3 = transitive.d3;
+  /*var d3 = transitive.d3;
   var drag = d3.behavior.drag()
     .on('dragstart', function () {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
@@ -61,5 +61,5 @@ function dragVertices(transitive) {
   each(transitive.stops, function (k, stop) {
     if (!stop.svgGroup) return;
     stop.svgGroup.selectAll('.transitive-stop-circle').call(drag);
-  });
+  });*/
 }
