@@ -12077,7 +12077,6 @@ Edge.prototype.calculateVectors = function() {\n\
   };\n\
 };\n\
 \n\
-\n\
 /**\n\
  *  Add a pattern to the edge\n\
  */\n\
@@ -12085,7 +12084,6 @@ Edge.prototype.calculateVectors = function() {\n\
 Edge.prototype.addPattern = function(pattern) {\n\
   if(this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);\n\
 };\n\
-\n\
 \n\
 /**\n\
  *  Gets the vertex opposite another vertex on an edge\n\
@@ -12097,9 +12095,8 @@ Edge.prototype.oppositeVertex = function(vertex) {\n\
   return null;\n\
 };\n\
 \n\
-\n\
 /**\n\
- *  \n\
+ *\n\
  */\n\
 \n\
 Edge.prototype.setStopLabelPosition = function(pos, skip) {\n\
@@ -12110,7 +12107,6 @@ Edge.prototype.setStopLabelPosition = function(pos, skip) {\n\
     if(stop !== skip) stop.labelPosition = pos;\n\
   });\n\
 };\n\
-\n\
 \n\
 /**\n\
  *\n\
@@ -12195,7 +12191,6 @@ NetworkGraph.prototype.getEquivalentEdge = function(stopArray, from, to) {\n\
     }\n\
   }\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Convert the graph coordinates to a linear 1-d display. Assumes a branch-based, acyclic graph\n\
@@ -12446,7 +12441,7 @@ NetworkGraph.prototype.apply1DOffsets = function() {\n\
  */\n\
 \n\
 NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
-  \n\
+\n\
   var key = p1.pattern_id + ',' + p2.pattern_id;\n\
   if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
   this.bundleComparisons[key] += 1;\n\
@@ -12487,7 +12482,7 @@ module.exports = Vertex;\n\
 /**\n\
  * Initialize new Vertex\n\
  *\n\
- * @param {}\n\
+ * @param {Stop}\n\
  * @param {Number}\n\
  * @param {Number}\n\
  */\n\
@@ -12610,7 +12605,7 @@ Styler.prototype.load = function(styles) {\n\
 Styler.prototype.renderPattern = function(display, pattern) {\n\
   applyAttrAndStyle(\n\
     display,\n\
-    pattern.selectAll('.transitive-line'),\n\
+    pattern,\n\
     this.patterns\n\
   );\n\
 };\n\
@@ -12619,19 +12614,19 @@ Styler.prototype.renderPattern = function(display, pattern) {\n\
  * Render elements against these rules\n\
  *\n\
  * @param {Display} a D3 list of elements\n\
- * @param {Pattern} the transitive object\n\
+ * @param {Stop} Transitive Stop object\n\
  */\n\
 \n\
-Styler.prototype.renderStop = function(display, pattern) {\n\
+Styler.prototype.renderStop = function(display, stop) {\n\
   applyAttrAndStyle(\n\
     display,\n\
-    pattern.selectAll('.transitive-stop-circle'),\n\
+    stop.svgGroup.selectAll('.transitive-stop-circle'),\n\
     this.stops\n\
   );\n\
 \n\
   applyAttrAndStyle(\n\
     display,\n\
-    pattern.selectAll('.transitive-stop-label'),\n\
+    stop.svgGroup.selectAll('.transitive-stop-label'),\n\
     this.labels\n\
   );\n\
 };\n\
@@ -12674,7 +12669,9 @@ function isFunction(val) {\n\
 ));
 require.register("transitive/lib/styler/styles.js", Function("exports, require, module",
 "\n\
-//\n\
+/**\n\
+ *\n\
+ */\n\
 \n\
 var zoom_min = 0.25, zoom_max = 4, zoom_mid = 1;\n\
 function pixels(current_z, min, normal, max) {\n\
@@ -12689,15 +12686,22 @@ function pixels(current_z, min, normal, max) {\n\
 \n\
 exports.stops = {\n\
   cx: 0,\n\
-  cy: 0,\n\
+  cy: function (display, data) {\n\
+    if (data.stop.renderData.length === 2 && data.stop.isEndPoint) {\n\
+      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2 + 'em';\n\
+    } else if (data.stop.renderData.length === 3 && data.stop.isEndPoint) {\n\
+      return -pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+    }\n\
+    return 0;\n\
+  },\n\
   fill: function (display, data) {\n\
     if (data.stop.isEndPoint) return '#fff';\n\
-    if (data.stop.isBranchPoint) return '#dbdcdd';\n\
     return '#fff';\n\
   },\n\
   r: function (display, data) {\n\
-    if (data.stop.isEndPoint || data.stop.isBranchPoint) {\n\
-      return 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
+    if (data.stop.isEndPoint) {\n\
+      var width = 1.75 * pixels(display.zoom.scale(), 0.416, 1, 1.45) / 2;\n\
+      return data.stop.renderData.length * width + 'em';\n\
     }\n\
     return pixels(display.zoom.scale(), 2, 4, 6.5);\n\
   },\n\
@@ -12705,19 +12709,19 @@ exports.stops = {\n\
     if (data.stop.isEndPoint && data.pattern.route.route_color) {\n\
       return '#' + data.pattern.route.route_color;\n\
     }\n\
-    if (data.stop.isBranchPoint) {\n\
-      return '#fff';\n\
-    }\n\
     return 'gray';\n\
   },\n\
   'stroke-width': function (display, data) {\n\
     if (data.stop.isEndPoint) {\n\
       return 0.5 * pixels(display.zoom.scale(), 0.416, 1, 1.45) + 'em';\n\
     }\n\
-    if (data.stop.isBranchPoint) {\n\
-      return '0.333em';\n\
-    }\n\
     return pixels(display.zoom.scale(), 0.0416, 0.0833, 0.125) + 'em';\n\
+  },\n\
+  visibility: function(display, data) {\n\
+    if (data.stop.renderData.length > 1) {\n\
+      if (data.stop.renderData[0].displayed && data.stop.isEndPoint) return 'hidden';\n\
+      data.stop.renderData[0].displayed = true;\n\
+    }\n\
   }\n\
 };\n\
 \n\
@@ -12736,6 +12740,29 @@ exports.labels = {\n\
     if (display.zoom.scale() >= 0.75 && data.stop.isBranchPoint) return 'visible';\n\
     if (display.zoom.scale() >= 0.5 && data.stop.isEndPoint) return 'visible';\n\
     return 'hidden';\n\
+  },\n\
+  x: function (display, data) {\n\
+    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);\n\
+    if (data.stop.isEndPoint) {\n\
+      strokeWidth += data.stop.renderData.length / 3;\n\
+    }\n\
+\n\
+    return 1.25 * strokeWidth * data.stop.labelPosition + 'em';\n\
+  },\n\
+  y: function (display, data) {\n\
+    var strokeWidth = pixels(display.zoom.scale(), 0.416, 1, 1.45);\n\
+    if (data.stop.isEndPoint) {\n\
+      strokeWidth += data.stop.renderData.length / 3;\n\
+    }\n\
+\n\
+    return 0.5 * strokeWidth * (-data.stop.labelPosition) + 'em';\n\
+  },\n\
+  'text-transform': function (display, data) {\n\
+    if (data.stop.isEndPoint) {\n\
+      return 'uppercase';\n\
+    } else {\n\
+      return 'capitalize';\n\
+    }\n\
   }\n\
 };\n\
 \n\
@@ -12807,7 +12834,7 @@ function Display(el, zoom) {\n\
  */\n\
 \n\
 Display.prototype.empty = function() {\n\
-  this.svg.selectAll('g').remove();\n\
+  this.svg.selectAll(':not(rect)').remove();\n\
 };\n\
 \n\
 /**\n\
@@ -12896,7 +12923,9 @@ var d3 = require('d3');\n\
 module.exports = Pattern;\n\
 \n\
 /**\n\
- *  A Route Pattern -- a unique sequence of stops\n\
+ * A Route Pattern -- a unique sequence of stops\n\
+ *\n\
+ * @param {Object} pattern data\n\
  */\n\
 \n\
 function Pattern(data) {\n\
@@ -12914,7 +12943,7 @@ function Pattern(data) {\n\
   this.graphEdges = [];\n\
 \n\
   // temporarily hardcoding the line width; need to get this from the styler\n\
-  this.lineWidth = 15;\n\
+  this.lineWidth = 10;\n\
 }\n\
 \n\
 /**\n\
@@ -12928,7 +12957,6 @@ Pattern.prototype.addEdge = function(edge) {\n\
   });\n\
 };\n\
 \n\
-\n\
 /**\n\
  * insertEdge: insert an edge into this patterns edge list at a specified index\n\
  */\n\
@@ -12939,7 +12967,6 @@ Pattern.prototype.insertEdge = function(index, edge) {\n\
     offset: null\n\
   });\n\
 };\n\
-\n\
 \n\
 /**\n\
  * setEdgeOffset: applies a specified offset to a specified edge in the pattern\n\
@@ -12955,7 +12982,6 @@ Pattern.prototype.setEdgeOffset = function(edge, offset, bundleIndex, extend) {\
     }\n\
   }, this);\n\
 };\n\
-\n\
 \n\
 /**\n\
  * extend1DEdgeOffset\n\
@@ -12989,9 +13015,6 @@ Pattern.prototype.extend1DEdgeOffset = function(edgeIndex) {\n\
 \n\
 Pattern.prototype.draw = function(display, capExtension) {\n\
   var stops = this.stops;\n\
-\n\
-  // create the pattern as an empty svg group\n\
-  this.svgGroup = display.svg.append('g');\n\
 \n\
   // add the line to the pattern\n\
   this.line = d3.svg.line() // the line translation function\n\
@@ -13042,7 +13065,8 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
     })\n\
     .interpolate('linear');\n\
 \n\
-  this.lineGraph = this.svgGroup.append('path')\n\
+  this.lineGraph = display.svg.append('path')\n\
+    .attr('id', 'transitive-pattern-' + this.pattern_id)\n\
     .attr('class', 'transitive-line')\n\
     .data([ this ]);\n\
 };\n\
@@ -13054,7 +13078,7 @@ Pattern.prototype.draw = function(display, capExtension) {\n\
 Pattern.prototype.refresh = function(display, styler) {\n\
   // compute the line width\n\
   var lw = styler.patterns['stroke-width'](display, this);\n\
-  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) * 16;\n\
+  this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) * 16 - 6;\n\
 \n\
   // update the line and stop groups\n\
   this.lineGraph.attr('d', this.line(this.renderData));\n\
@@ -13107,14 +13131,13 @@ Pattern.prototype.refreshRenderData = function() {\n\
       stopInfo.pattern = this;\n\
       stopInfo.stop = stop;\n\
       stopInfo.inEdge = stopInfo.outEdge = edge;\n\
-      if(edgeInfo.offset) {\n\
+      if (edgeInfo.offset) {\n\
         stopInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;\n\
         stopInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;\n\
-      }\n\
-      else {\n\
+      } else {\n\
         stopInfo.offsetX = stopInfo.offsetY = 0;\n\
       }\n\
-      if(edgeInfo.bundleIndex === 0) stopInfo.showLabel = true;\n\
+      if (edgeInfo.bundleIndex === 0) stopInfo.showLabel = true;\n\
       this.renderData.push(stopInfo);\n\
       stop.addRenderData(stopInfo);\n\
     }, this);\n\
@@ -13129,7 +13152,6 @@ Pattern.prototype.refreshRenderData = function() {\n\
 \n\
 \n\
 Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo2) {\n\
-\n\
   var edge1 = edgeInfo1 ? edgeInfo1.edge : null;\n\
   var edge2 = edgeInfo2 ? edgeInfo2.edge : null;\n\
 \n\
@@ -13176,7 +13198,7 @@ Pattern.prototype.constructCornerStopInfo = function(edgeInfo1, vertex, edgeInfo
     stopInfo.offsetX = edge1.rightVector.x * this.lineWidth * offset;\n\
     stopInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;\n\
   }\n\
-  \n\
+\n\
   //stopInfo.showLabel = true;\n\
   return stopInfo;\n\
 };\n\
@@ -13229,7 +13251,7 @@ Pattern.prototype.getAdjacentEdge = function(edge, vertex) {\n\
 \n\
 \n\
 Pattern.prototype.vertexArray = function() {\n\
-  \n\
+\n\
   var vertex = this.startVertex();\n\
   var array = [ vertex ];\n\
 \n\
@@ -13308,10 +13330,10 @@ require.register("transitive/lib/stop.js", Function("exports, require, module",
 module.exports = Stop;\n\
 \n\
 /**\n\
- * A transit Stop, as defined in the input data.\n\
- * Stops are shared between Patterns.\n\
+ * A transit `Stop`, as defined in the input data. `Stop`s are shared between\n\
+ * `Pattern`s.\n\
  *\n\
- * @param {Object}\n\
+ * @param {Object} data\n\
  */\n\
 \n\
 function Stop(data) {\n\
@@ -13321,7 +13343,6 @@ function Stop(data) {\n\
   }\n\
 \n\
   this.patterns = [];\n\
-\n\
   this.renderData = [];\n\
 \n\
   this.labelAnchor = null;\n\
@@ -13344,93 +13365,101 @@ Stop.prototype.getId = function() {\n\
   return this.stop_id;\n\
 };\n\
 \n\
+/**\n\
+ * Add render data\n\
+ *\n\
+ * @param {Object} stopInfo\n\
+ */\n\
+\n\
 Stop.prototype.addRenderData = function(stopInfo) {\n\
   this.renderData.push(stopInfo);\n\
 \n\
   // check if this is the 'topmost' stopInfo item received (based on offsets) for labeling purposes\n\
-  if(!this.topAnchor) this.topAnchor = stopInfo;\n\
-  else {\n\
-    if(stopInfo.offsetY > this.topAnchor.offsetY) {\n\
-      this.topAnchor = stopInfo;\n\
-    }\n\
+  if (!this.topAnchor) {\n\
+    this.topAnchor = stopInfo;\n\
+  } else if (stopInfo.offsetY > this.topAnchor.offsetY) {\n\
+    this.topAnchor = stopInfo;\n\
   }\n\
 \n\
   // check if this is the 'bottommost' stopInfo iterm received\n\
-  if(!this.bottomAnchor) this.bottomAnchor = stopInfo;\n\
-  else {\n\
-    if(stopInfo.offsetY < this.bottomAnchor.offsetY) {\n\
-      this.bottomAnchor = stopInfo;\n\
-    }\n\
+  if (!this.bottomAnchor) {\n\
+    this.bottomAnchor = stopInfo;\n\
+  } else if (stopInfo.offsetY < this.bottomAnchor.offsetY) {\n\
+    this.bottomAnchor = stopInfo;\n\
   }\n\
-\n\
-  //console.log(stopInfo);\n\
 };\n\
 \n\
+/**\n\
+ * Draw a stop\n\
+ *\n\
+ * @param {Display} display\n\
+ */\n\
 \n\
 Stop.prototype.draw = function(display) {\n\
-  if(this.renderData.length === 0) return;\n\
+  if (this.renderData.length === 0) return;\n\
 \n\
-  // set up the main svg group for this stop\n\
-  this.svgGroup = display.svg.append('g');\n\
-\n\
-  // set up the pattern-level markers\n\
-  this.patternMarkers = this.svgGroup.selectAll('.transitive-stop')\n\
-    .data(this.renderData)\n\
-    .enter()\n\
-    .append('g');\n\
-\n\
-  this.patternMarkers.append('circle')\n\
-    .attr('class', 'transitive-stop-circle');\n\
-\n\
-\n\
-  // set up a group for the stop-level labels\n\
-  this.labels = this.svgGroup.append('g');\n\
-\n\
-  // create the main stop label\n\
-  this.mainLabel = this.labels.append('text')\n\
-    .data(this.renderData)\n\
-    .attr('id', 'transitive-stop-label-' + this.getId())\n\
-    .text(this.stop_name.replace('METRO STATION', ''))\n\
-    .attr('class', 'transitive-stop-label');\n\
-\n\
-  if(this.labelPosition > 0) { // the 'above' position\n\
-    this.mainLabel.attr('text-anchor', 'start');\n\
+  var textAnchor = 'start';\n\
+  if (this.labelPosition > 0) { // the 'above' position\n\
     this.labelAnchor = this.topAnchor;\n\
     this.labelOffsetY = function(lineWidth) { return 0.7 * lineWidth; };\n\
-  }\n\
-  else { // the 'below' position\n\
-    this.mainLabel.attr('text-anchor', 'end');\n\
+  } else { // the 'below' position\n\
+    textAnchor = 'end';\n\
     this.labelAnchor = this.bottomAnchor;\n\
     this.labelOffsetX = function(lineWidth) { return 0.4 * lineWidth; };\n\
     this.labelOffsetY = function(lineWidth) { return -lineWidth; };\n\
   }\n\
 \n\
+  // set up the main svg group for this stop\n\
+  this.svgGroup = display.svg.append('g')\n\
+    .attr('id', 'transitive-stop-' + this.stop_id);\n\
+\n\
+  // set up the pattern-level markers\n\
+  this.patternMarkers = this.svgGroup.selectAll('circle')\n\
+    .data(this.renderData)\n\
+    .enter()\n\
+    .append('circle')\n\
+    .attr('class', 'transitive-stop-circle');\n\
+\n\
+  // set up a group for the stop-level labels\n\
+  this.labels = this.svgGroup\n\
+    .append('g');\n\
+\n\
+  // create the main stop label\n\
+  this.mainLabel = this.labels.append('text')\n\
+    .data(this.renderData)\n\
+    .attr('id', 'transitive-stop-label-' + this.stop_id)\n\
+    .text(this.stop_name.replace('METRO STATION', ''))\n\
+    .attr('class', 'transitive-stop-label')\n\
+    .attr('text-anchor', textAnchor)\n\
+    .attr('transform', (function (d, i) {\n\
+      return 'rotate(' + this.labelAngle + ', 0, 0)';\n\
+    }).bind(this));\n\
 };\n\
 \n\
+/**\n\
+ * Refresh the stop\n\
+ *\n\
+ * @param {Display} display\n\
+ */\n\
 \n\
 Stop.prototype.refresh = function(display) {\n\
-  if(this.renderData.length === 0) return;\n\
+  if (this.renderData.length === 0) return;\n\
 \n\
   // refresh the pattern-level markers\n\
   this.patternMarkers.data(this.renderData);\n\
   this.patternMarkers.attr('transform', function (d, i) {\n\
     var x = display.xScale(d.x) + d.offsetX;\n\
-    var y = display.yScale(d.y) - d.offsetY ;\n\
+    var y = display.yScale(d.y) - d.offsetY;\n\
     return 'translate(' + x +', ' + y +')';\n\
   });\n\
 \n\
-  // refresh the stop-level labels\n\
+  /* refresh the stop-level labels */\n\
   this.labels.attr('transform', (function (d, i) {\n\
     var la = this.labelAnchor;\n\
-    var x = display.xScale(la.x) + la.offsetX + this.labelOffsetX(la.pattern.lineWidth);\n\
-    var y = display.yScale(la.y) - la.offsetY - this.labelOffsetY(la.pattern.lineWidth);\n\
-    return 'translate(' + x +', ' + y +')';\n\
+    var x = display.xScale(la.x) + la.offsetX; // + this.labelOffsetX(la.pattern.lineWidth);\n\
+    var y = display.yScale(la.y) - la.offsetY; // - this.labelOffsetY(la.pattern.lineWidth);\n\
+    return 'translate(' + x +',' + y +')';\n\
   }).bind(this));\n\
-\n\
-  this.mainLabel.attr('transform', (function (d, i) {\n\
-    return 'rotate(' + this.labelAngle + ',0,0)';\n\
-  }).bind(this));\n\
-\n\
 };\n\
 //@ sourceURL=transitive/lib/stop.js"
 ));
@@ -13469,7 +13498,11 @@ module.exports.d3 = Transitive.prototype.d3 = d3;\n\
 module.exports.version = '0.0.0';\n\
 \n\
 /**\n\
- * Main object\n\
+ * Create a new instance of `Transitive`\n\
+ *\n\
+ * @param {Element} element to render to\n\
+ * @param {Object} data to render\n\
+ * @param {Object} styles to apply\n\
  */\n\
 \n\
 function Transitive(el, data, styles) {\n\
@@ -13492,7 +13525,8 @@ Emitter(Transitive.prototype);\n\
 /**\n\
  * Add a filter\n\
  *\n\
- * @param {String|Object|Function} filter\n\
+ * @param {String} type\n\
+ * @param {String|Object|Function} filter, gets passed to `to-function`\n\
  */\n\
 \n\
 Transitive.prototype.addFilter =\n\
@@ -13505,6 +13539,8 @@ Transitive.prototype.filter = function(type, filter) {\n\
 \n\
 /**\n\
  * Clear all filters\n\
+ *\n\
+ * @param {String} filter type\n\
  */\n\
 \n\
 Transitive.prototype.clearFilters = function(type) {\n\
@@ -13523,50 +13559,56 @@ Transitive.prototype.clearFilters = function(type) {\n\
 \n\
 /**\n\
  * Load\n\
+ *\n\
+ * @param {Object} data\n\
  */\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
   this.graph = new Graph();\n\
 \n\
-  this.stops = generateStops(applyFilters(data.stops, this._filter.stops));\n\
+  // Generate the stop objects\n\
+  this.stops = {};\n\
+  applyFilters(data.stops, this._filter.stops).forEach(function (data) {\n\
+    this.stops[data.stop_id] = new Stop(data);\n\
+  }, this);\n\
 \n\
-  this.routes = {};\n\
-  this.patterns = {};\n\
-\n\
-  // A list of stops that will become vertices in the network graph.\n\
-  // This includes all stops that serve as a pattern endpoint and/or\n\
-  // a convergence/divergence point between patterns\n\
+  // A list of stops that will become vertices in the network graph. This\n\
+  // includes all stops that serve as a pattern endpoint and/or a\n\
+  // convergence/divergence point between patterns\n\
   var vertexStops = {};\n\
 \n\
   // object maps stop ids to arrays of unique stop_ids reachable from that stop\n\
   var adjacentStops = {};\n\
 \n\
-  applyFilters(data.routes, this._filter.routes).forEach(function (routeData) {\n\
-    // set up the Route object\n\
-    var route = new Route(routeData);\n\
-    this.routes[route.route_id] = route;\n\
+  // Generate the routes & patterns\n\
+  this.routes = {};\n\
+  this.patterns = {};\n\
 \n\
+  applyFilters(data.routes, this._filter.routes).forEach(function (routeData) {\n\
+    var route = this.routes[routeData.route_id] = new Route(routeData);\n\
     // iterate through the Route's constituent Patterns\n\
     applyFilters(routeData.patterns, this._filter.patterns).forEach(function (patternData, i) {\n\
-      // set up the Pattern object\n\
-      var pattern = new Pattern(patternData);\n\
-      this.patterns[patternData.pattern_id] = pattern;\n\
+      // Create the Pattern object\n\
+      var pattern = this.patterns[patternData.pattern_id] = new Pattern(patternData);\n\
+\n\
+      // add to the route\n\
       route.addPattern(pattern);\n\
 \n\
-      // iterate through this pattern's stops, associating stops/patterns with each other\n\
-      // and initializing the adjacentStops table\n\
+      // iterate through this pattern's stops, associating stops/patterns with\n\
+      // each other and initializing the adjacentStops table\n\
       var previousStop = null;\n\
       patternData.stops.forEach(function (stopInfo) {\n\
         var stop = this.stops[stopInfo.stop_id];\n\
-        //console.log(' - '+stop.getId()+' / ' + stop.stop_name);\n\
 \n\
         pattern.stops.push(stop);\n\
         stop.patterns.push(pattern);\n\
 \n\
-        if(previousStop) { // this block called for each pair of adjacent stops in pattern\n\
-          addStopAdjacency(adjacentStops, stop, previousStop);\n\
-          addStopAdjacency(adjacentStops, previousStop, stop);\n\
+        // called for each pair of adjacent stops in pattern\n\
+        if (previousStop) {\n\
+          addStopAdjacency(adjacentStops, stop.getId(), previousStop.getId());\n\
+          addStopAdjacency(adjacentStops, previousStop.getId(), stop.getId());\n\
         }\n\
+\n\
         previousStop = stop;\n\
       }, this);\n\
 \n\
@@ -13585,12 +13627,9 @@ Transitive.prototype.load = function(data) {\n\
     }, this);\n\
   }, this);\n\
 \n\
-  //console.log('adj stops:');\n\
-  //console.log(adjacentStops);\n\
-\n\
   // determine the convergence/divergence vertex stops by looking for stops w/ >2 adjacent stops\n\
-  for(var stopId in adjacentStops) {\n\
-    if(adjacentStops[stopId].length > 2) {\n\
+  for (var stopId in adjacentStops) {\n\
+    if (adjacentStops[stopId].length > 2) {\n\
       vertexStops[stopId] = this.stops[stopId];\n\
       this.stops[stopId].isBranchPoint = true;\n\
     }\n\
@@ -13610,22 +13649,9 @@ Transitive.prototype.load = function(data) {\n\
   this.setScale();\n\
 \n\
   this.emit('loaded', this);\n\
+\n\
   return this;\n\
 };\n\
-\n\
-/**\n\
- * Helper function for stopAjacency table\n\
- */\n\
-\n\
-function addStopAdjacency(adjacentStops, stopA, stopB) {\n\
-  if (!adjacentStops[stopA.getId()]) {\n\
-    adjacentStops[stopA.getId()] = [];\n\
-  }\n\
-\n\
-  if (adjacentStops[stopA.getId()].indexOf(stopB.getId()) === -1) {\n\
-    adjacentStops[stopA.getId()].push(stopB.getId());\n\
-  }\n\
-}\n\
 \n\
 /**\n\
  * Render\n\
@@ -13648,10 +13674,8 @@ Transitive.prototype.render = function() {\n\
     pattern.draw(this.display, 10);\n\
   }\n\
 \n\
-  // initialize the stop svg elements\n\
-  for (key in this.stops) {\n\
-    this.stops[key].draw(this.display);\n\
-  }\n\
+  // Draw the stop svg elements\n\
+  for (key in this.stops) this.stops[key].draw(this.display);\n\
 \n\
   this.refresh();\n\
 \n\
@@ -13662,6 +13686,8 @@ Transitive.prototype.render = function() {\n\
 \n\
 /**\n\
  * Render to\n\
+ *\n\
+ * @param {Element} el\n\
  */\n\
 \n\
 Transitive.prototype.renderTo = function(el) {\n\
@@ -13677,25 +13703,23 @@ Transitive.prototype.renderTo = function(el) {\n\
 \n\
 Transitive.prototype.refresh = function() {\n\
   // clear the stop render data\n\
-  for (var key in this.stops) {\n\
-    this.stops[key].renderData = [];\n\
-  }\n\
+  for (var key in this.stops) this.stops[key].renderData = [];\n\
 \n\
   // refresh the patterns\n\
   for (key in this.patterns) {\n\
     var pattern = this.patterns[key];\n\
     pattern.refreshRenderData(); // also updates the stop-level renderData\n\
 \n\
-    this.style.renderPattern(this.display, pattern.svgGroup);\n\
+    this.style.renderPattern(this.display, pattern.lineGraph);\n\
     pattern.refresh(this.display, this.style);\n\
   }\n\
 \n\
   // refresh the stops\n\
   for (key in this.stops) {\n\
     var stop = this.stops[key];\n\
-    if(!stop.svgGroup) continue; // check if this stop is not currently rendered\n\
+    if (!stop.svgGroup) continue; // check if this stop is not currently rendered\n\
 \n\
-    this.style.renderStop(this.display, stop.svgGroup);\n\
+    this.style.renderStop(this.display, stop);\n\
     stop.refresh(this.display);\n\
   }\n\
 \n\
@@ -13718,6 +13742,8 @@ Transitive.prototype.setElement = function(el) {\n\
 \n\
   this.setScale();\n\
 \n\
+  this.emit('element set', this);\n\
+\n\
   return this;\n\
 };\n\
 \n\
@@ -13730,6 +13756,10 @@ Transitive.prototype.setScale = function() {\n\
     this.display.setScale(this.el.clientHeight, this.el.clientWidth,\n\
       this.graph);\n\
   }\n\
+\n\
+  this.emit('scale set', this);\n\
+\n\
+  return this;\n\
 };\n\
 \n\
 \n\
@@ -13738,8 +13768,6 @@ Transitive.prototype.setScale = function() {\n\
  */\n\
 \n\
 Transitive.prototype.placeStopLabels = function() {\n\
-\n\
-\n\
   // determine the y-range of each pattern\n\
   // refresh the patterns\n\
 \n\
@@ -13762,28 +13790,42 @@ Transitive.prototype.placeStopLabels = function() {\n\
   for (key in this.stops) {\n\
     var stop = this.stops[key];\n\
     if(stop.patterns.length === 0) continue; // check if this stop is not currently displayed\n\
-\n\
   }\n\
-\n\
 };\n\
 \n\
-\n\
 /**\n\
- * Generate Stops\n\
+ * Apply an array of filters to an array of data\n\
+ *\n\
+ * @param {Array} data\n\
+ * @param {Array} filters\n\
  */\n\
 \n\
-function generateStops(data) {\n\
-  var stops = {};\n\
-\n\
-  data.forEach(function (stop) {\n\
-    stops[stop.stop_id] = new Stop(stop);\n\
+function applyFilters(data, filters) {\n\
+  filters.forEach(function (filter) {\n\
+    data = data.filter(filter);\n\
   });\n\
 \n\
-  return stops;\n\
+  return data;\n\
+}\n\
+\n\
+/**\n\
+ * Helper function for stopAjacency table\n\
+ *\n\
+ * @param {Stop} adjacent stops list\n\
+ * @param {Stop} stopA\n\
+ * @param {Stop} stopB\n\
+ */\n\
+\n\
+function addStopAdjacency(stops, stopIdA, stopIdB) {\n\
+  if (!stops[stopIdA]) stops[stopIdA] = [];\n\
+  if (stops[stopIdA].indexOf(stopIdB) === -1) stops[stopIdA].push(stopIdB);\n\
 }\n\
 \n\
 /**\n\
  * Populate the graph edges\n\
+ *\n\
+ * @param {Object} patterns\n\
+ * @param {Graph} graph\n\
  */\n\
 \n\
 function populateGraphEdges(patterns, graph) {\n\
@@ -13821,21 +13863,6 @@ function populateGraphEdges(patterns, graph) {\n\
       }\n\
     }\n\
   }\n\
-}\n\
-\n\
-/**\n\
- * Apply an array of filters to an array of data\n\
- *\n\
- * @param {Array} data\n\
- * @param {Array} filters\n\
- */\n\
-\n\
-function applyFilters(data, filters) {\n\
-  filters.forEach(function (filter) {\n\
-    data = data.filter(filter);\n\
-  });\n\
-\n\
-  return data;\n\
 }\n\
 //@ sourceURL=transitive/lib/transitive.js"
 ));
