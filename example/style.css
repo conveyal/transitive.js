@@ -23,9 +23,14 @@
   float: left;
 }
 
-#select-direction label {
+#select-direction label,
+#alt-style label {
   padding: 5px;
   display: block;
+}
+
+.transitive-line {
+  fill: none;
 }
 
 /**
@@ -116,7 +121,7 @@ body {
   padding: 20px;
   font-family: 'Lato', sans-serif;
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   background-color: #e3ffec;
 }
 
