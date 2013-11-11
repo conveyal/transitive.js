@@ -10583,16 +10583,23 @@ module.exports = Styler;
 
 function Styler(styles) {
   if (!(this instanceof Styler)) return new Styler(styles);
+
+  // reset styles
+  this.reset();
+
+  // load styles
   if (styles) this.load(styles);
 }
 
 /**
- * Add the predefined styles
+ * Reset to the predefined styles
  */
 
-types.forEach(function (type) {
-  Styler.prototype[type] = styles[type];
-});
+Styler.prototype.reset = function () {
+  types.forEach(function (type) {
+    this[type] = merge({}, styles[type]);
+  }, this);
+};
 
 /**
  * Load rules
@@ -10603,7 +10610,7 @@ types.forEach(function (type) {
 Styler.prototype.load = function(styles) {
   types.forEach(function (type) {
     if (styles[type]) this[type] = merge(this[type], styles[type]);
-  });
+  }, this);
 };
 
 /**
@@ -10692,7 +10699,7 @@ function pixels(current_z, min, normal, max) {
 }
 
 function strokeWidth(display) {
-  return pixels(display.zoom.scale(), 5, 12, 17);
+  return pixels(display.zoom.scale(), 5, 12, 19);
 }
 
 function fontSize(display, data) {
@@ -10726,8 +10733,10 @@ exports.stops = {
   stroke: function (display, data) {
     if (data.stop.isEndPoint && data.pattern.route.route_color) {
       return '#' + data.pattern.route.route_color;
+    } else if (data.pattern.route.route_color) {
+      return 'gray';
     }
-    return 'gray';
+    return '#2EB1E6';
   },
   'stroke-width': function (display, data) {
     if (data.stop.isEndPoint) {
@@ -10748,7 +10757,7 @@ exports.stops = {
  */
 
 exports.labels = {
-  color: '#333',
+  color: '#1a1a1a',
   'font-family': '\'Lato\', sans-serif',
   'font-size': function(display, data) {
     return fontSize(display, data) + 'px';
@@ -10785,11 +10794,8 @@ exports.labels = {
 
 exports.patterns = {
   stroke: function (display, data) {
-    if (data.route.route_color) {
-      return '#' + data.route.route_color;
-    } else {
-      return 'grey';
-    }
+    if (data.route.route_color) return '#' + data.route.route_color;
+    return '#2EB1E6';
   },
   'stroke-dasharray': function (display, data) {
     if (data.frequency.average > 12) return false;
@@ -10797,7 +10803,7 @@ exports.patterns = {
     return '12px, 2px';
   },
   'stroke-width': function (display) {
-    return strokeWidth(display) + 'px';
+    return pixels(display.zoom.scale(), 5, 12, 19) + 'px';
   },
   fill: function (display, data, index) {
     return 'none';

@@ -12572,16 +12572,23 @@ module.exports = Styler;\n\
 \n\
 function Styler(styles) {\n\
   if (!(this instanceof Styler)) return new Styler(styles);\n\
+\n\
+  // reset styles\n\
+  this.reset();\n\
+\n\
+  // load styles\n\
   if (styles) this.load(styles);\n\
 }\n\
 \n\
 /**\n\
- * Add the predefined styles\n\
+ * Reset to the predefined styles\n\
  */\n\
 \n\
-types.forEach(function (type) {\n\
-  Styler.prototype[type] = styles[type];\n\
-});\n\
+Styler.prototype.reset = function () {\n\
+  types.forEach(function (type) {\n\
+    this[type] = merge({}, styles[type]);\n\
+  }, this);\n\
+};\n\
 \n\
 /**\n\
  * Load rules\n\
@@ -12592,7 +12599,7 @@ types.forEach(function (type) {\n\
 Styler.prototype.load = function(styles) {\n\
   types.forEach(function (type) {\n\
     if (styles[type]) this[type] = merge(this[type], styles[type]);\n\
-  });\n\
+  }, this);\n\
 };\n\
 \n\
 /**\n\
@@ -12681,7 +12688,7 @@ function pixels(current_z, min, normal, max) {\n\
 }\n\
 \n\
 function strokeWidth(display) {\n\
-  return pixels(display.zoom.scale(), 5, 12, 17);\n\
+  return pixels(display.zoom.scale(), 5, 12, 19);\n\
 }\n\
 \n\
 function fontSize(display, data) {\n\
@@ -12715,8 +12722,10 @@ exports.stops = {\n\
   stroke: function (display, data) {\n\
     if (data.stop.isEndPoint && data.pattern.route.route_color) {\n\
       return '#' + data.pattern.route.route_color;\n\
+    } else if (data.pattern.route.route_color) {\n\
+      return 'gray';\n\
     }\n\
-    return 'gray';\n\
+    return '#2EB1E6';\n\
   },\n\
   'stroke-width': function (display, data) {\n\
     if (data.stop.isEndPoint) {\n\
@@ -12737,7 +12746,7 @@ exports.stops = {\n\
  */\n\
 \n\
 exports.labels = {\n\
-  color: '#333',\n\
+  color: '#1a1a1a',\n\
   'font-family': '\\'Lato\\', sans-serif',\n\
   'font-size': function(display, data) {\n\
     return fontSize(display, data) + 'px';\n\
@@ -12774,11 +12783,8 @@ exports.labels = {\n\
 \n\
 exports.patterns = {\n\
   stroke: function (display, data) {\n\
-    if (data.route.route_color) {\n\
-      return '#' + data.route.route_color;\n\
-    } else {\n\
-      return 'grey';\n\
-    }\n\
+    if (data.route.route_color) return '#' + data.route.route_color;\n\
+    return '#2EB1E6';\n\
   },\n\
   'stroke-dasharray': function (display, data) {\n\
     if (data.frequency.average > 12) return false;\n\
@@ -12786,7 +12792,7 @@ exports.patterns = {\n\
     return '12px, 2px';\n\
   },\n\
   'stroke-width': function (display) {\n\
-    return strokeWidth(display) + 'px';\n\
+    return pixels(display.zoom.scale(), 5, 12, 19) + 'px';\n\
   },\n\
   fill: function (display, data, index) {\n\
     return 'none';\n\
