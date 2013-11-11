@@ -56,6 +56,38 @@ $reverse.addEventListener('change', function (event) {
   transitive.render();
 });
 
+// flip style
+var $style = document.getElementById('alternative-style');
+
+// on click
+$style.addEventListener('change', function (event) {
+  transitive.style.reset();
+
+  if (event.target.checked) {
+    transitive.style.load({
+      stops: {
+        'stroke-opacity': function (display, data) {
+          if (data.stop.isEndPoint) {
+            if (data.pattern.frequency.average > 12) return false;
+            if (data.pattern.frequency.average > 6) return 0.5;
+            return 0.25;
+          }
+        }
+      },
+      patterns: {
+        opacity: function (display, data) {
+          if (data.frequency.average > 12) return false;
+          if (data.frequency.average > 6) return 0.5;
+          return 0.25;
+        },
+        'stroke-dasharray': function() { return false; }
+      }
+    })
+  }
+
+  transitive.render();
+});
+
 // On route selection change
 Routes.on('select', function (option) {
   localStorage.setItem('selected-route', option.name);
