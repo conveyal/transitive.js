@@ -11461,19 +11461,26 @@ Stop.prototype.draw = function(display) {
 Stop.prototype.refresh = function(display) {
   if (this.renderData.length === 0) return;
 
+  var cx, cy;
   // refresh the pattern-level markers
   this.patternMarkers.data(this.renderData);
   this.patternMarkers.attr('transform', function (d, i) {
+    cx = d.x;
+    cy = d.y;
     var x = display.xScale(d.x) + d.offsetX;
     var y = display.yScale(d.y) - d.offsetY;
     return 'translate(' + x +', ' + y +')';
   });
 
+
+  //console.log(this.labelAnchor);
   /* refresh the stop-level labels */
   this.labels.attr('transform', (function (d, i) {
     var la = this.labelAnchor;
-    var x = display.xScale(la.x) + la.offsetX;
-    var y = display.yScale(la.y) - la.offsetY;
+    var x = display.xScale(cx) + la.offsetX;
+    var y = display.yScale(cy) - la.offsetY;
+    this.lastX = la.x;
+    this.lastY = la.y;
     return 'translate(' + x +',' + y +')';
   }).bind(this));
 };
@@ -11718,6 +11725,7 @@ Transitive.prototype.renderTo = function(el) {
  */
 
 Transitive.prototype.refresh = function() {
+
   // clear the stop render data
   for (var key in this.stops) this.stops[key].renderData = [];
 
@@ -11778,36 +11786,6 @@ Transitive.prototype.setScale = function() {
   return this;
 };
 
-
-/**
- * Place the stop text labels, minimizing overlap
- */
-
-Transitive.prototype.placeStopLabels = function() {
-  // determine the y-range of each pattern
-  // refresh the patterns
-
-  for (var key in this.patterns) {
-    var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;
-    var pattern = this.patterns[key];
-    var vertices = pattern.vertexArray();
-    console.log(vertices);
-    //vertices.forEach(function(vertex) {
-    for(var i = 0; i < vertices.length; i++) {
-      var vertex = vertices[i];
-      minY = Math.min(minY, vertex.y);
-      maxY = Math.max(maxY, vertex.y);
-    }
-
-    console.log('p yr: '+minY + ' to '+maxY);
-  }
-
-  //
-  for (key in this.stops) {
-    var stop = this.stops[key];
-    if(stop.patterns.length === 0) continue; // check if this stop is not currently displayed
-  }
-};
 
 /**
  * Apply an array of filters to an array of data

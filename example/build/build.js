@@ -13450,19 +13450,26 @@ Stop.prototype.draw = function(display) {\n\
 Stop.prototype.refresh = function(display) {\n\
   if (this.renderData.length === 0) return;\n\
 \n\
+  var cx, cy;\n\
   // refresh the pattern-level markers\n\
   this.patternMarkers.data(this.renderData);\n\
   this.patternMarkers.attr('transform', function (d, i) {\n\
+    cx = d.x;\n\
+    cy = d.y;\n\
     var x = display.xScale(d.x) + d.offsetX;\n\
     var y = display.yScale(d.y) - d.offsetY;\n\
     return 'translate(' + x +', ' + y +')';\n\
   });\n\
 \n\
+\n\
+  //console.log(this.labelAnchor);\n\
   /* refresh the stop-level labels */\n\
   this.labels.attr('transform', (function (d, i) {\n\
     var la = this.labelAnchor;\n\
-    var x = display.xScale(la.x) + la.offsetX;\n\
-    var y = display.yScale(la.y) - la.offsetY;\n\
+    var x = display.xScale(cx) + la.offsetX;\n\
+    var y = display.yScale(cy) - la.offsetY;\n\
+    this.lastX = la.x;\n\
+    this.lastY = la.y;\n\
     return 'translate(' + x +',' + y +')';\n\
   }).bind(this));\n\
 };\n\
@@ -13707,6 +13714,7 @@ Transitive.prototype.renderTo = function(el) {\n\
  */\n\
 \n\
 Transitive.prototype.refresh = function() {\n\
+\n\
   // clear the stop render data\n\
   for (var key in this.stops) this.stops[key].renderData = [];\n\
 \n\
@@ -13767,36 +13775,6 @@ Transitive.prototype.setScale = function() {\n\
   return this;\n\
 };\n\
 \n\
-\n\
-/**\n\
- * Place the stop text labels, minimizing overlap\n\
- */\n\
-\n\
-Transitive.prototype.placeStopLabels = function() {\n\
-  // determine the y-range of each pattern\n\
-  // refresh the patterns\n\
-\n\
-  for (var key in this.patterns) {\n\
-    var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;\n\
-    var pattern = this.patterns[key];\n\
-    var vertices = pattern.vertexArray();\n\
-    console.log(vertices);\n\
-    //vertices.forEach(function(vertex) {\n\
-    for(var i = 0; i < vertices.length; i++) {\n\
-      var vertex = vertices[i];\n\
-      minY = Math.min(minY, vertex.y);\n\
-      maxY = Math.max(maxY, vertex.y);\n\
-    }\n\
-\n\
-    console.log('p yr: '+minY + ' to '+maxY);\n\
-  }\n\
-\n\
-  //\n\
-  for (key in this.stops) {\n\
-    var stop = this.stops[key];\n\
-    if(stop.patterns.length === 0) continue; // check if this stop is not currently displayed\n\
-  }\n\
-};\n\
 \n\
 /**\n\
  * Apply an array of filters to an array of data\n\
