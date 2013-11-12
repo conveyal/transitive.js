@@ -10,12 +10,6 @@ transitive.js
 
 ## Installation
 
-### NPM
-
-```bash
-$ npm install transitive
-```
-
 ### Component
 
 ```bash
