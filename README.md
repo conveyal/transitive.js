@@ -8,6 +8,28 @@ transitive.js
 
 [Demo](http://conveyal.github.io/transitive.js "Demo")
 
+## Installation
+
+### NPM
+
+```bash
+$ npm install transitive
+```
+
+### Component
+
+```bash
+$ component install conveyal/transitive.js
+```
+
+### From Source
+
+```bash
+$ git clone git@github.com:conveyal/transitive.js.git
+$ cd transitive.js
+$ make install && make release
+```
+
 ## License
 
 The MIT License (MIT)
