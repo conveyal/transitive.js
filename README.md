@@ -1,8 +1,4 @@
-transitive.js
-=============
-
-[![Build Status](https://travis-ci.org/conveyal/transitive.js.png)](https://travis-ci.org/conveyal/transitive.js)
-[![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
+# transitive.js [![Build Status](https://travis-ci.org/conveyal/transitive.js.png)](https://travis-ci.org/conveyal/transitive.js) [![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
 
 ## Demo
 
@@ -23,6 +19,8 @@ $ git clone git@github.com:conveyal/transitive.js.git
 $ cd transitive.js
 $ make install && make release
 ```
+
+## API
 
 ## License
 
