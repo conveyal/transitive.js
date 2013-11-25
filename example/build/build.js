@@ -9997,6 +9997,154 @@ function isFunction(val) {\n\
 }\n\
 //@ sourceURL=trevorgerhardt-stylesheet/index.js"
 ));
+require.register("visionmedia-debug/index.js", Function("exports, require, module",
+"if ('undefined' == typeof window) {\n\
+  module.exports = require('./lib/debug');\n\
+} else {\n\
+  module.exports = require('./debug');\n\
+}\n\
+//@ sourceURL=visionmedia-debug/index.js"
+));
+require.register("visionmedia-debug/debug.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `debug()` as the module.\n\
+ */\n\
+\n\
+module.exports = debug;\n\
+\n\
+/**\n\
+ * Create a debugger with the given `name`.\n\
+ *\n\
+ * @param {String} name\n\
+ * @return {Type}\n\
+ * @api public\n\
+ */\n\
+\n\
+function debug(name) {\n\
+  if (!debug.enabled(name)) return function(){};\n\
+\n\
+  return function(fmt){\n\
+    fmt = coerce(fmt);\n\
+\n\
+    var curr = new Date;\n\
+    var ms = curr - (debug[name] || curr);\n\
+    debug[name] = curr;\n\
+\n\
+    fmt = name\n\
+      + ' '\n\
+      + fmt\n\
+      + ' +' + debug.humanize(ms);\n\
+\n\
+    // This hackery is required for IE8\n\
+    // where `console.log` doesn't have 'apply'\n\
+    window.console\n\
+      && console.log\n\
+      && Function.prototype.apply.call(console.log, console, arguments);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * The currently active debug mode names.\n\
+ */\n\
+\n\
+debug.names = [];\n\
+debug.skips = [];\n\
+\n\
+/**\n\
+ * Enables a debug mode by name. This can include modes\n\
+ * separated by a colon and wildcards.\n\
+ *\n\
+ * @param {String} name\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.enable = function(name) {\n\
+  try {\n\
+    localStorage.debug = name;\n\
+  } catch(e){}\n\
+\n\
+  var split = (name || '').split(/[\\s,]+/)\n\
+    , len = split.length;\n\
+\n\
+  for (var i = 0; i < len; i++) {\n\
+    name = split[i].replace('*', '.*?');\n\
+    if (name[0] === '-') {\n\
+      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));\n\
+    }\n\
+    else {\n\
+      debug.names.push(new RegExp('^' + name + '$'));\n\
+    }\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Disable debug output.\n\
+ *\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.disable = function(){\n\
+  debug.enable('');\n\
+};\n\
+\n\
+/**\n\
+ * Humanize the given `ms`.\n\
+ *\n\
+ * @param {Number} m\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+debug.humanize = function(ms) {\n\
+  var sec = 1000\n\
+    , min = 60 * 1000\n\
+    , hour = 60 * min;\n\
+\n\
+  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';\n\
+  if (ms >= min) return (ms / min).toFixed(1) + 'm';\n\
+  if (ms >= sec) return (ms / sec | 0) + 's';\n\
+  return ms + 'ms';\n\
+};\n\
+\n\
+/**\n\
+ * Returns true if the given mode name is enabled, false otherwise.\n\
+ *\n\
+ * @param {String} name\n\
+ * @return {Boolean}\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.enabled = function(name) {\n\
+  for (var i = 0, len = debug.skips.length; i < len; i++) {\n\
+    if (debug.skips[i].test(name)) {\n\
+      return false;\n\
+    }\n\
+  }\n\
+  for (var i = 0, len = debug.names.length; i < len; i++) {\n\
+    if (debug.names[i].test(name)) {\n\
+      return true;\n\
+    }\n\
+  }\n\
+  return false;\n\
+};\n\
+\n\
+/**\n\
+ * Coerce `val`.\n\
+ */\n\
+\n\
+function coerce(val) {\n\
+  if (val instanceof Error) return val.stack || val.message;\n\
+  return val;\n\
+}\n\
+\n\
+// persist\n\
+\n\
+try {\n\
+  if (window.localStorage) debug.enable(localStorage.debug);\n\
+} catch(e){}\n\
+//@ sourceURL=visionmedia-debug/debug.js"
+));
 require.register("yields-svg-attributes/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -10474,8 +10622,7 @@ module.exports = function debounce(func, threshold, execAsap){\n\
 //@ sourceURL=component-debounce/index.js"
 ));
 require.register("component-pillbox/index.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Module dependencies.\n\
  */\n\
 \n\
@@ -10502,7 +10649,6 @@ module.exports = Pillbox\n\
 \n\
 function Pillbox(input, options) {\n\
   if (!(this instanceof Pillbox)) return new Pillbox(input, options);\n\
-  var self = this\n\
   this.options = options || {}\n\
   this.input = input;\n\
   this.tags = new Set;\n\
@@ -11230,7 +11376,7 @@ function parse(html) {\n\
 \n\
   // tag name\n\
   var m = /<([\\w:]+)/.exec(html);\n\
-  if (!m) throw new Error('No elements were generated.');\n\
+  if (!m) return document.createTextNode(html);\n\
   var tag = m[1];\n\
 \n\
   // body support\n\
@@ -11249,14 +11395,16 @@ function parse(html) {\n\
   el.innerHTML = prefix + html + suffix;\n\
   while (depth--) el = el.lastChild;\n\
 \n\
-  var els = el.children;\n\
-  if (1 == els.length) {\n\
-    return el.removeChild(els[0]);\n\
+  // Note: when moving children, don't rely on el.children\n\
+  // being 'live' to support Polymer's broken behaviour.\n\
+  // See: https://github.com/component/domify/pull/23\n\
+  if (1 == el.children.length) {\n\
+    return el.removeChild(el.children[0]);\n\
   }\n\
 \n\
   var fragment = document.createDocumentFragment();\n\
-  while (els.length) {\n\
-    fragment.appendChild(el.removeChild(els[0]));\n\
+  while (el.children.length) {\n\
+    fragment.appendChild(el.removeChild(el.children[0]));\n\
   }\n\
 \n\
   return fragment;\n\
@@ -11264,8 +11412,7 @@ function parse(html) {\n\
 //@ sourceURL=component-domify/index.js"
 ));
 require.register("component-query/index.js", Function("exports, require, module",
-"\n\
-function one(selector, el) {\n\
+"function one(selector, el) {\n\
   return el.querySelector(selector);\n\
 }\n\
 \n\
@@ -11284,12 +11431,12 @@ exports.engine = function(obj){\n\
   if (!obj.all) throw new Error('.all callback required');\n\
   one = obj.one;\n\
   exports.all = obj.all;\n\
+  return exports;\n\
 };\n\
 //@ sourceURL=component-query/index.js"
 ));
 require.register("yields-select/index.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * dependencies\n\
  */\n\
 \n\
@@ -11863,9 +12010,7 @@ Select.prototype.onsearch = function(e){\n\
  */\n\
 \n\
 Select.prototype.onkeydown = function(e){\n\
-  var multi = this._multiple\n\
-    , visible = this.visible()\n\
-    , active = this.active\n\
+  var visible = this.visible()\n\
     , box = this.box;\n\
 \n\
   // actions\n\
@@ -12082,7 +12227,7 @@ Edge.prototype.calculateVectors = function() {\n\
  */\n\
 \n\
 Edge.prototype.addPattern = function(pattern) {\n\
-  if(this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);\n\
+  if (this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);\n\
 };\n\
 \n\
 /**\n\
@@ -12090,8 +12235,8 @@ Edge.prototype.addPattern = function(pattern) {\n\
  */\n\
 \n\
 Edge.prototype.oppositeVertex = function(vertex) {\n\
-  if(vertex === this.toVertex) return this.fromVertex;\n\
-  if(vertex === this.fromVertex) return this.toVertex;\n\
+  if (vertex === this.toVertex) return this.fromVertex;\n\
+  if (vertex === this.fromVertex) return this.toVertex;\n\
   return null;\n\
 };\n\
 \n\
@@ -12100,11 +12245,11 @@ Edge.prototype.oppositeVertex = function(vertex) {\n\
  */\n\
 \n\
 Edge.prototype.setStopLabelPosition = function(pos, skip) {\n\
-  if(this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;\n\
-  if(this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;\n\
+  if (this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;\n\
+  if (this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;\n\
 \n\
   this.stopArray.forEach(function(stop) {\n\
-    if(stop !== skip) stop.labelPosition = pos;\n\
+    if (stop !== skip) stop.labelPosition = pos;\n\
   });\n\
 };\n\
 \n\
@@ -13482,6 +13627,7 @@ require.register("transitive/lib/transitive.js", Function("exports, require, mod
  */\n\
 \n\
 var d3 = require('d3');\n\
+var debug = require('debug')('transitive');\n\
 var Display = require('./display');\n\
 var Emitter = require('emitter');\n\
 var Graph = require('./graph');\n\
@@ -13515,11 +13661,12 @@ module.exports.version = '0.0.0';\n\
  * @param {Element} element to render to\n\
  * @param {Object} data to render\n\
  * @param {Object} styles to apply\n\
+ * @param {Object} options object\n\
  */\n\
 \n\
-function Transitive(el, data, styles) {\n\
+function Transitive(el, data, styles, options) {\n\
   if (!(this instanceof Transitive)) {\n\
-    return new Transitive(el, data, styles);\n\
+    return new Transitive(el, data, styles, options);\n\
   }\n\
 \n\
   this.clearFilters();\n\
@@ -13535,7 +13682,7 @@ function Transitive(el, data, styles) {\n\
 Emitter(Transitive.prototype);\n\
 \n\
 /**\n\
- * Add a filter\n\
+ * Add a data filter\n\
  *\n\
  * @param {String} type\n\
  * @param {String|Object|Function} filter, gets passed to `to-function`\n\
@@ -13550,7 +13697,7 @@ Transitive.prototype.filter = function(type, filter) {\n\
 };\n\
 \n\
 /**\n\
- * Clear all filters\n\
+ * Clear all data filters\n\
  *\n\
  * @param {String} filter type\n\
  */\n\
@@ -13566,6 +13713,7 @@ Transitive.prototype.clearFilters = function(type) {\n\
     };\n\
   }\n\
 \n\
+  this.emit('clear filters', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13576,6 +13724,8 @@ Transitive.prototype.clearFilters = function(type) {\n\
  */\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
+  debug('load', data);\n\
+\n\
   this.graph = new Graph();\n\
 \n\
   // Generate the stop objects\n\
@@ -13660,8 +13810,7 @@ Transitive.prototype.load = function(data) {\n\
   //this.placeStopLabels();\n\
   this.setScale();\n\
 \n\
-  this.emit('loaded', this);\n\
-\n\
+  this.emit('load', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13691,8 +13840,7 @@ Transitive.prototype.render = function() {\n\
 \n\
   this.refresh();\n\
 \n\
-  this.emit('rendered', this);\n\
-\n\
+  this.emit('render', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13706,6 +13854,7 @@ Transitive.prototype.renderTo = function(el) {\n\
   this.setElement(el);\n\
   this.render();\n\
 \n\
+  this.emit('render to', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13736,8 +13885,7 @@ Transitive.prototype.refresh = function() {\n\
     stop.refresh(this.display);\n\
   }\n\
 \n\
-  this.emit('refreshed', this);\n\
-\n\
+  this.emit('refresh', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13755,8 +13903,7 @@ Transitive.prototype.setElement = function(el) {\n\
 \n\
   this.setScale();\n\
 \n\
-  this.emit('element set', this);\n\
-\n\
+  this.emit('set element', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13770,8 +13917,7 @@ Transitive.prototype.setScale = function() {\n\
       this.graph);\n\
   }\n\
 \n\
-  this.emit('scale set', this);\n\
-\n\
+  this.emit('set scale', this);\n\
   return this;\n\
 };\n\
 \n\
@@ -13885,6 +14031,8 @@ function populateGraphEdges(patterns, graph) {\n\
 
 
 
+
+
 require.register("yields-select/template.html", Function("exports, require, module",
 "module.exports = '<div class=\\'select select-single\\'>\\n\
   <div class=\\'select-box\\'>\\n\
@@ -13923,6 +14071,10 @@ require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/ind
 
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
 require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
+require.alias("visionmedia-debug/index.js", "transitive/deps/debug/index.js");
+require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/debug.js");
+require.alias("visionmedia-debug/index.js", "debug/index.js");
+
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");

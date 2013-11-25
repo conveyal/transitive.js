@@ -9995,6 +9995,154 @@ function isFunction(val) {
 }
 
 });
+require.register("visionmedia-debug/index.js", function(exports, require, module){
+if ('undefined' == typeof window) {
+  module.exports = require('./lib/debug');
+} else {
+  module.exports = require('./debug');
+}
+
+});
+require.register("visionmedia-debug/debug.js", function(exports, require, module){
+
+/**
+ * Expose `debug()` as the module.
+ */
+
+module.exports = debug;
+
+/**
+ * Create a debugger with the given `name`.
+ *
+ * @param {String} name
+ * @return {Type}
+ * @api public
+ */
+
+function debug(name) {
+  if (!debug.enabled(name)) return function(){};
+
+  return function(fmt){
+    fmt = coerce(fmt);
+
+    var curr = new Date;
+    var ms = curr - (debug[name] || curr);
+    debug[name] = curr;
+
+    fmt = name
+      + ' '
+      + fmt
+      + ' +' + debug.humanize(ms);
+
+    // This hackery is required for IE8
+    // where `console.log` doesn't have 'apply'
+    window.console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+}
+
+/**
+ * The currently active debug mode names.
+ */
+
+debug.names = [];
+debug.skips = [];
+
+/**
+ * Enables a debug mode by name. This can include modes
+ * separated by a colon and wildcards.
+ *
+ * @param {String} name
+ * @api public
+ */
+
+debug.enable = function(name) {
+  try {
+    localStorage.debug = name;
+  } catch(e){}
+
+  var split = (name || '').split(/[\s,]+/)
+    , len = split.length;
+
+  for (var i = 0; i < len; i++) {
+    name = split[i].replace('*', '.*?');
+    if (name[0] === '-') {
+      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));
+    }
+    else {
+      debug.names.push(new RegExp('^' + name + '$'));
+    }
+  }
+};
+
+/**
+ * Disable debug output.
+ *
+ * @api public
+ */
+
+debug.disable = function(){
+  debug.enable('');
+};
+
+/**
+ * Humanize the given `ms`.
+ *
+ * @param {Number} m
+ * @return {String}
+ * @api private
+ */
+
+debug.humanize = function(ms) {
+  var sec = 1000
+    , min = 60 * 1000
+    , hour = 60 * min;
+
+  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';
+  if (ms >= min) return (ms / min).toFixed(1) + 'm';
+  if (ms >= sec) return (ms / sec | 0) + 's';
+  return ms + 'ms';
+};
+
+/**
+ * Returns true if the given mode name is enabled, false otherwise.
+ *
+ * @param {String} name
+ * @return {Boolean}
+ * @api public
+ */
+
+debug.enabled = function(name) {
+  for (var i = 0, len = debug.skips.length; i < len; i++) {
+    if (debug.skips[i].test(name)) {
+      return false;
+    }
+  }
+  for (var i = 0, len = debug.names.length; i < len; i++) {
+    if (debug.names[i].test(name)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Coerce `val`.
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+
+// persist
+
+try {
+  if (window.localStorage) debug.enable(localStorage.debug);
+} catch(e){}
+
+});
 require.register("yields-svg-attributes/index.js", function(exports, require, module){
 
 /**
@@ -10093,7 +10241,7 @@ Edge.prototype.calculateVectors = function() {
  */
 
 Edge.prototype.addPattern = function(pattern) {
-  if(this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);
+  if (this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);
 };
 
 /**
@@ -10101,8 +10249,8 @@ Edge.prototype.addPattern = function(pattern) {
  */
 
 Edge.prototype.oppositeVertex = function(vertex) {
-  if(vertex === this.toVertex) return this.fromVertex;
-  if(vertex === this.fromVertex) return this.toVertex;
+  if (vertex === this.toVertex) return this.fromVertex;
+  if (vertex === this.fromVertex) return this.toVertex;
   return null;
 };
 
@@ -10111,11 +10259,11 @@ Edge.prototype.oppositeVertex = function(vertex) {
  */
 
 Edge.prototype.setStopLabelPosition = function(pos, skip) {
-  if(this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;
-  if(this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;
+  if (this.fromVertex.stop !== skip) this.fromVertex.stop.labelPosition = pos;
+  if (this.toVertex.stop !== skip) this.toVertex.stop.labelPosition = pos;
 
   this.stopArray.forEach(function(stop) {
-    if(stop !== skip) stop.labelPosition = pos;
+    if (stop !== skip) stop.labelPosition = pos;
   });
 };
 
@@ -11493,6 +11641,7 @@ require.register("transitive/lib/transitive.js", function(exports, require, modu
  */
 
 var d3 = require('d3');
+var debug = require('debug')('transitive');
 var Display = require('./display');
 var Emitter = require('emitter');
 var Graph = require('./graph');
@@ -11526,11 +11675,12 @@ module.exports.version = '0.0.0';
  * @param {Element} element to render to
  * @param {Object} data to render
  * @param {Object} styles to apply
+ * @param {Object} options object
  */
 
-function Transitive(el, data, styles) {
+function Transitive(el, data, styles, options) {
   if (!(this instanceof Transitive)) {
-    return new Transitive(el, data, styles);
+    return new Transitive(el, data, styles, options);
   }
 
   this.clearFilters();
@@ -11546,7 +11696,7 @@ function Transitive(el, data, styles) {
 Emitter(Transitive.prototype);
 
 /**
- * Add a filter
+ * Add a data filter
  *
  * @param {String} type
  * @param {String|Object|Function} filter, gets passed to `to-function`
@@ -11561,7 +11711,7 @@ Transitive.prototype.filter = function(type, filter) {
 };
 
 /**
- * Clear all filters
+ * Clear all data filters
  *
  * @param {String} filter type
  */
@@ -11577,6 +11727,7 @@ Transitive.prototype.clearFilters = function(type) {
     };
   }
 
+  this.emit('clear filters', this);
   return this;
 };
 
@@ -11587,6 +11738,8 @@ Transitive.prototype.clearFilters = function(type) {
  */
 
 Transitive.prototype.load = function(data) {
+  debug('load', data);
+
   this.graph = new Graph();
 
   // Generate the stop objects
@@ -11671,8 +11824,7 @@ Transitive.prototype.load = function(data) {
   //this.placeStopLabels();
   this.setScale();
 
-  this.emit('loaded', this);
-
+  this.emit('load', this);
   return this;
 };
 
@@ -11702,8 +11854,7 @@ Transitive.prototype.render = function() {
 
   this.refresh();
 
-  this.emit('rendered', this);
-
+  this.emit('render', this);
   return this;
 };
 
@@ -11717,6 +11868,7 @@ Transitive.prototype.renderTo = function(el) {
   this.setElement(el);
   this.render();
 
+  this.emit('render to', this);
   return this;
 };
 
@@ -11747,8 +11899,7 @@ Transitive.prototype.refresh = function() {
     stop.refresh(this.display);
   }
 
-  this.emit('refreshed', this);
-
+  this.emit('refresh', this);
   return this;
 };
 
@@ -11766,8 +11917,7 @@ Transitive.prototype.setElement = function(el) {
 
   this.setScale();
 
-  this.emit('element set', this);
-
+  this.emit('set element', this);
   return this;
 };
 
@@ -11781,8 +11931,7 @@ Transitive.prototype.setScale = function() {
       this.graph);
   }
 
-  this.emit('scale set', this);
-
+  this.emit('set scale', this);
   return this;
 };
 
@@ -11872,6 +12021,8 @@ function populateGraphEdges(patterns, graph) {
 
 
 
+
+
 require.alias("component-emitter/index.js", "transitive/deps/emitter/index.js");
 require.alias("component-emitter/index.js", "emitter/index.js");
 require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
@@ -11899,6 +12050,10 @@ require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/ind
 
 require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
 require.alias("trevorgerhardt-stylesheet/index.js", "trevorgerhardt-stylesheet/index.js");
+require.alias("visionmedia-debug/index.js", "transitive/deps/debug/index.js");
+require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/debug.js");
+require.alias("visionmedia-debug/index.js", "debug/index.js");
+
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");
