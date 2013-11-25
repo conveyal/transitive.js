@@ -36,7 +36,7 @@ transitive
   });
 
 // on rendered
-transitive.on('rendered', function (transitive) {
+transitive.on('render', function (transitive) {
   each(COMPUTED, function (behavior) {
     behavior(transitive);
   });
@@ -65,6 +65,9 @@ $style.addEventListener('change', function (event) {
 
   if (event.target.checked) {
     transitive.style.load({
+      labels: {
+        cursor: function () { return 'pointer'; }
+      },
       stops: {
         'stroke-opacity': function (display, data) {
           if (data.stop.isEndPoint) {

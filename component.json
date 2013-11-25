@@ -8,6 +8,7 @@
     "cristiandouce/merge-util": "*",
     "mbostock/d3": "*",
     "trevorgerhardt/stylesheet": "*",
+    "visionmedia/debug": "*",
     "yields/svg-attributes": "*"
   },
   "development": {
