@@ -10,7 +10,8 @@
     "codemirror"
   ],
   "scripts": [
-    "index.js"
+    "index.js",
+    "wmata.js"
   ],
   "styles": [
     "select.css",
