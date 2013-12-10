@@ -1,0 +1,67 @@
+
+body {
+  background-color: #e3ffec;
+  padding: 20px 0 20px;
+}
+
+* {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+}
+
+pre {
+  font-size: 1em;
+}
+
+form pre {
+  margin: 10px 0;
+}
+
+h1, h2, h3, label, legend {
+  font-weight: 300;
+  color: #333;
+}
+
+a {
+  color: #40bb6a;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: #2e874c;
+  text-decoration: none;
+}
+
+footer h1 {
+  margin-top: 0px;
+}
+
+.inset {
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 4px;
+  padding: 19px;
+}
+
+/* Content */
+
+.content {
+  padding: 30px;
+}
+
+.content .row {
+  padding: 15px 15px 30px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+/* Canvas */
+
+#canvas {
+  height: 300px;
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}

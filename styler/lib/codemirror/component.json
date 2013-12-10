@@ -1,0 +1,9 @@
+{
+  "name": "codemirror",
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "style.css"
+  ]
+}

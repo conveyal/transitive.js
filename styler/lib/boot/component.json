@@ -1,0 +1,19 @@
+{
+  "name": "boot",
+  "dependencies": {
+    "component/each": "*",
+    "component/set": "*",
+    "conveyal/transitive.js": "*",
+    "yields/select": "*"
+  },
+  "local": [
+    "codemirror"
+  ],
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "select.css",
+    "style.css"
+  ]
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>styler | transitive.js</title>
+    <meta name="viewport" content="width=device-width">
+
+    <!-- lato -->
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+
+    <link rel="stylesheet" type="text/css" href="build/build.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <h1 class="col-lg-6 col-md-6 col-sm-6"><a href="http://github.com/conveyal/transitive.js">transitive.js</a></h1>
+      </div>
+    </div>
+    <div class="container content">
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <h2>Interactive Style Guide</h2>
+          <p>An interactive tool that to help create custom styles to be used with Transitive.js. The demo below uses WMATA data and updates as you customize the styles. This is still a work in progress. Come back later!</p>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12"><h3>WMATA Metro Routes</h3></div>
+        <div id="select-route" class="col-lg-5 col-md-5 col-sm-5"></div>
+        <div id="select-pattern" class="col-lg-5 col-md-5 col-sm-5"></div>
+         <div id="select-direction" class="col-lg-2 col-md-2 col-sm-2">
+          <label for="reverse-direction">
+            Reverse <input type="checkbox" name="reverse-direction" id="reverse-direction">
+          </label>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <div id="canvas"></div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <hr>
+          <ul class="nav nav-tabs nav-justified">
+            <li class="active">
+              <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
+                Patterns <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li class="active"><a href="#patterns-default" data-toggle="tab">Default (Local)</a></li>
+                <li><a href="#patterns-frequency" data-toggle="tab">Frequency</a></li>
+                <li><a href="#patterns-alternative" data-toggle="tab">Alternative</a></li>
+              </ul>
+            <li><a href="#stations" data-toggle="tab">Stations</a></li>
+            <li><a href="#geography" data-toggle="tab">POI/Geography</a></li>
+            <li><a href="#service" data-toggle="tab">Service</a></li>
+            <li><a href="#labels" data-toggle="tab">Labels</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <div class="tab-content inset">
+            <div class="tab-pane fade in active" id="patterns-default">
+              <h3>Default (Local)</h3>
+              <p>Local routes, normal frequency.</p>
+              <form>
+                <fieldset>
+                  <legend>Attributes</legend>
+                  <div class="input-group">
+                    <select class="form-control" name="attributes" disabled>
+                      <option>Color</option>
+                      <option>Fill</option>
+                      <option>Stroke</option>
+                      <option>Stroke Width</option>
+                      <option>Visibility</option>
+                    </select>
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" disabled="disabled">Add Attribute</button>
+                    </span>
+                  </div>
+                  <br>
+                  <div class="form-group">
+                    <label for="">Stroke Width - <a data-toggle="collapse" data-target="#stroke-width-code">Code <i class="fa fa-caret-right"></i></a></label>
+                    <input class="form-control" type="number" name="pattern-stroke-width" value="12">
+<pre id="stroke-width-code" class="collapse pre-scrollable">
+function (display) {
+  return pixels(display.zoom.scale(), 5, 12, 19) + 'px';
+}</pre>
+                  </div>
+                  <div class="form-group">
+                    <label for="">Stroke Color - <a data-toggle="collapse" data-target="#stroke-color-code">Code <i class="fa fa-caret-right"></i></a></label>
+                    <input class="form-control" type="color" name="pattern-stroke" value="#2EB1E6">
+<pre id="stroke-color-code" class="collapse pre-scrollable">
+function (display, data) {
+  if (data.route.route_color) return '#' + data.route.route_color;
+  return '#2EB1E6';
+}</pre>
+                  </div>
+                  <button type="submit" class="btn btn-default btn-block">Save</button>
+                </fieldset>
+              </form>
+            </div>
+            <div class="tab-pane fade" id="stations">
+              <h2>Stations</h2>
+              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
+            </div>
+            <div class="tab-pane fade" id="geography">
+              <h2>Geography</h2>
+              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
+            </div>
+            <div class="tab-pane fade" id="service">
+              <h2>Service</h2>
+              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
+            </div>
+            <div class="tab-pane fade" id="labels">
+              <h2>Labels</h2>
+              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="container">
+      <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4">
+          <p><a href="/index.html">Demo</a></p>
+          <p><a href="https://github.com/conveyal/transitive.js">Code</a></p>
+          <p><a href="mailto:contact@conveyal.com">Contact</a></p>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
+          <address>&copy; Conveyal<br>1133 15th St NW<br>12th Floor<br>Washington, D.C. 20005</address>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:right;"><h1><a href="http://conveyal.com">conveyal</a></h1></div>
+      </div>
+    </footer>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="build/build.js"></script>
+    <script>
+      require('boot');
+    </script>
+  </body>
+</html>
