@@ -30,6 +30,7 @@ server:
 transitive.js: components $(JS)
 	$(MAKE) lint
 	$(COMPONENT) build --dev --verbose --out example/build
+	$(COMPONENT) build --dev --verbose --out test2d/build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
