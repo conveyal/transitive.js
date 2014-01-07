@@ -510,7 +510,7 @@ body {
   padding: 20px 0 20px;
 }
 
-* {
+body, h1, h2, h3, label, legend {
   font-family: 'Lato', sans-serif;
   font-weight: 300;
 }
@@ -521,10 +521,10 @@ pre {
 
 form pre {
   margin: 10px 0;
+  padding: 0;
 }
 
 h1, h2, h3, label, legend {
-  font-weight: 300;
   color: #333;
 }
 

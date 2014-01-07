@@ -2,7 +2,6 @@
  * Dependencies
  */
 
-var CodeMirror = require('codemirror');
 var Index = require('./wmata');
 var each = require('each');
 var select = require('select');
