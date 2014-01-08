@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "dependencies": {
+    "component/each": "*",
     "component/emitter": "*",
     "component/to-function": "*",
     "cristiandouce/merge-util": "*",
