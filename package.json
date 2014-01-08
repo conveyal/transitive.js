@@ -15,6 +15,7 @@
   "devDependencies": {
     "component": "*",
     "component-uglifyjs": "*",
+    "js-beautify": "*",
     "jshint": "*",
     "serve": "*"
   },

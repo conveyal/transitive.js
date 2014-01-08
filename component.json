@@ -3,13 +3,15 @@
   "version": "0.0.0",
   "description": "",
   "dependencies": {
+    "component/each": "*",
     "component/emitter": "*",
     "component/to-function": "*",
     "cristiandouce/merge-util": "*",
     "mbostock/d3": "*",
     "trevorgerhardt/stylesheet": "*",
     "visionmedia/debug": "*",
-    "yields/svg-attributes": "*"
+    "yields/svg-attributes": "*",
+    "learnboost/jsonp": "*"
   },
   "development": {
     "component/each": "*",
@@ -23,6 +25,8 @@
     "lib/graph/vertex.js",
     "lib/styler/index.js",
     "lib/styler/styles.js",
+    "lib/profile/index.js",
+    "lib/profile/option.js",
     "lib/display.js",
     "lib/pattern.js",
     "lib/route.js",

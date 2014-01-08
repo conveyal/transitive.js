@@ -8,6 +8,9 @@ PORT = 3000
 
 build: transitive.js
 
+beautify:
+	@./node_modules/.bin/js-beautify --replace $(JS)
+
 clean:
 	rm -rf build components node_modules
 
@@ -30,6 +33,7 @@ server:
 transitive.js: components $(JS)
 	$(MAKE) lint
 	$(COMPONENT) build --dev --verbose --out example/build
+	$(COMPONENT) build --dev --verbose --out test2d/build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
