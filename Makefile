@@ -8,6 +8,9 @@ PORT = 3000
 
 build: transitive.js
 
+beautify:
+	@./node_modules/.bin/js-beautify --replace $(JS)
+
 clean:
 	rm -rf build components node_modules
 
