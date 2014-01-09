@@ -32,6 +32,7 @@
     "lib/pattern.js",
     "lib/route.js",
     "lib/stop.js",
+    "lib/journey.js",
     "lib/transitive.js"
   ]
 }

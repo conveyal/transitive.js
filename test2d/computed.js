@@ -42,6 +42,7 @@ function showLabelsOnHover(transitive) {
 function highlightOptionOnHover(transitive) {
   each(transitive.patterns, function (k, pattern) {
     if (!pattern.lineGraph) return;
+    console.log(pattern);
     pattern.lineGraph
       .on('mouseenter', function (data) {
 
@@ -58,7 +59,7 @@ function highlightOptionOnHover(transitive) {
 
         // bring the hovered option to the front
         transitive.display.svg.selectAll("path").sort(function (a, b) {
-          if (a.pattern_id !== pattern.pattern_id) return -1;
+          if (a.id !== pattern.id) return -1;
           return 1;  
         });
       })
