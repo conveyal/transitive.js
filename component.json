@@ -28,6 +28,7 @@
     "lib/profile/index.js",
     "lib/profile/option.js",
     "lib/profile/styles.js",
+    "lib/profile/computed.js",
     "lib/display.js",
     "lib/pattern.js",
     "lib/route.js",
