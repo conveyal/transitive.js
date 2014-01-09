@@ -27,6 +27,7 @@
     "lib/styler/styles.js",
     "lib/profile/index.js",
     "lib/profile/option.js",
+    "lib/profile/styles.js",
     "lib/display.js",
     "lib/pattern.js",
     "lib/route.js",
