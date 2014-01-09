@@ -11,7 +11,8 @@ var each = require('each');
 
 var COMPUTED = [
   dragVertices,
-  showLabelsOnHover
+  showLabelsOnHover,
+  highlightOptionOnHover
 ];
 
 /**
@@ -29,6 +30,44 @@ function showLabelsOnHover(transitive) {
       .on('mouseleave', function (data) {
         stop.svgGroup.select('#transitive-stop-label-' + data.stop.getId())
           .style('visibility', 'hidden');
+      });
+  });
+}
+
+
+/**
+ * Highlight option on hover
+ */
+
+function highlightOptionOnHover(transitive) {
+  each(transitive.patterns, function (k, pattern) {
+    if (!pattern.lineGraph) return;
+    pattern.lineGraph
+      .on('mouseenter', function (data) {
+
+        // highlight the path
+        pattern.lineGraph.style('stroke', '#00FFFF');
+
+        // show the transfer stops
+        pattern.stops.forEach(function(stop) {
+          if(stop.isJourneyTransfer) {
+            stop.svgGroup.select('#transitive-stop-label-' + stop.getId())
+              .style('visibility', 'visible');
+          }
+        });
+
+        // bring the hovered option to the front
+        transitive.display.svg.selectAll("path").sort(function (a, b) {
+          if (a.pattern_id !== pattern.pattern_id) return -1;
+          return 1;  
+        });
+      })
+      .on('mouseleave', function (data) {
+        pattern.lineGraph.style('stroke', '#2EB1E6');
+        pattern.stops.forEach(function(stop) {
+          stop.svgGroup.select('#transitive-stop-label-' + stop.getId())
+            .style('visibility', 'hidden');          
+        });
       });
   });
 }
