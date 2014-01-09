@@ -9,7 +9,7 @@ var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
 transitive.loadProfile(PROFILE, endpoint, function(data) {
   console.log('loaded profiler data');
   transitive.render();
-});
+}, 5);
 
 // apply computed behaviors
 transitive.on('render', function (transitive) {
