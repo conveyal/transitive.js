@@ -17,7 +17,6 @@ beautify:
 clean:
 	@rm -rf build
 	@rm -rf components
-	@rm -rf node_modules
 
 components: component.json $(JSON)
 	@./node_modules/.bin/component install --dev --verbose

@@ -5,6 +5,7 @@
 
 var each = require('each');
 var properties = require('./css-properties');
+var propertyTemplate = require('./property.html');
 var select = require('select');
 var Sortable = require('sortable');
 var svgAttributes = require('svg-attributes');
@@ -54,29 +55,49 @@ each([ 'patterns', 'stops', 'labels' ], function(type) {
         var prop = new Property(type, rule);
         $ul.append(prop.el);
       });
+
+      var sortable = new Sortable($ul[0]);
+      sortable.bind();
     } else {
       $div.css('display', 'none');
     }
-
-    var sortable = new Sortable($ul[0]);
-    sortable.handle('.fa');
-    sortable.bind();
   });
 });
+
+/**
+ * Property
+ */
 
 function Property(type, rule) {
   if (!(this instanceof Property)) return new Property(type, rule);
 
-  this.el = $('<li class="property"><span class="fa fa-arrows"></span> </li>');
+  this.el = $(propertyTemplate);
 
   if (isFunction(rule)) {
     var fn = rule.toString();
     fn = fn.substring(fn.indexOf('{') + 1, fn.lastIndexOf('}')).trim();
-    this.el.append('<textarea class="form-control code">' + fn + '</textarea>');
+    this.el.find('.input-group-addon').after('<textarea class="form-control code">' + fn + '</textarea>');
   } else {
-    this.el.append('<input type="text" class="form-control" value="' + rule + '">');
+    this.el.find('.input-group-addon').after('<input type="text" class="form-control" value="' + rule + '">');
   }
+
+  var self = this;
+  this.el.find('.btn-danger').on('click', function() {
+    self.destroy();
+  });
 }
+
+/**
+ * Destroy
+ */
+
+Property.prototype.destroy = function() {
+  this.el.remove();
+};
+
+/**
+ * Is f a function?
+ */
 
 function isFunction(f) {
   return type(f) === 'function';

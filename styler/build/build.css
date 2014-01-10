@@ -558,10 +558,6 @@ footer h1 {
   background-color: #fff;
 }
 
-.code {
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
-}
-
 /* Canvas */
 
 #canvas {
@@ -573,14 +569,34 @@ footer h1 {
 
 /* Properties */
 
+.nav-tabs {
+  margin-top: 20px;
+}
+
+.tab-pane {
+  margin-top: 20px;
+}
+
+.tab-pane .select {
+  font-size: 1.2em;
+  font-weight: 300;
+}
+
+.tab-pane .select-input {
+  font-weight: 300;
+}
+
 .properties {
   list-style-type: none;
+  padding: 10px 0;
 }
 
-.property .fa {
-  visibility: hidden;
+.property {
+  margin: 5px 0;
+  padding: 5px 0;
 }
 
-.property:hover .fa {
-  visibility: visible;
+.property input,
+.property textarea {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }

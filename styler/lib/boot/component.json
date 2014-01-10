@@ -22,5 +22,8 @@
   "styles": [
     "select.css",
     "style.css"
+  ],
+  "templates": [
+    "property.html"
   ]
 }
