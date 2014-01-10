@@ -37,13 +37,6 @@ footer h1 {
   margin-top: 0px;
 }
 
-.inset {
-  border: 1px solid #ddd;
-  border-top: none;
-  border-radius: 4px;
-  padding: 19px;
-}
-
 /* Content */
 
 .content {
@@ -57,6 +50,10 @@ footer h1 {
   background-color: #fff;
 }
 
+.code {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+
 /* Canvas */
 
 #canvas {
@@ -64,4 +61,18 @@ footer h1 {
   margin-top: 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+/* Properties */
+
+.properties {
+  list-style-type: none;
+}
+
+.property .fa {
+  visibility: hidden;
+}
+
+.property:hover .fa {
+  visibility: visible;
 }

@@ -3,14 +3,20 @@
   "dependencies": {
     "component/each": "*",
     "component/set": "*",
+    "component/type": "*",
     "conveyal/transitive.js": "*",
-    "yields/select": "*"
+    "yields/select": "*",
+    "yields/sortable": "*",
+    "yields/svg-attributes": "*"
   },
   "local": [
     "codemirror"
   ],
   "scripts": [
+    "css-properties.js",
+    "load-properties.js",
     "index.js",
+    "transitive.js",
     "wmata.js"
   ],
   "styles": [

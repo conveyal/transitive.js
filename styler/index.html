@@ -31,7 +31,11 @@
           <p>An interactive tool that to help create custom styles to be used with Transitive.js. The demo below uses WMATA data and updates as you customize the styles. This is still a work in progress. Come back later!</p>
         </div>
 
-        <div class="col-lg-12 col-md-12 col-sm-12"><h3>WMATA Metro Routes Demo</h3></div>
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <h3>WMATA Metro
+            <button class="pull-right btn btn-primary" disabled="disabled">Upload</button>
+          </h3>
+        </div>
         <div id="select-route" class="col-lg-5 col-md-5 col-sm-5"></div>
         <div id="select-pattern" class="col-lg-5 col-md-5 col-sm-5"></div>
          <div id="select-direction" class="col-lg-2 col-md-2 col-sm-2">
@@ -45,79 +49,28 @@
         </div>
 
         <div class="col-lg-12 col-md-12 col-sm-12">
-          <br>
-          <h2>Styler <button class="btn btn-primary pull-right" disabled>Save Custom Styles</button></h2>
           <ul class="nav nav-tabs nav-justified">
-            <li class="active">
-              <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
-                Patterns <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="active"><a href="#patterns-default" data-toggle="tab">Default (Local)</a></li>
-                <li><a href="#patterns-frequency" data-toggle="tab">Frequency</a></li>
-                <li><a href="#patterns-alternative" data-toggle="tab">Alternative</a></li>
-              </ul>
-            <li><a href="#stations" data-toggle="tab">Stations</a></li>
-            <li><a href="#geography" data-toggle="tab">POI/Geography</a></li>
-            <li><a href="#service" data-toggle="tab">Service</a></li>
+            <li><a href="#patterns" data-toggle="tab">Patterns</a></li>
+            <li><a href="#stops" data-toggle="tab">Stops</a></li>
             <li><a href="#labels" data-toggle="tab">Labels</a></li>
+            <li><a href="#data-explorer" data-toggle="tab">Data</a></li>
+            <li><a href="#utils" data-toggler="utils">Utils</a></li>
           </ul>
         </div>
 
         <div class="col-lg-12 col-md-12 col-sm-12">
           <div class="tab-content inset">
-            <div class="tab-pane fade in active" id="patterns-default">
-              <h3>Default (Local)</h3>
-              <p>Local routes, normal frequency.</p>
-              <form>
-                <fieldset>
-                  <legend>Attributes</legend>
-                  <div class="input-group">
-                    <select class="form-control" name="attributes">
-                      <option>Color</option>
-                      <option>Fill</option>
-                      <option>Stroke</option>
-                      <option>Stroke Width</option>
-                      <option>Visibility</option>
-                    </select>
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button" disabled="disabled">Add Attribute</button>
-                    </span>
-                  </div>
-                  <br>
-                  <div class="form-group">
-                    <label for="">Stroke Width - <a data-toggle="collapse" data-target="#stroke-width-code">Code <i class="fa fa-caret-right"></i></a></label>
-                    <input class="form-control" type="number" name="pattern-stroke-width" value="12">
-<pre id="stroke-width-code" class="collapse pre-scrollable"><code>function (display) {
-  return pixels(display.zoom.scale(), 5, 12, 19) + 'px';
-}</code></pre>
-                  </div>
-                  <div class="form-group">
-                    <label for="">Stroke Color - <a data-toggle="collapse" data-target="#stroke-color-code">Code <i class="fa fa-caret-right"></i></a></label>
-                    <input class="form-control" type="color" name="pattern-stroke" value="#2EB1E6">
-<pre id="stroke-color-code" class="collapse pre-scrollable"><code>function (display, data) {
-  if (data.route.route_color) return '#' + data.route.route_color;
-  return '#2EB1E6';
-}</code></pre>
-                  </div>
-                  <button type="submit" class="btn btn-default btn-block">Update</button>
-                </fieldset>
-              </form>
+            <div class="tab-pane fade" id="patterns">
+
             </div>
-            <div class="tab-pane fade" id="stations">
-              <h2>Stations</h2>
-              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
-            </div>
-            <div class="tab-pane fade" id="geography">
-              <h2>Geography</h2>
-              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
-            </div>
-            <div class="tab-pane fade" id="service">
-              <h2>Service</h2>
-              <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
+            <div class="tab-pane fade" id="stops">
+
             </div>
             <div class="tab-pane fade" id="labels">
-              <h2>Labels</h2>
+
+            </div>
+            <div class="tab-pane fade" id="data-explorer">
+              <h2>Data</h2>
               <p>Maecenas pretium tempus leo, rhoncus egestas ante semper id. Ut convallis nibh non massa euismod tincidunt. Nunc sit amet velit quis ante bibendum vehicula. Aliquam eu purus lorem. Sed at accumsan tellus. Vivamus varius, arcu quis suscipit faucibus, urna justo luctus sem, in placerat libero odio nec risus. Pellentesque nec risus volutpat, convallis mauris vitae, posuere eros.</p>
             </div>
           </div>

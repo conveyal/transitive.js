@@ -4,9 +4,10 @@
 
 var Index = require('./wmata');
 var each = require('each');
+var loadProperties = require('./load-properties');
 var select = require('select');
 var Sett = require('set');
-var Transitive = require('transitive');
+var transitive = require('./transitive');
 
 //
 
@@ -25,9 +26,6 @@ document.getElementById('select-route')
   .appendChild(Routes.el);
 document.getElementById('select-pattern')
   .appendChild(Patterns.el);
-
-// transitive instance
-var transitive = new Transitive(document.getElementById('canvas'), Index);
 
 // Set up filters
 transitive
@@ -75,23 +73,6 @@ for (var i in Index.routes) {
 // Select the first route
 Routes.select(localStorage.getItem('selected-route') || Index.routes[0].route_id
   .toLowerCase());
-
-$('form').on('submit', function (event) {
-  event.preventDefault();
-  var color = $('input[name="pattern-stroke"]').val();
-  var width = $('input[name="pattern-stroke-width"]').val();
-  transitive.style.load({
-    'patterns': {
-      'stroke-width': function (display) {
-        return width;
-      },
-      'stroke': function (display) {
-        return color;
-      }
-    }
-  });
-  transitive.render();
-});
 
 /**
  * Update patterns
