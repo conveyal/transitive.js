@@ -6,6 +6,7 @@
   "browser": true,
   "indent": 2,
   "laxbreak": true,
+  "evil": true,
   "maxcomplexity": 10,
   "node": true,
   "quotmark": "single",

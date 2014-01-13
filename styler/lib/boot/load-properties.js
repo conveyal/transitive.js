@@ -22,8 +22,18 @@ var styler = transitive.style;
  * All SVG attributes & CSS properties
  */
 
-var attributes =  svgAttributes.concat(properties);
+var attributes = svgAttributes.concat(properties);
 attributes.sort();
+
+/**
+ * Current styles
+ */
+
+var Styles = {
+  labels: {},
+  patterns: {},
+  stops: {}
+};
 
 /**
  * Get the current styles, generate the components
@@ -41,6 +51,8 @@ each([ 'patterns', 'stops', 'labels' ], function(type) {
   $tab.append(selectAttribute.el);
 
   each(attributes, function(attribute) {
+    Styles[type][attribute] = [];
+
     var id = type + '-' + attribute;
     var $div = $('<div id="' + id + '"><h3>' + attribute + '</h3></div>');
     var rules = styler[type][attribute];
@@ -53,6 +65,8 @@ each([ 'patterns', 'stops', 'labels' ], function(type) {
     if (rules && rules.length > 1) {
       each(styler[type][attribute], function(rule) {
         var prop = new Property(type, rule);
+
+        Styles[type][attribute].push(prop);
         $ul.append(prop.el);
       });
 
@@ -65,6 +79,44 @@ each([ 'patterns', 'stops', 'labels' ], function(type) {
 });
 
 /**
+ * Apply Styles
+ */
+
+$('.save-styles').on('click', function(e) {
+  //
+  console.log('loading new styles');
+
+  // clear old styles
+  transitive.style.clear();
+
+  // collect new
+  var n = {};
+
+  each([ 'patterns', 'stops', 'labels' ], function(type) {
+    n[type] = {};
+    each(Styles[type], function(attribute) {
+      if (Styles[type][attribute].length > 0) {
+        n[type][attribute] = [];
+        each(Styles[type][attribute], function(property) {
+          var val = property.value();
+          if (property.type === 'string') {
+            if (!isNaN(parseInt(val))) {
+              val = parseInt(val);
+            }
+          } else {
+            val = new Function('display', 'data', 'index', 'utils', val);
+          }
+          n[type][attribute].push(val);
+        });
+      }
+    });
+  });
+
+  transitive.style.load(n);
+  transitive.render();
+});
+
+/**
  * Property
  */
 
@@ -72,8 +124,11 @@ function Property(type, rule) {
   if (!(this instanceof Property)) return new Property(type, rule);
 
   this.el = $(propertyTemplate);
+  this.type = isFunction(rule)
+    ? 'function'
+    : 'string';
 
-  if (isFunction(rule)) {
+  if (this.type === 'function') {
     var fn = rule.toString();
     fn = fn.substring(fn.indexOf('{') + 1, fn.lastIndexOf('}')).trim();
     this.el.find('.input-group-addon').after('<textarea class="form-control code">' + fn + '</textarea>');
@@ -93,6 +148,18 @@ function Property(type, rule) {
 
 Property.prototype.destroy = function() {
   this.el.remove();
+};
+
+/**
+ * Value
+ */
+
+Property.prototype.value = function() {
+  if (this.type === 'function') {
+    return this.el.find('textarea').val();
+  } else {
+    return this.el.find('input').val();
+  }
 };
 
 /**
