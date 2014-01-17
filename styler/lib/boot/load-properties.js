@@ -62,13 +62,16 @@ each([ 'patterns', 'stops', 'labels' ], function(type) {
     $div.append($ul);
 
     if (rules && rules.length > 1) {
-      each(styler[type][attribute], function(rule) {
+      console.log(rules);
+      each(rules, function(rule) {
         var prop = new Property(type, rule);
 
         Styles[type][attribute].push(prop);
+        console.log(prop, prop.el);
         $ul.append(prop.el);
       });
 
+      console.log($ul[0]);
       var sortable = new Sortable($ul[0]);
       sortable.bind();
     } else {

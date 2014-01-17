@@ -1,7 +1,6 @@
 {
   "name": "property",
   "dependencies": {
-    "component/dom": "*",
     "component/type": "*"
   },
   "scripts": [

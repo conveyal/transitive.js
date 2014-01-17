@@ -5,7 +5,7 @@
     "component/each": "*",
     "component/set": "*",
     "component/type": "*",
-    "conveyal/transitive.js": "*",
+    "conveyal/transitive.js": "0.0.1",
     "yields/select": "*",
     "yields/sortable": "*",
     "yields/svg-attributes": "*"
