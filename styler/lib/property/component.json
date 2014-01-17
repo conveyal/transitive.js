@@ -1,0 +1,16 @@
+{
+  "name": "property",
+  "dependencies": {
+    "component/dom": "*",
+    "component/type": "*"
+  },
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "style.css"
+  ],
+  "templates": [
+    "template.html"
+  ]
+}

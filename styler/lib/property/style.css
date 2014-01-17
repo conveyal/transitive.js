@@ -1,0 +1,9 @@
+.property {
+  margin: 5px 0;
+  padding: 5px 0;
+}
+
+.property input,
+.property textarea {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}

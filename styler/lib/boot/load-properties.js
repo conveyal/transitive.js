@@ -5,12 +5,11 @@
 
 var each = require('each');
 var properties = require('./css-properties');
-var propertyTemplate = require('./property.html');
+var Property = require('property');
 var select = require('select');
 var Sortable = require('sortable');
 var svgAttributes = require('svg-attributes');
 var transitive = require('./transitive');
-var type = require('type');
 
 /**
  * Hold the styler
@@ -98,15 +97,7 @@ $('.save-styles').on('click', function(e) {
       if (Styles[type][attribute].length > 0) {
         n[type][attribute] = [];
         each(Styles[type][attribute], function(property) {
-          var val = property.value();
-          if (property.type === 'string') {
-            if (!isNaN(parseInt(val))) {
-              val = parseInt(val);
-            }
-          } else {
-            val = new Function('display', 'data', 'index', 'utils', val);
-          }
-          n[type][attribute].push(val);
+          n[type][attribute].push(property.value());
         });
       }
     });
@@ -115,57 +106,3 @@ $('.save-styles').on('click', function(e) {
   transitive.style.load(n);
   transitive.render();
 });
-
-/**
- * Property
- */
-
-function Property(type, rule) {
-  if (!(this instanceof Property)) return new Property(type, rule);
-
-  this.el = $(propertyTemplate);
-  this.type = isFunction(rule)
-    ? 'function'
-    : 'string';
-
-  if (this.type === 'function') {
-    var fn = rule.toString();
-    fn = fn.substring(fn.indexOf('{') + 1, fn.lastIndexOf('}')).trim();
-    this.el.find('.input-group-addon').after('<textarea class="form-control code">' + fn + '</textarea>');
-  } else {
-    this.el.find('.input-group-addon').after('<input type="text" class="form-control" value="' + rule + '">');
-  }
-
-  var self = this;
-  this.el.find('.btn-danger').on('click', function() {
-    self.destroy();
-  });
-}
-
-/**
- * Destroy
- */
-
-Property.prototype.destroy = function() {
-  this.el.remove();
-};
-
-/**
- * Value
- */
-
-Property.prototype.value = function() {
-  if (this.type === 'function') {
-    return this.el.find('textarea').val();
-  } else {
-    return this.el.find('input').val();
-  }
-};
-
-/**
- * Is f a function?
- */
-
-function isFunction(f) {
-  return type(f) === 'function';
-}

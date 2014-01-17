@@ -1,6 +1,7 @@
 {
   "name": "boot",
   "dependencies": {
+    "component/color-parser": "*",
     "component/each": "*",
     "component/set": "*",
     "component/type": "*",
@@ -10,7 +11,8 @@
     "yields/svg-attributes": "*"
   },
   "local": [
-    "codemirror"
+    "codemirror",
+    "property"
   ],
   "scripts": [
     "css-properties.js",
