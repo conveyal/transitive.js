@@ -1,7 +1,9 @@
 {
   "name": "property",
   "dependencies": {
-    "component/type": "*"
+    "component/color-parser": "*",
+    "component/type": "*",
+    "visionmedia/debug": "*"
   },
   "scripts": [
     "index.js"

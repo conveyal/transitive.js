@@ -83,3 +83,31 @@ footer h1 {
   padding: 10px 0;
 }
 
+/* Property forms */
+
+textarea ~ .input-group-btn .btn {
+  height: 115%;
+  min-height: 2.4em;
+}
+
+.input-group-radio {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input-group-radio .input-group-addon {
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
+  border-right: 1px solid #ccc;
+}
+
+.radio-inline {
+  line-height: 34px;
+  margin-left: 10px;
+}
+
+.radio-inline input {
+  margin-top: 10px;
+}
+

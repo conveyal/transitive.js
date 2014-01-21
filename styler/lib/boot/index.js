@@ -4,12 +4,12 @@
 
 var Index = require('./wmata');
 var each = require('each');
-var loadProperties = require('./load-properties');
+var loadProperties = require('./load-properties')();
 var select = require('select');
 var Sett = require('set');
 var transitive = require('./transitive');
 
-//
+/**
 
 var DIRECTION = '0';
 var ROUTE = null;
@@ -76,7 +76,7 @@ Routes.select(localStorage.getItem('selected-route') || Index.routes[0].route_id
 
 /**
  * Update patterns
- */
+ *
 
 function updatePatterns(transitive, patterns, route, direction) {
   // unbind all events
@@ -119,4 +119,4 @@ function getStopIds(route) {
   }
 
   return stop_ids;
-}
+}*/
