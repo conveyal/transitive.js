@@ -9,7 +9,7 @@ var each = require('each');
  * Computed rules
  */
 
-module.exports = [
+var COMPUTED = [
   dragVertices,
   showLabelsOnHover,
   highlightOptionOnHover

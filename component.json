@@ -10,8 +10,7 @@
     "mbostock/d3": "*",
     "trevorgerhardt/stylesheet": "*",
     "visionmedia/debug": "*",
-    "yields/svg-attributes": "*",
-    "learnboost/jsonp": "*"
+    "yields/svg-attributes": "*"
   },
   "development": {
     "component/each": "*",
@@ -25,15 +24,17 @@
     "lib/graph/vertex.js",
     "lib/styler/index.js",
     "lib/styler/styles.js",
-    "lib/profile/index.js",
-    "lib/profile/option.js",
-    "lib/profile/styles.js",
-    "lib/profile/computed.js",
     "lib/display.js",
     "lib/pattern.js",
     "lib/route.js",
     "lib/stop.js",
     "lib/journey.js",
     "lib/transitive.js"
+  ],
+  "local": [
+    "otp-profiler-tools"
+  ],
+  "paths": [
+    "local"
   ]
 }

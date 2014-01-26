@@ -6,8 +6,6 @@
 var jsonp = require('jsonp');
 
 var OtpJourneyOption = require('./option');
-var styles = require('./styles');
-var computed = require('./computed');
 
 /**
  * Expose `OtpProfile`
@@ -20,8 +18,6 @@ module.exports = OtpProfile;
  */
 
 function OtpProfile(data, endpoint, callback, config) {
-
-  console.log(data);
 
   this.callback = callback;
   this.endpoint = endpoint;
@@ -49,9 +45,6 @@ function OtpProfile(data, endpoint, callback, config) {
   for(var patternId in this.patterns) {
     this.loadPattern(patternId);
   }
-
-  this.styles = styles;
-  this.computed = computed;
 }
 
 
