@@ -10,7 +10,8 @@
     "mbostock/d3": "*",
     "trevorgerhardt/stylesheet": "*",
     "visionmedia/debug": "*",
-    "yields/svg-attributes": "*"
+    "yields/svg-attributes": "*",
+    "janogonzalez/priorityqueuejs": "*"
   },
   "development": {
     "component/each": "*",
@@ -37,4 +38,5 @@
   "paths": [
     "local"
   ]
+
 }
