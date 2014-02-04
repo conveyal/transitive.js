@@ -1,5 +1,7 @@
 var Transitive = require('transitive');
-var OtpProfile = require('otp-profiler-tools');
+//var OtpProfile = require('otp-profiler-tools');
+
+var OtpProfiler = require('otpprofilerjs');
 
 // initialize the transitive display
 
@@ -19,8 +21,27 @@ var config = {
   }
 };
 
+var profileResponse = new OtpProfiler.models.OtpProfileResponse(PROFILE);
 
-var profile = new OtpProfile(PROFILE, endpoint, (function(data) {
+var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
+var TransitiveLoader = new OtpProfiler.transitive.TransitiveLoader(profileResponse, endpoint, function(transiveData) {
+  console.log("generated transitive data:");
+  console.log(transiveData);
+
+  var transitive = new Transitive(document.getElementById('canvas'), transiveData);
+
+  // apply computed behaviors
+  transitive.on('render', function (transitive) {
+    each(COMPUTED, function (behavior) {
+      behavior(transitive);
+    });
+  });
+
+  transitive.render();
+    
+}, config);
+
+/*var profile = new OtpProfile(PROFILE, endpoint, (function(data) {
 
   //console.log('loaded profiler data');
   //console.log(data);
@@ -36,5 +57,5 @@ var profile = new OtpProfile(PROFILE, endpoint, (function(data) {
 
   transitive.render();
 
-}).bind(this), config);
+}).bind(this), config);*/
 

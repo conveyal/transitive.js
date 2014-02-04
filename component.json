@@ -11,7 +11,8 @@
     "trevorgerhardt/stylesheet": "*",
     "visionmedia/debug": "*",
     "yields/svg-attributes": "*",
-    "janogonzalez/priorityqueuejs": "*"
+    "janogonzalez/priorityqueuejs": "*",
+    "conveyal/otpprofiler.js": "*"
   },
   "development": {
     "component/each": "*",
@@ -26,17 +27,12 @@
     "lib/styler/index.js",
     "lib/styler/styles.js",
     "lib/display.js",
+    "lib/path.js",
     "lib/pattern.js",
     "lib/route.js",
     "lib/stop.js",
     "lib/journey.js",
+    "lib/place.js",
     "lib/transitive.js"
-  ],
-  "local": [
-    "otp-profiler-tools"
-  ],
-  "paths": [
-    "local"
   ]
-
 }
