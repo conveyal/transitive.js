@@ -33,6 +33,7 @@
     "lib/stop.js",
     "lib/journey.js",
     "lib/place.js",
-    "lib/transitive.js"
+    "lib/transitive.js",
+    "lib/segment.js"
   ]
 }

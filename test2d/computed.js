@@ -40,42 +40,20 @@ function showLabelsOnHover(transitive) {
  */
 
 function highlightOptionOnHover(transitive) {
-  for(var p = 0; p < transitive.paths.length; p++) {
-    var path = transitive.paths[p];
-    if (!path.segments) return;
-    path.segments.forEach(function(segment) {
-      var currentColor = segment.lineGraph.style('stroke');
-      segment.lineGraph
-        .on('mouseenter', function (data) {
 
-          // highlight the path
-          segment.lineGraph.style('stroke', '#5bc0de');
-
-          /*
-          // show the transfer stops
-          for(var i = 0; i < pattern.stops.length; i++) {
-            var stop = pattern.stops[i];
-            if(pattern.journey.stops[i].transfer) {
-              stop.svgGroup.select('#transitive-stop-label-' + stop.getId())
-                .style('visibility', 'visible');
-            }
-          }*/
-
-          // bring the hovered option to the front
-          /*transitive.display.svg.selectAll('path').sort(function (a, b) {
-            if (a.id !== pattern.id) return -1;
-            return 1;
-          });*/
-        })
-        .on('mouseleave', function (data) {
-          segment.lineGraph.style('stroke', currentColor);
-          /*pattern.stops.forEach(function(stop) {
-            stop.svgGroup.select('#transitive-stop-label-' + stop.getId())
-              .style('visibility', stop.isEndPoint ? 'visible' : 'hidden');
-          });*/
-        });
-    });
-  }
+  //for(var s = 0; s < transitive.renderSegments.length; s++) {
+  transitive.renderSegments.forEach(function(segment) {
+    //var segment = transitive.renderSegments[s];
+    var currentColor = segment.lineGraph.style('stroke');
+    segment.lineGraph
+      .on('mouseenter', function (data) {
+        // highlight the path
+        segment.lineGraph.style('stroke', '#5bc0de');
+      })
+      .on('mouseleave', function (data) {
+        segment.lineGraph.style('stroke', currentColor);
+      });
+  });
 }
 
 /**
