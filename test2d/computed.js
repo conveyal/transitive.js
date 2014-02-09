@@ -49,6 +49,7 @@ function highlightOptionOnHover(transitive) {
       .on('mouseenter', function (data) {
         // highlight the path
         segment.lineGraph.style('stroke', '#5bc0de');
+
       })
       .on('mouseleave', function (data) {
         segment.lineGraph.style('stroke', currentColor);

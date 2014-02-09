@@ -1,6 +1,11 @@
-var Transitive = require('transitive');
-//var OtpProfile = require('otp-profiler-tools');
 
+/**
+ * Dependencies
+ */
+
+var d3 = require('d3');
+
+var Transitive = require('transitive');
 var OtpProfiler = require('otpprofilerjs');
 
 // initialize the transitive display
@@ -9,7 +14,7 @@ var OtpProfiler = require('otpprofilerjs');
 var endpoint = 'http://localhost:8001/otp-rest-servlet/';
 
 var config = {
-  maxOptions: 4,
+  maxOptions: 3,
   fromLocation: {
     name: 'from',
     lat: 38.890519, // 38.895,
@@ -22,23 +27,15 @@ var config = {
   }
 };
 
-var profileRequest = new OtpProfiler.models.OtpProfileRequest({
-  from : config.fromLocation.lat+','+config.fromLocation.lon,
-  to : config.toLocation.lat+','+config.toLocation.lon
-});
-profileRequest.urlRoot = endpoint + 'profile';
 
-profileRequest.on('success', function(profileResponse) {
-  console.log("response:");
-  console.log(profileResponse);
+var init = function(profileResponse) {
 
-  //var profileResponse = new OtpProfiler.models.OtpProfileResponse(PROFILE);
+  var TransitiveLoader = new OtpProfiler.transitive.TransitiveLoader(profileResponse, endpoint, function(transitiveData) { 
 
-  var TransitiveLoader = new OtpProfiler.transitive.TransitiveLoader(profileResponse, endpoint, function(transiveData) {
     console.log("generated transitive data:");
-    console.log(transiveData);
+    console.log(transitiveData);
 
-    var transitive = new Transitive(document.getElementById('canvas'), transiveData, STYLES);
+    var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES);
 
     // apply computed behaviors
     transitive.on('render', function (transitive) {
@@ -48,35 +45,43 @@ profileRequest.on('success', function(profileResponse) {
     });
 
     transitive.render();
-      
-  }, config);
 
+    // set the journey option list
+    transitiveData.journeys.forEach(function(journey, index) {
+      var div = document.createElement("div");
+      div.id = journey.journey_id;
+      div.className = 'listItem';
+      div.innerHTML = journey.journey_name;
 
-});
-
-profileRequest.request()
-
-
-/*
-// hard-coded data example
-
-var profileResponse = new OtpProfiler.models.OtpProfileResponse(PROFILE);
-
-var TransitiveLoader = new OtpProfiler.transitive.TransitiveLoader(profileResponse, endpoint, function(transiveData) {
-  console.log("generated transitive data:");
-  console.log(transiveData);
-
-  var transitive = new Transitive(document.getElementById('canvas'), transiveData, STYLES);
-
-  // apply computed behaviors
-  transitive.on('render', function (transitive) {
-    each(COMPUTED, function (behavior) {
-      behavior(transitive);
+      div.onmouseover=function(event) {
+        d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
+        d3.select('#transitive-path-highlight-journey-' + event.target.id).style('visibility', 'visible');
+      };
+      div.onmouseout=function(event) {
+        d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
+      };      
+      document.getElementById('list').appendChild(div);
     });
-  });
 
-  transitive.render();
-    
-}, config);
+  }, config);
+};
+
+
+
+/** dynamically loaded data example **/
+/*
+var profileRequest = new OtpProfiler.models.OtpProfileRequest({
+  from : config.fromLocation.lat+','+config.fromLocation.lon,
+  to : config.toLocation.lat+','+config.toLocation.lon
+});
+profileRequest.urlRoot = endpoint + 'profile';
+profileRequest.on('success', init);
+profileRequest.request();
 */
+
+
+/** hard-coded data example **/
+
+init(new OtpProfiler.models.OtpProfileResponse(PROFILE));
+
 
