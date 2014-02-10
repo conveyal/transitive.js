@@ -36,7 +36,8 @@ var init = function(profileResponse) {
     console.log(transitiveData);
 
     var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES, {
-      gridCellSize : 0.01
+      gridCellSize : 0.008,
+      //drawGrid: true 
     });
 
     // apply computed behaviors
@@ -58,9 +59,11 @@ var init = function(profileResponse) {
       div.onmouseover=function(event) {
         d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
         d3.select('#transitive-path-highlight-journey-' + event.target.id).style('visibility', 'visible');
+        d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'visible');
       };
       div.onmouseout=function(event) {
         d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
+        d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'hidden');
       };      
       document.getElementById('list').appendChild(div);
     });

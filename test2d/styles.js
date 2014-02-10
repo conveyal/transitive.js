@@ -89,7 +89,8 @@ STYLES.labels = {
   },
   'font-size': '12px',
   'text-transform': 'uppercase',
-  'font-family': 'Helvetica'
+  'font-family': 'Helvetica',
+  'visibility': 'hidden'
   /*transform: function(display, data) {
     console.log(data);
     if (data.point) {
