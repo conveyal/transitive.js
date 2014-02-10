@@ -89,19 +89,20 @@ STYLES.labels = {
   },
   'font-size': '12px',
   'text-transform': 'uppercase',
-  'font-family': 'Helvetica',
-  transform: function(display, data) {
-    if (data.stop) {
-      if (data.stop.isEndPoint) {
+  'font-family': 'Helvetica'
+  /*transform: function(display, data) {
+    console.log(data);
+    if (data.point) {
+      if (data.point.isEndPoint) {
         return '';
       } else {
-        var angle = data.stop.angle;
+        var angle = data.point.angle;
         if (angle > 0) angle = 45 - angle;
         else angle -= 45;
         return 'rotate(' + angle + ', 0, 0)';
       }
     }
-  }
+  }*/
 };
 
 /**
