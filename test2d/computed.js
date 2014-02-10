@@ -76,6 +76,7 @@ function dragVertices(transitive) {
             - transitive.el.offsetTop)
         );
 
+        transitive.updateGeometry();
         transitive.refresh();
       }
     });
