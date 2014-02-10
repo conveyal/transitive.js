@@ -35,7 +35,9 @@ var init = function(profileResponse) {
     console.log("generated transitive data:");
     console.log(transitiveData);
 
-    var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES);
+    var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES, {
+      gridCellSize : 0.01
+    });
 
     // apply computed behaviors
     transitive.on('render', function (transitive) {
