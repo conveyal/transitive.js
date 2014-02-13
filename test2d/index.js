@@ -36,8 +36,8 @@ var init = function(profileResponse) {
     console.log(transitiveData);
 
     var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES, {
-      gridCellSize : 0.008,
-      //drawGrid: true 
+      gridCellSize : 800,
+      drawGrid: true 
     });
 
     // apply computed behaviors
@@ -69,6 +69,7 @@ var init = function(profileResponse) {
     });
 
   }, config);
+
 };
 
 
@@ -90,3 +91,4 @@ profileRequest.request();
 init(new OtpProfiler.models.OtpProfileResponse(PROFILE));
 
 
+// slider
