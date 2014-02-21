@@ -12,7 +12,8 @@
     "visionmedia/debug": "*",
     "yields/svg-attributes": "*",
     "janogonzalez/priorityqueuejs": "*",
-    "conveyal/otpprofiler.js": "*"
+    "conveyal/otpprofiler.js": "*",
+    "javascript/augment": "*"
   },
   "development": {
     "component/each": "*",
@@ -21,19 +22,20 @@
   },
   "main": "lib/transitive.js",
   "scripts": [
-    "lib/graph/edge.js",
     "lib/graph/index.js",
+    "lib/graph/edge.js",
     "lib/graph/vertex.js",
     "lib/styler/index.js",
     "lib/styler/styles.js",
+    "lib/point/index.js",
+    "lib/point/stop.js",
+    "lib/point/place.js",
+    "lib/point/multipoint.js",
     "lib/display.js",
     "lib/path.js",
     "lib/pattern.js",
     "lib/route.js",
-    "lib/stop.js",
     "lib/journey.js",
-    "lib/place.js",
-    "lib/multipoint.js",
     "lib/transitive.js",
     "lib/segment.js"
   ]
