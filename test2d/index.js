@@ -6,7 +6,7 @@
 var d3 = require('d3');
 
 var Transitive = require('transitive');
-var OtpProfiler = require('otpprofilerjs');
+var OtpProfiler = require('otpprofiler.js');
 
 // initialize the transitive display
 

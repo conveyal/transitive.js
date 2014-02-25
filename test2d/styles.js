@@ -39,7 +39,7 @@ STYLES.segments = {
  */
 
 STYLES.stops = {
-  r: [
+  /*r: [
     function(display, data, index, utils) {
       return utils.pixels(display.zoom.scale(), 2, 4, 8) + 'px';
     },
@@ -53,7 +53,7 @@ STYLES.stops = {
         return utils.pixels(display.zoom.scale(), 3, 6, 12) + 'px';
       }
     }
-  ],
+  ],*/
   stroke: '#444',
   'stroke-width': [
     function(display, data, index, utils) {
