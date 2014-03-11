@@ -10,20 +10,20 @@ var OtpProfiler = require('otpprofiler.js');
 
 // initialize the transitive display
 
-//var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
-var endpoint = 'http://localhost:8001/otp-rest-servlet/';
+var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
+//var endpoint = 'http://localhost:8001/otp-rest-servlet/';
 
 var config = {
   maxOptions: 3,
   fromLocation: {
-    name: 'from',
-    lat: 38.890519, // 38.895,
-    lon: -77.086252 //-77.09
+    name: 'Start: ATP Office',
+    lat: 38.894624, // 38.890519,
+    lon: -77.074159 //-77.086252
   },
   toLocation: {
-    name: 'to',
-    lat: 38.896813, // 38.894,
-    lon: -77.006262 //-77.01
+    name: 'End: Union Station',
+    lat: 38.89788,
+    lon: -77.00597
   }
 };
 
@@ -75,7 +75,7 @@ var init = function(profileResponse) {
 
 
 /** dynamically loaded data example **/
-/*
+
 var profileRequest = new OtpProfiler.models.OtpProfileRequest({
   from : config.fromLocation.lat+','+config.fromLocation.lon,
   to : config.toLocation.lat+','+config.toLocation.lon
@@ -83,12 +83,9 @@ var profileRequest = new OtpProfiler.models.OtpProfileRequest({
 profileRequest.urlRoot = endpoint + 'profile';
 profileRequest.on('success', init);
 profileRequest.request();
-*/
+
 
 
 /** hard-coded data example **/
 
-init(new OtpProfiler.models.OtpProfileResponse(PROFILE));
-
-
-// slider
+//init(new OtpProfiler.models.OtpProfileResponse(P2));

@@ -12,7 +12,7 @@
 var STYLES = {};
 
 STYLES.segments = {
-  stroke: function(display, data) {
+  /*stroke: function(display, data) {
     if (data.type === 'TRANSIT') {
       var color = toBSColor(data.pattern.route_id.toLowerCase());
       return color || '#999';
@@ -23,7 +23,7 @@ STYLES.segments = {
     if (data.type !== 'TRANSIT') {
       return '10, 5';
     }
-  },
+  },*/
   'stroke-linecap': [
     'round',
     function(display, data) {
@@ -77,7 +77,7 @@ STYLES.stops = {
  */
 
 STYLES.labels = {
-  x: function (display, data, index, utils) {
+  /*x: function (display, data, index, utils) {
     var width = utils.strokeWidth(display);
     if (data.stop && data.stop.isEndPoint) {
       width *= data.stop.renderData.length;
@@ -90,7 +90,7 @@ STYLES.labels = {
   'font-size': '12px',
   'text-transform': 'uppercase',
   'font-family': 'Helvetica',
-  'visibility': 'hidden'
+  'visibility': 'visible'*/
   /*transform: function(display, data) {
     console.log(data);
     if (data.point) {
