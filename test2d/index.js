@@ -13,6 +13,20 @@ var OtpProfiler = require('otpprofiler.js');
 var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
 //var endpoint = 'http://localhost:8001/otp-rest-servlet/';
 
+/*var config = {
+  maxOptions: 3,
+  fromLocation: {
+    name: 'Start: ATP Office',
+    lat:  38.97366769171168, // 38.894624, // 38.890519,
+    lon: -76.99845170268316 // -77.074159 //-77.086252
+  },
+  toLocation: {
+    name: 'End: Union Station',
+    lat: 38.894797858735274, //38.89788,
+    lon: -77.0740644088446 //-77.00597
+  }
+};*/
+
 var config = {
   maxOptions: 3,
   fromLocation: {
@@ -26,7 +40,6 @@ var config = {
     lon: -77.00597
   }
 };
-
 
 var init = function(profileResponse) {
 
@@ -57,13 +70,16 @@ var init = function(profileResponse) {
       div.innerHTML = journey.journey_name;
 
       div.onmouseover=function(event) {
-        d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
-        d3.select('#transitive-path-highlight-journey-' + event.target.id).style('visibility', 'visible');
-        d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'visible');
+        //d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
+        //d3.select('#transitive-path-highlight-journey-' + event.target.id).style('visibility', 'visible');
+        //d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'visible');
+        transitive.focusJourney(event.target.id);
       };
       div.onmouseout=function(event) {
-        d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
-        d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'hidden');
+        //d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
+        //d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'hidden');
+        transitive.focusJourney();
+
       };      
       document.getElementById('list').appendChild(div);
     });
