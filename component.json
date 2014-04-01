@@ -33,6 +33,8 @@
     "lib/point/multipoint.js",
     "lib/labeler/index.js",
     "lib/labeler/label.js",
+    "lib/labeler/pointlabel.js",
+    "lib/labeler/segmentlabel.js",
     "lib/display.js",
     "lib/path.js",
     "lib/pattern.js",
