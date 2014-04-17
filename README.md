@@ -1,6 +1,14 @@
 # transitive.js [![Build Status](https://travis-ci.org/conveyal/transitive.js.png)](https://travis-ci.org/conveyal/transitive.js) [![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
 
-A tool for generating dynamic stylized transit maps that are easy to understand.  Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
+A tool for generating dynamic stylized transit maps that are easy to understand. Transitive takes in information describing specific transport network elements (routes, stops, journeys) -- typically produced by the OpenTripPlanner Profiler extension -- and produces a schematic map of those elements:
+
+![threeoptions](http://conveyal.com/img/transitive/threeoptions.png)
+
+Dynamic styling of the network elements allows for interactivity and flexibility in the visual presentation. For instance, a single journey can be highlighted:
+
+![threeoptions_focused](http://conveyal.com/img/transitive/threeoptions_focused.png)
+
+Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
 
 ## Demo
 
