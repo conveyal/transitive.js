@@ -1,5 +1,7 @@
 # transitive.js [![Build Status](https://travis-ci.org/conveyal/transitive.js.png)](https://travis-ci.org/conveyal/transitive.js) [![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
 
+A tool for generating dynamic stylized transit maps that are easy to understand.  Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
+
 ## Demo
 
 [Demo](http://conveyal.github.io/transitive.js "Demo")
