@@ -8,7 +8,7 @@ Dynamic styling of the network elements allows for interactivity and flexibility
 
 ![threeoptions_focused](http://conveyal.com/img/transitive/threeoptions_focused.png)
 
-Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
+Transitive is supported by the [Mobility Lab](http://mobilitylab.org/) [Transit Tech Initiative](http://mobilitylab.org/tech/transit-tech-initiative/). Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
 
 ## Demo
 
