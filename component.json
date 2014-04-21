@@ -3,13 +3,17 @@
   "version": "0.0.0",
   "description": "",
   "dependencies": {
+    "component/each": "*",
     "component/emitter": "*",
     "component/to-function": "*",
     "cristiandouce/merge-util": "*",
     "mbostock/d3": "*",
     "trevorgerhardt/stylesheet": "*",
     "visionmedia/debug": "*",
-    "yields/svg-attributes": "*"
+    "yields/svg-attributes": "*",
+    "janogonzalez/priorityqueuejs": "*",
+    "conveyal/otpprofiler.js": "*",
+    "javascript/augment": "*"
   },
   "development": {
     "component/each": "*",
@@ -18,15 +22,25 @@
   },
   "main": "lib/transitive.js",
   "scripts": [
-    "lib/graph/edge.js",
     "lib/graph/index.js",
+    "lib/graph/edge.js",
     "lib/graph/vertex.js",
     "lib/styler/index.js",
     "lib/styler/styles.js",
+    "lib/point/index.js",
+    "lib/point/stop.js",
+    "lib/point/place.js",
+    "lib/point/multipoint.js",
+    "lib/labeler/index.js",
+    "lib/labeler/label.js",
+    "lib/labeler/pointlabel.js",
+    "lib/labeler/segmentlabel.js",
     "lib/display.js",
+    "lib/path.js",
     "lib/pattern.js",
     "lib/route.js",
-    "lib/stop.js",
-    "lib/transitive.js"
+    "lib/journey.js",
+    "lib/transitive.js",
+    "lib/segment.js"
   ]
 }
