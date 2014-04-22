@@ -74,18 +74,18 @@ function dragVertices(transitive) {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
     })
     .on('drag', function (data, index) {
-      //console.log(data.point);
-      if (data.point.graphVertex) {
+      var point = data.owner;
+      if (point.graphVertex) {
         var x = transitive.display.xScale.invert(d3.event.sourceEvent.pageX - transitive.el.offsetLeft);
         var y = transitive.display.yScale.invert(d3.event.sourceEvent.pageY - transitive.el.offsetTop);
 
-        var dx = Math.abs(data.point.graphVertex.x - x);
-        var dy = Math.abs(data.point.graphVertex.y - y);
+        var dx = Math.abs(point.graphVertex.x - x);
+        var dy = Math.abs(point.graphVertex.y - y);
         //console.log('move by ' + dx + ', ' + dy);
 
         if(dx >= 400 || dy >= 400) {
           //console.log(data.point);
-          data.point.graphVertex.moveTo(x, y);
+          point.graphVertex.moveTo(x, y);
           transitive.updateGeometry(true);
           //transitive.display.svg.remove();
           transitive.refresh();
@@ -96,8 +96,8 @@ function dragVertices(transitive) {
   each(transitive.graph.vertices, function (vertex) {
     if (!vertex.point || !vertex.point.svgGroup) return;
     if(vertex.point.getType() === 'STOP') {
-      vertex.point.svgGroup.selectAll('.transitive-stop-marker-merged').call(drag);
-      vertex.point.svgGroup.selectAll('.transitive-stop-marker-pattern').call(drag);
+      vertex.point.mergedMarker.call(drag);
+      vertex.point.patternMarkers.call(drag);
     }
     else if(vertex.point.getType() === 'MULTI') {
       vertex.point.svgGroup.selectAll('.transitive-multipoint-marker-merged').call(drag);

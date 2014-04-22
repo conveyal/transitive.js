@@ -8,42 +8,10 @@ var d3 = require('d3');
 var Transitive = require('transitive');
 var OtpProfiler = require('otpprofiler.js');
 
-// initialize the transitive display
 
-var endpoint = 'http://arlington.dev.conveyal.com/otp/otp-rest-servlet/';
-//var endpoint = 'http://localhost:8001/otp-rest-servlet/';
+var init = function(profiler, od) {
 
-/*var config = {
-  maxOptions: 3,
-  fromLocation: {
-    name: 'Start: ATP Office',
-    lat:  38.97366769171168, // 38.894624, // 38.890519,
-    lon: -76.99845170268316 // -77.074159 //-77.086252
-  },
-  toLocation: {
-    name: 'End: Union Station',
-    lat: 38.894797858735274, //38.89788,
-    lon: -77.0740644088446 //-77.00597
-  }
-};*/
-
-var config = {
-  maxOptions: 3,
-  fromLocation: {
-    name: 'Start: ATP Office',
-    lat: 38.894624, // 38.890519,
-    lon: -77.074159 //-77.086252
-  },
-  toLocation: {
-    name: 'End: Union Station',
-    lat: 38.89788,
-    lon: -77.00597
-  }
-};
-
-var init = function(profileResponse) {
-
-  var TransitiveLoader = new OtpProfiler.transitive.TransitiveLoader(profileResponse, endpoint, function(transitiveData) { 
+  var loader = new Transitive.ProfilerLoader(profiler, od, function(transitiveData) { 
 
     console.log("generated transitive data:");
     console.log(transitiveData);
@@ -84,22 +52,36 @@ var init = function(profileResponse) {
       document.getElementById('list').appendChild(div);
     });
 
-  }, config);
+  });
 
 };
 
 
 
-/** dynamically loaded data example **/
-
-var profileRequest = new OtpProfiler.models.OtpProfileRequest({
-  from : config.fromLocation.lat+','+config.fromLocation.lon,
-  to : config.toLocation.lat+','+config.toLocation.lon
+// Create new instance
+var profiler = new OtpProfiler({
+  host: 'http://localhost:8001/otp-rest-servlet',
+  limit: 3 // limit the number of options to profile, defaults to 3
 });
-profileRequest.urlRoot = endpoint + 'profile';
-profileRequest.on('success', init);
-profileRequest.request();
 
+
+// O/D points
+var od = {
+  from: {
+    name: 'Start: ATP Office',
+    lat: 38.894624, // 38.890519,
+    lon: -77.074159 //-77.086252
+  },
+  to: {
+    name: 'End: Union Station',
+    lat: 38.89788,
+    lon: -77.00597
+  }
+};
+
+
+/** dynamically loaded data example **/
+init(profiler, od);
 
 
 /** hard-coded data example **/
