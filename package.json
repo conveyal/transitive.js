@@ -13,7 +13,7 @@
     "d3": "*"
   },
   "devDependencies": {
-    "component": "*",
+    "component": "0.19.8",
     "component-uglifyjs": "*",
     "js-beautify": "*",
     "jshint": "*",
