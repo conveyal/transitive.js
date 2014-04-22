@@ -41,6 +41,7 @@
     "lib/route.js",
     "lib/journey.js",
     "lib/transitive.js",
-    "lib/segment.js"
+    "lib/segment.js",
+    "lib/profiler.js"
   ]
 }
