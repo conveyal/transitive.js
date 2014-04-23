@@ -1,6 +1,6 @@
 {
   "name": "transitive",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
   "keywords": [ "d3", "maps", "GTFS" ],
   "author": "Conveyal",
