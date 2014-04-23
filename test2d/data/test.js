@@ -1,1 +1,337 @@
-var PROFILE = {"options":[{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27392","fromName":"CLARENDON BV & N SCOTT ST","toName":"17TH ST (EAST) & I ST","routeShortName":"38B","routeLongName":null,"rideStats":{"min":942,"avg":1378,"max":1776,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":40,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":31,"nTrips":2}]},{"walkTime":162,"waitStats":{"min":0,"avg":677,"max":1518,"num":10758},"route":"176","from":"27404","to":"5067","fromName":"K ST NW & 16TH ST NW (MAIN)","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D6","routeLongName":null,"rideStats":{"min":1302,"avg":1339,"max":1362,"num":9},"segmentPatterns":[{"patternId":"10a0f0c9","fromIndex":0,"toIndex":15,"nTrips":9}]}],"finalWalkTime":473,"stats":{"min":3361,"avg":6016,"max":7393,"num":0},"summary":"routes 38B, D6 via 17TH ST (EAST) & I ST"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27392","fromName":"CLARENDON BV & N SCOTT ST","toName":"17TH ST (EAST) & I ST","routeShortName":"38B","routeLongName":null,"rideStats":{"min":942,"avg":1378,"max":1776,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":40,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":31,"nTrips":2}]},{"walkTime":332,"waitStats":{"min":0,"avg":9601,"max":29166,"num":46626},"route":"112","from":"27402","to":"5864","fromName":"K ST NW & 15TH ST NW (MAIN)","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"80","routeLongName":null,"rideStats":{"min":384,"avg":703,"max":1032,"num":12},"segmentPatterns":[{"patternId":"4a05c759","fromIndex":0,"toIndex":10,"nTrips":12}]}],"finalWalkTime":436,"stats":{"min":2576,"avg":21183,"max":34844,"num":0},"summary":"routes 38B, 80 via 17TH ST (EAST) & I ST"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27386","fromName":"CLARENDON BV & N SCOTT ST","toName":"17TH ST NW (EAST) & I ST NW","routeShortName":"38B","routeLongName":null,"rideStats":{"min":954,"avg":1394,"max":1806,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":41,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":32,"nTrips":2}]},{"walkTime":322,"waitStats":{"min":0,"avg":218,"max":1680,"num":82380},"route":"294","from":"5501","to":"27366","fromName":"NW H ST & NW MADISON PL","toName":"H ST NW & NORTH CAPITOL ST NW","routeShortName":"X2","routeLongName":null,"rideStats":{"min":474,"avg":747,"max":1236,"num":323},"segmentPatterns":[{"patternId":"4deafe13","fromIndex":0,"toIndex":9,"nTrips":323}]}],"finalWalkTime":458,"stats":{"min":2690,"avg":5379,"max":7604,"num":0},"summary":"routes 38B, X2 via 17TH ST NW (EAST) & I ST NW"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":299,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"7812","fromName":"COURTHOUSE METRO STATION","toName":"MCPHERSON SQ METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":540,"avg":540,"max":540,"num":459},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":11,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":11,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":9,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":9,"nTrips":8}]},{"walkTime":125,"waitStats":{"min":0,"avg":680,"max":1554,"num":10794},"route":"176","from":"27403","to":"5067","fromName":"K ST NW & 14TH ST NW (MAIN)","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D6","routeLongName":null,"rideStats":{"min":1062,"avg":1103,"max":1134,"num":9},"segmentPatterns":[{"patternId":"10a0f0c9","fromIndex":2,"toIndex":15,"nTrips":9}]}],"finalWalkTime":473,"stats":{"min":2353,"avg":4331,"max":5179,"num":0},"summary":"routes Orange, D6 via MCPHERSON SQ METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"5110","fromName":"COURTHOUSE METRO STATION","toName":"STADIUM ARMORY METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1440,"avg":1440,"max":1440,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":20,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":20,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":18,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":18,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":7,"nTrips":2}]},{"walkTime":262,"waitStats":{"min":0,"avg":5139,"max":20400,"num":42240},"route":"130","from":"27070","to":"5734","fromName":"STADIUM ARMORY STATION & BUS BAY C","toName":"NW LOUISIANA AV & NW D ST","routeShortName":"97","routeLongName":null,"rideStats":{"min":900,"avg":981,"max":1116,"num":29},"segmentPatterns":[{"patternId":"549f4bec","fromIndex":16,"toIndex":31,"nTrips":29}]}],"finalWalkTime":375,"stats":{"min":3130,"avg":12766,"max":24946,"num":0},"summary":"routes Orange, 97 via STADIUM ARMORY METRO STATION"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27400","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST NW & 19TH ST NW (MAIN)","routeShortName":"38B","routeLongName":null,"rideStats":{"min":828,"avg":1213,"max":1524,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":37,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":28,"nTrips":2}]},{"walkTime":22,"waitStats":{"min":0,"avg":265,"max":564,"num":50436},"route":"182","from":"5646","to":"8223","fromName":"NW K ST & NW 19TH ST","toName":"MASSACHUSETTS AVE NE & 1ST ST NE","routeShortName":"DCWE","routeLongName":"DC Circulator: Georgetown-Union Station","rideStats":{"min":1218,"avg":1228,"max":1248,"num":255},"segmentPatterns":[{"patternId":"2c307811","fromIndex":12,"toIndex":21,"nTrips":170},{"patternId":"4969fb09","fromIndex":11,"toIndex":20,"nTrips":85}]}],"finalWalkTime":155,"stats":{"min":2705,"avg":4085,"max":5615,"num":0},"summary":"routes 38B, DCWE via K ST NW & 19TH ST NW (MAIN)"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":299,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"7812","fromName":"COURTHOUSE METRO STATION","toName":"MCPHERSON SQ METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":540,"avg":540,"max":540,"num":459},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":11,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":11,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":9,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":9,"nTrips":8}]},{"walkTime":492,"waitStats":{"min":0,"avg":5400,"max":10800,"num":10800},"route":"RED","from":"7588","to":"12872","fromName":"METRO CENTER METRO STATION","toName":"UNION STATION METRO STATION","routeShortName":"Red","routeLongName":"Metrorail Red Line","rideStats":{"min":300,"avg":300,"max":300,"num":3},"segmentPatterns":[{"patternId":"6b2f5733","fromIndex":0,"toIndex":3,"nTrips":3}]}],"finalWalkTime":107,"stats":{"min":1592,"avg":12885,"max":13592,"num":0},"summary":"routes Orange, Red via MCPHERSON SQ METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":122,"waitStats":{"min":0,"avg":467,"max":2280,"num":76020},"route":"176","from":"27405","to":"5067","fromName":"K ST NW & 17TH ST NW (MAIN) WEST","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D6","routeLongName":null,"rideStats":{"min":576,"avg":953,"max":1362,"num":132},"segmentPatterns":[{"patternId":"6caf446","fromIndex":44,"toIndex":60,"nTrips":123},{"patternId":"10a0f0c9","fromIndex":0,"toIndex":15,"nTrips":9}]}],"finalWalkTime":473,"stats":{"min":1804,"avg":3759,"max":6070,"num":0},"summary":"routes Orange, D6 via FARRAGUT WEST METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":6355,"max":22680,"num":42120},"route":"ORANGE","from":"12488","to":"1305","fromName":"COURTHOUSE METRO STATION","toName":"CAPITOL HEIGHTS METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1800,"avg":1800,"max":1800,"num":40},"segmentPatterns":[{"patternId":"2c2a5319","fromIndex":7,"toIndex":22,"nTrips":32},{"patternId":"768dbb49","fromIndex":5,"toIndex":20,"nTrips":8}]},{"walkTime":16,"waitStats":{"min":0,"avg":5139,"max":20400,"num":42240},"route":"130","from":"27097","to":"5734","fromName":"CAPITOL HGTS STATION & BUS BAY C","toName":"NW LOUISIANA AV & NW D ST","routeShortName":"97","routeLongName":null,"rideStats":{"min":1662,"avg":1789,"max":1998,"num":29},"segmentPatterns":[{"patternId":"549f4bec","fromIndex":0,"toIndex":31,"nTrips":29}]}],"finalWalkTime":375,"stats":{"min":4006,"avg":17149,"max":47422,"num":0},"summary":"routes Orange, 97 via CAPITOL HEIGHTS METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":6355,"max":22680,"num":42120},"route":"ORANGE","from":"12488","to":"1305","fromName":"COURTHOUSE METRO STATION","toName":"CAPITOL HEIGHTS METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1800,"avg":1800,"max":1800,"num":40},"segmentPatterns":[{"patternId":"2c2a5319","fromIndex":7,"toIndex":22,"nTrips":32},{"patternId":"768dbb49","fromIndex":5,"toIndex":20,"nTrips":8}]},{"walkTime":16,"waitStats":{"min":0,"avg":6933,"max":24180,"num":43440},"route":"297","from":"27097","to":"27370","fromName":"CAPITOL HGTS STATION & BUS BAY C","toName":"H ST NW & NORTH CAPITOL ST NW","routeShortName":"X9","routeLongName":null,"rideStats":{"min":1680,"avg":1810,"max":2040,"num":23},"segmentPatterns":[{"patternId":"44822268","fromIndex":0,"toIndex":12,"nTrips":23}]}],"finalWalkTime":492,"stats":{"min":4141,"avg":20317,"max":51361,"num":0},"summary":"routes Orange, X9 via CAPITOL HEIGHTS METRO STATION"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27398","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST & 22ND ST (SERV)","routeShortName":"38B","routeLongName":null,"rideStats":{"min":732,"avg":1076,"max":1344,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":34,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":25,"nTrips":2}]},{"walkTime":283,"waitStats":{"min":0,"avg":755,"max":1560,"num":9060},"route":"293","from":"28898","to":"27363","fromName":"23RD ST NW & I ST NW","toName":"NORTH CAPITOL ST NE & H ST NE","routeShortName":"X1","routeLongName":null,"rideStats":{"min":1008,"avg":1312,"max":1542,"num":7},"segmentPatterns":[{"patternId":"6e9ea162","fromIndex":0,"toIndex":16,"nTrips":7}]}],"finalWalkTime":420,"stats":{"min":2925,"avg":6527,"max":7251,"num":0},"summary":"routes 38B, X1 via K ST & 22ND ST (SERV)"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":384,"waitStats":{"min":0,"avg":218,"max":1680,"num":82380},"route":"294","from":"5501","to":"27366","fromName":"NW H ST & NW MADISON PL","toName":"H ST NW & NORTH CAPITOL ST NW","routeShortName":"X2","routeLongName":null,"rideStats":{"min":474,"avg":747,"max":1236,"num":323},"segmentPatterns":[{"patternId":"4deafe13","fromIndex":0,"toIndex":9,"nTrips":323}]}],"finalWalkTime":458,"stats":{"min":1949,"avg":4422,"max":5591,"num":0},"summary":"routes Orange, X2 via FARRAGUT WEST METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"8040","fromName":"COURTHOUSE METRO STATION","toName":"FOGGY BOTTOM METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":360,"avg":360,"max":360,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":9,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":9,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":7,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":7,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":5,"nTrips":2}]},{"walkTime":42,"waitStats":{"min":0,"avg":755,"max":1560,"num":9060},"route":"293","from":"28898","to":"27363","fromName":"23RD ST NW & I ST NW","toName":"NORTH CAPITOL ST NE & H ST NE","routeShortName":"X1","routeLongName":null,"rideStats":{"min":1008,"avg":1312,"max":1542,"num":7},"segmentPatterns":[{"patternId":"6e9ea162","fromIndex":0,"toIndex":16,"nTrips":7}]}],"finalWalkTime":420,"stats":{"min":1983,"avg":4132,"max":5277,"num":0},"summary":"routes Orange, X1 via FOGGY BOTTOM METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":122,"waitStats":{"min":0,"avg":853,"max":1920,"num":10140},"route":"173","from":"27405","to":"5067","fromName":"K ST NW & 17TH ST NW (MAIN) WEST","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D3","routeLongName":null,"rideStats":{"min":1218,"avg":1312,"max":1398,"num":7},"segmentPatterns":[{"patternId":"7dcfcba6","fromIndex":7,"toIndex":23,"nTrips":7}]}],"finalWalkTime":473,"stats":{"min":2446,"avg":4815,"max":5746,"num":0},"summary":"routes Orange, D3 via FARRAGUT WEST METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":214,"waitStats":{"min":0,"avg":153,"max":780,"num":76380},"route":"RED","from":"5635","to":"12872","fromName":"FARRAGUT NORTH METRO STATION","toName":"UNION STATION METRO STATION","routeShortName":"Red","routeLongName":"Metrorail Red Line","rideStats":{"min":420,"avg":475,"max":540,"num":726},"segmentPatterns":[{"patternId":"5a4b99fa","fromIndex":13,"toIndex":17,"nTrips":439},{"patternId":"19a93a4","fromIndex":13,"toIndex":17,"nTrips":172},{"patternId":"c07014a","fromIndex":9,"toIndex":13,"nTrips":94},{"patternId":"1fe5a771","fromIndex":9,"toIndex":13,"nTrips":20},{"patternId":"702a5cfd","fromIndex":1,"toIndex":5,"nTrips":1}]}],"finalWalkTime":107,"stats":{"min":1374,"avg":2793,"max":3474,"num":0},"summary":"routes Orange, Red via FARRAGUT WEST METRO STATION"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27399","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST NW & 21ST ST NW (SERV)","routeShortName":"38B","routeLongName":null,"rideStats":{"min":768,"avg":1133,"max":1410,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":35,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":26,"nTrips":2}]},{"walkTime":102,"waitStats":{"min":0,"avg":851,"max":1920,"num":10104},"route":"173","from":"27396","to":"5067","fromName":"K ST NW & 20TH ST NW (MAIN)","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D3","routeLongName":null,"rideStats":{"min":1392,"avg":1517,"max":1608,"num":7},"segmentPatterns":[{"patternId":"7dcfcba6","fromIndex":4,"toIndex":23,"nTrips":7}]}],"finalWalkTime":473,"stats":{"min":3217,"avg":6082,"max":7615,"num":0},"summary":"routes 38B, D3 via K ST NW & 21ST ST NW (SERV)"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":299,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"6479","fromName":"COURTHOUSE METRO STATION","toName":"EASTERN MARKET METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1260,"avg":1260,"max":1260,"num":459},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":18,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":18,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":16,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":16,"nTrips":8}]},{"walkTime":105,"waitStats":{"min":0,"avg":300,"max":600,"num":46800},"route":"180","from":"6478","to":"8223","fromName":"SE PENNSYLVANIA AV & SE 7TH ST","toName":"MASSACHUSETTS AVE NE & 1ST ST NE","routeShortName":"DCN22","routeLongName":"DC Circulator: Union Station - Navy Yard via Capitol Hill","rideStats":{"min":1008,"avg":1008,"max":1008,"num":79},"segmentPatterns":[{"patternId":"29d30b80","fromIndex":5,"toIndex":9,"nTrips":79}]}],"finalWalkTime":155,"stats":{"min":2681,"avg":3522,"max":4481,"num":0},"summary":"routes Orange, DCN22 via EASTERN MARKET METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":299,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"7812","fromName":"COURTHOUSE METRO STATION","toName":"MCPHERSON SQ METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":540,"avg":540,"max":540,"num":459},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":11,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":11,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":9,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":9,"nTrips":8}]},{"walkTime":125,"waitStats":{"min":0,"avg":9609,"max":29184,"num":46644},"route":"112","from":"27403","to":"5864","fromName":"K ST NW & 14TH ST NW (MAIN)","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"80","routeLongName":null,"rideStats":{"min":342,"avg":652,"max":972,"num":12},"segmentPatterns":[{"patternId":"4a05c759","fromIndex":1,"toIndex":10,"nTrips":12}]}],"finalWalkTime":436,"stats":{"min":1596,"avg":18856,"max":32610,"num":0},"summary":"routes Orange, 80 via MCPHERSON SQ METRO STATION"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27405","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST NW & 17TH ST NW (MAIN) WEST","routeShortName":"38B","routeLongName":null,"rideStats":{"min":906,"avg":1329,"max":1704,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":39,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":30,"nTrips":2}]},{"walkTime":95,"waitStats":{"min":0,"avg":153,"max":780,"num":76380},"route":"RED","from":"5635","to":"12872","fromName":"FARRAGUT NORTH METRO STATION","toName":"UNION STATION METRO STATION","routeShortName":"Red","routeLongName":"Metrorail Red Line","rideStats":{"min":420,"avg":475,"max":540,"num":726},"segmentPatterns":[{"patternId":"5a4b99fa","fromIndex":13,"toIndex":17,"nTrips":439},{"patternId":"19a93a4","fromIndex":13,"toIndex":17,"nTrips":172},{"patternId":"c07014a","fromIndex":9,"toIndex":13,"nTrips":94},{"patternId":"1fe5a771","fromIndex":9,"toIndex":13,"nTrips":20},{"patternId":"702a5cfd","fromIndex":1,"toIndex":5,"nTrips":1}]}],"finalWalkTime":107,"stats":{"min":2010,"avg":3432,"max":5328,"num":0},"summary":"routes 38B, Red via K ST NW & 17TH ST NW (MAIN) WEST"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":305,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"25426","fromName":"COURTHOUSE METRO STATION","toName":"MINNESOTA AVE METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1680,"avg":1680,"max":1680,"num":419},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":21,"nTrips":401},{"patternId":"5b1b138a","fromIndex":5,"toIndex":19,"nTrips":18}]},{"walkTime":106,"waitStats":{"min":0,"avg":6902,"max":24120,"num":43440},"route":"297","from":"31654","to":"27370","fromName":"MINNESOTA AVE STA & BUS BAY H","toName":"H ST NW & NORTH CAPITOL ST NW","routeShortName":"X9","routeLongName":null,"rideStats":{"min":936,"avg":1039,"max":1170,"num":23},"segmentPatterns":[{"patternId":"44822268","fromIndex":6,"toIndex":12,"nTrips":23}]}],"finalWalkTime":492,"stats":{"min":3367,"avg":15256,"max":28921,"num":0},"summary":"routes Orange, X9 via MINNESOTA AVE METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":299,"max":1200,"num":77100},"route":"ORANGE","from":"12488","to":"7812","fromName":"COURTHOUSE METRO STATION","toName":"MCPHERSON SQ METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":540,"avg":540,"max":540,"num":459},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":11,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":11,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":9,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":9,"nTrips":8}]},{"walkTime":141,"waitStats":{"min":0,"avg":219,"max":1680,"num":82350},"route":"294","from":"3701","to":"27366","fromName":"H ST NW & 14TH ST NW","toName":"H ST NW & NORTH CAPITOL ST NW","routeShortName":"X2","routeLongName":null,"rideStats":{"min":414,"avg":651,"max":996,"num":323},"segmentPatterns":[{"patternId":"4deafe13","fromIndex":1,"toIndex":9,"nTrips":323}]}],"finalWalkTime":458,"stats":{"min":1706,"avg":3111,"max":5168,"num":0},"summary":"routes Orange, X2 via MCPHERSON SQ METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":6355,"max":22680,"num":42120},"route":"ORANGE","from":"12488","to":"1305","fromName":"COURTHOUSE METRO STATION","toName":"CAPITOL HEIGHTS METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1800,"avg":1800,"max":1800,"num":40},"segmentPatterns":[{"patternId":"2c2a5319","fromIndex":7,"toIndex":22,"nTrips":32},{"patternId":"768dbb49","fromIndex":5,"toIndex":20,"nTrips":8}]},{"walkTime":16,"waitStats":{"min":0,"avg":522,"max":1980,"num":76080},"route":"129","from":"27097","to":"5863","fromName":"CAPITOL HGTS STATION & BUS BAY C","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"96","routeLongName":null,"rideStats":{"min":1494,"avg":1989,"max":2328,"num":114},"segmentPatterns":[{"patternId":"5f0dd6db","fromIndex":0,"toIndex":38,"nTrips":102},{"patternId":"4900269d","fromIndex":0,"toIndex":38,"nTrips":7},{"patternId":"282ceded","fromIndex":0,"toIndex":38,"nTrips":5}]}],"finalWalkTime":469,"stats":{"min":3932,"avg":9679,"max":29426,"num":0},"summary":"routes Orange, 96 via CAPITOL HEIGHTS METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":109,"waitStats":{"min":0,"avg":271,"max":570,"num":50430},"route":"182","from":"8142","to":"8223","fromName":"NW K ST & NW 17TH ST","toName":"MASSACHUSETTS AVE NE & 1ST ST NE","routeShortName":"DCWE","routeLongName":"DC Circulator: Georgetown-Union Station","rideStats":{"min":1074,"avg":1082,"max":1098,"num":255},"segmentPatterns":[{"patternId":"2c307811","fromIndex":13,"toIndex":21,"nTrips":170},{"patternId":"4969fb09","fromIndex":12,"toIndex":20,"nTrips":85}]}],"finalWalkTime":155,"stats":{"min":1971,"avg":3192,"max":3765,"num":0},"summary":"routes Orange, DCWE via FARRAGUT WEST METRO STATION"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27397","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST NW & 18TH ST NW (MAIN)","routeShortName":"38B","routeLongName":null,"rideStats":{"min":864,"avg":1262,"max":1602,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":38,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":29,"nTrips":2}]},{"walkTime":37,"waitStats":{"min":0,"avg":411,"max":1734,"num":72348},"route":"112","from":"5637","to":"5864","fromName":"NW K ST & NW 18TH ST","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"80","routeLongName":null,"rideStats":{"min":504,"avg":932,"max":1380,"num":147},"segmentPatterns":[{"patternId":"513a4ad0","fromIndex":15,"toIndex":28,"nTrips":147}]}],"finalWalkTime":436,"stats":{"min":2323,"avg":4382,"max":7291,"num":0},"summary":"routes 38B, 80 via K ST NW & 18TH ST NW (MAIN)"},{"segments":[{"walkTime":482,"waitStats":{"min":0,"avg":404,"max":1620,"num":69708},"route":"78","from":"8518","to":"27399","fromName":"CLARENDON BV & N SCOTT ST","toName":"K ST NW & 21ST ST NW (SERV)","routeShortName":"38B","routeLongName":null,"rideStats":{"min":768,"avg":1133,"max":1410,"num":139},"segmentPatterns":[{"patternId":"5f8f22f3","fromIndex":21,"toIndex":35,"nTrips":137},{"patternId":"2e3fb088","fromIndex":12,"toIndex":26,"nTrips":2}]},{"walkTime":102,"waitStats":{"min":0,"avg":491,"max":2298,"num":76056},"route":"176","from":"27396","to":"5067","fromName":"K ST NW & 20TH ST NW (MAIN)","toName":"NW E ST & NW NEW JERSEY AV","routeShortName":"D6","routeLongName":null,"rideStats":{"min":690,"avg":1078,"max":1566,"num":123},"segmentPatterns":[{"patternId":"6caf446","fromIndex":41,"toIndex":60,"nTrips":123}]}],"finalWalkTime":473,"stats":{"min":2515,"avg":4983,"max":7951,"num":0},"summary":"routes 38B, D6 via K ST NW & 21ST ST NW (SERV)"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"5110","fromName":"COURTHOUSE METRO STATION","toName":"STADIUM ARMORY METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":1440,"avg":1440,"max":1440,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":20,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":20,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":18,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":18,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":7,"nTrips":2}]},{"walkTime":162,"waitStats":{"min":0,"avg":443,"max":1860,"num":75960},"route":"129","from":"27022","to":"5863","fromName":"MASSACHUSETTS AVE SE & 19TH ST SE","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"96","routeLongName":null,"rideStats":{"min":882,"avg":1164,"max":1428,"num":133},"segmentPatterns":[{"patternId":"5f0dd6db","fromIndex":20,"toIndex":38,"nTrips":102},{"patternId":"6897cd75","fromIndex":4,"toIndex":22,"nTrips":19},{"patternId":"4900269d","fromIndex":20,"toIndex":38,"nTrips":7},{"patternId":"282ceded","fromIndex":20,"toIndex":38,"nTrips":5}]}],"finalWalkTime":469,"stats":{"min":3106,"avg":4636,"max":6712,"num":0},"summary":"routes Orange, 96 via STADIUM ARMORY METRO STATION"},{"segments":[{"walkTime":153,"waitStats":{"min":0,"avg":304,"max":1200,"num":78300},"route":"ORANGE","from":"12488","to":"7932","fromName":"COURTHOUSE METRO STATION","toName":"FARRAGUT WEST METRO STATION","routeShortName":"Orange","routeLongName":"Metrorail Orange Line","rideStats":{"min":480,"avg":480,"max":480,"num":461},"segmentPatterns":[{"patternId":"5b0a485c","fromIndex":7,"toIndex":10,"nTrips":401},{"patternId":"2c2a5319","fromIndex":7,"toIndex":10,"nTrips":32},{"patternId":"5b1b138a","fromIndex":5,"toIndex":8,"nTrips":18},{"patternId":"768dbb49","fromIndex":5,"toIndex":8,"nTrips":8},{"patternId":"4e9ff7c0","fromIndex":3,"toIndex":6,"nTrips":2}]},{"walkTime":421,"waitStats":{"min":0,"avg":394,"max":1740,"num":73848},"route":"112","from":"27402","to":"5864","fromName":"K ST NW & 15TH ST NW (MAIN)","toName":"NW MASSACHUSETTS AV & NW G ST","routeShortName":"80","routeLongName":null,"rideStats":{"min":384,"avg":870,"max":1290,"num":159},"segmentPatterns":[{"patternId":"513a4ad0","fromIndex":16,"toIndex":28,"nTrips":147},{"patternId":"4a05c759","fromIndex":0,"toIndex":10,"nTrips":12}]}],"finalWalkTime":436,"stats":{"min":1874,"avg":5021,"max":5720,"num":0},"summary":"routes Orange, 80 via FARRAGUT WEST METRO STATION"}]};
+var PROFILE = { "options": [
+
+{
+  "segments": [
+    {
+      "walkTime": 153,
+      "waitStats": {
+        "min": 0,
+        "avg": 299,
+        "max": 1200,
+        "num": 77100
+      },
+      "route": "ORANGE",
+      "from": "12488",
+      "to": "7588",
+      "fromName": "COURTHOUSE METRO STATION",
+      "toName": "METRO CENTER METRO STATION",
+      "routeShortName": "Orange",
+      "routeLongName": "Metrorail Orange Line",
+      "rideStats": {
+        "min": 600,
+        "avg": 600,
+        "max": 600,
+        "num": 459
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "72f5560e",
+          "fromIndex": 7,
+          "toIndex": 12,
+          "nTrips": 401
+        },
+        {
+          "patternId": "3d93f119",
+          "fromIndex": 7,
+          "toIndex": 12,
+          "nTrips": 32
+        },
+        {
+          "patternId": "3d7fcc91",
+          "fromIndex": 5,
+          "toIndex": 10,
+          "nTrips": 18
+        },
+        {
+          "patternId": "114f6322",
+          "fromIndex": 5,
+          "toIndex": 10,
+          "nTrips": 8
+        }
+      ]
+    },
+    {
+      "walkTime": 0,
+      "waitStats": {
+        "min": 0,
+        "avg": 157,
+        "max": 1020,
+        "num": 77400
+      },
+      "route": "RED",
+      "from": "7588",
+      "to": "12872",
+      "fromName": "METRO CENTER METRO STATION",
+      "toName": "UNION STATION METRO STATION",
+      "routeShortName": "Red",
+      "routeLongName": "Metrorail Red Line",
+      "rideStats": {
+        "min": 300,
+        "avg": 354,
+        "max": 360,
+        "num": 729
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "14332f47",
+          "fromIndex": 14,
+          "toIndex": 17,
+          "nTrips": 439
+        },
+        {
+          "patternId": "14e88b23",
+          "fromIndex": 14,
+          "toIndex": 17,
+          "nTrips": 172
+        },
+        {
+          "patternId": "768960af",
+          "fromIndex": 10,
+          "toIndex": 13,
+          "nTrips": 94
+        },
+        {
+          "patternId": "228637c3",
+          "fromIndex": 10,
+          "toIndex": 13,
+          "nTrips": 20
+        },
+        {
+          "patternId": "62a65066",
+          "fromIndex": 0,
+          "toIndex": 3,
+          "nTrips": 3
+        },
+        {
+          "patternId": "42bf7a35",
+          "fromIndex": 2,
+          "toIndex": 5,
+          "nTrips": 1
+        }
+      ]
+    }
+  ],
+  "finalWalkTime": 98,
+  "stats": {
+    "min": 1151,
+    "avg": 1628,
+    "max": 3431,
+    "num": 0
+  },
+  "summary": "routes Orange, Red via METRO CENTER METRO STATION"
+},
+{
+  "segments": [
+    {
+      "walkTime": 153,
+      "waitStats": {
+        "min": 0,
+        "avg": 304,
+        "max": 1200,
+        "num": 78300
+      },
+      "route": "ORANGE",
+      "from": "12488",
+      "to": "7932",
+      "fromName": "COURTHOUSE METRO STATION",
+      "toName": "FARRAGUT WEST METRO STATION",
+      "routeShortName": "Orange",
+      "routeLongName": "Metrorail Orange Line",
+      "rideStats": {
+        "min": 480,
+        "avg": 480,
+        "max": 480,
+        "num": 461
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "72f5560e",
+          "fromIndex": 7,
+          "toIndex": 10,
+          "nTrips": 401
+        },
+        {
+          "patternId": "3d93f119",
+          "fromIndex": 7,
+          "toIndex": 10,
+          "nTrips": 32
+        },
+        {
+          "patternId": "3d7fcc91",
+          "fromIndex": 5,
+          "toIndex": 8,
+          "nTrips": 18
+        },
+        {
+          "patternId": "114f6322",
+          "fromIndex": 5,
+          "toIndex": 8,
+          "nTrips": 8
+        },
+        {
+          "patternId": "77312cf9",
+          "fromIndex": 3,
+          "toIndex": 6,
+          "nTrips": 2
+        }
+      ]
+    },
+    {
+      "walkTime": 214,
+      "waitStats": {
+        "min": 0,
+        "avg": 153,
+        "max": 780,
+        "num": 76380
+      },
+      "route": "RED",
+      "from": "5635",
+      "to": "12872",
+      "fromName": "FARRAGUT NORTH METRO STATION",
+      "toName": "UNION STATION METRO STATION",
+      "routeShortName": "Red",
+      "routeLongName": "Metrorail Red Line",
+      "rideStats": {
+        "min": 420,
+        "avg": 475,
+        "max": 540,
+        "num": 726
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "14332f47",
+          "fromIndex": 13,
+          "toIndex": 17,
+          "nTrips": 439
+        },
+        {
+          "patternId": "14e88b23",
+          "fromIndex": 13,
+          "toIndex": 17,
+          "nTrips": 172
+        },
+        {
+          "patternId": "768960af",
+          "fromIndex": 9,
+          "toIndex": 13,
+          "nTrips": 94
+        },
+        {
+          "patternId": "228637c3",
+          "fromIndex": 9,
+          "toIndex": 13,
+          "nTrips": 20
+        },
+        {
+          "patternId": "42bf7a35",
+          "fromIndex": 1,
+          "toIndex": 5,
+          "nTrips": 1
+        }
+      ]
+    }
+  ],
+  "finalWalkTime": 98,
+  "stats": {
+    "min": 1365,
+    "avg": 2784,
+    "max": 3465,
+    "num": 0
+  },
+  "summary": "routes Orange, Red via FARRAGUT WEST METRO STATION"
+},
+{
+  "segments": [
+    {
+      "walkTime": 153,
+      "waitStats": {
+        "min": 0,
+        "avg": 299,
+        "max": 1200,
+        "num": 77100
+      },
+      "route": "ORANGE",
+      "from": "12488",
+      "to": "7812",
+      "fromName": "COURTHOUSE METRO STATION",
+      "toName": "MCPHERSON SQ METRO STATION",
+      "routeShortName": "Orange",
+      "routeLongName": "Metrorail Orange Line",
+      "rideStats": {
+        "min": 540,
+        "avg": 540,
+        "max": 540,
+        "num": 459
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "72f5560e",
+          "fromIndex": 7,
+          "toIndex": 11,
+          "nTrips": 401
+        },
+        {
+          "patternId": "3d93f119",
+          "fromIndex": 7,
+          "toIndex": 11,
+          "nTrips": 32
+        },
+        {
+          "patternId": "3d7fcc91",
+          "fromIndex": 5,
+          "toIndex": 9,
+          "nTrips": 18
+        },
+        {
+          "patternId": "114f6322",
+          "fromIndex": 5,
+          "toIndex": 9,
+          "nTrips": 8
+        }
+      ]
+    },
+    {
+      "walkTime": 141,
+      "waitStats": {
+        "min": 0,
+        "avg": 219,
+        "max": 1680,
+        "num": 82560
+      },
+      "route": "289",
+      "from": "3701",
+      "to": "27366",
+      "fromName": "H ST NW & 14TH ST NW",
+      "toName": "H ST NW & NORTH CAPITOL ST NW",
+      "routeShortName": "X2",
+      "routeLongName": null,
+      "rideStats": {
+        "min": 414,
+        "avg": 651,
+        "max": 948,
+        "num": 448
+      },
+      "segmentPatterns": [
+        {
+          "patternId": "579f707b",
+          "fromIndex": 0,
+          "toIndex": 8,
+          "nTrips": 448
+        }
+      ]
+    }
+  ],
+  "finalWalkTime": 448,
+  "stats": {
+    "min": 1696,
+    "avg": 3101,
+    "max": 5110,
+    "num": 0
+  },
+  "summary": "routes Orange, X2 via MCPHERSON SQ METRO STATION"
+}
+
+
+
+
+]};
