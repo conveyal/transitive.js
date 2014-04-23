@@ -12,15 +12,15 @@ beautify:
 	@./node_modules/.bin/js-beautify --replace $(JS)
 
 clean:
-	rm -rf build components node_modules
+	rm -rf build components
 
 components: component.json
-	$(COMPONENT) install --dev --verbose
+	@$(COMPONENT) install --dev --verbose
 
-install: node_modules
+install: node_modules components
 
 lint: $(JS)
-	$(JSHINT) --verbose $(JS)
+	@$(JSHINT) --verbose $(JS)
 
 node_modules: package.json
 	npm install
