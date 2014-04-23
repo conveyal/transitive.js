@@ -10,9 +10,12 @@ var OtpProfiler = require('otpprofiler.js');
 
 // initialize the transitive display
 
-var transitive = new Transitive(document.getElementById('canvas'), DATA, STYLES, {
-  gridCellSize : 800,
-  drawGrid: true 
+var transitive = new Transitive({
+  el: document.getElementById('canvas'),
+  data: DATA,
+  style: STYLES,
+  gridCellSize: 800,
+  drawGrid: true
 });
 
 // apply computed behaviors
@@ -42,7 +45,7 @@ DATA.journeys.forEach(function(journey, index) {
     //d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'hidden');
     transitive.focusJourney();
 
-  };      
+  };
   document.getElementById('list').appendChild(div);
 });
 
