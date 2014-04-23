@@ -38,16 +38,10 @@ var init = function(profiler, od) {
       div.innerHTML = journey.journey_name;
 
       div.onmouseover=function(event) {
-        //d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
-        //d3.select('#transitive-path-highlight-journey-' + event.target.id).style('visibility', 'visible');
-        //d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'visible');
         transitive.focusJourney(event.target.id);
       };
       div.onmouseout=function(event) {
-        //d3.selectAll('.transitive-path-highlight').style('visibility', 'hidden');
-        //d3.selectAll('.transitive-transfer-stops-journey-' + event.target.id).style('visibility', 'hidden');
         transitive.focusJourney();
-
       };      
       document.getElementById('list').appendChild(div);
     });
@@ -69,8 +63,8 @@ var profiler = new OtpProfiler({
 var od = {
   from: {
     name: 'Start: ATP Office',
-    lat: 38.894624, // 38.890519,
-    lon: -77.074159 //-77.086252
+    lat: 38.894624, 
+    lon: -77.074159 
   },
   to: {
     name: 'End: Union Station',
@@ -83,7 +77,3 @@ var od = {
 /** dynamically loaded data example **/
 init(profiler, od);
 
-
-/** hard-coded data example **/
-
-//init(new OtpProfiler.models.OtpProfileResponse(P2));
