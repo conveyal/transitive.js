@@ -2,12 +2,16 @@
   "name": "transitive",
   "version": "0.0.3",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
-  "keywords": [ "d3", "maps", "GTFS" ],
+  "keywords": [
+    "d3",
+    "maps",
+    "GTFS"
+  ],
   "dependencies": {
     "component/each": "0.2.3",
     "component/emitter": "1.1.2",
-    "component/to-function": "2.0.0",
-    "conveyal/otpprofiler.js": "0.2.2",
+    "component/to-function": "2.0.3",
+    "conveyal/otpprofiler.js": "0.2.3",
     "cristiandouce/merge-util": "0.1.0",
     "mbostock/d3": "v3.4.6",
     "janogonzalez/priorityqueuejs": "0.2.0",
