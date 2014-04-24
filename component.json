@@ -9,6 +9,7 @@
   ],
   "dependencies": {
     "component/each": "0.2.3",
+    "component/clone": "*",
     "component/emitter": "1.1.2",
     "component/to-function": "2.0.3",
     "cristiandouce/merge-util": "0.1.0",

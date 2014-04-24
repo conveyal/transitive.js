@@ -319,6 +319,66 @@ function array(obj, fn, ctx) {\n\
 }\n\
 //@ sourceURL=component-each/index.js"
 ));
+require.register("component-clone/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var type;\n\
+try {\n\
+  type = require('component-type');\n\
+} catch (_) {\n\
+  type = require('type');\n\
+}\n\
+\n\
+/**\n\
+ * Module exports.\n\
+ */\n\
+\n\
+module.exports = clone;\n\
+\n\
+/**\n\
+ * Clones objects.\n\
+ *\n\
+ * @param {Mixed} any object\n\
+ * @api public\n\
+ */\n\
+\n\
+function clone(obj){\n\
+  switch (type(obj)) {\n\
+    case 'object':\n\
+      var copy = {};\n\
+      for (var key in obj) {\n\
+        if (obj.hasOwnProperty(key)) {\n\
+          copy[key] = clone(obj[key]);\n\
+        }\n\
+      }\n\
+      return copy;\n\
+\n\
+    case 'array':\n\
+      var copy = new Array(obj.length);\n\
+      for (var i = 0, l = obj.length; i < l; i++) {\n\
+        copy[i] = clone(obj[i]);\n\
+      }\n\
+      return copy;\n\
+\n\
+    case 'regexp':\n\
+      // from millermedeiros/amd-utils - MIT\n\
+      var flags = '';\n\
+      flags += obj.multiline ? 'm' : '';\n\
+      flags += obj.global ? 'g' : '';\n\
+      flags += obj.ignoreCase ? 'i' : '';\n\
+      return new RegExp(obj.source, flags);\n\
+\n\
+    case 'date':\n\
+      return new Date(obj.getTime());\n\
+\n\
+    default: // string, number, boolean, …\n\
+      return obj;\n\
+  }\n\
+}\n\
+//@ sourceURL=component-clone/index.js"
+));
 require.register("component-emitter/index.js", Function("exports, require, module",
 "\n\
 /**\n\
@@ -10575,66 +10635,6 @@ Set.prototype.isEmpty = function(){\n\
 \n\
 //@ sourceURL=component-set/index.js"
 ));
-require.register("component-clone/index.js", Function("exports, require, module",
-"/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var type;\n\
-try {\n\
-  type = require('component-type');\n\
-} catch (_) {\n\
-  type = require('type');\n\
-}\n\
-\n\
-/**\n\
- * Module exports.\n\
- */\n\
-\n\
-module.exports = clone;\n\
-\n\
-/**\n\
- * Clones objects.\n\
- *\n\
- * @param {Mixed} any object\n\
- * @api public\n\
- */\n\
-\n\
-function clone(obj){\n\
-  switch (type(obj)) {\n\
-    case 'object':\n\
-      var copy = {};\n\
-      for (var key in obj) {\n\
-        if (obj.hasOwnProperty(key)) {\n\
-          copy[key] = clone(obj[key]);\n\
-        }\n\
-      }\n\
-      return copy;\n\
-\n\
-    case 'array':\n\
-      var copy = new Array(obj.length);\n\
-      for (var i = 0, l = obj.length; i < l; i++) {\n\
-        copy[i] = clone(obj[i]);\n\
-      }\n\
-      return copy;\n\
-\n\
-    case 'regexp':\n\
-      // from millermedeiros/amd-utils - MIT\n\
-      var flags = '';\n\
-      flags += obj.multiline ? 'm' : '';\n\
-      flags += obj.global ? 'g' : '';\n\
-      flags += obj.ignoreCase ? 'i' : '';\n\
-      return new RegExp(obj.source, flags);\n\
-\n\
-    case 'date':\n\
-      return new Date(obj.getTime());\n\
-\n\
-    default: // string, number, boolean, …\n\
-      return obj;\n\
-  }\n\
-}\n\
-//@ sourceURL=component-clone/index.js"
-));
 require.register("component-trim/index.js", Function("exports, require, module",
 "\n\
 exports = module.exports = trim;\n\
@@ -10979,1040 +10979,6 @@ Batch.prototype.end = function(cb){\n\
 };\n\
 //@ sourceURL=visionmedia-batch/index.js"
 ));
-require.register("component-reduce/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Reduce `arr` with `fn`.\n\
- *\n\
- * @param {Array} arr\n\
- * @param {Function} fn\n\
- * @param {Mixed} initial\n\
- *\n\
- * TODO: combatible error handling?\n\
- */\n\
-\n\
-module.exports = function(arr, fn, initial){  \n\
-  var idx = 0;\n\
-  var len = arr.length;\n\
-  var curr = arguments.length == 3\n\
-    ? initial\n\
-    : arr[idx++];\n\
-\n\
-  while (idx < len) {\n\
-    curr = fn.call(null, curr, arr[idx], ++idx, arr);\n\
-  }\n\
-  \n\
-  return curr;\n\
-};//@ sourceURL=component-reduce/index.js"
-));
-require.register("visionmedia-superagent/lib/client.js", Function("exports, require, module",
-"/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var Emitter = require('emitter');\n\
-var reduce = require('reduce');\n\
-\n\
-/**\n\
- * Root reference for iframes.\n\
- */\n\
-\n\
-var root = 'undefined' == typeof window\n\
-  ? this\n\
-  : window;\n\
-\n\
-/**\n\
- * Noop.\n\
- */\n\
-\n\
-function noop(){};\n\
-\n\
-/**\n\
- * Check if `obj` is a host object,\n\
- * we don't want to serialize these :)\n\
- *\n\
- * TODO: future proof, move to compoent land\n\
- *\n\
- * @param {Object} obj\n\
- * @return {Boolean}\n\
- * @api private\n\
- */\n\
-\n\
-function isHost(obj) {\n\
-  var str = {}.toString.call(obj);\n\
-\n\
-  switch (str) {\n\
-    case '[object File]':\n\
-    case '[object Blob]':\n\
-    case '[object FormData]':\n\
-      return true;\n\
-    default:\n\
-      return false;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Determine XHR.\n\
- */\n\
-\n\
-function getXHR() {\n\
-  if (root.XMLHttpRequest\n\
-    && ('file:' != root.location.protocol || !root.ActiveXObject)) {\n\
-    return new XMLHttpRequest;\n\
-  } else {\n\
-    try { return new ActiveXObject('Microsoft.XMLHTTP'); } catch(e) {}\n\
-    try { return new ActiveXObject('Msxml2.XMLHTTP.6.0'); } catch(e) {}\n\
-    try { return new ActiveXObject('Msxml2.XMLHTTP.3.0'); } catch(e) {}\n\
-    try { return new ActiveXObject('Msxml2.XMLHTTP'); } catch(e) {}\n\
-  }\n\
-  return false;\n\
-}\n\
-\n\
-/**\n\
- * Removes leading and trailing whitespace, added to support IE.\n\
- *\n\
- * @param {String} s\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-var trim = ''.trim\n\
-  ? function(s) { return s.trim(); }\n\
-  : function(s) { return s.replace(/(^\\s*|\\s*$)/g, ''); };\n\
-\n\
-/**\n\
- * Check if `obj` is an object.\n\
- *\n\
- * @param {Object} obj\n\
- * @return {Boolean}\n\
- * @api private\n\
- */\n\
-\n\
-function isObject(obj) {\n\
-  return obj === Object(obj);\n\
-}\n\
-\n\
-/**\n\
- * Serialize the given `obj`.\n\
- *\n\
- * @param {Object} obj\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function serialize(obj) {\n\
-  if (!isObject(obj)) return obj;\n\
-  var pairs = [];\n\
-  for (var key in obj) {\n\
-    if (null != obj[key]) {\n\
-      pairs.push(encodeURIComponent(key)\n\
-        + '=' + encodeURIComponent(obj[key]));\n\
-    }\n\
-  }\n\
-  return pairs.join('&');\n\
-}\n\
-\n\
-/**\n\
- * Expose serialization method.\n\
- */\n\
-\n\
- request.serializeObject = serialize;\n\
-\n\
- /**\n\
-  * Parse the given x-www-form-urlencoded `str`.\n\
-  *\n\
-  * @param {String} str\n\
-  * @return {Object}\n\
-  * @api private\n\
-  */\n\
-\n\
-function parseString(str) {\n\
-  var obj = {};\n\
-  var pairs = str.split('&');\n\
-  var parts;\n\
-  var pair;\n\
-\n\
-  for (var i = 0, len = pairs.length; i < len; ++i) {\n\
-    pair = pairs[i];\n\
-    parts = pair.split('=');\n\
-    obj[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);\n\
-  }\n\
-\n\
-  return obj;\n\
-}\n\
-\n\
-/**\n\
- * Expose parser.\n\
- */\n\
-\n\
-request.parseString = parseString;\n\
-\n\
-/**\n\
- * Default MIME type map.\n\
- *\n\
- *     superagent.types.xml = 'application/xml';\n\
- *\n\
- */\n\
-\n\
-request.types = {\n\
-  html: 'text/html',\n\
-  json: 'application/json',\n\
-  xml: 'application/xml',\n\
-  urlencoded: 'application/x-www-form-urlencoded',\n\
-  'form': 'application/x-www-form-urlencoded',\n\
-  'form-data': 'application/x-www-form-urlencoded'\n\
-};\n\
-\n\
-/**\n\
- * Default serialization map.\n\
- *\n\
- *     superagent.serialize['application/xml'] = function(obj){\n\
- *       return 'generated xml here';\n\
- *     };\n\
- *\n\
- */\n\
-\n\
- request.serialize = {\n\
-   'application/x-www-form-urlencoded': serialize,\n\
-   'application/json': JSON.stringify\n\
- };\n\
-\n\
- /**\n\
-  * Default parsers.\n\
-  *\n\
-  *     superagent.parse['application/xml'] = function(str){\n\
-  *       return { object parsed from str };\n\
-  *     };\n\
-  *\n\
-  */\n\
-\n\
-request.parse = {\n\
-  'application/x-www-form-urlencoded': parseString,\n\
-  'application/json': JSON.parse\n\
-};\n\
-\n\
-/**\n\
- * Parse the given header `str` into\n\
- * an object containing the mapped fields.\n\
- *\n\
- * @param {String} str\n\
- * @return {Object}\n\
- * @api private\n\
- */\n\
-\n\
-function parseHeader(str) {\n\
-  var lines = str.split(/\\r?\\n\
-/);\n\
-  var fields = {};\n\
-  var index;\n\
-  var line;\n\
-  var field;\n\
-  var val;\n\
-\n\
-  lines.pop(); // trailing CRLF\n\
-\n\
-  for (var i = 0, len = lines.length; i < len; ++i) {\n\
-    line = lines[i];\n\
-    index = line.indexOf(':');\n\
-    field = line.slice(0, index).toLowerCase();\n\
-    val = trim(line.slice(index + 1));\n\
-    fields[field] = val;\n\
-  }\n\
-\n\
-  return fields;\n\
-}\n\
-\n\
-/**\n\
- * Return the mime type for the given `str`.\n\
- *\n\
- * @param {String} str\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function type(str){\n\
-  return str.split(/ *; */).shift();\n\
-};\n\
-\n\
-/**\n\
- * Return header field parameters.\n\
- *\n\
- * @param {String} str\n\
- * @return {Object}\n\
- * @api private\n\
- */\n\
-\n\
-function params(str){\n\
-  return reduce(str.split(/ *; */), function(obj, str){\n\
-    var parts = str.split(/ *= */)\n\
-      , key = parts.shift()\n\
-      , val = parts.shift();\n\
-\n\
-    if (key && val) obj[key] = val;\n\
-    return obj;\n\
-  }, {});\n\
-};\n\
-\n\
-/**\n\
- * Initialize a new `Response` with the given `xhr`.\n\
- *\n\
- *  - set flags (.ok, .error, etc)\n\
- *  - parse header\n\
- *\n\
- * Examples:\n\
- *\n\
- *  Aliasing `superagent` as `request` is nice:\n\
- *\n\
- *      request = superagent;\n\
- *\n\
- *  We can use the promise-like API, or pass callbacks:\n\
- *\n\
- *      request.get('/').end(function(res){});\n\
- *      request.get('/', function(res){});\n\
- *\n\
- *  Sending data can be chained:\n\
- *\n\
- *      request\n\
- *        .post('/user')\n\
- *        .send({ name: 'tj' })\n\
- *        .end(function(res){});\n\
- *\n\
- *  Or passed to `.send()`:\n\
- *\n\
- *      request\n\
- *        .post('/user')\n\
- *        .send({ name: 'tj' }, function(res){});\n\
- *\n\
- *  Or passed to `.post()`:\n\
- *\n\
- *      request\n\
- *        .post('/user', { name: 'tj' })\n\
- *        .end(function(res){});\n\
- *\n\
- * Or further reduced to a single call for simple cases:\n\
- *\n\
- *      request\n\
- *        .post('/user', { name: 'tj' }, function(res){});\n\
- *\n\
- * @param {XMLHTTPRequest} xhr\n\
- * @param {Object} options\n\
- * @api private\n\
- */\n\
-\n\
-function Response(req, options) {\n\
-  options = options || {};\n\
-  this.req = req;\n\
-  this.xhr = this.req.xhr;\n\
-  this.text = this.xhr.responseText;\n\
-  this.setStatusProperties(this.xhr.status);\n\
-  this.header = this.headers = parseHeader(this.xhr.getAllResponseHeaders());\n\
-  // getAllResponseHeaders sometimes falsely returns \"\" for CORS requests, but\n\
-  // getResponseHeader still works. so we get content-type even if getting\n\
-  // other headers fails.\n\
-  this.header['content-type'] = this.xhr.getResponseHeader('content-type');\n\
-  this.setHeaderProperties(this.header);\n\
-  this.body = this.req.method != 'HEAD'\n\
-    ? this.parseBody(this.text)\n\
-    : null;\n\
-}\n\
-\n\
-/**\n\
- * Get case-insensitive `field` value.\n\
- *\n\
- * @param {String} field\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-Response.prototype.get = function(field){\n\
-  return this.header[field.toLowerCase()];\n\
-};\n\
-\n\
-/**\n\
- * Set header related properties:\n\
- *\n\
- *   - `.type` the content type without params\n\
- *\n\
- * A response of \"Content-Type: text/plain; charset=utf-8\"\n\
- * will provide you with a `.type` of \"text/plain\".\n\
- *\n\
- * @param {Object} header\n\
- * @api private\n\
- */\n\
-\n\
-Response.prototype.setHeaderProperties = function(header){\n\
-  // content-type\n\
-  var ct = this.header['content-type'] || '';\n\
-  this.type = type(ct);\n\
-\n\
-  // params\n\
-  var obj = params(ct);\n\
-  for (var key in obj) this[key] = obj[key];\n\
-};\n\
-\n\
-/**\n\
- * Parse the given body `str`.\n\
- *\n\
- * Used for auto-parsing of bodies. Parsers\n\
- * are defined on the `superagent.parse` object.\n\
- *\n\
- * @param {String} str\n\
- * @return {Mixed}\n\
- * @api private\n\
- */\n\
-\n\
-Response.prototype.parseBody = function(str){\n\
-  var parse = request.parse[this.type];\n\
-  return parse\n\
-    ? parse(str)\n\
-    : null;\n\
-};\n\
-\n\
-/**\n\
- * Set flags such as `.ok` based on `status`.\n\
- *\n\
- * For example a 2xx response will give you a `.ok` of __true__\n\
- * whereas 5xx will be __false__ and `.error` will be __true__. The\n\
- * `.clientError` and `.serverError` are also available to be more\n\
- * specific, and `.statusType` is the class of error ranging from 1..5\n\
- * sometimes useful for mapping respond colors etc.\n\
- *\n\
- * \"sugar\" properties are also defined for common cases. Currently providing:\n\
- *\n\
- *   - .noContent\n\
- *   - .badRequest\n\
- *   - .unauthorized\n\
- *   - .notAcceptable\n\
- *   - .notFound\n\
- *\n\
- * @param {Number} status\n\
- * @api private\n\
- */\n\
-\n\
-Response.prototype.setStatusProperties = function(status){\n\
-  var type = status / 100 | 0;\n\
-\n\
-  // status / class\n\
-  this.status = status;\n\
-  this.statusType = type;\n\
-\n\
-  // basics\n\
-  this.info = 1 == type;\n\
-  this.ok = 2 == type;\n\
-  this.clientError = 4 == type;\n\
-  this.serverError = 5 == type;\n\
-  this.error = (4 == type || 5 == type)\n\
-    ? this.toError()\n\
-    : false;\n\
-\n\
-  // sugar\n\
-  this.accepted = 202 == status;\n\
-  this.noContent = 204 == status || 1223 == status;\n\
-  this.badRequest = 400 == status;\n\
-  this.unauthorized = 401 == status;\n\
-  this.notAcceptable = 406 == status;\n\
-  this.notFound = 404 == status;\n\
-  this.forbidden = 403 == status;\n\
-};\n\
-\n\
-/**\n\
- * Return an `Error` representative of this response.\n\
- *\n\
- * @return {Error}\n\
- * @api public\n\
- */\n\
-\n\
-Response.prototype.toError = function(){\n\
-  var req = this.req;\n\
-  var method = req.method;\n\
-  var url = req.url;\n\
-\n\
-  var msg = 'cannot ' + method + ' ' + url + ' (' + this.status + ')';\n\
-  var err = new Error(msg);\n\
-  err.status = this.status;\n\
-  err.method = method;\n\
-  err.url = url;\n\
-\n\
-  return err;\n\
-};\n\
-\n\
-/**\n\
- * Expose `Response`.\n\
- */\n\
-\n\
-request.Response = Response;\n\
-\n\
-/**\n\
- * Initialize a new `Request` with the given `method` and `url`.\n\
- *\n\
- * @param {String} method\n\
- * @param {String} url\n\
- * @api public\n\
- */\n\
-\n\
-function Request(method, url) {\n\
-  var self = this;\n\
-  Emitter.call(this);\n\
-  this._query = this._query || [];\n\
-  this.method = method;\n\
-  this.url = url;\n\
-  this.header = {};\n\
-  this._header = {};\n\
-  this.on('end', function(){\n\
-    var res = new Response(self);\n\
-    if ('HEAD' == method) res.text = null;\n\
-    self.callback(null, res);\n\
-  });\n\
-}\n\
-\n\
-/**\n\
- * Mixin `Emitter`.\n\
- */\n\
-\n\
-Emitter(Request.prototype);\n\
-\n\
-/**\n\
- * Allow for extension\n\
- */\n\
-\n\
-Request.prototype.use = function(fn) {\n\
-  fn(this);\n\
-  return this;\n\
-}\n\
-\n\
-/**\n\
- * Set timeout to `ms`.\n\
- *\n\
- * @param {Number} ms\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.timeout = function(ms){\n\
-  this._timeout = ms;\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Clear previous timeout.\n\
- *\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.clearTimeout = function(){\n\
-  this._timeout = 0;\n\
-  clearTimeout(this._timer);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Abort the request, and clear potential timeout.\n\
- *\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.abort = function(){\n\
-  if (this.aborted) return;\n\
-  this.aborted = true;\n\
-  this.xhr.abort();\n\
-  this.clearTimeout();\n\
-  this.emit('abort');\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Set header `field` to `val`, or multiple fields with one object.\n\
- *\n\
- * Examples:\n\
- *\n\
- *      req.get('/')\n\
- *        .set('Accept', 'application/json')\n\
- *        .set('X-API-Key', 'foobar')\n\
- *        .end(callback);\n\
- *\n\
- *      req.get('/')\n\
- *        .set({ Accept: 'application/json', 'X-API-Key': 'foobar' })\n\
- *        .end(callback);\n\
- *\n\
- * @param {String|Object} field\n\
- * @param {String} val\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.set = function(field, val){\n\
-  if (isObject(field)) {\n\
-    for (var key in field) {\n\
-      this.set(key, field[key]);\n\
-    }\n\
-    return this;\n\
-  }\n\
-  this._header[field.toLowerCase()] = val;\n\
-  this.header[field] = val;\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Get case-insensitive header `field` value.\n\
- *\n\
- * @param {String} field\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-Request.prototype.getHeader = function(field){\n\
-  return this._header[field.toLowerCase()];\n\
-};\n\
-\n\
-/**\n\
- * Set Content-Type to `type`, mapping values from `request.types`.\n\
- *\n\
- * Examples:\n\
- *\n\
- *      superagent.types.xml = 'application/xml';\n\
- *\n\
- *      request.post('/')\n\
- *        .type('xml')\n\
- *        .send(xmlstring)\n\
- *        .end(callback);\n\
- *\n\
- *      request.post('/')\n\
- *        .type('application/xml')\n\
- *        .send(xmlstring)\n\
- *        .end(callback);\n\
- *\n\
- * @param {String} type\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.type = function(type){\n\
-  this.set('Content-Type', request.types[type] || type);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Set Accept to `type`, mapping values from `request.types`.\n\
- *\n\
- * Examples:\n\
- *\n\
- *      superagent.types.json = 'application/json';\n\
- *\n\
- *      request.get('/agent')\n\
- *        .accept('json')\n\
- *        .end(callback);\n\
- *\n\
- *      request.get('/agent')\n\
- *        .accept('application/json')\n\
- *        .end(callback);\n\
- *\n\
- * @param {String} accept\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.accept = function(type){\n\
-  this.set('Accept', request.types[type] || type);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Set Authorization field value with `user` and `pass`.\n\
- *\n\
- * @param {String} user\n\
- * @param {String} pass\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.auth = function(user, pass){\n\
-  var str = btoa(user + ':' + pass);\n\
-  this.set('Authorization', 'Basic ' + str);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
-* Add query-string `val`.\n\
-*\n\
-* Examples:\n\
-*\n\
-*   request.get('/shoes')\n\
-*     .query('size=10')\n\
-*     .query({ color: 'blue' })\n\
-*\n\
-* @param {Object|String} val\n\
-* @return {Request} for chaining\n\
-* @api public\n\
-*/\n\
-\n\
-Request.prototype.query = function(val){\n\
-  if ('string' != typeof val) val = serialize(val);\n\
-  if (val) this._query.push(val);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Send `data`, defaulting the `.type()` to \"json\" when\n\
- * an object is given.\n\
- *\n\
- * Examples:\n\
- *\n\
- *       // querystring\n\
- *       request.get('/search')\n\
- *         .end(callback)\n\
- *\n\
- *       // multiple data \"writes\"\n\
- *       request.get('/search')\n\
- *         .send({ search: 'query' })\n\
- *         .send({ range: '1..5' })\n\
- *         .send({ order: 'desc' })\n\
- *         .end(callback)\n\
- *\n\
- *       // manual json\n\
- *       request.post('/user')\n\
- *         .type('json')\n\
- *         .send('{\"name\":\"tj\"})\n\
- *         .end(callback)\n\
- *\n\
- *       // auto json\n\
- *       request.post('/user')\n\
- *         .send({ name: 'tj' })\n\
- *         .end(callback)\n\
- *\n\
- *       // manual x-www-form-urlencoded\n\
- *       request.post('/user')\n\
- *         .type('form')\n\
- *         .send('name=tj')\n\
- *         .end(callback)\n\
- *\n\
- *       // auto x-www-form-urlencoded\n\
- *       request.post('/user')\n\
- *         .type('form')\n\
- *         .send({ name: 'tj' })\n\
- *         .end(callback)\n\
- *\n\
- *       // defaults to x-www-form-urlencoded\n\
-  *      request.post('/user')\n\
-  *        .send('name=tobi')\n\
-  *        .send('species=ferret')\n\
-  *        .end(callback)\n\
- *\n\
- * @param {String|Object} data\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.send = function(data){\n\
-  var obj = isObject(data);\n\
-  var type = this.getHeader('Content-Type');\n\
-\n\
-  // merge\n\
-  if (obj && isObject(this._data)) {\n\
-    for (var key in data) {\n\
-      this._data[key] = data[key];\n\
-    }\n\
-  } else if ('string' == typeof data) {\n\
-    if (!type) this.type('form');\n\
-    type = this.getHeader('Content-Type');\n\
-    if ('application/x-www-form-urlencoded' == type) {\n\
-      this._data = this._data\n\
-        ? this._data + '&' + data\n\
-        : data;\n\
-    } else {\n\
-      this._data = (this._data || '') + data;\n\
-    }\n\
-  } else {\n\
-    this._data = data;\n\
-  }\n\
-\n\
-  if (!obj) return this;\n\
-  if (!type) this.type('json');\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Invoke the callback with `err` and `res`\n\
- * and handle arity check.\n\
- *\n\
- * @param {Error} err\n\
- * @param {Response} res\n\
- * @api private\n\
- */\n\
-\n\
-Request.prototype.callback = function(err, res){\n\
-  var fn = this._callback;\n\
-  if (2 == fn.length) return fn(err, res);\n\
-  if (err) return this.emit('error', err);\n\
-  fn(res);\n\
-};\n\
-\n\
-/**\n\
- * Invoke callback with x-domain error.\n\
- *\n\
- * @api private\n\
- */\n\
-\n\
-Request.prototype.crossDomainError = function(){\n\
-  var err = new Error('Origin is not allowed by Access-Control-Allow-Origin');\n\
-  err.crossDomain = true;\n\
-  this.callback(err);\n\
-};\n\
-\n\
-/**\n\
- * Invoke callback with timeout error.\n\
- *\n\
- * @api private\n\
- */\n\
-\n\
-Request.prototype.timeoutError = function(){\n\
-  var timeout = this._timeout;\n\
-  var err = new Error('timeout of ' + timeout + 'ms exceeded');\n\
-  err.timeout = timeout;\n\
-  this.callback(err);\n\
-};\n\
-\n\
-/**\n\
- * Enable transmission of cookies with x-domain requests.\n\
- *\n\
- * Note that for this to work the origin must not be\n\
- * using \"Access-Control-Allow-Origin\" with a wildcard,\n\
- * and also must set \"Access-Control-Allow-Credentials\"\n\
- * to \"true\".\n\
- *\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.withCredentials = function(){\n\
-  this._withCredentials = true;\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Initiate request, invoking callback `fn(res)`\n\
- * with an instanceof `Response`.\n\
- *\n\
- * @param {Function} fn\n\
- * @return {Request} for chaining\n\
- * @api public\n\
- */\n\
-\n\
-Request.prototype.end = function(fn){\n\
-  var self = this;\n\
-  var xhr = this.xhr = getXHR();\n\
-  var query = this._query.join('&');\n\
-  var timeout = this._timeout;\n\
-  var data = this._data;\n\
-\n\
-  // store callback\n\
-  this._callback = fn || noop;\n\
-\n\
-  // state change\n\
-  xhr.onreadystatechange = function(){\n\
-    if (4 != xhr.readyState) return;\n\
-    if (0 == xhr.status) {\n\
-      if (self.aborted) return self.timeoutError();\n\
-      return self.crossDomainError();\n\
-    }\n\
-    self.emit('end');\n\
-  };\n\
-\n\
-  // progress\n\
-  if (xhr.upload) {\n\
-    xhr.upload.onprogress = function(e){\n\
-      e.percent = e.loaded / e.total * 100;\n\
-      self.emit('progress', e);\n\
-    };\n\
-  }\n\
-\n\
-  // timeout\n\
-  if (timeout && !this._timer) {\n\
-    this._timer = setTimeout(function(){\n\
-      self.abort();\n\
-    }, timeout);\n\
-  }\n\
-\n\
-  // querystring\n\
-  if (query) {\n\
-    query = request.serializeObject(query);\n\
-    this.url += ~this.url.indexOf('?')\n\
-      ? '&' + query\n\
-      : '?' + query;\n\
-  }\n\
-\n\
-  // initiate request\n\
-  xhr.open(this.method, this.url, true);\n\
-\n\
-  // CORS\n\
-  if (this._withCredentials) xhr.withCredentials = true;\n\
-\n\
-  // body\n\
-  if ('GET' != this.method && 'HEAD' != this.method && 'string' != typeof data && !isHost(data)) {\n\
-    // serialize stuff\n\
-    var serialize = request.serialize[this.getHeader('Content-Type')];\n\
-    if (serialize) data = serialize(data);\n\
-  }\n\
-\n\
-  // set header fields\n\
-  for (var field in this.header) {\n\
-    if (null == this.header[field]) continue;\n\
-    xhr.setRequestHeader(field, this.header[field]);\n\
-  }\n\
-\n\
-  // send stuff\n\
-  this.emit('request', this);\n\
-  xhr.send(data);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Expose `Request`.\n\
- */\n\
-\n\
-request.Request = Request;\n\
-\n\
-/**\n\
- * Issue a request:\n\
- *\n\
- * Examples:\n\
- *\n\
- *    request('GET', '/users').end(callback)\n\
- *    request('/users').end(callback)\n\
- *    request('/users', callback)\n\
- *\n\
- * @param {String} method\n\
- * @param {String|Function} url or callback\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-function request(method, url) {\n\
-  // callback\n\
-  if ('function' == typeof url) {\n\
-    return new Request('GET', method).end(url);\n\
-  }\n\
-\n\
-  // url first\n\
-  if (1 == arguments.length) {\n\
-    return new Request('GET', method);\n\
-  }\n\
-\n\
-  return new Request(method, url);\n\
-}\n\
-\n\
-/**\n\
- * GET `url` with optional callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Mixed|Function} data or fn\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.get = function(url, data, fn){\n\
-  var req = request('GET', url);\n\
-  if ('function' == typeof data) fn = data, data = null;\n\
-  if (data) req.query(data);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * HEAD `url` with optional callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Mixed|Function} data or fn\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.head = function(url, data, fn){\n\
-  var req = request('HEAD', url);\n\
-  if ('function' == typeof data) fn = data, data = null;\n\
-  if (data) req.send(data);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * DELETE `url` with optional callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.del = function(url, fn){\n\
-  var req = request('DELETE', url);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * PATCH `url` with optional `data` and callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Mixed} data\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.patch = function(url, data, fn){\n\
-  var req = request('PATCH', url);\n\
-  if ('function' == typeof data) fn = data, data = null;\n\
-  if (data) req.send(data);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * POST `url` with optional `data` and callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Mixed} data\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.post = function(url, data, fn){\n\
-  var req = request('POST', url);\n\
-  if ('function' == typeof data) fn = data, data = null;\n\
-  if (data) req.send(data);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * PUT `url` with optional `data` and callback `fn(res)`.\n\
- *\n\
- * @param {String} url\n\
- * @param {Mixed|Function} data or fn\n\
- * @param {Function} fn\n\
- * @return {Request}\n\
- * @api public\n\
- */\n\
-\n\
-request.put = function(url, data, fn){\n\
-  var req = request('PUT', url);\n\
-  if ('function' == typeof data) fn = data, data = null;\n\
-  if (data) req.send(data);\n\
-  if (fn) req.end(fn);\n\
-  return req;\n\
-};\n\
-\n\
-/**\n\
- * Expose `request`.\n\
- */\n\
-\n\
-module.exports = request;\n\
-//@ sourceURL=visionmedia-superagent/lib/client.js"
-));
 require.register("conveyal-otpprofiler.js/index.js", Function("exports, require, module",
 "var Batch = require('batch');\n\
 var clone = require('clone');\n\
@@ -12050,6 +11016,9 @@ function Profiler(opts) {\n\
 Profiler.prototype.journey = function(opts, callback) {\n\
   var batch = new Batch();\n\
   var profiler = this;\n\
+\n\
+  // Options limit\n\
+  opts.limit = opts.limit || this.limit;\n\
 \n\
   // If a profile isn't passed, retrieve the profile\n\
   batch.push(function(done) {\n\
@@ -12288,7 +11257,7 @@ Profiler.prototype.patterns = function(opts, callback) {\n\
   var profiler = this;\n\
 \n\
   // Get all unique pattern IDs\n\
-  var ids = this.getUniquePatternIds(opts.profile);\n\
+  var ids = this.getUniquePatternIds(opts.profile, opts.limit);\n\
 \n\
   // Load all the patterns\n\
   each(ids, function(id) {\n\
@@ -12304,21 +11273,24 @@ Profiler.prototype.patterns = function(opts, callback) {\n\
  * Get unique pattern ids from a profile\n\
  *\n\
  * @param {Object} profile\n\
+ * @param {Number} limit the number of options to use\n\
  * @return {Array} of pattern ids\n\
  */\n\
 \n\
-Profiler.prototype.getUniquePatternIds = function(profile) {\n\
+Profiler.prototype.getUniquePatternIds = function(profile, limit) {\n\
   var ids = [];\n\
 \n\
   // Iterate over each option and add the pattern if it does not already exist\n\
   each(profile.options, function(option, index) {\n\
-    each(option.segments, function(segment) {\n\
-      each(segment.segmentPatterns, function(pattern) {\n\
-        if (ids.indexOf(pattern.patternId) === -1) {\n\
-          ids.push(pattern.patternId);\n\
-        }\n\
+    if (index < limit) {\n\
+      each(option.segments, function(segment) {\n\
+        each(segment.segmentPatterns, function(pattern) {\n\
+          if (ids.indexOf(pattern.patternId) === -1) {\n\
+            ids.push(pattern.patternId);\n\
+          }\n\
+        });\n\
       });\n\
-    });\n\
+    }\n\
   });\n\
 \n\
   return ids;\n\
@@ -12347,13 +11319,6 @@ Profiler.prototype.profile = function(params, callback) {\n\
   qs.from = params.from.lat + ',' + params.from.lon;\n\
   qs.to = params.to.lat + ',' + params.to.lon;\n\
 \n\
-  // Options limit\n\
-  qs.limit = qs.limit || this.limit;\n\
-\n\
-  // Remove invalid options\n\
-  delete qs.profile;\n\
-\n\
-  // Request the profile\n\
   this.request('/profile?' + stringify(qs), callback);\n\
 };\n\
 \n\
@@ -14844,7 +13809,11 @@ NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
 NetworkGraph.prototype.collapseTransfers = function(threshold) {\n\
   threshold = threshold || 200;\n\
   this.edges.forEach(function(edge) {\n\
-    if(edge.getLength() > threshold) return;\n\
+    if(edge.getLength() > threshold || \n\
+       edge.fromVertex.point.containsFromPoint() || \n\
+       edge.fromVertex.point.containsToPoint() || \n\
+       edge.toVertex.point.containsFromPoint() || \n\
+       edge.toVertex.point.containsToPoint()) return;\n\
     //if(edge.fromVertex.point.getType() === 'PLACE' || edge.toVertex.point.getType() === 'PLACE') return;\n\
     var walk = true;\n\
     edge.pathSegments.forEach(function(segment) {\n\
@@ -16118,6 +15087,8 @@ require.register("transitive/lib/styler/styles.js", Function("exports, require, 
  */\n\
 \n\
 var d3 = require('d3');\n\
+var clone = require('clone');\n\
+\n\
 \n\
 /**\n\
  * Scales for utility functions to use\n\
@@ -16153,20 +15124,65 @@ exports.utils = {\n\
  * Default stop rules\n\
  */\n\
 \n\
-exports.stops_merged = {\n\
+var stops_merged = {\n\
+  \n\
   fill: [\n\
-    '#fff'\n\
+    '#fff',\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return point.focused ? '#000' : notFocusedColor;\n\
+    }\n\
   ],\n\
+  \n\
   stroke: [\n\
     '#000',\n\
     function (display, data, index, utils) {\n\
-      if(!data.owner.isFocused()) return notFocusedColor;\n\
+      var point = data.owner;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return '#fff';\n\
+      if(!point.isFocused()) return notFocusedColor;\n\
+      if(point.containsTransferPoint()) return '#008';\n\
     }\n\
   ],\n\
+\n\
   'stroke-width': [\n\
     2,\n\
-  ]\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if(point.containsTransferPoint()) return 3;\n\
+    }\n\
+  ],\n\
+\n\
+  /**\n\
+   *  Transitive-specific attribute specifying the shape of the main stop marker.\n\
+   *  Can be 'roundedrect', 'rectangle' or 'circle'\n\
+   */ \n\
+  'marker-type': [\n\
+    'roundedrect',\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if((point.containsBoardPoint() || point.containsAlightPoint()) && !point.containsTransferPoint()) return 'circle';\n\
+    }\n\
+  ],  \n\
+\n\
+  /**\n\
+   *  Transitive-specific attribute specifying any additional padding, in pixels,\n\
+   *  to apply to main stop marker. A value of zero (default) results in a that\n\
+   *  marker is flush to the edges of the pattern segment(s) the point is set against.\n\
+   *  A value greater than zero creates a marker that is larger than the width of\n\
+   *  the segments(s).\n\
+   */ \n\
+  'marker-padding': [\n\
+    3\n\
+  ],\n\
+\n\
+  visibility: [ function(display, data) {\n\
+    if(!data.owner.containsSegmentEndPoint()) return 'hidden';\n\
+  }]\n\
+\n\
 };\n\
+\n\
+exports.stops_merged = stops_merged;\n\
+\n\
 \n\
 exports.stops_pattern = {\n\
   cx: [\n\
@@ -16184,49 +15200,31 @@ exports.stops_pattern = {\n\
       return utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
     },\n\
     function (display, data, index, utils) {\n\
-      if (data.point.isEndPoint) {\n\
-        var width = data.point.renderData.length * utils.strokeWidth(display) / 2;\n\
-        return 1.75 * width;\n\
-      }\n\
-    },\n\
-    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
       var busOnly = true;\n\
-      data.point.patterns.forEach(function(pattern) {\n\
+      point.getPatterns().forEach(function(pattern) {\n\
         if(pattern.route.route_type !== 3) busOnly = false;\n\
       });\n\
-      if(busOnly && !data.point.isSegmentEndPoint) {\n\
+      if(busOnly && !point.containsSegmentEndPoint()) {\n\
         return 0.5 * utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
       }\n\
     }\n\
   ],\n\
   stroke: [\n\
-    '#000',\n\
+    /*'#000',\n\
     function (display, data) {\n\
       if(!data.point.focused || !data.point.isPatternFocused(data.segment.pattern.getId())) return notFocusedColor;\n\
-      if (data.point.isEndPoint && data.path.parent.route && data.path.parent.route.route_color) {\n\
-        return '#' + data.pattern.route.route_color;\n\
-      } else if (data.path.parent.route && data.path.parent.route.route_color) {\n\
-        return 'gray';\n\
-      }\n\
-    }\n\
+    }*/\n\
   ],\n\
   'stroke-width': [\n\
     1,\n\
     function (display, data, index, utils) {\n\
       return utils.pixels(display.zoom.scale(), 0.5, 1, 1.5) + 'px';\n\
-    },\n\
-    function (display, data, index, utils) {\n\
-      if (data.point.isSegmentEndPoint) {\n\
-        return '2px';\n\
-      }\n\
     }\n\
   ],\n\
   visibility: [ function(display, data) {\n\
-    if(data.point.isSegmentEndPoint && data.point.patternCount > 1) return 'hidden';\n\
-    if (data.point.renderData.length > 1) {\n\
-      if (data.point.renderData[0].displayed && data.point.isEndPoint) return 'hidden';\n\
-      data.point.renderData[0].displayed = true;\n\
-    }\n\
+    if(data.point.isSegmentEndPoint) return 'hidden';\n\
+    //if(data.point.isSegmentEndPoint && data.point.patternCount > 1) return 'hidden';\n\
   }]\n\
 };\n\
 \n\
@@ -16270,63 +15268,21 @@ exports.places = {\n\
 \n\
 \n\
 /**\n\
- * Default MultiPoint rules\n\
+ * Default MultiPoint rules -- based on Stop rules\n\
  */\n\
 \n\
-exports.multipoints_merged = {\n\
-  fill: [\n\
-    '#fff',\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint()) return '#0f0';\n\
-      if(point.containsToPoint()) return '#f00';\n\
-    }\n\
-  ],\n\
-  r: [\n\
-    6,\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return 10;\n\
-    }\n\
-  ],\n\
-  stroke: [\n\
-    '#000',\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return '#fff';\n\
-      if(!point.focused) return notFocusedColor;\n\
-    }\n\
-  ],\n\
-  'stroke-width': [\n\
-    4,\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return 3;\n\
-    }\n\
-  ],\n\
-  visibility: [ function(display, data) {\n\
-    return 'visible';\n\
-  }]\n\
-};\n\
+var multipoints_merged = clone(stops_merged);\n\
+\n\
+multipoints_merged.visibility = [\n\
+  true\n\
+];\n\
+\n\
+exports.multipoints_merged = multipoints_merged;\n\
 \n\
 \n\
-exports.multipoints_pattern = {\n\
-  fill: [\n\
-    '#fff'\n\
-  ],\n\
-  r: [\n\
-    6\n\
-  ],\n\
-  stroke: [\n\
-    '#000'\n\
-  ],\n\
-  'stroke-width': [\n\
-    4\n\
-  ],\n\
-  visibility: [ function(display, data) {\n\
-    return 'hidden';\n\
-  }]\n\
-};\n\
+\n\
+exports.multipoints_pattern = exports.stops_pattern; \n\
+\n\
 \n\
 \n\
 /**\n\
@@ -16346,22 +15302,13 @@ exports.labels = {\n\
       return utils.fontSize(display, data) + 'px';\n\
     }\n\
   ],\n\
-  /*visibility: [\n\
-    'hidden',\n\
-    function (display, data) {\n\
-      if(data.point.getType() === 'STOP' && data.point.isSegmentEndPoint) return 'visible';\n\
-      if(data.point.getType() === 'MULTI' || data.point.getType() === 'PLACE') return 'visible';\n\
-      /*if (display.zoom.scale() > 1) return 'visible';\n\
-      if (display.zoom.scale() >= 0.6 && data.point && data.point.isBranchPoint) return 'visible';\n\
-      if (display.zoom.scale() >= 0.4 && data.point && data.point.isSegmentEndPoint) return 'visible';\n\
+  'font-weight': [\n\
+    function(display, data, index, utils) {\n\
+      var point = data.owner.parent;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return 'bold';\n\
     }\n\
-  ],*/\n\
-  /*'text-transform': [\n\
-    'capitalize',\n\
-    function (display, data) {\n\
-      if (data.point && (data.point.isSegmentEndPoint || data.point.containsToPoint() || data.point.containsFromPoint())) return 'uppercase';\n\
-    }\n\
-  ]*/\n\
+  ],\n\
+\n\
 };\n\
 \n\
 /**\n\
@@ -16583,6 +15530,31 @@ var Point = augment(Object, function () {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    return [];\n\
+  };\n\
+\n\
+\n\
   /**\n\
    * Draw the point\n\
    *\n\
@@ -16623,35 +15595,11 @@ var Point = augment(Object, function () {\n\
 \n\
   //** Shared geom utility functions **//\n\
 \n\
-  this.constructMergedCircle = function(display, patternStylerKey) {\n\
-    console.log('cmc: '+ this.getName());\n\
+  this.constructMergedMarker = function(display, patternStylerKey) {\n\
 \n\
-    var debug = (this.getId() === '5742');\n\
-    var dataArray = this.getRenderDataArray();\n\
 \n\
-    var xValues = [], yValues = [];\n\
-    dataArray.forEach(function(data) {\n\
-      var x = display.xScale(data.x) + data.offsetX;\n\
-      var y = display.yScale(data.y) - data.offsetY;\n\
-      //if(debug) console.log(x + ', ' + y);\n\
-      xValues.push(x);\n\
-      yValues.push(y);\n\
-    });\n\
-    var minX = Math.min.apply(Math, xValues), minY = Math.min.apply(Math, yValues);\n\
-    var maxX = Math.max.apply(Math, xValues), maxY = Math.max.apply(Math, yValues);\n\
-    var baseRadius = Math.max( (maxX - minX), (maxY - minY) ) / 2;\n\
-\n\
-    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { 'point': this });\n\
-    var padding = parseFloat(patternRadius);//.substring(0, patternRadius.length - 2), 10) - 2;\n\
-\n\
-    return {\n\
-      'cx': (minX+maxX)/2,\n\
-      'cy': (minY+maxY)/2,\n\
-      'r': baseRadius + padding\n\
-    };\n\
-  };\n\
-\n\
-  this.constructMergedPolygon = function(display, patternStylerKey) {\n\
+    var markerType = display.styler.compute(display.styler.stops_merged['marker-type'], display, { owner : this });\n\
+    var markerPadding = display.styler.compute(display.styler.stops_merged['marker-padding'], display, { owner : this }) || 0;\n\
 \n\
     var dataArray = this.getRenderDataArray();\n\
 \n\
@@ -16664,64 +15612,34 @@ var Point = augment(Object, function () {\n\
     });\n\
     var minX = Math.min.apply(Math, xValues), minY = Math.min.apply(Math, yValues);\n\
     var maxX = Math.max.apply(Math, xValues), maxY = Math.max.apply(Math, yValues);\n\
+    var dx = maxX - minX, dy = maxY - minY;\n\
 \n\
-    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { 'point': this });\n\
-    var r = parseFloat(patternRadius); //.substring(0, patternRadius.length - 2), 10) - 2;\n\
-\n\
-    var x0, y0, x1, y1, x2, y2, x3, y3, pathStr;\n\
-    var dx = maxX - minX;\n\
-    var dy = maxY - minY;\n\
-    var l = Math.sqrt(dx * dx + dy * dy);\n\
-    if(l === 0) {\n\
-      x0 = minX + r;\n\
-      y0 = minY;\n\
-      x1 = minX - r;\n\
-      y1 = minY;\n\
-      pathStr = 'M ' + x0 + ' ' + y0;\n\
-      pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x1 + ' ' + y1;\n\
-      pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x0 + ' ' + y0;\n\
-      pathStr += ' Z';\n\
-      return {\n\
-        'd': pathStr\n\
-      };\n\
+    var width, height;\n\
+    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { owner: this });\n\
+    var r = parseFloat(patternRadius) + markerPadding;\n\
+    \n\
+    if(markerType === 'circle') {\n\
+      width = height = Math.max(dx, dy) + 2 * r;\n\
+      r = width/2;\n\
+    }\n\
+    else {\n\
+      width = dx + 2 * r;\n\
+      height = dy + 2 * r;\n\
+      if(markerType === 'rectangle') r = 0;\n\
     }\n\
 \n\
-    var vector = {\n\
-      x: dx / l,\n\
-      y: dy / l\n\
-    };\n\
-\n\
-    var leftVector = {\n\
-      x : -vector.y,\n\
-      y : vector.x\n\
-    };\n\
-\n\
-    var rightVector = {\n\
-      x : vector.y,\n\
-      y : -vector.x\n\
-    };\n\
-\n\
-    x0 = minX + r * leftVector.x;\n\
-    y0 = minY + r * leftVector.y;\n\
-    x1 = maxX + r * leftVector.x;\n\
-    y1 = maxY + r * leftVector.y;\n\
-    x2 = maxX + r * rightVector.x;\n\
-    y2 = maxY + r * rightVector.y;\n\
-    x3 = minX + r * rightVector.x;\n\
-    y3 = minY + r * rightVector.y;\n\
-\n\
-    pathStr = 'M ' + x0 + ' ' + y0;\n\
-    pathStr += ' L ' + x1 + ' ' + y1;\n\
-    pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x2 + ' ' + y2;\n\
-    pathStr += ' L ' + x3 + ' ' + y3;\n\
-    pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x0 + ' ' + y0;\n\
-    pathStr += ' Z';\n\
     return {\n\
-      'd': pathStr\n\
+      x: (minX+maxX)/2 - width/2,\n\
+      y: (minY+maxY)/2 - height/2,\n\
+      width: width,\n\
+      height: height,\n\
+      rx: r,\n\
+      ry: r\n\
     };\n\
+\n\
   };\n\
 \n\
-  \n\
+\n\
   this.refreshLabel = function(display) {\n\
 \n\
     if(!this.renderLabel) return; //|| !this.labelAnchor) return;\n\
@@ -16781,17 +15699,9 @@ var Stop = augment(Point, function(base) {\n\
 \n\
     this.patterns = [];\n\
 \n\
-    // flag indicating whether this stop is the endpoint of a pattern\n\
-    this.isEndPoint = false;\n\
-\n\
-    // flag indicating whether this stop is a point of convergence/divergence between 2+ patterns\n\
-    this.isBranchPoint = false;\n\
-\n\
     this.patternRenderData = {};\n\
     this.patternFocused = {};\n\
     this.patternCount = 0;\n\
-    \n\
-    this.mergedType = 'POLYGON';\n\
   };\n\
 \n\
   /**\n\
@@ -16835,6 +15745,31 @@ var Stop = augment(Point, function(base) {\n\
 \n\
   this.getLon = function() {\n\
     return this.stop_lon;\n\
+  };\n\
+\n\
+\n\
+  this.containsSegmentEndPoint = function() {\n\
+    return this.isSegmentEndPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    return this.isBoardPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    return this.isAlightPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    return this.isTransferPoint;\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    return this.patterns;\n\
   };\n\
 \n\
 \n\
@@ -16903,21 +15838,8 @@ var Stop = augment(Point, function(base) {\n\
 \n\
     this.initSvg(display);\n\
 \n\
-    // set up a visible merged marker\n\
-    if(this.patternCount > 1 && this.isSegmentEndPoint) {\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('circle');\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('path');\n\
-      }\n\
-    }\n\
-    else { // create an invisible merged marker to serve as the label anchor only\n\
-      this.mergedMarker = this.markerSvg.append('g').append('path')\n\
-        .attr({ visibility: 'hidden' });\n\
-    }\n\
-\n\
-    this.mergedMarker\n\
+    // set up the merged marker\n\
+    this.mergedMarker = this.markerSvg.append('g').append('rect')\n\
       .attr('class', 'transitive-sortable transitive-stop-marker-merged')\n\
       .datum(this.getMergedRenderData());\n\
 \n\
@@ -16951,12 +15873,7 @@ var Stop = augment(Point, function(base) {\n\
     // refresh the merged marker\n\
     if(this.mergedMarker) {\n\
       this.mergedMarker.datum(this.getMergedRenderData());\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker.attr(this.constructMergedCircle(display, 'stops_pattern'));\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker.attr(this.constructMergedPolygon(display, 'stops_pattern'));\n\
-      }\n\
+      this.mergedMarker.attr(this.constructMergedMarker(display, 'stops_pattern'));\n\
     }\n\
 \n\
   };\n\
@@ -17075,6 +15992,11 @@ var Place = augment(Point, function(base) {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    return true;\n\
+  };\n\
+\n\
+\n\
   this.containsFromPoint = function() {\n\
     return (this.getId() === 'from');\n\
   };\n\
@@ -17170,7 +16092,6 @@ var MultiPoint = augment(Point, function(base) {\n\
         this.addPoint(point);\n\
       }, this);\n\
     }\n\
-    this.mergedType = 'POLYGON';\n\
     this.renderData = [];\n\
     this.id = 'multi';\n\
     this.toPoint = this.fromPoint = null;\n\
@@ -17204,6 +16125,38 @@ var MultiPoint = augment(Point, function(base) {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsSegmentEndPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsBoardPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsAlightPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsTransferPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
   this.containsFromPoint = function() {\n\
     return (this.fromPoint !== null);\n\
   };\n\
@@ -17211,6 +16164,19 @@ var MultiPoint = augment(Point, function(base) {\n\
 \n\
   this.containsToPoint = function() {\n\
     return (this.toPoint !== null);\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    var patterns = [];\n\
+    \n\
+    this.points.forEach(function(point) {\n\
+      point.patterns.forEach(function(pattern) {\n\
+        if(patterns.indexOf(pattern) === -1) patterns.push(pattern);\n\
+      });\n\
+    });\n\
+\n\
+    return patterns;\n\
   };\n\
 \n\
 \n\
@@ -17283,16 +16249,10 @@ var MultiPoint = augment(Point, function(base) {\n\
         .attr('class', 'transitive-multipoint-marker-merged');\n\
     }\n\
     else if(this.hasOffsetPoints || this.renderData.length > 1) {\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('circle')\n\
-          .datum({ owner : this })\n\
-          .attr('class', 'transitive-multipoint-marker-merged');\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('path')\n\
-          .datum({ owner : this })\n\
-          .attr('class', 'transitive-multipoint-marker-merged');\n\
-      }\n\
+\n\
+      this.mergedMarker = this.markerSvg.append('g').append('rect')\n\
+        .datum({ owner : this })\n\
+        .attr('class', 'transitive-multipoint-marker-merged');\n\
     }\n\
   };\n\
 \n\
@@ -17306,30 +16266,11 @@ var MultiPoint = augment(Point, function(base) {\n\
   this.refresh = function(display) {\n\
     if (!this.renderData) return;\n\
 \n\
-    var data;\n\
     // refresh the merged marker\n\
     if(this.mergedMarker) {\n\
-      if(this.fromPoint || this.toPoint) {\n\
-        data = this.renderData[0];\n\
-        this.mergedMarker\n\
-          .attr({\n\
-            'cx' : display.xScale(data.x) + data.offsetX,\n\
-            'cy' : display.yScale(data.y) - data.offsetY\n\
-          });\n\
-      }\n\
-      else {\n\
-        if(this.mergedType === 'CIRCLE') {\n\
-          this.mergedMarker\n\
-            .datum({ owner : this })\n\
-            .attr(this.constructMergedCircle(display, 'multipoints_pattern'));\n\
-        }\n\
-        else if(this.mergedType === 'POLYGON') {\n\
-          this.mergedMarker\n\
-            .datum({ owner : this })\n\
-            .attr(this.constructMergedPolygon(display, 'multipoints_pattern'));\n\
-        }\n\
-      }\n\
-    }\n\
+      this.mergedMarker.datum({ owner : this });\n\
+      this.mergedMarker.attr(this.constructMergedMarker(display, 'multipoints_pattern'));\n\
+    }    \n\
 \n\
     \n\
     /*var cx, cy;\n\
@@ -17779,7 +16720,7 @@ var PointLabel = augment(Label, function(base) {\n\
     var typeStr = this.parent.getType().toLowerCase();\n\
 \n\
     this.mainLabel = this.svgGroup.append('text')\n\
-      .datum({ point: this.parent })\n\
+      .datum({ owner: this })\n\
       .attr('id', 'transitive-' + typeStr + '-label-' + this.parent.getId())\n\
       .text(this.getText())\n\
       .attr('class', 'transitive-' + typeStr + '-label');\n\
@@ -19127,7 +18068,6 @@ Transitive.prototype.load = function(data) {\n\
   for (var stopId in this.adjacentStops) {\n\
     if (this.adjacentStops[stopId].length > 2) {\n\
       this.addVertexPoint(this.stops[stopId]);\n\
-      this.stops[stopId].isBranchPoint = true;\n\
     }\n\
   }\n\
 \n\
@@ -19140,6 +18080,7 @@ Transitive.prototype.load = function(data) {\n\
 \n\
   this.populateGraphEdges(); //this.patterns, this.graph);\n\
   this.graph.collapseTransfers();\n\
+  this.annotateTransitPoints();\n\
   this.populateRenderSegments();\n\
   this.labeler.updateLabelList();\n\
 \n\
@@ -19512,12 +18453,57 @@ Transitive.prototype.populateGraphEdges = function() {\n\
   }\n\
 };\n\
 \n\
+\n\
+Transitive.prototype.annotateTransitPoints = function() {\n\
+  var lookup = {};\n\
+  this.renderSegments = [];\n\
+\n\
+  this.paths.forEach(function(path) {\n\
+\n\
+    var transitSegments = [];\n\
+    path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
+    });\n\
+\n\
+    path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') {\n\
+\n\
+        // if first transit segment in path, mark 'from' endpoint as board point\n\
+        if(transitSegments.indexOf(pathSegment) === 0) {\n\
+          pathSegment.points[0].isBoardPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'to' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if last transit segment in path, mark 'to' endpoint as alight point\n\
+        else if(transitSegments.indexOf(pathSegment) === transitSegments.length-1) {\n\
+          pathSegment.points[pathSegment.points.length-1].isAlightPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'from' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[0].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if this is an 'internal' transit segment, mark both endpoints as transfer points\n\
+        else if(transitSegments.length > 2) {\n\
+          pathSegment.points[0].isTransferPoint = true;\n\
+          pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+      }\n\
+    });\n\
+  });\n\
+};\n\
+\n\
+\n\
 Transitive.prototype.populateRenderSegments = function() {\n\
   var lookup = {};\n\
   this.renderSegments = [];\n\
 \n\
   this.paths.forEach(function(path) {\n\
+\n\
     path.segments.forEach(function(pathSegment) {\n\
+\n\
       pathSegment.renderSegments = [];\n\
       pathSegment.graphEdges.forEach(function(edge) {\n\
         var renderSegment;\n\
@@ -20138,8 +19124,6 @@ ProfilerLoader.prototype.constructData = function() {\n\
 
 
 
-
-
 require.register("yields-select/template.html", Function("exports, require, module",
 "module.exports = '<div class=\\'select select-single\\'>\\n\
   <div class=\\'select-box\\'>\\n\
@@ -20157,6 +19141,10 @@ require.alias("component-to-function/index.js", "component-each/deps/to-function
 require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
 
 require.alias("component-type/index.js", "component-each/deps/type/index.js");
+
+require.alias("component-clone/index.js", "transitive/deps/clone/index.js");
+require.alias("component-clone/index.js", "clone/index.js");
+require.alias("component-type/index.js", "component-clone/deps/type/index.js");
 
 require.alias("component-emitter/index.js", "transitive/deps/emitter/index.js");
 require.alias("component-emitter/index.js", "emitter/index.js");
@@ -20218,13 +19206,6 @@ require.alias("learnboost-jsonp/index.js", "learnboost-jsonp/index.js");
 require.alias("visionmedia-batch/index.js", "conveyal-otpprofiler.js/deps/batch/index.js");
 require.alias("component-emitter/index.js", "visionmedia-batch/deps/emitter/index.js");
 
-require.alias("visionmedia-superagent/lib/client.js", "conveyal-otpprofiler.js/deps/superagent/lib/client.js");
-require.alias("visionmedia-superagent/lib/client.js", "conveyal-otpprofiler.js/deps/superagent/index.js");
-require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
-
-require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
-
-require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
 require.alias("yields-select/index.js", "transitive/deps/select/index.js");
 require.alias("yields-select/index.js", "transitive/deps/select/index.js");
 require.alias("yields-select/index.js", "select/index.js");
