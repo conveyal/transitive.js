@@ -19,7 +19,7 @@ var init = function(profiler, od) {
       drawGrid: true,
       el: document.getElementById('canvas'),
       gridCellSize: 800,
-      style: STYLES
+      styles: STYLES
     });
 
     // apply computed behaviors
@@ -52,7 +52,7 @@ var init = function(profiler, od) {
 
 // Create new instance
 var profiler = new OtpProfiler({
-  host: 'http://localhost:8080/otp-rest-servlet',
+  host: 'http://localhost:8001/otp-rest-servlet',
   limit: 3 // limit the number of options to profile, defaults to 3
 });
 
