@@ -1,4 +1,3 @@
-
 .pillbox {
   display: inline-block;
   -webkit-user-select: none;
@@ -13,6 +12,11 @@
   border: none;
   outline: none;
 }
+
+
+
+
+
 
 
 
@@ -31,9 +35,6 @@
 .select {
   position: relative;
   display: inline-block;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -66,4 +67,3 @@
 .select-option.selected {
   display: none;
 }
-

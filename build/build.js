@@ -1,19 +1,39 @@
+
 /**
- * Require the module at `name`.
+ * Require the given path.
  *
- * @param {String} name
+ * @param {String} path
  * @return {Object} exports
  * @api public
  */
 
-function require(name) {
-  var module = require.modules[name];
-  if (!module) throw new Error('failed to require "' + name + '"');
+function require(path, parent, orig) {
+  var resolved = require.resolve(path);
 
-  if (!('exports' in module) && typeof module.definition === 'function') {
-    module.client = module.component = true;
-    module.definition.call(this, module.exports = {}, module);
-    delete module.definition;
+  // lookup failed
+  if (null == resolved) {
+    orig = orig || path;
+    parent = parent || 'root';
+    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
+    err.path = orig;
+    err.parent = parent;
+    err.require = true;
+    throw err;
+  }
+
+  var module = require.modules[resolved];
+
+  // perform real require()
+  // by invoking the module's
+  // registered function
+  if (!module._resolving && !module.exports) {
+    var mod = {};
+    mod.exports = {};
+    mod.client = mod.component = true;
+    module._resolving = true;
+    module.call(this, mod.exports, require.relative(resolved), mod);
+    delete module._resolving;
+    module.exports = mod.exports;
   }
 
   return module.exports;
@@ -26,263 +46,160 @@ function require(name) {
 require.modules = {};
 
 /**
- * Register module at `name` with callback `definition`.
+ * Registered aliases.
+ */
+
+require.aliases = {};
+
+/**
+ * Resolve `path`.
  *
- * @param {String} name
+ * Lookup:
+ *
+ *   - PATH/index.js
+ *   - PATH.js
+ *   - PATH
+ *
+ * @param {String} path
+ * @return {String} path or null
+ * @api private
+ */
+
+require.resolve = function(path) {
+  if (path.charAt(0) === '/') path = path.slice(1);
+
+  var paths = [
+    path,
+    path + '.js',
+    path + '.json',
+    path + '/index.js',
+    path + '/index.json'
+  ];
+
+  for (var i = 0; i < paths.length; i++) {
+    var path = paths[i];
+    if (require.modules.hasOwnProperty(path)) return path;
+    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
+  }
+};
+
+/**
+ * Normalize `path` relative to the current path.
+ *
+ * @param {String} curr
+ * @param {String} path
+ * @return {String}
+ * @api private
+ */
+
+require.normalize = function(curr, path) {
+  var segs = [];
+
+  if ('.' != path.charAt(0)) return path;
+
+  curr = curr.split('/');
+  path = path.split('/');
+
+  for (var i = 0; i < path.length; ++i) {
+    if ('..' == path[i]) {
+      curr.pop();
+    } else if ('.' != path[i] && '' != path[i]) {
+      segs.push(path[i]);
+    }
+  }
+
+  return curr.concat(segs).join('/');
+};
+
+/**
+ * Register module at `path` with callback `definition`.
+ *
+ * @param {String} path
  * @param {Function} definition
  * @api private
  */
 
-require.register = function (name, definition) {
-  require.modules[name] = {
-    definition: definition
-  };
+require.register = function(path, definition) {
+  require.modules[path] = definition;
 };
 
 /**
- * Define a module's exports immediately with `exports`.
+ * Alias a module definition.
  *
- * @param {String} name
- * @param {Generic} exports
+ * @param {String} from
+ * @param {String} to
  * @api private
  */
 
-require.define = function (name, exports) {
-  require.modules[name] = {
-    exports: exports
-  };
+require.alias = function(from, to) {
+  if (!require.modules.hasOwnProperty(from)) {
+    throw new Error('Failed to alias "' + from + '", it does not exist');
+  }
+  require.aliases[to] = from;
 };
-require.register("component~props@1.1.2", Function("exports, module",
-"/**\n\
- * Global Names\n\
- */\n\
-\n\
-var globals = /\\b(this|Array|Date|Object|Math|JSON)\\b/g;\n\
-\n\
-/**\n\
- * Return immediate identifiers parsed from `str`.\n\
- *\n\
- * @param {String} str\n\
- * @param {String|Function} map function or prefix\n\
- * @return {Array}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(str, fn){\n\
-  var p = unique(props(str));\n\
-  if (fn && 'string' == typeof fn) fn = prefixed(fn);\n\
-  if (fn) return map(str, p, fn);\n\
-  return p;\n\
-};\n\
-\n\
-/**\n\
- * Return immediate identifiers in `str`.\n\
- *\n\
- * @param {String} str\n\
- * @return {Array}\n\
- * @api private\n\
- */\n\
-\n\
-function props(str) {\n\
-  return str\n\
-    .replace(/\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\//g, '')\n\
-    .replace(globals, '')\n\
-    .match(/[$a-zA-Z_]\\w*/g)\n\
-    || [];\n\
-}\n\
-\n\
-/**\n\
- * Return `str` with `props` mapped with `fn`.\n\
- *\n\
- * @param {String} str\n\
- * @param {Array} props\n\
- * @param {Function} fn\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function map(str, props, fn) {\n\
-  var re = /\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\/|[a-zA-Z_]\\w*/g;\n\
-  return str.replace(re, function(_){\n\
-    if ('(' == _[_.length - 1]) return fn(_);\n\
-    if (!~props.indexOf(_)) return _;\n\
-    return fn(_);\n\
-  });\n\
-}\n\
-\n\
-/**\n\
- * Return unique array.\n\
- *\n\
- * @param {Array} arr\n\
- * @return {Array}\n\
- * @api private\n\
- */\n\
-\n\
-function unique(arr) {\n\
-  var ret = [];\n\
-\n\
-  for (var i = 0; i < arr.length; i++) {\n\
-    if (~ret.indexOf(arr[i])) continue;\n\
-    ret.push(arr[i]);\n\
-  }\n\
-\n\
-  return ret;\n\
-}\n\
-\n\
-/**\n\
- * Map with prefix `str`.\n\
- */\n\
-\n\
-function prefixed(str) {\n\
-  return function(_){\n\
-    return str + _;\n\
-  };\n\
-}\n\
-\n\
-//# sourceURL=components/component/props/1.1.2/index.js"
-));
 
-require.modules["component-props"] = require.modules["component~props@1.1.2"];
-require.modules["component~props"] = require.modules["component~props@1.1.2"];
-require.modules["props"] = require.modules["component~props@1.1.2"];
+/**
+ * Return a require function relative to the `parent` path.
+ *
+ * @param {String} parent
+ * @return {Function}
+ * @api private
+ */
 
+require.relative = function(parent) {
+  var p = require.normalize(parent, '..');
 
-require.register("component~to-function@2.0.0", Function("exports, module",
-"/**\n\
- * Module Dependencies\n\
- */\n\
-\n\
-var expr = require(\"component~props@1.1.2\");\n\
-\n\
-/**\n\
- * Expose `toFunction()`.\n\
- */\n\
-\n\
-module.exports = toFunction;\n\
-\n\
-/**\n\
- * Convert `obj` to a `Function`.\n\
- *\n\
- * @param {Mixed} obj\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function toFunction(obj) {\n\
-  switch ({}.toString.call(obj)) {\n\
-    case '[object Object]':\n\
-      return objectToFunction(obj);\n\
-    case '[object Function]':\n\
-      return obj;\n\
-    case '[object String]':\n\
-      return stringToFunction(obj);\n\
-    case '[object RegExp]':\n\
-      return regexpToFunction(obj);\n\
-    default:\n\
-      return defaultToFunction(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Default to strict equality.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function defaultToFunction(val) {\n\
-  return function(obj){\n\
-    return val === obj;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert `re` to a function.\n\
- *\n\
- * @param {RegExp} re\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function regexpToFunction(re) {\n\
-  return function(obj){\n\
-    return re.test(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert property `str` to a function.\n\
- *\n\
- * @param {String} str\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function stringToFunction(str) {\n\
-  // immediate such as \"> 20\"\n\
-  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
-\n\
-  // properties such as \"name.first\" or \"age > 18\" or \"age > 18 && age < 36\"\n\
-  return new Function('_', 'return ' + get(str));\n\
-}\n\
-\n\
-/**\n\
- * Convert `object` to a function.\n\
- *\n\
- * @param {Object} object\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function objectToFunction(obj) {\n\
-  var match = {}\n\
-  for (var key in obj) {\n\
-    match[key] = typeof obj[key] === 'string'\n\
-      ? defaultToFunction(obj[key])\n\
-      : toFunction(obj[key])\n\
-  }\n\
-  return function(val){\n\
-    if (typeof val !== 'object') return false;\n\
-    for (var key in match) {\n\
-      if (!(key in val)) return false;\n\
-      if (!match[key](val[key])) return false;\n\
-    }\n\
-    return true;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Built the getter function. Supports getter style functions\n\
- *\n\
- * @param {String} str\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function get(str) {\n\
-  var props = expr(str);\n\
-  if (!props.length) return '_.' + str;\n\
-\n\
-  var val;\n\
-  for(var i = 0, prop; prop = props[i]; i++) {\n\
-    val = '_.' + prop;\n\
-    val = \"('function' == typeof \" + val + \" ? \" + val + \"() : \" + val + \")\";\n\
-    str = str.replace(new RegExp(prop, 'g'), val);\n\
-  }\n\
-\n\
-  return str;\n\
-}\n\
-\n\
-//# sourceURL=components/component/to-function/2.0.0/index.js"
-));
+  /**
+   * lastIndexOf helper.
+   */
 
-require.modules["component-to-function"] = require.modules["component~to-function@2.0.0"];
-require.modules["component~to-function"] = require.modules["component~to-function@2.0.0"];
-require.modules["to-function"] = require.modules["component~to-function@2.0.0"];
+  function lastIndexOf(arr, obj) {
+    var i = arr.length;
+    while (i--) {
+      if (arr[i] === obj) return i;
+    }
+    return -1;
+  }
 
+  /**
+   * The relative require() itself.
+   */
 
-require.register("component~type@c817c", Function("exports, module",
+  function localRequire(path) {
+    var resolved = localRequire.resolve(path);
+    return require(resolved, parent, path);
+  }
+
+  /**
+   * Resolve relative to the parent.
+   */
+
+  localRequire.resolve = function(path) {
+    var c = path.charAt(0);
+    if ('/' == c) return path.slice(1);
+    if ('.' == c) return require.normalize(p, path);
+
+    // resolve deps by returning
+    // the dep in the nearest "deps"
+    // directory
+    var segs = parent.split('/');
+    var i = lastIndexOf(segs, 'deps') + 1;
+    if (!i) i = 0;
+    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
+    return path;
+  };
+
+  /**
+   * Check if module is defined at `path`.
+   */
+
+  localRequire.exists = function(path) {
+    return require.modules.hasOwnProperty(localRequire.resolve(path));
+  };
+
+  return localRequire;
+};
+require.register("component-type/index.js", Function("exports, require, module",
 "/**\n\
  * toString ref.\n\
  */\n\
@@ -313,65 +230,16 @@ module.exports = function(val){\n\
 \n\
   return typeof val.valueOf();\n\
 };\n\
-\n\
-//# sourceURL=components/component/type/c817c/index.js"
+//@ sourceURL=component-type/index.js"
 ));
-
-require.modules["component-type"] = require.modules["component~type@c817c"];
-require.modules["component~type"] = require.modules["component~type@c817c"];
-require.modules["type"] = require.modules["component~type@c817c"];
-
-
-require.register("component~type@1.0.0", Function("exports, module",
-"\n\
-/**\n\
- * toString ref.\n\
- */\n\
-\n\
-var toString = Object.prototype.toString;\n\
-\n\
-/**\n\
- * Return the type of `val`.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(val){\n\
-  switch (toString.call(val)) {\n\
-    case '[object Function]': return 'function';\n\
-    case '[object Date]': return 'date';\n\
-    case '[object RegExp]': return 'regexp';\n\
-    case '[object Arguments]': return 'arguments';\n\
-    case '[object Array]': return 'array';\n\
-    case '[object String]': return 'string';\n\
-  }\n\
-\n\
-  if (val === null) return 'null';\n\
-  if (val === undefined) return 'undefined';\n\
-  if (val && val.nodeType === 1) return 'element';\n\
-  if (val === Object(val)) return 'object';\n\
-\n\
-  return typeof val;\n\
-};\n\
-\n\
-//# sourceURL=components/component/type/1.0.0/index.js"
-));
-
-require.modules["component-type"] = require.modules["component~type@1.0.0"];
-require.modules["component~type"] = require.modules["component~type@1.0.0"];
-require.modules["type"] = require.modules["component~type@1.0.0"];
-
-
-require.register("component~each@0.2.3", Function("exports, module",
+require.register("component-each/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var type = require(\"component~type@1.0.0\");\n\
-var toFunction = require(\"component~to-function@2.0.0\");\n\
+var type = require('type');\n\
+var toFunction = require('to-function');\n\
 \n\
 /**\n\
  * HOP reference.\n\
@@ -449,16 +317,69 @@ function array(obj, fn, ctx) {\n\
     fn.call(ctx, obj[i], i);\n\
   }\n\
 }\n\
-\n\
-//# sourceURL=components/component/each/0.2.3/index.js"
+//@ sourceURL=component-each/index.js"
 ));
-
-require.modules["component-each"] = require.modules["component~each@0.2.3"];
-require.modules["component~each"] = require.modules["component~each@0.2.3"];
-require.modules["each"] = require.modules["component~each@0.2.3"];
-
-
-require.register("component~emitter@1.1.2", Function("exports, module",
+require.register("component-clone/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var type;\n\
+try {\n\
+  type = require('component-type');\n\
+} catch (_) {\n\
+  type = require('type');\n\
+}\n\
+\n\
+/**\n\
+ * Module exports.\n\
+ */\n\
+\n\
+module.exports = clone;\n\
+\n\
+/**\n\
+ * Clones objects.\n\
+ *\n\
+ * @param {Mixed} any object\n\
+ * @api public\n\
+ */\n\
+\n\
+function clone(obj){\n\
+  switch (type(obj)) {\n\
+    case 'object':\n\
+      var copy = {};\n\
+      for (var key in obj) {\n\
+        if (obj.hasOwnProperty(key)) {\n\
+          copy[key] = clone(obj[key]);\n\
+        }\n\
+      }\n\
+      return copy;\n\
+\n\
+    case 'array':\n\
+      var copy = new Array(obj.length);\n\
+      for (var i = 0, l = obj.length; i < l; i++) {\n\
+        copy[i] = clone(obj[i]);\n\
+      }\n\
+      return copy;\n\
+\n\
+    case 'regexp':\n\
+      // from millermedeiros/amd-utils - MIT\n\
+      var flags = '';\n\
+      flags += obj.multiline ? 'm' : '';\n\
+      flags += obj.global ? 'g' : '';\n\
+      flags += obj.ignoreCase ? 'i' : '';\n\
+      return new RegExp(obj.source, flags);\n\
+\n\
+    case 'date':\n\
+      return new Date(obj.getTime());\n\
+\n\
+    default: // string, number, boolean, …\n\
+      return obj;\n\
+  }\n\
+}\n\
+//@ sourceURL=component-clone/index.js"
+));
+require.register("component-emitter/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Emitter`.\n\
@@ -623,16 +544,228 @@ Emitter.prototype.listeners = function(event){\n\
 Emitter.prototype.hasListeners = function(event){\n\
   return !! this.listeners(event).length;\n\
 };\n\
-\n\
-//# sourceURL=components/component/emitter/1.1.2/index.js"
+//@ sourceURL=component-emitter/index.js"
 ));
-
-require.modules["component-emitter"] = require.modules["component~emitter@1.1.2"];
-require.modules["component~emitter"] = require.modules["component~emitter@1.1.2"];
-require.modules["emitter"] = require.modules["component~emitter@1.1.2"];
-
-
-require.register("cristiandouce~merge-util@0.1.0", Function("exports, module",
+require.register("component-props/index.js", Function("exports, require, module",
+"/**\n\
+ * Global Names\n\
+ */\n\
+\n\
+var globals = /\\b(this|Array|Date|Object|Math|JSON)\\b/g;\n\
+\n\
+/**\n\
+ * Return immediate identifiers parsed from `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @param {String|Function} map function or prefix\n\
+ * @return {Array}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(str, fn){\n\
+  var p = unique(props(str));\n\
+  if (fn && 'string' == typeof fn) fn = prefixed(fn);\n\
+  if (fn) return map(str, p, fn);\n\
+  return p;\n\
+};\n\
+\n\
+/**\n\
+ * Return immediate identifiers in `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Array}\n\
+ * @api private\n\
+ */\n\
+\n\
+function props(str) {\n\
+  return str\n\
+    .replace(/\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\//g, '')\n\
+    .replace(globals, '')\n\
+    .match(/[$a-zA-Z_]\\w*/g)\n\
+    || [];\n\
+}\n\
+\n\
+/**\n\
+ * Return `str` with `props` mapped with `fn`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @param {Array} props\n\
+ * @param {Function} fn\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function map(str, props, fn) {\n\
+  var re = /\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\/|[a-zA-Z_]\\w*/g;\n\
+  return str.replace(re, function(_){\n\
+    if ('(' == _[_.length - 1]) return fn(_);\n\
+    if (!~props.indexOf(_)) return _;\n\
+    return fn(_);\n\
+  });\n\
+}\n\
+\n\
+/**\n\
+ * Return unique array.\n\
+ *\n\
+ * @param {Array} arr\n\
+ * @return {Array}\n\
+ * @api private\n\
+ */\n\
+\n\
+function unique(arr) {\n\
+  var ret = [];\n\
+\n\
+  for (var i = 0; i < arr.length; i++) {\n\
+    if (~ret.indexOf(arr[i])) continue;\n\
+    ret.push(arr[i]);\n\
+  }\n\
+\n\
+  return ret;\n\
+}\n\
+\n\
+/**\n\
+ * Map with prefix `str`.\n\
+ */\n\
+\n\
+function prefixed(str) {\n\
+  return function(_){\n\
+    return str + _;\n\
+  };\n\
+}\n\
+//@ sourceURL=component-props/index.js"
+));
+require.register("component-to-function/index.js", Function("exports, require, module",
+"/**\n\
+ * Module Dependencies\n\
+ */\n\
+try {\n\
+  var expr = require('props');\n\
+} catch(e) {\n\
+  var expr = require('component-props');\n\
+}\n\
+\n\
+/**\n\
+ * Expose `toFunction()`.\n\
+ */\n\
+\n\
+module.exports = toFunction;\n\
+\n\
+/**\n\
+ * Convert `obj` to a `Function`.\n\
+ *\n\
+ * @param {Mixed} obj\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function toFunction(obj) {\n\
+  switch ({}.toString.call(obj)) {\n\
+    case '[object Object]':\n\
+      return objectToFunction(obj);\n\
+    case '[object Function]':\n\
+      return obj;\n\
+    case '[object String]':\n\
+      return stringToFunction(obj);\n\
+    case '[object RegExp]':\n\
+      return regexpToFunction(obj);\n\
+    default:\n\
+      return defaultToFunction(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Default to strict equality.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function defaultToFunction(val) {\n\
+  return function(obj){\n\
+    return val === obj;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert `re` to a function.\n\
+ *\n\
+ * @param {RegExp} re\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function regexpToFunction(re) {\n\
+  return function(obj){\n\
+    return re.test(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert property `str` to a function.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function stringToFunction(str) {\n\
+  // immediate such as \"> 20\"\n\
+  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
+\n\
+  // properties such as \"name.first\" or \"age > 18\" or \"age > 18 && age < 36\"\n\
+  return new Function('_', 'return ' + get(str));\n\
+}\n\
+\n\
+/**\n\
+ * Convert `object` to a function.\n\
+ *\n\
+ * @param {Object} object\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function objectToFunction(obj) {\n\
+  var match = {}\n\
+  for (var key in obj) {\n\
+    match[key] = typeof obj[key] === 'string'\n\
+      ? defaultToFunction(obj[key])\n\
+      : toFunction(obj[key])\n\
+  }\n\
+  return function(val){\n\
+    if (typeof val !== 'object') return false;\n\
+    for (var key in match) {\n\
+      if (!(key in val)) return false;\n\
+      if (!match[key](val[key])) return false;\n\
+    }\n\
+    return true;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Built the getter function. Supports getter style functions\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function get(str) {\n\
+  var props = expr(str);\n\
+  if (!props.length) return '_.' + str;\n\
+\n\
+  var val;\n\
+  for(var i = 0, prop; prop = props[i]; i++) {\n\
+    val = '_.' + prop;\n\
+    val = \"('function' == typeof \" + val + \" ? \" + val + \"() : \" + val + \")\";\n\
+    str = str.replace(new RegExp(prop, 'g'), val);\n\
+  }\n\
+\n\
+  return str;\n\
+}\n\
+//@ sourceURL=component-to-function/index.js"
+));
+require.register("cristiandouce-merge-util/index.js", Function("exports, require, module",
 "/**\n\
  * Module dependencies.\n\
  */\n\
@@ -640,9 +773,9 @@ require.register("cristiandouce~merge-util@0.1.0", Function("exports, module",
 var has = Object.prototype.hasOwnProperty;\n\
 \n\
 try {\n\
-  var type = require(\"type-component\");\n\
+  var type = require('type-component');\n\
 } catch (err) {\n\
-  var type = require(\"component~type@c817c\");\n\
+  var type = require('type');\n\
 }\n\
 \n\
 /**\n\
@@ -677,16 +810,9 @@ function merge (a, b, inheritance){\n\
     }\n\
   }\n\
   return a;\n\
-};\n\
-//# sourceURL=components/cristiandouce/merge-util/0.1.0/index.js"
+};//@ sourceURL=cristiandouce-merge-util/index.js"
 ));
-
-require.modules["cristiandouce-merge-util"] = require.modules["cristiandouce~merge-util@0.1.0"];
-require.modules["cristiandouce~merge-util"] = require.modules["cristiandouce~merge-util@0.1.0"];
-require.modules["merge-util"] = require.modules["cristiandouce~merge-util@0.1.0"];
-
-
-require.register("mbostock~d3@v3.4.6", Function("exports, module",
+require.register("mbostock-d3/d3.js", Function("exports, require, module",
 "!function() {\n\
   var d3 = {\n\
     version: \"3.4.6\"\n\
@@ -9952,366 +10078,9 @@ require.register("mbostock~d3@v3.4.6", Function("exports, module",
   } else {\n\
     this.d3 = d3;\n\
   }\n\
-}();\n\
-//# sourceURL=components/mbostock/d3/v3.4.6/d3.js"
+}();//@ sourceURL=mbostock-d3/d3.js"
 ));
-
-require.modules["mbostock-d3"] = require.modules["mbostock~d3@v3.4.6"];
-require.modules["mbostock~d3"] = require.modules["mbostock~d3@v3.4.6"];
-require.modules["d3"] = require.modules["mbostock~d3@v3.4.6"];
-
-
-require.register("trevorgerhardt~stylesheet@master", Function("exports, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var merge = require(\"cristiandouce~merge-util@0.1.0\");\n\
-\n\
-/**\n\
- * Expose `StyleSheet`\n\
- */\n\
-\n\
-module.exports = StyleSheet;\n\
-\n\
-/**\n\
- * Create an instance of StyleSheet\n\
- *\n\
- * @param {Object} CSS rules\n\
- * @param {Object} variables to substitute\n\
- */\n\
-\n\
-function StyleSheet(rules, variables) {\n\
-  if (!(this instanceof StyleSheet)) {\n\
-    return new StyleSheet(rules, variables);\n\
-  }\n\
-\n\
-  this.variables = {};\n\
-  this.rules = {};\n\
-\n\
-  if (rules) {\n\
-    this.add(rules);\n\
-  }\n\
-\n\
-  if (variables) {\n\
-    this.define(variables);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Define new variables.\n\
- *\n\
- * @param {Object}\n\
- */\n\
-\n\
-StyleSheet.prototype.define = function(variables) {\n\
-  this.variables = merge(this.variables, variables);\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Add new css but won't refresh the style element's content.\n\
- *\n\
- * @param {Object}\n\
- */\n\
-\n\
-StyleSheet.prototype.add = function(rules) {\n\
-  this.rules = merge(this.rules, rules);\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Append new css to the style element or refresh its content.\n\
- */\n\
-\n\
-StyleSheet.prototype.render = function() {\n\
-  if (!this.el) {\n\
-    this.el = createStyleSheetElement();\n\
-  }\n\
-\n\
-  this.el.innerHTML = generateCSS(this.rules, this.variables);\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Clear the styles & variables.\n\
- */\n\
-\n\
-StyleSheet.prototype.clear = function() {\n\
-  this.el.innerHTML = '';\n\
-  this.rules = '';\n\
-  this.variables = {};\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Remove the style element.\n\
- */\n\
-\n\
-StyleSheet.prototype.remove = function() {\n\
-  var el = this.el;\n\
-  if (el && el.parentNode) {\n\
-    el.parentNode.removeChild(el);\n\
-    this.el = null;\n\
-  }\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/*\n\
- * Create new stylesheet.\n\
- */\n\
-\n\
-function createStyleSheetElement() {\n\
-  var elem = document.createElement('style');\n\
-  var head = document.getElementsByTagName('head')[0];\n\
-\n\
-  head.appendChild(elem);\n\
-  return elem;\n\
-}\n\
-\n\
-/*\n\
- * Generate CSS subsituting in the variables\n\
- */\n\
-\n\
-function generateCSS(rules, variables) {\n\
-  var list = '';\n\
-  var value;\n\
-  for (var selector in rules) {\n\
-    list += selector + '{';\n\
-    for (var rule in rules[selector]) {\n\
-      value = rules[selector][rule];\n\
-\n\
-      if (isFunction(value)) {\n\
-        value = value();\n\
-      }\n\
-\n\
-      list += rule + ':' + value + ';';\n\
-    }\n\
-\n\
-    list += '}';\n\
-  }\n\
-\n\
-  // substitue in the variables\n\
-  for (var name in variables) {\n\
-    value = variables[name];\n\
-\n\
-    if (isFunction(value)) {\n\
-      value = value();\n\
-    }\n\
-\n\
-    list = list.replace(new RegExp('@' + name, 'gi'), value);\n\
-  }\n\
-\n\
-  return list;\n\
-}\n\
-\n\
-/**\n\
- * Is function?\n\
- */\n\
-\n\
-function isFunction(val) {\n\
-  return Object.prototype.toString.call(val) === '[object Function]';\n\
-}\n\
-\n\
-//# sourceURL=components/trevorgerhardt/stylesheet/master/index.js"
-));
-
-require.modules["trevorgerhardt-stylesheet"] = require.modules["trevorgerhardt~stylesheet@master"];
-require.modules["trevorgerhardt~stylesheet"] = require.modules["trevorgerhardt~stylesheet@master"];
-require.modules["stylesheet"] = require.modules["trevorgerhardt~stylesheet@master"];
-
-
-require.register("visionmedia~debug@0.8.1", Function("exports, module",
-"\n\
-/**\n\
- * Expose `debug()` as the module.\n\
- */\n\
-\n\
-module.exports = debug;\n\
-\n\
-/**\n\
- * Create a debugger with the given `name`.\n\
- *\n\
- * @param {String} name\n\
- * @return {Type}\n\
- * @api public\n\
- */\n\
-\n\
-function debug(name) {\n\
-  if (!debug.enabled(name)) return function(){};\n\
-\n\
-  return function(fmt){\n\
-    fmt = coerce(fmt);\n\
-\n\
-    var curr = new Date;\n\
-    var ms = curr - (debug[name] || curr);\n\
-    debug[name] = curr;\n\
-\n\
-    fmt = name\n\
-      + ' '\n\
-      + fmt\n\
-      + ' +' + debug.humanize(ms);\n\
-\n\
-    // This hackery is required for IE8\n\
-    // where `console.log` doesn't have 'apply'\n\
-    window.console\n\
-      && console.log\n\
-      && Function.prototype.apply.call(console.log, console, arguments);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * The currently active debug mode names.\n\
- */\n\
-\n\
-debug.names = [];\n\
-debug.skips = [];\n\
-\n\
-/**\n\
- * Enables a debug mode by name. This can include modes\n\
- * separated by a colon and wildcards.\n\
- *\n\
- * @param {String} name\n\
- * @api public\n\
- */\n\
-\n\
-debug.enable = function(name) {\n\
-  try {\n\
-    localStorage.debug = name;\n\
-  } catch(e){}\n\
-\n\
-  var split = (name || '').split(/[\\s,]+/)\n\
-    , len = split.length;\n\
-\n\
-  for (var i = 0; i < len; i++) {\n\
-    name = split[i].replace('*', '.*?');\n\
-    if (name[0] === '-') {\n\
-      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));\n\
-    }\n\
-    else {\n\
-      debug.names.push(new RegExp('^' + name + '$'));\n\
-    }\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Disable debug output.\n\
- *\n\
- * @api public\n\
- */\n\
-\n\
-debug.disable = function(){\n\
-  debug.enable('');\n\
-};\n\
-\n\
-/**\n\
- * Humanize the given `ms`.\n\
- *\n\
- * @param {Number} m\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-debug.humanize = function(ms) {\n\
-  var sec = 1000\n\
-    , min = 60 * 1000\n\
-    , hour = 60 * min;\n\
-\n\
-  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';\n\
-  if (ms >= min) return (ms / min).toFixed(1) + 'm';\n\
-  if (ms >= sec) return (ms / sec | 0) + 's';\n\
-  return ms + 'ms';\n\
-};\n\
-\n\
-/**\n\
- * Returns true if the given mode name is enabled, false otherwise.\n\
- *\n\
- * @param {String} name\n\
- * @return {Boolean}\n\
- * @api public\n\
- */\n\
-\n\
-debug.enabled = function(name) {\n\
-  for (var i = 0, len = debug.skips.length; i < len; i++) {\n\
-    if (debug.skips[i].test(name)) {\n\
-      return false;\n\
-    }\n\
-  }\n\
-  for (var i = 0, len = debug.names.length; i < len; i++) {\n\
-    if (debug.names[i].test(name)) {\n\
-      return true;\n\
-    }\n\
-  }\n\
-  return false;\n\
-};\n\
-\n\
-/**\n\
- * Coerce `val`.\n\
- */\n\
-\n\
-function coerce(val) {\n\
-  if (val instanceof Error) return val.stack || val.message;\n\
-  return val;\n\
-}\n\
-\n\
-// persist\n\
-\n\
-try {\n\
-  if (window.localStorage) debug.enable(localStorage.debug);\n\
-} catch(e){}\n\
-\n\
-//# sourceURL=components/visionmedia/debug/0.8.1/debug.js"
-));
-
-require.modules["visionmedia-debug"] = require.modules["visionmedia~debug@0.8.1"];
-require.modules["visionmedia~debug"] = require.modules["visionmedia~debug@0.8.1"];
-require.modules["debug"] = require.modules["visionmedia~debug@0.8.1"];
-
-
-require.register("yields~svg-attributes@master", Function("exports, module",
-"\n\
-/**\n\
- * SVG Attributes\n\
- *\n\
- * http://www.w3.org/TR/SVG/attindex.html\n\
- */\n\
-\n\
-module.exports = [\n\
-  'height',\n\
-  'target',\n\
-  'title',\n\
-  'width',\n\
-  'y1',\n\
-  'y2',\n\
-  'x1',\n\
-  'x2',\n\
-  'cx',\n\
-  'cy',\n\
-  'dx',\n\
-  'dy',\n\
-  'rx',\n\
-  'ry',\n\
-  'd',\n\
-  'r',\n\
-  'y',\n\
-  'x'\n\
-];\n\
-\n\
-//# sourceURL=components/yields/svg-attributes/master/index.js"
-));
-
-require.modules["yields-svg-attributes"] = require.modules["yields~svg-attributes@master"];
-require.modules["yields~svg-attributes"] = require.modules["yields~svg-attributes@master"];
-require.modules["svg-attributes"] = require.modules["yields~svg-attributes@master"];
-
-
-require.register("janogonzalez~priorityqueuejs@0.2.0", Function("exports, module",
+require.register("janogonzalez-priorityqueuejs/index.js", Function("exports, require, module",
 "/**\n\
  * Expose `PriorityQueue`.\n\
  */\n\
@@ -10484,3783 +10253,9 @@ PriorityQueue.prototype._swap = function(a, b) {\n\
   this._elements[a] = this._elements[b];\n\
   this._elements[b] = aux;\n\
 };\n\
-\n\
-//# sourceURL=components/janogonzalez/priorityqueuejs/0.2.0/index.js"
+//@ sourceURL=janogonzalez-priorityqueuejs/index.js"
 ));
-
-require.modules["janogonzalez-priorityqueuejs"] = require.modules["janogonzalez~priorityqueuejs@0.2.0"];
-require.modules["janogonzalez~priorityqueuejs"] = require.modules["janogonzalez~priorityqueuejs@0.2.0"];
-require.modules["priorityqueuejs"] = require.modules["janogonzalez~priorityqueuejs@0.2.0"];
-
-
-require.register("jashkenas~underscore@1.6.0", Function("exports, module",
-"//     Underscore.js 1.6.0\n\
-//     http://underscorejs.org\n\
-//     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors\n\
-//     Underscore may be freely distributed under the MIT license.\n\
-\n\
-(function() {\n\
-\n\
-  // Baseline setup\n\
-  // --------------\n\
-\n\
-  // Establish the root object, `window` in the browser, or `exports` on the server.\n\
-  var root = this;\n\
-\n\
-  // Save the previous value of the `_` variable.\n\
-  var previousUnderscore = root._;\n\
-\n\
-  // Establish the object that gets returned to break out of a loop iteration.\n\
-  var breaker = {};\n\
-\n\
-  // Save bytes in the minified (but not gzipped) version:\n\
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;\n\
-\n\
-  // Create quick reference variables for speed access to core prototypes.\n\
-  var\n\
-    push             = ArrayProto.push,\n\
-    slice            = ArrayProto.slice,\n\
-    concat           = ArrayProto.concat,\n\
-    toString         = ObjProto.toString,\n\
-    hasOwnProperty   = ObjProto.hasOwnProperty;\n\
-\n\
-  // All **ECMAScript 5** native function implementations that we hope to use\n\
-  // are declared here.\n\
-  var\n\
-    nativeForEach      = ArrayProto.forEach,\n\
-    nativeMap          = ArrayProto.map,\n\
-    nativeReduce       = ArrayProto.reduce,\n\
-    nativeReduceRight  = ArrayProto.reduceRight,\n\
-    nativeFilter       = ArrayProto.filter,\n\
-    nativeEvery        = ArrayProto.every,\n\
-    nativeSome         = ArrayProto.some,\n\
-    nativeIndexOf      = ArrayProto.indexOf,\n\
-    nativeLastIndexOf  = ArrayProto.lastIndexOf,\n\
-    nativeIsArray      = Array.isArray,\n\
-    nativeKeys         = Object.keys,\n\
-    nativeBind         = FuncProto.bind;\n\
-\n\
-  // Create a safe reference to the Underscore object for use below.\n\
-  var _ = function(obj) {\n\
-    if (obj instanceof _) return obj;\n\
-    if (!(this instanceof _)) return new _(obj);\n\
-    this._wrapped = obj;\n\
-  };\n\
-\n\
-  // Export the Underscore object for **Node.js**, with\n\
-  // backwards-compatibility for the old `require()` API. If we're in\n\
-  // the browser, add `_` as a global object via a string identifier,\n\
-  // for Closure Compiler \"advanced\" mode.\n\
-  if (typeof exports !== 'undefined') {\n\
-    if (typeof module !== 'undefined' && module.exports) {\n\
-      exports = module.exports = _;\n\
-    }\n\
-    exports._ = _;\n\
-  } else {\n\
-    root._ = _;\n\
-  }\n\
-\n\
-  // Current version.\n\
-  _.VERSION = '1.6.0';\n\
-\n\
-  // Collection Functions\n\
-  // --------------------\n\
-\n\
-  // The cornerstone, an `each` implementation, aka `forEach`.\n\
-  // Handles objects with the built-in `forEach`, arrays, and raw objects.\n\
-  // Delegates to **ECMAScript 5**'s native `forEach` if available.\n\
-  var each = _.each = _.forEach = function(obj, iterator, context) {\n\
-    if (obj == null) return obj;\n\
-    if (nativeForEach && obj.forEach === nativeForEach) {\n\
-      obj.forEach(iterator, context);\n\
-    } else if (obj.length === +obj.length) {\n\
-      for (var i = 0, length = obj.length; i < length; i++) {\n\
-        if (iterator.call(context, obj[i], i, obj) === breaker) return;\n\
-      }\n\
-    } else {\n\
-      var keys = _.keys(obj);\n\
-      for (var i = 0, length = keys.length; i < length; i++) {\n\
-        if (iterator.call(context, obj[keys[i]], keys[i], obj) === breaker) return;\n\
-      }\n\
-    }\n\
-    return obj;\n\
-  };\n\
-\n\
-  // Return the results of applying the iterator to each element.\n\
-  // Delegates to **ECMAScript 5**'s native `map` if available.\n\
-  _.map = _.collect = function(obj, iterator, context) {\n\
-    var results = [];\n\
-    if (obj == null) return results;\n\
-    if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);\n\
-    each(obj, function(value, index, list) {\n\
-      results.push(iterator.call(context, value, index, list));\n\
-    });\n\
-    return results;\n\
-  };\n\
-\n\
-  var reduceError = 'Reduce of empty array with no initial value';\n\
-\n\
-  // **Reduce** builds up a single result from a list of values, aka `inject`,\n\
-  // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.\n\
-  _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {\n\
-    var initial = arguments.length > 2;\n\
-    if (obj == null) obj = [];\n\
-    if (nativeReduce && obj.reduce === nativeReduce) {\n\
-      if (context) iterator = _.bind(iterator, context);\n\
-      return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);\n\
-    }\n\
-    each(obj, function(value, index, list) {\n\
-      if (!initial) {\n\
-        memo = value;\n\
-        initial = true;\n\
-      } else {\n\
-        memo = iterator.call(context, memo, value, index, list);\n\
-      }\n\
-    });\n\
-    if (!initial) throw new TypeError(reduceError);\n\
-    return memo;\n\
-  };\n\
-\n\
-  // The right-associative version of reduce, also known as `foldr`.\n\
-  // Delegates to **ECMAScript 5**'s native `reduceRight` if available.\n\
-  _.reduceRight = _.foldr = function(obj, iterator, memo, context) {\n\
-    var initial = arguments.length > 2;\n\
-    if (obj == null) obj = [];\n\
-    if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {\n\
-      if (context) iterator = _.bind(iterator, context);\n\
-      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);\n\
-    }\n\
-    var length = obj.length;\n\
-    if (length !== +length) {\n\
-      var keys = _.keys(obj);\n\
-      length = keys.length;\n\
-    }\n\
-    each(obj, function(value, index, list) {\n\
-      index = keys ? keys[--length] : --length;\n\
-      if (!initial) {\n\
-        memo = obj[index];\n\
-        initial = true;\n\
-      } else {\n\
-        memo = iterator.call(context, memo, obj[index], index, list);\n\
-      }\n\
-    });\n\
-    if (!initial) throw new TypeError(reduceError);\n\
-    return memo;\n\
-  };\n\
-\n\
-  // Return the first value which passes a truth test. Aliased as `detect`.\n\
-  _.find = _.detect = function(obj, predicate, context) {\n\
-    var result;\n\
-    any(obj, function(value, index, list) {\n\
-      if (predicate.call(context, value, index, list)) {\n\
-        result = value;\n\
-        return true;\n\
-      }\n\
-    });\n\
-    return result;\n\
-  };\n\
-\n\
-  // Return all the elements that pass a truth test.\n\
-  // Delegates to **ECMAScript 5**'s native `filter` if available.\n\
-  // Aliased as `select`.\n\
-  _.filter = _.select = function(obj, predicate, context) {\n\
-    var results = [];\n\
-    if (obj == null) return results;\n\
-    if (nativeFilter && obj.filter === nativeFilter) return obj.filter(predicate, context);\n\
-    each(obj, function(value, index, list) {\n\
-      if (predicate.call(context, value, index, list)) results.push(value);\n\
-    });\n\
-    return results;\n\
-  };\n\
-\n\
-  // Return all the elements for which a truth test fails.\n\
-  _.reject = function(obj, predicate, context) {\n\
-    return _.filter(obj, function(value, index, list) {\n\
-      return !predicate.call(context, value, index, list);\n\
-    }, context);\n\
-  };\n\
-\n\
-  // Determine whether all of the elements match a truth test.\n\
-  // Delegates to **ECMAScript 5**'s native `every` if available.\n\
-  // Aliased as `all`.\n\
-  _.every = _.all = function(obj, predicate, context) {\n\
-    predicate || (predicate = _.identity);\n\
-    var result = true;\n\
-    if (obj == null) return result;\n\
-    if (nativeEvery && obj.every === nativeEvery) return obj.every(predicate, context);\n\
-    each(obj, function(value, index, list) {\n\
-      if (!(result = result && predicate.call(context, value, index, list))) return breaker;\n\
-    });\n\
-    return !!result;\n\
-  };\n\
-\n\
-  // Determine if at least one element in the object matches a truth test.\n\
-  // Delegates to **ECMAScript 5**'s native `some` if available.\n\
-  // Aliased as `any`.\n\
-  var any = _.some = _.any = function(obj, predicate, context) {\n\
-    predicate || (predicate = _.identity);\n\
-    var result = false;\n\
-    if (obj == null) return result;\n\
-    if (nativeSome && obj.some === nativeSome) return obj.some(predicate, context);\n\
-    each(obj, function(value, index, list) {\n\
-      if (result || (result = predicate.call(context, value, index, list))) return breaker;\n\
-    });\n\
-    return !!result;\n\
-  };\n\
-\n\
-  // Determine if the array or object contains a given value (using `===`).\n\
-  // Aliased as `include`.\n\
-  _.contains = _.include = function(obj, target) {\n\
-    if (obj == null) return false;\n\
-    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;\n\
-    return any(obj, function(value) {\n\
-      return value === target;\n\
-    });\n\
-  };\n\
-\n\
-  // Invoke a method (with arguments) on every item in a collection.\n\
-  _.invoke = function(obj, method) {\n\
-    var args = slice.call(arguments, 2);\n\
-    var isFunc = _.isFunction(method);\n\
-    return _.map(obj, function(value) {\n\
-      return (isFunc ? method : value[method]).apply(value, args);\n\
-    });\n\
-  };\n\
-\n\
-  // Convenience version of a common use case of `map`: fetching a property.\n\
-  _.pluck = function(obj, key) {\n\
-    return _.map(obj, _.property(key));\n\
-  };\n\
-\n\
-  // Convenience version of a common use case of `filter`: selecting only objects\n\
-  // containing specific `key:value` pairs.\n\
-  _.where = function(obj, attrs) {\n\
-    return _.filter(obj, _.matches(attrs));\n\
-  };\n\
-\n\
-  // Convenience version of a common use case of `find`: getting the first object\n\
-  // containing specific `key:value` pairs.\n\
-  _.findWhere = function(obj, attrs) {\n\
-    return _.find(obj, _.matches(attrs));\n\
-  };\n\
-\n\
-  // Return the maximum element or (element-based computation).\n\
-  // Can't optimize arrays of integers longer than 65,535 elements.\n\
-  // See [WebKit Bug 80797](https://bugs.webkit.org/show_bug.cgi?id=80797)\n\
-  _.max = function(obj, iterator, context) {\n\
-    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {\n\
-      return Math.max.apply(Math, obj);\n\
-    }\n\
-    var result = -Infinity, lastComputed = -Infinity;\n\
-    each(obj, function(value, index, list) {\n\
-      var computed = iterator ? iterator.call(context, value, index, list) : value;\n\
-      if (computed > lastComputed) {\n\
-        result = value;\n\
-        lastComputed = computed;\n\
-      }\n\
-    });\n\
-    return result;\n\
-  };\n\
-\n\
-  // Return the minimum element (or element-based computation).\n\
-  _.min = function(obj, iterator, context) {\n\
-    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {\n\
-      return Math.min.apply(Math, obj);\n\
-    }\n\
-    var result = Infinity, lastComputed = Infinity;\n\
-    each(obj, function(value, index, list) {\n\
-      var computed = iterator ? iterator.call(context, value, index, list) : value;\n\
-      if (computed < lastComputed) {\n\
-        result = value;\n\
-        lastComputed = computed;\n\
-      }\n\
-    });\n\
-    return result;\n\
-  };\n\
-\n\
-  // Shuffle an array, using the modern version of the\n\
-  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).\n\
-  _.shuffle = function(obj) {\n\
-    var rand;\n\
-    var index = 0;\n\
-    var shuffled = [];\n\
-    each(obj, function(value) {\n\
-      rand = _.random(index++);\n\
-      shuffled[index - 1] = shuffled[rand];\n\
-      shuffled[rand] = value;\n\
-    });\n\
-    return shuffled;\n\
-  };\n\
-\n\
-  // Sample **n** random values from a collection.\n\
-  // If **n** is not specified, returns a single random element.\n\
-  // The internal `guard` argument allows it to work with `map`.\n\
-  _.sample = function(obj, n, guard) {\n\
-    if (n == null || guard) {\n\
-      if (obj.length !== +obj.length) obj = _.values(obj);\n\
-      return obj[_.random(obj.length - 1)];\n\
-    }\n\
-    return _.shuffle(obj).slice(0, Math.max(0, n));\n\
-  };\n\
-\n\
-  // An internal function to generate lookup iterators.\n\
-  var lookupIterator = function(value) {\n\
-    if (value == null) return _.identity;\n\
-    if (_.isFunction(value)) return value;\n\
-    return _.property(value);\n\
-  };\n\
-\n\
-  // Sort the object's values by a criterion produced by an iterator.\n\
-  _.sortBy = function(obj, iterator, context) {\n\
-    iterator = lookupIterator(iterator);\n\
-    return _.pluck(_.map(obj, function(value, index, list) {\n\
-      return {\n\
-        value: value,\n\
-        index: index,\n\
-        criteria: iterator.call(context, value, index, list)\n\
-      };\n\
-    }).sort(function(left, right) {\n\
-      var a = left.criteria;\n\
-      var b = right.criteria;\n\
-      if (a !== b) {\n\
-        if (a > b || a === void 0) return 1;\n\
-        if (a < b || b === void 0) return -1;\n\
-      }\n\
-      return left.index - right.index;\n\
-    }), 'value');\n\
-  };\n\
-\n\
-  // An internal function used for aggregate \"group by\" operations.\n\
-  var group = function(behavior) {\n\
-    return function(obj, iterator, context) {\n\
-      var result = {};\n\
-      iterator = lookupIterator(iterator);\n\
-      each(obj, function(value, index) {\n\
-        var key = iterator.call(context, value, index, obj);\n\
-        behavior(result, key, value);\n\
-      });\n\
-      return result;\n\
-    };\n\
-  };\n\
-\n\
-  // Groups the object's values by a criterion. Pass either a string attribute\n\
-  // to group by, or a function that returns the criterion.\n\
-  _.groupBy = group(function(result, key, value) {\n\
-    _.has(result, key) ? result[key].push(value) : result[key] = [value];\n\
-  });\n\
-\n\
-  // Indexes the object's values by a criterion, similar to `groupBy`, but for\n\
-  // when you know that your index values will be unique.\n\
-  _.indexBy = group(function(result, key, value) {\n\
-    result[key] = value;\n\
-  });\n\
-\n\
-  // Counts instances of an object that group by a certain criterion. Pass\n\
-  // either a string attribute to count by, or a function that returns the\n\
-  // criterion.\n\
-  _.countBy = group(function(result, key) {\n\
-    _.has(result, key) ? result[key]++ : result[key] = 1;\n\
-  });\n\
-\n\
-  // Use a comparator function to figure out the smallest index at which\n\
-  // an object should be inserted so as to maintain order. Uses binary search.\n\
-  _.sortedIndex = function(array, obj, iterator, context) {\n\
-    iterator = lookupIterator(iterator);\n\
-    var value = iterator.call(context, obj);\n\
-    var low = 0, high = array.length;\n\
-    while (low < high) {\n\
-      var mid = (low + high) >>> 1;\n\
-      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;\n\
-    }\n\
-    return low;\n\
-  };\n\
-\n\
-  // Safely create a real, live array from anything iterable.\n\
-  _.toArray = function(obj) {\n\
-    if (!obj) return [];\n\
-    if (_.isArray(obj)) return slice.call(obj);\n\
-    if (obj.length === +obj.length) return _.map(obj, _.identity);\n\
-    return _.values(obj);\n\
-  };\n\
-\n\
-  // Return the number of elements in an object.\n\
-  _.size = function(obj) {\n\
-    if (obj == null) return 0;\n\
-    return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;\n\
-  };\n\
-\n\
-  // Array Functions\n\
-  // ---------------\n\
-\n\
-  // Get the first element of an array. Passing **n** will return the first N\n\
-  // values in the array. Aliased as `head` and `take`. The **guard** check\n\
-  // allows it to work with `_.map`.\n\
-  _.first = _.head = _.take = function(array, n, guard) {\n\
-    if (array == null) return void 0;\n\
-    if ((n == null) || guard) return array[0];\n\
-    if (n < 0) return [];\n\
-    return slice.call(array, 0, n);\n\
-  };\n\
-\n\
-  // Returns everything but the last entry of the array. Especially useful on\n\
-  // the arguments object. Passing **n** will return all the values in\n\
-  // the array, excluding the last N. The **guard** check allows it to work with\n\
-  // `_.map`.\n\
-  _.initial = function(array, n, guard) {\n\
-    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));\n\
-  };\n\
-\n\
-  // Get the last element of an array. Passing **n** will return the last N\n\
-  // values in the array. The **guard** check allows it to work with `_.map`.\n\
-  _.last = function(array, n, guard) {\n\
-    if (array == null) return void 0;\n\
-    if ((n == null) || guard) return array[array.length - 1];\n\
-    return slice.call(array, Math.max(array.length - n, 0));\n\
-  };\n\
-\n\
-  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.\n\
-  // Especially useful on the arguments object. Passing an **n** will return\n\
-  // the rest N values in the array. The **guard**\n\
-  // check allows it to work with `_.map`.\n\
-  _.rest = _.tail = _.drop = function(array, n, guard) {\n\
-    return slice.call(array, (n == null) || guard ? 1 : n);\n\
-  };\n\
-\n\
-  // Trim out all falsy values from an array.\n\
-  _.compact = function(array) {\n\
-    return _.filter(array, _.identity);\n\
-  };\n\
-\n\
-  // Internal implementation of a recursive `flatten` function.\n\
-  var flatten = function(input, shallow, output) {\n\
-    if (shallow && _.every(input, _.isArray)) {\n\
-      return concat.apply(output, input);\n\
-    }\n\
-    each(input, function(value) {\n\
-      if (_.isArray(value) || _.isArguments(value)) {\n\
-        shallow ? push.apply(output, value) : flatten(value, shallow, output);\n\
-      } else {\n\
-        output.push(value);\n\
-      }\n\
-    });\n\
-    return output;\n\
-  };\n\
-\n\
-  // Flatten out an array, either recursively (by default), or just one level.\n\
-  _.flatten = function(array, shallow) {\n\
-    return flatten(array, shallow, []);\n\
-  };\n\
-\n\
-  // Return a version of the array that does not contain the specified value(s).\n\
-  _.without = function(array) {\n\
-    return _.difference(array, slice.call(arguments, 1));\n\
-  };\n\
-\n\
-  // Split an array into two arrays: one whose elements all satisfy the given\n\
-  // predicate, and one whose elements all do not satisfy the predicate.\n\
-  _.partition = function(array, predicate) {\n\
-    var pass = [], fail = [];\n\
-    each(array, function(elem) {\n\
-      (predicate(elem) ? pass : fail).push(elem);\n\
-    });\n\
-    return [pass, fail];\n\
-  };\n\
-\n\
-  // Produce a duplicate-free version of the array. If the array has already\n\
-  // been sorted, you have the option of using a faster algorithm.\n\
-  // Aliased as `unique`.\n\
-  _.uniq = _.unique = function(array, isSorted, iterator, context) {\n\
-    if (_.isFunction(isSorted)) {\n\
-      context = iterator;\n\
-      iterator = isSorted;\n\
-      isSorted = false;\n\
-    }\n\
-    var initial = iterator ? _.map(array, iterator, context) : array;\n\
-    var results = [];\n\
-    var seen = [];\n\
-    each(initial, function(value, index) {\n\
-      if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {\n\
-        seen.push(value);\n\
-        results.push(array[index]);\n\
-      }\n\
-    });\n\
-    return results;\n\
-  };\n\
-\n\
-  // Produce an array that contains the union: each distinct element from all of\n\
-  // the passed-in arrays.\n\
-  _.union = function() {\n\
-    return _.uniq(_.flatten(arguments, true));\n\
-  };\n\
-\n\
-  // Produce an array that contains every item shared between all the\n\
-  // passed-in arrays.\n\
-  _.intersection = function(array) {\n\
-    var rest = slice.call(arguments, 1);\n\
-    return _.filter(_.uniq(array), function(item) {\n\
-      return _.every(rest, function(other) {\n\
-        return _.contains(other, item);\n\
-      });\n\
-    });\n\
-  };\n\
-\n\
-  // Take the difference between one array and a number of other arrays.\n\
-  // Only the elements present in just the first array will remain.\n\
-  _.difference = function(array) {\n\
-    var rest = concat.apply(ArrayProto, slice.call(arguments, 1));\n\
-    return _.filter(array, function(value){ return !_.contains(rest, value); });\n\
-  };\n\
-\n\
-  // Zip together multiple lists into a single array -- elements that share\n\
-  // an index go together.\n\
-  _.zip = function() {\n\
-    var length = _.max(_.pluck(arguments, 'length').concat(0));\n\
-    var results = new Array(length);\n\
-    for (var i = 0; i < length; i++) {\n\
-      results[i] = _.pluck(arguments, '' + i);\n\
-    }\n\
-    return results;\n\
-  };\n\
-\n\
-  // Converts lists into objects. Pass either a single array of `[key, value]`\n\
-  // pairs, or two parallel arrays of the same length -- one of keys, and one of\n\
-  // the corresponding values.\n\
-  _.object = function(list, values) {\n\
-    if (list == null) return {};\n\
-    var result = {};\n\
-    for (var i = 0, length = list.length; i < length; i++) {\n\
-      if (values) {\n\
-        result[list[i]] = values[i];\n\
-      } else {\n\
-        result[list[i][0]] = list[i][1];\n\
-      }\n\
-    }\n\
-    return result;\n\
-  };\n\
-\n\
-  // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),\n\
-  // we need this function. Return the position of the first occurrence of an\n\
-  // item in an array, or -1 if the item is not included in the array.\n\
-  // Delegates to **ECMAScript 5**'s native `indexOf` if available.\n\
-  // If the array is large and already in sort order, pass `true`\n\
-  // for **isSorted** to use binary search.\n\
-  _.indexOf = function(array, item, isSorted) {\n\
-    if (array == null) return -1;\n\
-    var i = 0, length = array.length;\n\
-    if (isSorted) {\n\
-      if (typeof isSorted == 'number') {\n\
-        i = (isSorted < 0 ? Math.max(0, length + isSorted) : isSorted);\n\
-      } else {\n\
-        i = _.sortedIndex(array, item);\n\
-        return array[i] === item ? i : -1;\n\
-      }\n\
-    }\n\
-    if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);\n\
-    for (; i < length; i++) if (array[i] === item) return i;\n\
-    return -1;\n\
-  };\n\
-\n\
-  // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.\n\
-  _.lastIndexOf = function(array, item, from) {\n\
-    if (array == null) return -1;\n\
-    var hasIndex = from != null;\n\
-    if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {\n\
-      return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);\n\
-    }\n\
-    var i = (hasIndex ? from : array.length);\n\
-    while (i--) if (array[i] === item) return i;\n\
-    return -1;\n\
-  };\n\
-\n\
-  // Generate an integer Array containing an arithmetic progression. A port of\n\
-  // the native Python `range()` function. See\n\
-  // [the Python documentation](http://docs.python.org/library/functions.html#range).\n\
-  _.range = function(start, stop, step) {\n\
-    if (arguments.length <= 1) {\n\
-      stop = start || 0;\n\
-      start = 0;\n\
-    }\n\
-    step = arguments[2] || 1;\n\
-\n\
-    var length = Math.max(Math.ceil((stop - start) / step), 0);\n\
-    var idx = 0;\n\
-    var range = new Array(length);\n\
-\n\
-    while(idx < length) {\n\
-      range[idx++] = start;\n\
-      start += step;\n\
-    }\n\
-\n\
-    return range;\n\
-  };\n\
-\n\
-  // Function (ahem) Functions\n\
-  // ------------------\n\
-\n\
-  // Reusable constructor function for prototype setting.\n\
-  var ctor = function(){};\n\
-\n\
-  // Create a function bound to a given object (assigning `this`, and arguments,\n\
-  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if\n\
-  // available.\n\
-  _.bind = function(func, context) {\n\
-    var args, bound;\n\
-    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));\n\
-    if (!_.isFunction(func)) throw new TypeError;\n\
-    args = slice.call(arguments, 2);\n\
-    return bound = function() {\n\
-      if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));\n\
-      ctor.prototype = func.prototype;\n\
-      var self = new ctor;\n\
-      ctor.prototype = null;\n\
-      var result = func.apply(self, args.concat(slice.call(arguments)));\n\
-      if (Object(result) === result) return result;\n\
-      return self;\n\
-    };\n\
-  };\n\
-\n\
-  // Partially apply a function by creating a version that has had some of its\n\
-  // arguments pre-filled, without changing its dynamic `this` context. _ acts\n\
-  // as a placeholder, allowing any combination of arguments to be pre-filled.\n\
-  _.partial = function(func) {\n\
-    var boundArgs = slice.call(arguments, 1);\n\
-    return function() {\n\
-      var position = 0;\n\
-      var args = boundArgs.slice();\n\
-      for (var i = 0, length = args.length; i < length; i++) {\n\
-        if (args[i] === _) args[i] = arguments[position++];\n\
-      }\n\
-      while (position < arguments.length) args.push(arguments[position++]);\n\
-      return func.apply(this, args);\n\
-    };\n\
-  };\n\
-\n\
-  // Bind a number of an object's methods to that object. Remaining arguments\n\
-  // are the method names to be bound. Useful for ensuring that all callbacks\n\
-  // defined on an object belong to it.\n\
-  _.bindAll = function(obj) {\n\
-    var funcs = slice.call(arguments, 1);\n\
-    if (funcs.length === 0) throw new Error('bindAll must be passed function names');\n\
-    each(funcs, function(f) { obj[f] = _.bind(obj[f], obj); });\n\
-    return obj;\n\
-  };\n\
-\n\
-  // Memoize an expensive function by storing its results.\n\
-  _.memoize = function(func, hasher) {\n\
-    var memo = {};\n\
-    hasher || (hasher = _.identity);\n\
-    return function() {\n\
-      var key = hasher.apply(this, arguments);\n\
-      return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));\n\
-    };\n\
-  };\n\
-\n\
-  // Delays a function for the given number of milliseconds, and then calls\n\
-  // it with the arguments supplied.\n\
-  _.delay = function(func, wait) {\n\
-    var args = slice.call(arguments, 2);\n\
-    return setTimeout(function(){ return func.apply(null, args); }, wait);\n\
-  };\n\
-\n\
-  // Defers a function, scheduling it to run after the current call stack has\n\
-  // cleared.\n\
-  _.defer = function(func) {\n\
-    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));\n\
-  };\n\
-\n\
-  // Returns a function, that, when invoked, will only be triggered at most once\n\
-  // during a given window of time. Normally, the throttled function will run\n\
-  // as much as it can, without ever going more than once per `wait` duration;\n\
-  // but if you'd like to disable the execution on the leading edge, pass\n\
-  // `{leading: false}`. To disable execution on the trailing edge, ditto.\n\
-  _.throttle = function(func, wait, options) {\n\
-    var context, args, result;\n\
-    var timeout = null;\n\
-    var previous = 0;\n\
-    options || (options = {});\n\
-    var later = function() {\n\
-      previous = options.leading === false ? 0 : _.now();\n\
-      timeout = null;\n\
-      result = func.apply(context, args);\n\
-      context = args = null;\n\
-    };\n\
-    return function() {\n\
-      var now = _.now();\n\
-      if (!previous && options.leading === false) previous = now;\n\
-      var remaining = wait - (now - previous);\n\
-      context = this;\n\
-      args = arguments;\n\
-      if (remaining <= 0) {\n\
-        clearTimeout(timeout);\n\
-        timeout = null;\n\
-        previous = now;\n\
-        result = func.apply(context, args);\n\
-        context = args = null;\n\
-      } else if (!timeout && options.trailing !== false) {\n\
-        timeout = setTimeout(later, remaining);\n\
-      }\n\
-      return result;\n\
-    };\n\
-  };\n\
-\n\
-  // Returns a function, that, as long as it continues to be invoked, will not\n\
-  // be triggered. The function will be called after it stops being called for\n\
-  // N milliseconds. If `immediate` is passed, trigger the function on the\n\
-  // leading edge, instead of the trailing.\n\
-  _.debounce = function(func, wait, immediate) {\n\
-    var timeout, args, context, timestamp, result;\n\
-\n\
-    var later = function() {\n\
-      var last = _.now() - timestamp;\n\
-      if (last < wait) {\n\
-        timeout = setTimeout(later, wait - last);\n\
-      } else {\n\
-        timeout = null;\n\
-        if (!immediate) {\n\
-          result = func.apply(context, args);\n\
-          context = args = null;\n\
-        }\n\
-      }\n\
-    };\n\
-\n\
-    return function() {\n\
-      context = this;\n\
-      args = arguments;\n\
-      timestamp = _.now();\n\
-      var callNow = immediate && !timeout;\n\
-      if (!timeout) {\n\
-        timeout = setTimeout(later, wait);\n\
-      }\n\
-      if (callNow) {\n\
-        result = func.apply(context, args);\n\
-        context = args = null;\n\
-      }\n\
-\n\
-      return result;\n\
-    };\n\
-  };\n\
-\n\
-  // Returns a function that will be executed at most one time, no matter how\n\
-  // often you call it. Useful for lazy initialization.\n\
-  _.once = function(func) {\n\
-    var ran = false, memo;\n\
-    return function() {\n\
-      if (ran) return memo;\n\
-      ran = true;\n\
-      memo = func.apply(this, arguments);\n\
-      func = null;\n\
-      return memo;\n\
-    };\n\
-  };\n\
-\n\
-  // Returns the first function passed as an argument to the second,\n\
-  // allowing you to adjust arguments, run code before and after, and\n\
-  // conditionally execute the original function.\n\
-  _.wrap = function(func, wrapper) {\n\
-    return _.partial(wrapper, func);\n\
-  };\n\
-\n\
-  // Returns a function that is the composition of a list of functions, each\n\
-  // consuming the return value of the function that follows.\n\
-  _.compose = function() {\n\
-    var funcs = arguments;\n\
-    return function() {\n\
-      var args = arguments;\n\
-      for (var i = funcs.length - 1; i >= 0; i--) {\n\
-        args = [funcs[i].apply(this, args)];\n\
-      }\n\
-      return args[0];\n\
-    };\n\
-  };\n\
-\n\
-  // Returns a function that will only be executed after being called N times.\n\
-  _.after = function(times, func) {\n\
-    return function() {\n\
-      if (--times < 1) {\n\
-        return func.apply(this, arguments);\n\
-      }\n\
-    };\n\
-  };\n\
-\n\
-  // Object Functions\n\
-  // ----------------\n\
-\n\
-  // Retrieve the names of an object's properties.\n\
-  // Delegates to **ECMAScript 5**'s native `Object.keys`\n\
-  _.keys = function(obj) {\n\
-    if (!_.isObject(obj)) return [];\n\
-    if (nativeKeys) return nativeKeys(obj);\n\
-    var keys = [];\n\
-    for (var key in obj) if (_.has(obj, key)) keys.push(key);\n\
-    return keys;\n\
-  };\n\
-\n\
-  // Retrieve the values of an object's properties.\n\
-  _.values = function(obj) {\n\
-    var keys = _.keys(obj);\n\
-    var length = keys.length;\n\
-    var values = new Array(length);\n\
-    for (var i = 0; i < length; i++) {\n\
-      values[i] = obj[keys[i]];\n\
-    }\n\
-    return values;\n\
-  };\n\
-\n\
-  // Convert an object into a list of `[key, value]` pairs.\n\
-  _.pairs = function(obj) {\n\
-    var keys = _.keys(obj);\n\
-    var length = keys.length;\n\
-    var pairs = new Array(length);\n\
-    for (var i = 0; i < length; i++) {\n\
-      pairs[i] = [keys[i], obj[keys[i]]];\n\
-    }\n\
-    return pairs;\n\
-  };\n\
-\n\
-  // Invert the keys and values of an object. The values must be serializable.\n\
-  _.invert = function(obj) {\n\
-    var result = {};\n\
-    var keys = _.keys(obj);\n\
-    for (var i = 0, length = keys.length; i < length; i++) {\n\
-      result[obj[keys[i]]] = keys[i];\n\
-    }\n\
-    return result;\n\
-  };\n\
-\n\
-  // Return a sorted list of the function names available on the object.\n\
-  // Aliased as `methods`\n\
-  _.functions = _.methods = function(obj) {\n\
-    var names = [];\n\
-    for (var key in obj) {\n\
-      if (_.isFunction(obj[key])) names.push(key);\n\
-    }\n\
-    return names.sort();\n\
-  };\n\
-\n\
-  // Extend a given object with all the properties in passed-in object(s).\n\
-  _.extend = function(obj) {\n\
-    each(slice.call(arguments, 1), function(source) {\n\
-      if (source) {\n\
-        for (var prop in source) {\n\
-          obj[prop] = source[prop];\n\
-        }\n\
-      }\n\
-    });\n\
-    return obj;\n\
-  };\n\
-\n\
-  // Return a copy of the object only containing the whitelisted properties.\n\
-  _.pick = function(obj) {\n\
-    var copy = {};\n\
-    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));\n\
-    each(keys, function(key) {\n\
-      if (key in obj) copy[key] = obj[key];\n\
-    });\n\
-    return copy;\n\
-  };\n\
-\n\
-   // Return a copy of the object without the blacklisted properties.\n\
-  _.omit = function(obj) {\n\
-    var copy = {};\n\
-    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));\n\
-    for (var key in obj) {\n\
-      if (!_.contains(keys, key)) copy[key] = obj[key];\n\
-    }\n\
-    return copy;\n\
-  };\n\
-\n\
-  // Fill in a given object with default properties.\n\
-  _.defaults = function(obj) {\n\
-    each(slice.call(arguments, 1), function(source) {\n\
-      if (source) {\n\
-        for (var prop in source) {\n\
-          if (obj[prop] === void 0) obj[prop] = source[prop];\n\
-        }\n\
-      }\n\
-    });\n\
-    return obj;\n\
-  };\n\
-\n\
-  // Create a (shallow-cloned) duplicate of an object.\n\
-  _.clone = function(obj) {\n\
-    if (!_.isObject(obj)) return obj;\n\
-    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);\n\
-  };\n\
-\n\
-  // Invokes interceptor with the obj, and then returns obj.\n\
-  // The primary purpose of this method is to \"tap into\" a method chain, in\n\
-  // order to perform operations on intermediate results within the chain.\n\
-  _.tap = function(obj, interceptor) {\n\
-    interceptor(obj);\n\
-    return obj;\n\
-  };\n\
-\n\
-  // Internal recursive comparison function for `isEqual`.\n\
-  var eq = function(a, b, aStack, bStack) {\n\
-    // Identical objects are equal. `0 === -0`, but they aren't identical.\n\
-    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).\n\
-    if (a === b) return a !== 0 || 1 / a == 1 / b;\n\
-    // A strict comparison is necessary because `null == undefined`.\n\
-    if (a == null || b == null) return a === b;\n\
-    // Unwrap any wrapped objects.\n\
-    if (a instanceof _) a = a._wrapped;\n\
-    if (b instanceof _) b = b._wrapped;\n\
-    // Compare `[[Class]]` names.\n\
-    var className = toString.call(a);\n\
-    if (className != toString.call(b)) return false;\n\
-    switch (className) {\n\
-      // Strings, numbers, dates, and booleans are compared by value.\n\
-      case '[object String]':\n\
-        // Primitives and their corresponding object wrappers are equivalent; thus, `\"5\"` is\n\
-        // equivalent to `new String(\"5\")`.\n\
-        return a == String(b);\n\
-      case '[object Number]':\n\
-        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for\n\
-        // other numeric values.\n\
-        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);\n\
-      case '[object Date]':\n\
-      case '[object Boolean]':\n\
-        // Coerce dates and booleans to numeric primitive values. Dates are compared by their\n\
-        // millisecond representations. Note that invalid dates with millisecond representations\n\
-        // of `NaN` are not equivalent.\n\
-        return +a == +b;\n\
-      // RegExps are compared by their source patterns and flags.\n\
-      case '[object RegExp]':\n\
-        return a.source == b.source &&\n\
-               a.global == b.global &&\n\
-               a.multiline == b.multiline &&\n\
-               a.ignoreCase == b.ignoreCase;\n\
-    }\n\
-    if (typeof a != 'object' || typeof b != 'object') return false;\n\
-    // Assume equality for cyclic structures. The algorithm for detecting cyclic\n\
-    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.\n\
-    var length = aStack.length;\n\
-    while (length--) {\n\
-      // Linear search. Performance is inversely proportional to the number of\n\
-      // unique nested structures.\n\
-      if (aStack[length] == a) return bStack[length] == b;\n\
-    }\n\
-    // Objects with different constructors are not equivalent, but `Object`s\n\
-    // from different frames are.\n\
-    var aCtor = a.constructor, bCtor = b.constructor;\n\
-    if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&\n\
-                             _.isFunction(bCtor) && (bCtor instanceof bCtor))\n\
-                        && ('constructor' in a && 'constructor' in b)) {\n\
-      return false;\n\
-    }\n\
-    // Add the first object to the stack of traversed objects.\n\
-    aStack.push(a);\n\
-    bStack.push(b);\n\
-    var size = 0, result = true;\n\
-    // Recursively compare objects and arrays.\n\
-    if (className == '[object Array]') {\n\
-      // Compare array lengths to determine if a deep comparison is necessary.\n\
-      size = a.length;\n\
-      result = size == b.length;\n\
-      if (result) {\n\
-        // Deep compare the contents, ignoring non-numeric properties.\n\
-        while (size--) {\n\
-          if (!(result = eq(a[size], b[size], aStack, bStack))) break;\n\
-        }\n\
-      }\n\
-    } else {\n\
-      // Deep compare objects.\n\
-      for (var key in a) {\n\
-        if (_.has(a, key)) {\n\
-          // Count the expected number of properties.\n\
-          size++;\n\
-          // Deep compare each member.\n\
-          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;\n\
-        }\n\
-      }\n\
-      // Ensure that both objects contain the same number of properties.\n\
-      if (result) {\n\
-        for (key in b) {\n\
-          if (_.has(b, key) && !(size--)) break;\n\
-        }\n\
-        result = !size;\n\
-      }\n\
-    }\n\
-    // Remove the first object from the stack of traversed objects.\n\
-    aStack.pop();\n\
-    bStack.pop();\n\
-    return result;\n\
-  };\n\
-\n\
-  // Perform a deep comparison to check if two objects are equal.\n\
-  _.isEqual = function(a, b) {\n\
-    return eq(a, b, [], []);\n\
-  };\n\
-\n\
-  // Is a given array, string, or object empty?\n\
-  // An \"empty\" object has no enumerable own-properties.\n\
-  _.isEmpty = function(obj) {\n\
-    if (obj == null) return true;\n\
-    if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;\n\
-    for (var key in obj) if (_.has(obj, key)) return false;\n\
-    return true;\n\
-  };\n\
-\n\
-  // Is a given value a DOM element?\n\
-  _.isElement = function(obj) {\n\
-    return !!(obj && obj.nodeType === 1);\n\
-  };\n\
-\n\
-  // Is a given value an array?\n\
-  // Delegates to ECMA5's native Array.isArray\n\
-  _.isArray = nativeIsArray || function(obj) {\n\
-    return toString.call(obj) == '[object Array]';\n\
-  };\n\
-\n\
-  // Is a given variable an object?\n\
-  _.isObject = function(obj) {\n\
-    return obj === Object(obj);\n\
-  };\n\
-\n\
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.\n\
-  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {\n\
-    _['is' + name] = function(obj) {\n\
-      return toString.call(obj) == '[object ' + name + ']';\n\
-    };\n\
-  });\n\
-\n\
-  // Define a fallback version of the method in browsers (ahem, IE), where\n\
-  // there isn't any inspectable \"Arguments\" type.\n\
-  if (!_.isArguments(arguments)) {\n\
-    _.isArguments = function(obj) {\n\
-      return !!(obj && _.has(obj, 'callee'));\n\
-    };\n\
-  }\n\
-\n\
-  // Optimize `isFunction` if appropriate.\n\
-  if (typeof (/./) !== 'function') {\n\
-    _.isFunction = function(obj) {\n\
-      return typeof obj === 'function';\n\
-    };\n\
-  }\n\
-\n\
-  // Is a given object a finite number?\n\
-  _.isFinite = function(obj) {\n\
-    return isFinite(obj) && !isNaN(parseFloat(obj));\n\
-  };\n\
-\n\
-  // Is the given value `NaN`? (NaN is the only number which does not equal itself).\n\
-  _.isNaN = function(obj) {\n\
-    return _.isNumber(obj) && obj != +obj;\n\
-  };\n\
-\n\
-  // Is a given value a boolean?\n\
-  _.isBoolean = function(obj) {\n\
-    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';\n\
-  };\n\
-\n\
-  // Is a given value equal to null?\n\
-  _.isNull = function(obj) {\n\
-    return obj === null;\n\
-  };\n\
-\n\
-  // Is a given variable undefined?\n\
-  _.isUndefined = function(obj) {\n\
-    return obj === void 0;\n\
-  };\n\
-\n\
-  // Shortcut function for checking if an object has a given property directly\n\
-  // on itself (in other words, not on a prototype).\n\
-  _.has = function(obj, key) {\n\
-    return hasOwnProperty.call(obj, key);\n\
-  };\n\
-\n\
-  // Utility Functions\n\
-  // -----------------\n\
-\n\
-  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its\n\
-  // previous owner. Returns a reference to the Underscore object.\n\
-  _.noConflict = function() {\n\
-    root._ = previousUnderscore;\n\
-    return this;\n\
-  };\n\
-\n\
-  // Keep the identity function around for default iterators.\n\
-  _.identity = function(value) {\n\
-    return value;\n\
-  };\n\
-\n\
-  _.constant = function(value) {\n\
-    return function () {\n\
-      return value;\n\
-    };\n\
-  };\n\
-\n\
-  _.property = function(key) {\n\
-    return function(obj) {\n\
-      return obj[key];\n\
-    };\n\
-  };\n\
-\n\
-  // Returns a predicate for checking whether an object has a given set of `key:value` pairs.\n\
-  _.matches = function(attrs) {\n\
-    return function(obj) {\n\
-      if (obj === attrs) return true; //avoid comparing an object to itself.\n\
-      for (var key in attrs) {\n\
-        if (attrs[key] !== obj[key])\n\
-          return false;\n\
-      }\n\
-      return true;\n\
-    }\n\
-  };\n\
-\n\
-  // Run a function **n** times.\n\
-  _.times = function(n, iterator, context) {\n\
-    var accum = Array(Math.max(0, n));\n\
-    for (var i = 0; i < n; i++) accum[i] = iterator.call(context, i);\n\
-    return accum;\n\
-  };\n\
-\n\
-  // Return a random integer between min and max (inclusive).\n\
-  _.random = function(min, max) {\n\
-    if (max == null) {\n\
-      max = min;\n\
-      min = 0;\n\
-    }\n\
-    return min + Math.floor(Math.random() * (max - min + 1));\n\
-  };\n\
-\n\
-  // A (possibly faster) way to get the current timestamp as an integer.\n\
-  _.now = Date.now || function() { return new Date().getTime(); };\n\
-\n\
-  // List of HTML entities for escaping.\n\
-  var entityMap = {\n\
-    escape: {\n\
-      '&': '&amp;',\n\
-      '<': '&lt;',\n\
-      '>': '&gt;',\n\
-      '\"': '&quot;',\n\
-      \"'\": '&#x27;'\n\
-    }\n\
-  };\n\
-  entityMap.unescape = _.invert(entityMap.escape);\n\
-\n\
-  // Regexes containing the keys and values listed immediately above.\n\
-  var entityRegexes = {\n\
-    escape:   new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),\n\
-    unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')\n\
-  };\n\
-\n\
-  // Functions for escaping and unescaping strings to/from HTML interpolation.\n\
-  _.each(['escape', 'unescape'], function(method) {\n\
-    _[method] = function(string) {\n\
-      if (string == null) return '';\n\
-      return ('' + string).replace(entityRegexes[method], function(match) {\n\
-        return entityMap[method][match];\n\
-      });\n\
-    };\n\
-  });\n\
-\n\
-  // If the value of the named `property` is a function then invoke it with the\n\
-  // `object` as context; otherwise, return it.\n\
-  _.result = function(object, property) {\n\
-    if (object == null) return void 0;\n\
-    var value = object[property];\n\
-    return _.isFunction(value) ? value.call(object) : value;\n\
-  };\n\
-\n\
-  // Add your own custom functions to the Underscore object.\n\
-  _.mixin = function(obj) {\n\
-    each(_.functions(obj), function(name) {\n\
-      var func = _[name] = obj[name];\n\
-      _.prototype[name] = function() {\n\
-        var args = [this._wrapped];\n\
-        push.apply(args, arguments);\n\
-        return result.call(this, func.apply(_, args));\n\
-      };\n\
-    });\n\
-  };\n\
-\n\
-  // Generate a unique integer id (unique within the entire client session).\n\
-  // Useful for temporary DOM ids.\n\
-  var idCounter = 0;\n\
-  _.uniqueId = function(prefix) {\n\
-    var id = ++idCounter + '';\n\
-    return prefix ? prefix + id : id;\n\
-  };\n\
-\n\
-  // By default, Underscore uses ERB-style template delimiters, change the\n\
-  // following template settings to use alternative delimiters.\n\
-  _.templateSettings = {\n\
-    evaluate    : /<%([\\s\\S]+?)%>/g,\n\
-    interpolate : /<%=([\\s\\S]+?)%>/g,\n\
-    escape      : /<%-([\\s\\S]+?)%>/g\n\
-  };\n\
-\n\
-  // When customizing `templateSettings`, if you don't want to define an\n\
-  // interpolation, evaluation or escaping regex, we need one that is\n\
-  // guaranteed not to match.\n\
-  var noMatch = /(.)^/;\n\
-\n\
-  // Certain characters need to be escaped so that they can be put into a\n\
-  // string literal.\n\
-  var escapes = {\n\
-    \"'\":      \"'\",\n\
-    '\\\\':     '\\\\',\n\
-    '\\r':     'r',\n\
-    '\\n\
-':     'n',\n\
-    '\\t':     't',\n\
-    '\\u2028': 'u2028',\n\
-    '\\u2029': 'u2029'\n\
-  };\n\
-\n\
-  var escaper = /\\\\|'|\\r|\\n\
-|\\t|\\u2028|\\u2029/g;\n\
-\n\
-  // JavaScript micro-templating, similar to John Resig's implementation.\n\
-  // Underscore templating handles arbitrary delimiters, preserves whitespace,\n\
-  // and correctly escapes quotes within interpolated code.\n\
-  _.template = function(text, data, settings) {\n\
-    var render;\n\
-    settings = _.defaults({}, settings, _.templateSettings);\n\
-\n\
-    // Combine delimiters into one regular expression via alternation.\n\
-    var matcher = new RegExp([\n\
-      (settings.escape || noMatch).source,\n\
-      (settings.interpolate || noMatch).source,\n\
-      (settings.evaluate || noMatch).source\n\
-    ].join('|') + '|$', 'g');\n\
-\n\
-    // Compile the template source, escaping string literals appropriately.\n\
-    var index = 0;\n\
-    var source = \"__p+='\";\n\
-    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {\n\
-      source += text.slice(index, offset)\n\
-        .replace(escaper, function(match) { return '\\\\' + escapes[match]; });\n\
-\n\
-      if (escape) {\n\
-        source += \"'+\\n\
-((__t=(\" + escape + \"))==null?'':_.escape(__t))+\\n\
-'\";\n\
-      }\n\
-      if (interpolate) {\n\
-        source += \"'+\\n\
-((__t=(\" + interpolate + \"))==null?'':__t)+\\n\
-'\";\n\
-      }\n\
-      if (evaluate) {\n\
-        source += \"';\\n\
-\" + evaluate + \"\\n\
-__p+='\";\n\
-      }\n\
-      index = offset + match.length;\n\
-      return match;\n\
-    });\n\
-    source += \"';\\n\
-\";\n\
-\n\
-    // If a variable is not specified, place data values in local scope.\n\
-    if (!settings.variable) source = 'with(obj||{}){\\n\
-' + source + '}\\n\
-';\n\
-\n\
-    source = \"var __t,__p='',__j=Array.prototype.join,\" +\n\
-      \"print=function(){__p+=__j.call(arguments,'');};\\n\
-\" +\n\
-      source + \"return __p;\\n\
-\";\n\
-\n\
-    try {\n\
-      render = new Function(settings.variable || 'obj', '_', source);\n\
-    } catch (e) {\n\
-      e.source = source;\n\
-      throw e;\n\
-    }\n\
-\n\
-    if (data) return render(data, _);\n\
-    var template = function(data) {\n\
-      return render.call(this, data, _);\n\
-    };\n\
-\n\
-    // Provide the compiled function source as a convenience for precompilation.\n\
-    template.source = 'function(' + (settings.variable || 'obj') + '){\\n\
-' + source + '}';\n\
-\n\
-    return template;\n\
-  };\n\
-\n\
-  // Add a \"chain\" function, which will delegate to the wrapper.\n\
-  _.chain = function(obj) {\n\
-    return _(obj).chain();\n\
-  };\n\
-\n\
-  // OOP\n\
-  // ---------------\n\
-  // If Underscore is called as a function, it returns a wrapped object that\n\
-  // can be used OO-style. This wrapper holds altered versions of all the\n\
-  // underscore functions. Wrapped objects may be chained.\n\
-\n\
-  // Helper function to continue chaining intermediate results.\n\
-  var result = function(obj) {\n\
-    return this._chain ? _(obj).chain() : obj;\n\
-  };\n\
-\n\
-  // Add all of the Underscore functions to the wrapper object.\n\
-  _.mixin(_);\n\
-\n\
-  // Add all mutator Array functions to the wrapper.\n\
-  each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {\n\
-    var method = ArrayProto[name];\n\
-    _.prototype[name] = function() {\n\
-      var obj = this._wrapped;\n\
-      method.apply(obj, arguments);\n\
-      if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];\n\
-      return result.call(this, obj);\n\
-    };\n\
-  });\n\
-\n\
-  // Add all accessor Array functions to the wrapper.\n\
-  each(['concat', 'join', 'slice'], function(name) {\n\
-    var method = ArrayProto[name];\n\
-    _.prototype[name] = function() {\n\
-      return result.call(this, method.apply(this._wrapped, arguments));\n\
-    };\n\
-  });\n\
-\n\
-  _.extend(_.prototype, {\n\
-\n\
-    // Start chaining a wrapped Underscore object.\n\
-    chain: function() {\n\
-      this._chain = true;\n\
-      return this;\n\
-    },\n\
-\n\
-    // Extracts the result from a wrapped and chained object.\n\
-    value: function() {\n\
-      return this._wrapped;\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // AMD registration happens at the end for compatibility with AMD loaders\n\
-  // that may not enforce next-turn semantics on modules. Even though general\n\
-  // practice for AMD registration is to be anonymous, underscore registers\n\
-  // as a named module because, like jQuery, it is a base library that is\n\
-  // popular enough to be bundled in a third party lib, but not be part of\n\
-  // an AMD load request. Those cases could generate an error when an\n\
-  // anonymous define() is called outside of a loader request.\n\
-  if (typeof define === 'function' && define.amd) {\n\
-    define('underscore', [], function() {\n\
-      return _;\n\
-    });\n\
-  }\n\
-}).call(this);\n\
-\n\
-//# sourceURL=components/jashkenas/underscore/1.6.0/underscore.js"
-));
-
-require.modules["jashkenas-underscore"] = require.modules["jashkenas~underscore@1.6.0"];
-require.modules["jashkenas~underscore"] = require.modules["jashkenas~underscore@1.6.0"];
-require.modules["underscore"] = require.modules["jashkenas~underscore@1.6.0"];
-
-
-require.register("component~trim@0.0.1", Function("exports, module",
-"\n\
-exports = module.exports = trim;\n\
-\n\
-function trim(str){\n\
-  if (str.trim) return str.trim();\n\
-  return str.replace(/^\\s*|\\s*$/g, '');\n\
-}\n\
-\n\
-exports.left = function(str){\n\
-  if (str.trimLeft) return str.trimLeft();\n\
-  return str.replace(/^\\s*/, '');\n\
-};\n\
-\n\
-exports.right = function(str){\n\
-  if (str.trimRight) return str.trimRight();\n\
-  return str.replace(/\\s*$/, '');\n\
-};\n\
-\n\
-//# sourceURL=components/component/trim/0.0.1/index.js"
-));
-
-require.modules["component-trim"] = require.modules["component~trim@0.0.1"];
-require.modules["component~trim"] = require.modules["component~trim@0.0.1"];
-require.modules["trim"] = require.modules["component~trim@0.0.1"];
-
-
-require.register("component~querystring@1.3.0", Function("exports, module",
-"\n\
-/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var encode = encodeURIComponent;\n\
-var decode = decodeURIComponent;\n\
-var trim = require(\"component~trim@0.0.1\");\n\
-var type = require(\"component~type@1.0.0\");\n\
-\n\
-/**\n\
- * Parse the given query `str`.\n\
- *\n\
- * @param {String} str\n\
- * @return {Object}\n\
- * @api public\n\
- */\n\
-\n\
-exports.parse = function(str){\n\
-  if ('string' != typeof str) return {};\n\
-\n\
-  str = trim(str);\n\
-  if ('' == str) return {};\n\
-  if ('?' == str.charAt(0)) str = str.slice(1);\n\
-\n\
-  var obj = {};\n\
-  var pairs = str.split('&');\n\
-  for (var i = 0; i < pairs.length; i++) {\n\
-    var parts = pairs[i].split('=');\n\
-    var key = decode(parts[0]);\n\
-    var m;\n\
-\n\
-    if (m = /(\\w+)\\[(\\d+)\\]/.exec(key)) {\n\
-      obj[m[1]] = obj[m[1]] || [];\n\
-      obj[m[1]][m[2]] = decode(parts[1]);\n\
-      continue;\n\
-    }\n\
-\n\
-    obj[parts[0]] = null == parts[1]\n\
-      ? ''\n\
-      : decode(parts[1]);\n\
-  }\n\
-\n\
-  return obj;\n\
-};\n\
-\n\
-/**\n\
- * Stringify the given `obj`.\n\
- *\n\
- * @param {Object} obj\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-exports.stringify = function(obj){\n\
-  if (!obj) return '';\n\
-  var pairs = [];\n\
-\n\
-  for (var key in obj) {\n\
-    var value = obj[key];\n\
-\n\
-    if ('array' == type(value)) {\n\
-      for (var i = 0; i < value.length; ++i) {\n\
-        pairs.push(encode(key + '[' + i + ']') + '=' + encode(value[i]));\n\
-      }\n\
-      continue;\n\
-    }\n\
-\n\
-    pairs.push(encode(key) + '=' + encode(obj[key]));\n\
-  }\n\
-\n\
-  return pairs.join('&');\n\
-};\n\
-\n\
-//# sourceURL=components/component/querystring/1.3.0/index.js"
-));
-
-require.modules["component-querystring"] = require.modules["component~querystring@1.3.0"];
-require.modules["component~querystring"] = require.modules["component~querystring@1.3.0"];
-require.modules["querystring"] = require.modules["component~querystring@1.3.0"];
-
-
-require.register("jashkenas~backbone@1.1.2", Function("exports, module",
-"//     Backbone.js 1.1.2\n\
-\n\
-//     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors\n\
-//     Backbone may be freely distributed under the MIT license.\n\
-//     For all details and documentation:\n\
-//     http://backbonejs.org\n\
-\n\
-(function(root, factory) {\n\
-\n\
-  // Set up Backbone appropriately for the environment. Start with AMD.\n\
-  if (typeof define === 'function' && define.amd) {\n\
-    define(['underscore', 'jquery', 'exports'], function(_, $, exports) {\n\
-      // Export global even in AMD case in case this script is loaded with\n\
-      // others that may still expect a global Backbone.\n\
-      root.Backbone = factory(root, exports, _, $);\n\
-    });\n\
-\n\
-  // Next for Node.js or CommonJS. jQuery may not be needed as a module.\n\
-  } else if (typeof exports !== 'undefined') {\n\
-    var _ = require(\"jashkenas~underscore@1.6.0\");\n\
-    factory(root, exports, _);\n\
-\n\
-  // Finally, as a browser global.\n\
-  } else {\n\
-    root.Backbone = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender || root.$));\n\
-  }\n\
-\n\
-}(this, function(root, Backbone, _, $) {\n\
-\n\
-  // Initial Setup\n\
-  // -------------\n\
-\n\
-  // Save the previous value of the `Backbone` variable, so that it can be\n\
-  // restored later on, if `noConflict` is used.\n\
-  var previousBackbone = root.Backbone;\n\
-\n\
-  // Create local references to array methods we'll want to use later.\n\
-  var array = [];\n\
-  var push = array.push;\n\
-  var slice = array.slice;\n\
-  var splice = array.splice;\n\
-\n\
-  // Current version of the library. Keep in sync with `package.json`.\n\
-  Backbone.VERSION = '1.1.2';\n\
-\n\
-  // For Backbone's purposes, jQuery, Zepto, Ender, or My Library (kidding) owns\n\
-  // the `$` variable.\n\
-  Backbone.$ = $;\n\
-\n\
-  // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable\n\
-  // to its previous owner. Returns a reference to this Backbone object.\n\
-  Backbone.noConflict = function() {\n\
-    root.Backbone = previousBackbone;\n\
-    return this;\n\
-  };\n\
-\n\
-  // Turn on `emulateHTTP` to support legacy HTTP servers. Setting this option\n\
-  // will fake `\"PATCH\"`, `\"PUT\"` and `\"DELETE\"` requests via the `_method` parameter and\n\
-  // set a `X-Http-Method-Override` header.\n\
-  Backbone.emulateHTTP = false;\n\
-\n\
-  // Turn on `emulateJSON` to support legacy servers that can't deal with direct\n\
-  // `application/json` requests ... will encode the body as\n\
-  // `application/x-www-form-urlencoded` instead and will send the model in a\n\
-  // form param named `model`.\n\
-  Backbone.emulateJSON = false;\n\
-\n\
-  // Backbone.Events\n\
-  // ---------------\n\
-\n\
-  // A module that can be mixed in to *any object* in order to provide it with\n\
-  // custom events. You may bind with `on` or remove with `off` callback\n\
-  // functions to an event; `trigger`-ing an event fires all callbacks in\n\
-  // succession.\n\
-  //\n\
-  //     var object = {};\n\
-  //     _.extend(object, Backbone.Events);\n\
-  //     object.on('expand', function(){ alert('expanded'); });\n\
-  //     object.trigger('expand');\n\
-  //\n\
-  var Events = Backbone.Events = {\n\
-\n\
-    // Bind an event to a `callback` function. Passing `\"all\"` will bind\n\
-    // the callback to all events fired.\n\
-    on: function(name, callback, context) {\n\
-      if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;\n\
-      this._events || (this._events = {});\n\
-      var events = this._events[name] || (this._events[name] = []);\n\
-      events.push({callback: callback, context: context, ctx: context || this});\n\
-      return this;\n\
-    },\n\
-\n\
-    // Bind an event to only be triggered a single time. After the first time\n\
-    // the callback is invoked, it will be removed.\n\
-    once: function(name, callback, context) {\n\
-      if (!eventsApi(this, 'once', name, [callback, context]) || !callback) return this;\n\
-      var self = this;\n\
-      var once = _.once(function() {\n\
-        self.off(name, once);\n\
-        callback.apply(this, arguments);\n\
-      });\n\
-      once._callback = callback;\n\
-      return this.on(name, once, context);\n\
-    },\n\
-\n\
-    // Remove one or many callbacks. If `context` is null, removes all\n\
-    // callbacks with that function. If `callback` is null, removes all\n\
-    // callbacks for the event. If `name` is null, removes all bound\n\
-    // callbacks for all events.\n\
-    off: function(name, callback, context) {\n\
-      var retain, ev, events, names, i, l, j, k;\n\
-      if (!this._events || !eventsApi(this, 'off', name, [callback, context])) return this;\n\
-      if (!name && !callback && !context) {\n\
-        this._events = void 0;\n\
-        return this;\n\
-      }\n\
-      names = name ? [name] : _.keys(this._events);\n\
-      for (i = 0, l = names.length; i < l; i++) {\n\
-        name = names[i];\n\
-        if (events = this._events[name]) {\n\
-          this._events[name] = retain = [];\n\
-          if (callback || context) {\n\
-            for (j = 0, k = events.length; j < k; j++) {\n\
-              ev = events[j];\n\
-              if ((callback && callback !== ev.callback && callback !== ev.callback._callback) ||\n\
-                  (context && context !== ev.context)) {\n\
-                retain.push(ev);\n\
-              }\n\
-            }\n\
-          }\n\
-          if (!retain.length) delete this._events[name];\n\
-        }\n\
-      }\n\
-\n\
-      return this;\n\
-    },\n\
-\n\
-    // Trigger one or many events, firing all bound callbacks. Callbacks are\n\
-    // passed the same arguments as `trigger` is, apart from the event name\n\
-    // (unless you're listening on `\"all\"`, which will cause your callback to\n\
-    // receive the true name of the event as the first argument).\n\
-    trigger: function(name) {\n\
-      if (!this._events) return this;\n\
-      var args = slice.call(arguments, 1);\n\
-      if (!eventsApi(this, 'trigger', name, args)) return this;\n\
-      var events = this._events[name];\n\
-      var allEvents = this._events.all;\n\
-      if (events) triggerEvents(events, args);\n\
-      if (allEvents) triggerEvents(allEvents, arguments);\n\
-      return this;\n\
-    },\n\
-\n\
-    // Tell this object to stop listening to either specific events ... or\n\
-    // to every object it's currently listening to.\n\
-    stopListening: function(obj, name, callback) {\n\
-      var listeningTo = this._listeningTo;\n\
-      if (!listeningTo) return this;\n\
-      var remove = !name && !callback;\n\
-      if (!callback && typeof name === 'object') callback = this;\n\
-      if (obj) (listeningTo = {})[obj._listenId] = obj;\n\
-      for (var id in listeningTo) {\n\
-        obj = listeningTo[id];\n\
-        obj.off(name, callback, this);\n\
-        if (remove || _.isEmpty(obj._events)) delete this._listeningTo[id];\n\
-      }\n\
-      return this;\n\
-    }\n\
-\n\
-  };\n\
-\n\
-  // Regular expression used to split event strings.\n\
-  var eventSplitter = /\\s+/;\n\
-\n\
-  // Implement fancy features of the Events API such as multiple event\n\
-  // names `\"change blur\"` and jQuery-style event maps `{change: action}`\n\
-  // in terms of the existing API.\n\
-  var eventsApi = function(obj, action, name, rest) {\n\
-    if (!name) return true;\n\
-\n\
-    // Handle event maps.\n\
-    if (typeof name === 'object') {\n\
-      for (var key in name) {\n\
-        obj[action].apply(obj, [key, name[key]].concat(rest));\n\
-      }\n\
-      return false;\n\
-    }\n\
-\n\
-    // Handle space separated event names.\n\
-    if (eventSplitter.test(name)) {\n\
-      var names = name.split(eventSplitter);\n\
-      for (var i = 0, l = names.length; i < l; i++) {\n\
-        obj[action].apply(obj, [names[i]].concat(rest));\n\
-      }\n\
-      return false;\n\
-    }\n\
-\n\
-    return true;\n\
-  };\n\
-\n\
-  // A difficult-to-believe, but optimized internal dispatch function for\n\
-  // triggering events. Tries to keep the usual cases speedy (most internal\n\
-  // Backbone events have 3 arguments).\n\
-  var triggerEvents = function(events, args) {\n\
-    var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];\n\
-    switch (args.length) {\n\
-      case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;\n\
-      case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;\n\
-      case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;\n\
-      case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;\n\
-      default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args); return;\n\
-    }\n\
-  };\n\
-\n\
-  var listenMethods = {listenTo: 'on', listenToOnce: 'once'};\n\
-\n\
-  // Inversion-of-control versions of `on` and `once`. Tell *this* object to\n\
-  // listen to an event in another object ... keeping track of what it's\n\
-  // listening to.\n\
-  _.each(listenMethods, function(implementation, method) {\n\
-    Events[method] = function(obj, name, callback) {\n\
-      var listeningTo = this._listeningTo || (this._listeningTo = {});\n\
-      var id = obj._listenId || (obj._listenId = _.uniqueId('l'));\n\
-      listeningTo[id] = obj;\n\
-      if (!callback && typeof name === 'object') callback = this;\n\
-      obj[implementation](name, callback, this);\n\
-      return this;\n\
-    };\n\
-  });\n\
-\n\
-  // Aliases for backwards compatibility.\n\
-  Events.bind   = Events.on;\n\
-  Events.unbind = Events.off;\n\
-\n\
-  // Allow the `Backbone` object to serve as a global event bus, for folks who\n\
-  // want global \"pubsub\" in a convenient place.\n\
-  _.extend(Backbone, Events);\n\
-\n\
-  // Backbone.Model\n\
-  // --------------\n\
-\n\
-  // Backbone **Models** are the basic data object in the framework --\n\
-  // frequently representing a row in a table in a database on your server.\n\
-  // A discrete chunk of data and a bunch of useful, related methods for\n\
-  // performing computations and transformations on that data.\n\
-\n\
-  // Create a new model with the specified attributes. A client id (`cid`)\n\
-  // is automatically generated and assigned for you.\n\
-  var Model = Backbone.Model = function(attributes, options) {\n\
-    var attrs = attributes || {};\n\
-    options || (options = {});\n\
-    this.cid = _.uniqueId('c');\n\
-    this.attributes = {};\n\
-    if (options.collection) this.collection = options.collection;\n\
-    if (options.parse) attrs = this.parse(attrs, options) || {};\n\
-    attrs = _.defaults({}, attrs, _.result(this, 'defaults'));\n\
-    this.set(attrs, options);\n\
-    this.changed = {};\n\
-    this.initialize.apply(this, arguments);\n\
-  };\n\
-\n\
-  // Attach all inheritable methods to the Model prototype.\n\
-  _.extend(Model.prototype, Events, {\n\
-\n\
-    // A hash of attributes whose current and previous value differ.\n\
-    changed: null,\n\
-\n\
-    // The value returned during the last failed validation.\n\
-    validationError: null,\n\
-\n\
-    // The default name for the JSON `id` attribute is `\"id\"`. MongoDB and\n\
-    // CouchDB users may want to set this to `\"_id\"`.\n\
-    idAttribute: 'id',\n\
-\n\
-    // Initialize is an empty function by default. Override it with your own\n\
-    // initialization logic.\n\
-    initialize: function(){},\n\
-\n\
-    // Return a copy of the model's `attributes` object.\n\
-    toJSON: function(options) {\n\
-      return _.clone(this.attributes);\n\
-    },\n\
-\n\
-    // Proxy `Backbone.sync` by default -- but override this if you need\n\
-    // custom syncing semantics for *this* particular model.\n\
-    sync: function() {\n\
-      return Backbone.sync.apply(this, arguments);\n\
-    },\n\
-\n\
-    // Get the value of an attribute.\n\
-    get: function(attr) {\n\
-      return this.attributes[attr];\n\
-    },\n\
-\n\
-    // Get the HTML-escaped value of an attribute.\n\
-    escape: function(attr) {\n\
-      return _.escape(this.get(attr));\n\
-    },\n\
-\n\
-    // Returns `true` if the attribute contains a value that is not null\n\
-    // or undefined.\n\
-    has: function(attr) {\n\
-      return this.get(attr) != null;\n\
-    },\n\
-\n\
-    // Set a hash of model attributes on the object, firing `\"change\"`. This is\n\
-    // the core primitive operation of a model, updating the data and notifying\n\
-    // anyone who needs to know about the change in state. The heart of the beast.\n\
-    set: function(key, val, options) {\n\
-      var attr, attrs, unset, changes, silent, changing, prev, current;\n\
-      if (key == null) return this;\n\
-\n\
-      // Handle both `\"key\", value` and `{key: value}` -style arguments.\n\
-      if (typeof key === 'object') {\n\
-        attrs = key;\n\
-        options = val;\n\
-      } else {\n\
-        (attrs = {})[key] = val;\n\
-      }\n\
-\n\
-      options || (options = {});\n\
-\n\
-      // Run validation.\n\
-      if (!this._validate(attrs, options)) return false;\n\
-\n\
-      // Extract attributes and options.\n\
-      unset           = options.unset;\n\
-      silent          = options.silent;\n\
-      changes         = [];\n\
-      changing        = this._changing;\n\
-      this._changing  = true;\n\
-\n\
-      if (!changing) {\n\
-        this._previousAttributes = _.clone(this.attributes);\n\
-        this.changed = {};\n\
-      }\n\
-      current = this.attributes, prev = this._previousAttributes;\n\
-\n\
-      // Check for changes of `id`.\n\
-      if (this.idAttribute in attrs) this.id = attrs[this.idAttribute];\n\
-\n\
-      // For each `set` attribute, update or delete the current value.\n\
-      for (attr in attrs) {\n\
-        val = attrs[attr];\n\
-        if (!_.isEqual(current[attr], val)) changes.push(attr);\n\
-        if (!_.isEqual(prev[attr], val)) {\n\
-          this.changed[attr] = val;\n\
-        } else {\n\
-          delete this.changed[attr];\n\
-        }\n\
-        unset ? delete current[attr] : current[attr] = val;\n\
-      }\n\
-\n\
-      // Trigger all relevant attribute changes.\n\
-      if (!silent) {\n\
-        if (changes.length) this._pending = options;\n\
-        for (var i = 0, l = changes.length; i < l; i++) {\n\
-          this.trigger('change:' + changes[i], this, current[changes[i]], options);\n\
-        }\n\
-      }\n\
-\n\
-      // You might be wondering why there's a `while` loop here. Changes can\n\
-      // be recursively nested within `\"change\"` events.\n\
-      if (changing) return this;\n\
-      if (!silent) {\n\
-        while (this._pending) {\n\
-          options = this._pending;\n\
-          this._pending = false;\n\
-          this.trigger('change', this, options);\n\
-        }\n\
-      }\n\
-      this._pending = false;\n\
-      this._changing = false;\n\
-      return this;\n\
-    },\n\
-\n\
-    // Remove an attribute from the model, firing `\"change\"`. `unset` is a noop\n\
-    // if the attribute doesn't exist.\n\
-    unset: function(attr, options) {\n\
-      return this.set(attr, void 0, _.extend({}, options, {unset: true}));\n\
-    },\n\
-\n\
-    // Clear all attributes on the model, firing `\"change\"`.\n\
-    clear: function(options) {\n\
-      var attrs = {};\n\
-      for (var key in this.attributes) attrs[key] = void 0;\n\
-      return this.set(attrs, _.extend({}, options, {unset: true}));\n\
-    },\n\
-\n\
-    // Determine if the model has changed since the last `\"change\"` event.\n\
-    // If you specify an attribute name, determine if that attribute has changed.\n\
-    hasChanged: function(attr) {\n\
-      if (attr == null) return !_.isEmpty(this.changed);\n\
-      return _.has(this.changed, attr);\n\
-    },\n\
-\n\
-    // Return an object containing all the attributes that have changed, or\n\
-    // false if there are no changed attributes. Useful for determining what\n\
-    // parts of a view need to be updated and/or what attributes need to be\n\
-    // persisted to the server. Unset attributes will be set to undefined.\n\
-    // You can also pass an attributes object to diff against the model,\n\
-    // determining if there *would be* a change.\n\
-    changedAttributes: function(diff) {\n\
-      if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;\n\
-      var val, changed = false;\n\
-      var old = this._changing ? this._previousAttributes : this.attributes;\n\
-      for (var attr in diff) {\n\
-        if (_.isEqual(old[attr], (val = diff[attr]))) continue;\n\
-        (changed || (changed = {}))[attr] = val;\n\
-      }\n\
-      return changed;\n\
-    },\n\
-\n\
-    // Get the previous value of an attribute, recorded at the time the last\n\
-    // `\"change\"` event was fired.\n\
-    previous: function(attr) {\n\
-      if (attr == null || !this._previousAttributes) return null;\n\
-      return this._previousAttributes[attr];\n\
-    },\n\
-\n\
-    // Get all of the attributes of the model at the time of the previous\n\
-    // `\"change\"` event.\n\
-    previousAttributes: function() {\n\
-      return _.clone(this._previousAttributes);\n\
-    },\n\
-\n\
-    // Fetch the model from the server. If the server's representation of the\n\
-    // model differs from its current attributes, they will be overridden,\n\
-    // triggering a `\"change\"` event.\n\
-    fetch: function(options) {\n\
-      options = options ? _.clone(options) : {};\n\
-      if (options.parse === void 0) options.parse = true;\n\
-      var model = this;\n\
-      var success = options.success;\n\
-      options.success = function(resp) {\n\
-        if (!model.set(model.parse(resp, options), options)) return false;\n\
-        if (success) success(model, resp, options);\n\
-        model.trigger('sync', model, resp, options);\n\
-      };\n\
-      wrapError(this, options);\n\
-      return this.sync('read', this, options);\n\
-    },\n\
-\n\
-    // Set a hash of model attributes, and sync the model to the server.\n\
-    // If the server returns an attributes hash that differs, the model's\n\
-    // state will be `set` again.\n\
-    save: function(key, val, options) {\n\
-      var attrs, method, xhr, attributes = this.attributes;\n\
-\n\
-      // Handle both `\"key\", value` and `{key: value}` -style arguments.\n\
-      if (key == null || typeof key === 'object') {\n\
-        attrs = key;\n\
-        options = val;\n\
-      } else {\n\
-        (attrs = {})[key] = val;\n\
-      }\n\
-\n\
-      options = _.extend({validate: true}, options);\n\
-\n\
-      // If we're not waiting and attributes exist, save acts as\n\
-      // `set(attr).save(null, opts)` with validation. Otherwise, check if\n\
-      // the model will be valid when the attributes, if any, are set.\n\
-      if (attrs && !options.wait) {\n\
-        if (!this.set(attrs, options)) return false;\n\
-      } else {\n\
-        if (!this._validate(attrs, options)) return false;\n\
-      }\n\
-\n\
-      // Set temporary attributes if `{wait: true}`.\n\
-      if (attrs && options.wait) {\n\
-        this.attributes = _.extend({}, attributes, attrs);\n\
-      }\n\
-\n\
-      // After a successful server-side save, the client is (optionally)\n\
-      // updated with the server-side state.\n\
-      if (options.parse === void 0) options.parse = true;\n\
-      var model = this;\n\
-      var success = options.success;\n\
-      options.success = function(resp) {\n\
-        // Ensure attributes are restored during synchronous saves.\n\
-        model.attributes = attributes;\n\
-        var serverAttrs = model.parse(resp, options);\n\
-        if (options.wait) serverAttrs = _.extend(attrs || {}, serverAttrs);\n\
-        if (_.isObject(serverAttrs) && !model.set(serverAttrs, options)) {\n\
-          return false;\n\
-        }\n\
-        if (success) success(model, resp, options);\n\
-        model.trigger('sync', model, resp, options);\n\
-      };\n\
-      wrapError(this, options);\n\
-\n\
-      method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');\n\
-      if (method === 'patch') options.attrs = attrs;\n\
-      xhr = this.sync(method, this, options);\n\
-\n\
-      // Restore attributes.\n\
-      if (attrs && options.wait) this.attributes = attributes;\n\
-\n\
-      return xhr;\n\
-    },\n\
-\n\
-    // Destroy this model on the server if it was already persisted.\n\
-    // Optimistically removes the model from its collection, if it has one.\n\
-    // If `wait: true` is passed, waits for the server to respond before removal.\n\
-    destroy: function(options) {\n\
-      options = options ? _.clone(options) : {};\n\
-      var model = this;\n\
-      var success = options.success;\n\
-\n\
-      var destroy = function() {\n\
-        model.trigger('destroy', model, model.collection, options);\n\
-      };\n\
-\n\
-      options.success = function(resp) {\n\
-        if (options.wait || model.isNew()) destroy();\n\
-        if (success) success(model, resp, options);\n\
-        if (!model.isNew()) model.trigger('sync', model, resp, options);\n\
-      };\n\
-\n\
-      if (this.isNew()) {\n\
-        options.success();\n\
-        return false;\n\
-      }\n\
-      wrapError(this, options);\n\
-\n\
-      var xhr = this.sync('delete', this, options);\n\
-      if (!options.wait) destroy();\n\
-      return xhr;\n\
-    },\n\
-\n\
-    // Default URL for the model's representation on the server -- if you're\n\
-    // using Backbone's restful methods, override this to change the endpoint\n\
-    // that will be called.\n\
-    url: function() {\n\
-      var base =\n\
-        _.result(this, 'urlRoot') ||\n\
-        _.result(this.collection, 'url') ||\n\
-        urlError();\n\
-      if (this.isNew()) return base;\n\
-      return base.replace(/([^\\/])$/, '$1/') + encodeURIComponent(this.id);\n\
-    },\n\
-\n\
-    // **parse** converts a response into the hash of attributes to be `set` on\n\
-    // the model. The default implementation is just to pass the response along.\n\
-    parse: function(resp, options) {\n\
-      return resp;\n\
-    },\n\
-\n\
-    // Create a new model with identical attributes to this one.\n\
-    clone: function() {\n\
-      return new this.constructor(this.attributes);\n\
-    },\n\
-\n\
-    // A model is new if it has never been saved to the server, and lacks an id.\n\
-    isNew: function() {\n\
-      return !this.has(this.idAttribute);\n\
-    },\n\
-\n\
-    // Check if the model is currently in a valid state.\n\
-    isValid: function(options) {\n\
-      return this._validate({}, _.extend(options || {}, { validate: true }));\n\
-    },\n\
-\n\
-    // Run validation against the next complete set of model attributes,\n\
-    // returning `true` if all is well. Otherwise, fire an `\"invalid\"` event.\n\
-    _validate: function(attrs, options) {\n\
-      if (!options.validate || !this.validate) return true;\n\
-      attrs = _.extend({}, this.attributes, attrs);\n\
-      var error = this.validationError = this.validate(attrs, options) || null;\n\
-      if (!error) return true;\n\
-      this.trigger('invalid', this, error, _.extend(options, {validationError: error}));\n\
-      return false;\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // Underscore methods that we want to implement on the Model.\n\
-  var modelMethods = ['keys', 'values', 'pairs', 'invert', 'pick', 'omit'];\n\
-\n\
-  // Mix in each Underscore method as a proxy to `Model#attributes`.\n\
-  _.each(modelMethods, function(method) {\n\
-    Model.prototype[method] = function() {\n\
-      var args = slice.call(arguments);\n\
-      args.unshift(this.attributes);\n\
-      return _[method].apply(_, args);\n\
-    };\n\
-  });\n\
-\n\
-  // Backbone.Collection\n\
-  // -------------------\n\
-\n\
-  // If models tend to represent a single row of data, a Backbone Collection is\n\
-  // more analagous to a table full of data ... or a small slice or page of that\n\
-  // table, or a collection of rows that belong together for a particular reason\n\
-  // -- all of the messages in this particular folder, all of the documents\n\
-  // belonging to this particular author, and so on. Collections maintain\n\
-  // indexes of their models, both in order, and for lookup by `id`.\n\
-\n\
-  // Create a new **Collection**, perhaps to contain a specific type of `model`.\n\
-  // If a `comparator` is specified, the Collection will maintain\n\
-  // its models in sort order, as they're added and removed.\n\
-  var Collection = Backbone.Collection = function(models, options) {\n\
-    options || (options = {});\n\
-    if (options.model) this.model = options.model;\n\
-    if (options.comparator !== void 0) this.comparator = options.comparator;\n\
-    this._reset();\n\
-    this.initialize.apply(this, arguments);\n\
-    if (models) this.reset(models, _.extend({silent: true}, options));\n\
-  };\n\
-\n\
-  // Default options for `Collection#set`.\n\
-  var setOptions = {add: true, remove: true, merge: true};\n\
-  var addOptions = {add: true, remove: false};\n\
-\n\
-  // Define the Collection's inheritable methods.\n\
-  _.extend(Collection.prototype, Events, {\n\
-\n\
-    // The default model for a collection is just a **Backbone.Model**.\n\
-    // This should be overridden in most cases.\n\
-    model: Model,\n\
-\n\
-    // Initialize is an empty function by default. Override it with your own\n\
-    // initialization logic.\n\
-    initialize: function(){},\n\
-\n\
-    // The JSON representation of a Collection is an array of the\n\
-    // models' attributes.\n\
-    toJSON: function(options) {\n\
-      return this.map(function(model){ return model.toJSON(options); });\n\
-    },\n\
-\n\
-    // Proxy `Backbone.sync` by default.\n\
-    sync: function() {\n\
-      return Backbone.sync.apply(this, arguments);\n\
-    },\n\
-\n\
-    // Add a model, or list of models to the set.\n\
-    add: function(models, options) {\n\
-      return this.set(models, _.extend({merge: false}, options, addOptions));\n\
-    },\n\
-\n\
-    // Remove a model, or a list of models from the set.\n\
-    remove: function(models, options) {\n\
-      var singular = !_.isArray(models);\n\
-      models = singular ? [models] : _.clone(models);\n\
-      options || (options = {});\n\
-      var i, l, index, model;\n\
-      for (i = 0, l = models.length; i < l; i++) {\n\
-        model = models[i] = this.get(models[i]);\n\
-        if (!model) continue;\n\
-        delete this._byId[model.id];\n\
-        delete this._byId[model.cid];\n\
-        index = this.indexOf(model);\n\
-        this.models.splice(index, 1);\n\
-        this.length--;\n\
-        if (!options.silent) {\n\
-          options.index = index;\n\
-          model.trigger('remove', model, this, options);\n\
-        }\n\
-        this._removeReference(model, options);\n\
-      }\n\
-      return singular ? models[0] : models;\n\
-    },\n\
-\n\
-    // Update a collection by `set`-ing a new list of models, adding new ones,\n\
-    // removing models that are no longer present, and merging models that\n\
-    // already exist in the collection, as necessary. Similar to **Model#set**,\n\
-    // the core operation for updating the data contained by the collection.\n\
-    set: function(models, options) {\n\
-      options = _.defaults({}, options, setOptions);\n\
-      if (options.parse) models = this.parse(models, options);\n\
-      var singular = !_.isArray(models);\n\
-      models = singular ? (models ? [models] : []) : _.clone(models);\n\
-      var i, l, id, model, attrs, existing, sort;\n\
-      var at = options.at;\n\
-      var targetModel = this.model;\n\
-      var sortable = this.comparator && (at == null) && options.sort !== false;\n\
-      var sortAttr = _.isString(this.comparator) ? this.comparator : null;\n\
-      var toAdd = [], toRemove = [], modelMap = {};\n\
-      var add = options.add, merge = options.merge, remove = options.remove;\n\
-      var order = !sortable && add && remove ? [] : false;\n\
-\n\
-      // Turn bare objects into model references, and prevent invalid models\n\
-      // from being added.\n\
-      for (i = 0, l = models.length; i < l; i++) {\n\
-        attrs = models[i] || {};\n\
-        if (attrs instanceof Model) {\n\
-          id = model = attrs;\n\
-        } else {\n\
-          id = attrs[targetModel.prototype.idAttribute || 'id'];\n\
-        }\n\
-\n\
-        // If a duplicate is found, prevent it from being added and\n\
-        // optionally merge it into the existing model.\n\
-        if (existing = this.get(id)) {\n\
-          if (remove) modelMap[existing.cid] = true;\n\
-          if (merge) {\n\
-            attrs = attrs === model ? model.attributes : attrs;\n\
-            if (options.parse) attrs = existing.parse(attrs, options);\n\
-            existing.set(attrs, options);\n\
-            if (sortable && !sort && existing.hasChanged(sortAttr)) sort = true;\n\
-          }\n\
-          models[i] = existing;\n\
-\n\
-        // If this is a new, valid model, push it to the `toAdd` list.\n\
-        } else if (add) {\n\
-          model = models[i] = this._prepareModel(attrs, options);\n\
-          if (!model) continue;\n\
-          toAdd.push(model);\n\
-          this._addReference(model, options);\n\
-        }\n\
-\n\
-        // Do not add multiple models with the same `id`.\n\
-        model = existing || model;\n\
-        if (order && (model.isNew() || !modelMap[model.id])) order.push(model);\n\
-        modelMap[model.id] = true;\n\
-      }\n\
-\n\
-      // Remove nonexistent models if appropriate.\n\
-      if (remove) {\n\
-        for (i = 0, l = this.length; i < l; ++i) {\n\
-          if (!modelMap[(model = this.models[i]).cid]) toRemove.push(model);\n\
-        }\n\
-        if (toRemove.length) this.remove(toRemove, options);\n\
-      }\n\
-\n\
-      // See if sorting is needed, update `length` and splice in new models.\n\
-      if (toAdd.length || (order && order.length)) {\n\
-        if (sortable) sort = true;\n\
-        this.length += toAdd.length;\n\
-        if (at != null) {\n\
-          for (i = 0, l = toAdd.length; i < l; i++) {\n\
-            this.models.splice(at + i, 0, toAdd[i]);\n\
-          }\n\
-        } else {\n\
-          if (order) this.models.length = 0;\n\
-          var orderedModels = order || toAdd;\n\
-          for (i = 0, l = orderedModels.length; i < l; i++) {\n\
-            this.models.push(orderedModels[i]);\n\
-          }\n\
-        }\n\
-      }\n\
-\n\
-      // Silently sort the collection if appropriate.\n\
-      if (sort) this.sort({silent: true});\n\
-\n\
-      // Unless silenced, it's time to fire all appropriate add/sort events.\n\
-      if (!options.silent) {\n\
-        for (i = 0, l = toAdd.length; i < l; i++) {\n\
-          (model = toAdd[i]).trigger('add', model, this, options);\n\
-        }\n\
-        if (sort || (order && order.length)) this.trigger('sort', this, options);\n\
-      }\n\
-\n\
-      // Return the added (or merged) model (or models).\n\
-      return singular ? models[0] : models;\n\
-    },\n\
-\n\
-    // When you have more items than you want to add or remove individually,\n\
-    // you can reset the entire set with a new list of models, without firing\n\
-    // any granular `add` or `remove` events. Fires `reset` when finished.\n\
-    // Useful for bulk operations and optimizations.\n\
-    reset: function(models, options) {\n\
-      options || (options = {});\n\
-      for (var i = 0, l = this.models.length; i < l; i++) {\n\
-        this._removeReference(this.models[i], options);\n\
-      }\n\
-      options.previousModels = this.models;\n\
-      this._reset();\n\
-      models = this.add(models, _.extend({silent: true}, options));\n\
-      if (!options.silent) this.trigger('reset', this, options);\n\
-      return models;\n\
-    },\n\
-\n\
-    // Add a model to the end of the collection.\n\
-    push: function(model, options) {\n\
-      return this.add(model, _.extend({at: this.length}, options));\n\
-    },\n\
-\n\
-    // Remove a model from the end of the collection.\n\
-    pop: function(options) {\n\
-      var model = this.at(this.length - 1);\n\
-      this.remove(model, options);\n\
-      return model;\n\
-    },\n\
-\n\
-    // Add a model to the beginning of the collection.\n\
-    unshift: function(model, options) {\n\
-      return this.add(model, _.extend({at: 0}, options));\n\
-    },\n\
-\n\
-    // Remove a model from the beginning of the collection.\n\
-    shift: function(options) {\n\
-      var model = this.at(0);\n\
-      this.remove(model, options);\n\
-      return model;\n\
-    },\n\
-\n\
-    // Slice out a sub-array of models from the collection.\n\
-    slice: function() {\n\
-      return slice.apply(this.models, arguments);\n\
-    },\n\
-\n\
-    // Get a model from the set by id.\n\
-    get: function(obj) {\n\
-      if (obj == null) return void 0;\n\
-      return this._byId[obj] || this._byId[obj.id] || this._byId[obj.cid];\n\
-    },\n\
-\n\
-    // Get the model at the given index.\n\
-    at: function(index) {\n\
-      return this.models[index];\n\
-    },\n\
-\n\
-    // Return models with matching attributes. Useful for simple cases of\n\
-    // `filter`.\n\
-    where: function(attrs, first) {\n\
-      if (_.isEmpty(attrs)) return first ? void 0 : [];\n\
-      return this[first ? 'find' : 'filter'](function(model) {\n\
-        for (var key in attrs) {\n\
-          if (attrs[key] !== model.get(key)) return false;\n\
-        }\n\
-        return true;\n\
-      });\n\
-    },\n\
-\n\
-    // Return the first model with matching attributes. Useful for simple cases\n\
-    // of `find`.\n\
-    findWhere: function(attrs) {\n\
-      return this.where(attrs, true);\n\
-    },\n\
-\n\
-    // Force the collection to re-sort itself. You don't need to call this under\n\
-    // normal circumstances, as the set will maintain sort order as each item\n\
-    // is added.\n\
-    sort: function(options) {\n\
-      if (!this.comparator) throw new Error('Cannot sort a set without a comparator');\n\
-      options || (options = {});\n\
-\n\
-      // Run sort based on type of `comparator`.\n\
-      if (_.isString(this.comparator) || this.comparator.length === 1) {\n\
-        this.models = this.sortBy(this.comparator, this);\n\
-      } else {\n\
-        this.models.sort(_.bind(this.comparator, this));\n\
-      }\n\
-\n\
-      if (!options.silent) this.trigger('sort', this, options);\n\
-      return this;\n\
-    },\n\
-\n\
-    // Pluck an attribute from each model in the collection.\n\
-    pluck: function(attr) {\n\
-      return _.invoke(this.models, 'get', attr);\n\
-    },\n\
-\n\
-    // Fetch the default set of models for this collection, resetting the\n\
-    // collection when they arrive. If `reset: true` is passed, the response\n\
-    // data will be passed through the `reset` method instead of `set`.\n\
-    fetch: function(options) {\n\
-      options = options ? _.clone(options) : {};\n\
-      if (options.parse === void 0) options.parse = true;\n\
-      var success = options.success;\n\
-      var collection = this;\n\
-      options.success = function(resp) {\n\
-        var method = options.reset ? 'reset' : 'set';\n\
-        collection[method](resp, options);\n\
-        if (success) success(collection, resp, options);\n\
-        collection.trigger('sync', collection, resp, options);\n\
-      };\n\
-      wrapError(this, options);\n\
-      return this.sync('read', this, options);\n\
-    },\n\
-\n\
-    // Create a new instance of a model in this collection. Add the model to the\n\
-    // collection immediately, unless `wait: true` is passed, in which case we\n\
-    // wait for the server to agree.\n\
-    create: function(model, options) {\n\
-      options = options ? _.clone(options) : {};\n\
-      if (!(model = this._prepareModel(model, options))) return false;\n\
-      if (!options.wait) this.add(model, options);\n\
-      var collection = this;\n\
-      var success = options.success;\n\
-      options.success = function(model, resp) {\n\
-        if (options.wait) collection.add(model, options);\n\
-        if (success) success(model, resp, options);\n\
-      };\n\
-      model.save(null, options);\n\
-      return model;\n\
-    },\n\
-\n\
-    // **parse** converts a response into a list of models to be added to the\n\
-    // collection. The default implementation is just to pass it through.\n\
-    parse: function(resp, options) {\n\
-      return resp;\n\
-    },\n\
-\n\
-    // Create a new collection with an identical list of models as this one.\n\
-    clone: function() {\n\
-      return new this.constructor(this.models);\n\
-    },\n\
-\n\
-    // Private method to reset all internal state. Called when the collection\n\
-    // is first initialized or reset.\n\
-    _reset: function() {\n\
-      this.length = 0;\n\
-      this.models = [];\n\
-      this._byId  = {};\n\
-    },\n\
-\n\
-    // Prepare a hash of attributes (or other model) to be added to this\n\
-    // collection.\n\
-    _prepareModel: function(attrs, options) {\n\
-      if (attrs instanceof Model) return attrs;\n\
-      options = options ? _.clone(options) : {};\n\
-      options.collection = this;\n\
-      var model = new this.model(attrs, options);\n\
-      if (!model.validationError) return model;\n\
-      this.trigger('invalid', this, model.validationError, options);\n\
-      return false;\n\
-    },\n\
-\n\
-    // Internal method to create a model's ties to a collection.\n\
-    _addReference: function(model, options) {\n\
-      this._byId[model.cid] = model;\n\
-      if (model.id != null) this._byId[model.id] = model;\n\
-      if (!model.collection) model.collection = this;\n\
-      model.on('all', this._onModelEvent, this);\n\
-    },\n\
-\n\
-    // Internal method to sever a model's ties to a collection.\n\
-    _removeReference: function(model, options) {\n\
-      if (this === model.collection) delete model.collection;\n\
-      model.off('all', this._onModelEvent, this);\n\
-    },\n\
-\n\
-    // Internal method called every time a model in the set fires an event.\n\
-    // Sets need to update their indexes when models change ids. All other\n\
-    // events simply proxy through. \"add\" and \"remove\" events that originate\n\
-    // in other collections are ignored.\n\
-    _onModelEvent: function(event, model, collection, options) {\n\
-      if ((event === 'add' || event === 'remove') && collection !== this) return;\n\
-      if (event === 'destroy') this.remove(model, options);\n\
-      if (model && event === 'change:' + model.idAttribute) {\n\
-        delete this._byId[model.previous(model.idAttribute)];\n\
-        if (model.id != null) this._byId[model.id] = model;\n\
-      }\n\
-      this.trigger.apply(this, arguments);\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // Underscore methods that we want to implement on the Collection.\n\
-  // 90% of the core usefulness of Backbone Collections is actually implemented\n\
-  // right here:\n\
-  var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl',\n\
-    'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select',\n\
-    'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke',\n\
-    'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest',\n\
-    'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle',\n\
-    'lastIndexOf', 'isEmpty', 'chain', 'sample'];\n\
-\n\
-  // Mix in each Underscore method as a proxy to `Collection#models`.\n\
-  _.each(methods, function(method) {\n\
-    Collection.prototype[method] = function() {\n\
-      var args = slice.call(arguments);\n\
-      args.unshift(this.models);\n\
-      return _[method].apply(_, args);\n\
-    };\n\
-  });\n\
-\n\
-  // Underscore methods that take a property name as an argument.\n\
-  var attributeMethods = ['groupBy', 'countBy', 'sortBy', 'indexBy'];\n\
-\n\
-  // Use attributes instead of properties.\n\
-  _.each(attributeMethods, function(method) {\n\
-    Collection.prototype[method] = function(value, context) {\n\
-      var iterator = _.isFunction(value) ? value : function(model) {\n\
-        return model.get(value);\n\
-      };\n\
-      return _[method](this.models, iterator, context);\n\
-    };\n\
-  });\n\
-\n\
-  // Backbone.View\n\
-  // -------------\n\
-\n\
-  // Backbone Views are almost more convention than they are actual code. A View\n\
-  // is simply a JavaScript object that represents a logical chunk of UI in the\n\
-  // DOM. This might be a single item, an entire list, a sidebar or panel, or\n\
-  // even the surrounding frame which wraps your whole app. Defining a chunk of\n\
-  // UI as a **View** allows you to define your DOM events declaratively, without\n\
-  // having to worry about render order ... and makes it easy for the view to\n\
-  // react to specific changes in the state of your models.\n\
-\n\
-  // Creating a Backbone.View creates its initial element outside of the DOM,\n\
-  // if an existing element is not provided...\n\
-  var View = Backbone.View = function(options) {\n\
-    this.cid = _.uniqueId('view');\n\
-    options || (options = {});\n\
-    _.extend(this, _.pick(options, viewOptions));\n\
-    this._ensureElement();\n\
-    this.initialize.apply(this, arguments);\n\
-    this.delegateEvents();\n\
-  };\n\
-\n\
-  // Cached regex to split keys for `delegate`.\n\
-  var delegateEventSplitter = /^(\\S+)\\s*(.*)$/;\n\
-\n\
-  // List of view options to be merged as properties.\n\
-  var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];\n\
-\n\
-  // Set up all inheritable **Backbone.View** properties and methods.\n\
-  _.extend(View.prototype, Events, {\n\
-\n\
-    // The default `tagName` of a View's element is `\"div\"`.\n\
-    tagName: 'div',\n\
-\n\
-    // jQuery delegate for element lookup, scoped to DOM elements within the\n\
-    // current view. This should be preferred to global lookups where possible.\n\
-    $: function(selector) {\n\
-      return this.$el.find(selector);\n\
-    },\n\
-\n\
-    // Initialize is an empty function by default. Override it with your own\n\
-    // initialization logic.\n\
-    initialize: function(){},\n\
-\n\
-    // **render** is the core function that your view should override, in order\n\
-    // to populate its element (`this.el`), with the appropriate HTML. The\n\
-    // convention is for **render** to always return `this`.\n\
-    render: function() {\n\
-      return this;\n\
-    },\n\
-\n\
-    // Remove this view by taking the element out of the DOM, and removing any\n\
-    // applicable Backbone.Events listeners.\n\
-    remove: function() {\n\
-      this.$el.remove();\n\
-      this.stopListening();\n\
-      return this;\n\
-    },\n\
-\n\
-    // Change the view's element (`this.el` property), including event\n\
-    // re-delegation.\n\
-    setElement: function(element, delegate) {\n\
-      if (this.$el) this.undelegateEvents();\n\
-      this.$el = element instanceof Backbone.$ ? element : Backbone.$(element);\n\
-      this.el = this.$el[0];\n\
-      if (delegate !== false) this.delegateEvents();\n\
-      return this;\n\
-    },\n\
-\n\
-    // Set callbacks, where `this.events` is a hash of\n\
-    //\n\
-    // *{\"event selector\": \"callback\"}*\n\
-    //\n\
-    //     {\n\
-    //       'mousedown .title':  'edit',\n\
-    //       'click .button':     'save',\n\
-    //       'click .open':       function(e) { ... }\n\
-    //     }\n\
-    //\n\
-    // pairs. Callbacks will be bound to the view, with `this` set properly.\n\
-    // Uses event delegation for efficiency.\n\
-    // Omitting the selector binds the event to `this.el`.\n\
-    // This only works for delegate-able events: not `focus`, `blur`, and\n\
-    // not `change`, `submit`, and `reset` in Internet Explorer.\n\
-    delegateEvents: function(events) {\n\
-      if (!(events || (events = _.result(this, 'events')))) return this;\n\
-      this.undelegateEvents();\n\
-      for (var key in events) {\n\
-        var method = events[key];\n\
-        if (!_.isFunction(method)) method = this[events[key]];\n\
-        if (!method) continue;\n\
-\n\
-        var match = key.match(delegateEventSplitter);\n\
-        var eventName = match[1], selector = match[2];\n\
-        method = _.bind(method, this);\n\
-        eventName += '.delegateEvents' + this.cid;\n\
-        if (selector === '') {\n\
-          this.$el.on(eventName, method);\n\
-        } else {\n\
-          this.$el.on(eventName, selector, method);\n\
-        }\n\
-      }\n\
-      return this;\n\
-    },\n\
-\n\
-    // Clears all callbacks previously bound to the view with `delegateEvents`.\n\
-    // You usually don't need to use this, but may wish to if you have multiple\n\
-    // Backbone views attached to the same DOM element.\n\
-    undelegateEvents: function() {\n\
-      this.$el.off('.delegateEvents' + this.cid);\n\
-      return this;\n\
-    },\n\
-\n\
-    // Ensure that the View has a DOM element to render into.\n\
-    // If `this.el` is a string, pass it through `$()`, take the first\n\
-    // matching element, and re-assign it to `el`. Otherwise, create\n\
-    // an element from the `id`, `className` and `tagName` properties.\n\
-    _ensureElement: function() {\n\
-      if (!this.el) {\n\
-        var attrs = _.extend({}, _.result(this, 'attributes'));\n\
-        if (this.id) attrs.id = _.result(this, 'id');\n\
-        if (this.className) attrs['class'] = _.result(this, 'className');\n\
-        var $el = Backbone.$('<' + _.result(this, 'tagName') + '>').attr(attrs);\n\
-        this.setElement($el, false);\n\
-      } else {\n\
-        this.setElement(_.result(this, 'el'), false);\n\
-      }\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // Backbone.sync\n\
-  // -------------\n\
-\n\
-  // Override this function to change the manner in which Backbone persists\n\
-  // models to the server. You will be passed the type of request, and the\n\
-  // model in question. By default, makes a RESTful Ajax request\n\
-  // to the model's `url()`. Some possible customizations could be:\n\
-  //\n\
-  // * Use `setTimeout` to batch rapid-fire updates into a single request.\n\
-  // * Send up the models as XML instead of JSON.\n\
-  // * Persist models via WebSockets instead of Ajax.\n\
-  //\n\
-  // Turn on `Backbone.emulateHTTP` in order to send `PUT` and `DELETE` requests\n\
-  // as `POST`, with a `_method` parameter containing the true HTTP method,\n\
-  // as well as all requests with the body as `application/x-www-form-urlencoded`\n\
-  // instead of `application/json` with the model in a param named `model`.\n\
-  // Useful when interfacing with server-side languages like **PHP** that make\n\
-  // it difficult to read the body of `PUT` requests.\n\
-  Backbone.sync = function(method, model, options) {\n\
-    var type = methodMap[method];\n\
-\n\
-    // Default options, unless specified.\n\
-    _.defaults(options || (options = {}), {\n\
-      emulateHTTP: Backbone.emulateHTTP,\n\
-      emulateJSON: Backbone.emulateJSON\n\
-    });\n\
-\n\
-    // Default JSON-request options.\n\
-    var params = {type: type, dataType: 'json'};\n\
-\n\
-    // Ensure that we have a URL.\n\
-    if (!options.url) {\n\
-      params.url = _.result(model, 'url') || urlError();\n\
-    }\n\
-\n\
-    // Ensure that we have the appropriate request data.\n\
-    if (options.data == null && model && (method === 'create' || method === 'update' || method === 'patch')) {\n\
-      params.contentType = 'application/json';\n\
-      params.data = JSON.stringify(options.attrs || model.toJSON(options));\n\
-    }\n\
-\n\
-    // For older servers, emulate JSON by encoding the request into an HTML-form.\n\
-    if (options.emulateJSON) {\n\
-      params.contentType = 'application/x-www-form-urlencoded';\n\
-      params.data = params.data ? {model: params.data} : {};\n\
-    }\n\
-\n\
-    // For older servers, emulate HTTP by mimicking the HTTP method with `_method`\n\
-    // And an `X-HTTP-Method-Override` header.\n\
-    if (options.emulateHTTP && (type === 'PUT' || type === 'DELETE' || type === 'PATCH')) {\n\
-      params.type = 'POST';\n\
-      if (options.emulateJSON) params.data._method = type;\n\
-      var beforeSend = options.beforeSend;\n\
-      options.beforeSend = function(xhr) {\n\
-        xhr.setRequestHeader('X-HTTP-Method-Override', type);\n\
-        if (beforeSend) return beforeSend.apply(this, arguments);\n\
-      };\n\
-    }\n\
-\n\
-    // Don't process data on a non-GET request.\n\
-    if (params.type !== 'GET' && !options.emulateJSON) {\n\
-      params.processData = false;\n\
-    }\n\
-\n\
-    // If we're sending a `PATCH` request, and we're in an old Internet Explorer\n\
-    // that still has ActiveX enabled by default, override jQuery to use that\n\
-    // for XHR instead. Remove this line when jQuery supports `PATCH` on IE8.\n\
-    if (params.type === 'PATCH' && noXhrPatch) {\n\
-      params.xhr = function() {\n\
-        return new ActiveXObject(\"Microsoft.XMLHTTP\");\n\
-      };\n\
-    }\n\
-\n\
-    // Make the request, allowing the user to override any Ajax options.\n\
-    var xhr = options.xhr = Backbone.ajax(_.extend(params, options));\n\
-    model.trigger('request', model, xhr, options);\n\
-    return xhr;\n\
-  };\n\
-\n\
-  var noXhrPatch =\n\
-    typeof window !== 'undefined' && !!window.ActiveXObject &&\n\
-      !(window.XMLHttpRequest && (new XMLHttpRequest).dispatchEvent);\n\
-\n\
-  // Map from CRUD to HTTP for our default `Backbone.sync` implementation.\n\
-  var methodMap = {\n\
-    'create': 'POST',\n\
-    'update': 'PUT',\n\
-    'patch':  'PATCH',\n\
-    'delete': 'DELETE',\n\
-    'read':   'GET'\n\
-  };\n\
-\n\
-  // Set the default implementation of `Backbone.ajax` to proxy through to `$`.\n\
-  // Override this if you'd like to use a different library.\n\
-  Backbone.ajax = function() {\n\
-    return Backbone.$.ajax.apply(Backbone.$, arguments);\n\
-  };\n\
-\n\
-  // Backbone.Router\n\
-  // ---------------\n\
-\n\
-  // Routers map faux-URLs to actions, and fire events when routes are\n\
-  // matched. Creating a new one sets its `routes` hash, if not set statically.\n\
-  var Router = Backbone.Router = function(options) {\n\
-    options || (options = {});\n\
-    if (options.routes) this.routes = options.routes;\n\
-    this._bindRoutes();\n\
-    this.initialize.apply(this, arguments);\n\
-  };\n\
-\n\
-  // Cached regular expressions for matching named param parts and splatted\n\
-  // parts of route strings.\n\
-  var optionalParam = /\\((.*?)\\)/g;\n\
-  var namedParam    = /(\\(\\?)?:\\w+/g;\n\
-  var splatParam    = /\\*\\w+/g;\n\
-  var escapeRegExp  = /[\\-{}\\[\\]+?.,\\\\\\^$|#\\s]/g;\n\
-\n\
-  // Set up all inheritable **Backbone.Router** properties and methods.\n\
-  _.extend(Router.prototype, Events, {\n\
-\n\
-    // Initialize is an empty function by default. Override it with your own\n\
-    // initialization logic.\n\
-    initialize: function(){},\n\
-\n\
-    // Manually bind a single named route to a callback. For example:\n\
-    //\n\
-    //     this.route('search/:query/p:num', 'search', function(query, num) {\n\
-    //       ...\n\
-    //     });\n\
-    //\n\
-    route: function(route, name, callback) {\n\
-      if (!_.isRegExp(route)) route = this._routeToRegExp(route);\n\
-      if (_.isFunction(name)) {\n\
-        callback = name;\n\
-        name = '';\n\
-      }\n\
-      if (!callback) callback = this[name];\n\
-      var router = this;\n\
-      Backbone.history.route(route, function(fragment) {\n\
-        var args = router._extractParameters(route, fragment);\n\
-        router.execute(callback, args);\n\
-        router.trigger.apply(router, ['route:' + name].concat(args));\n\
-        router.trigger('route', name, args);\n\
-        Backbone.history.trigger('route', router, name, args);\n\
-      });\n\
-      return this;\n\
-    },\n\
-\n\
-    // Execute a route handler with the provided parameters.  This is an\n\
-    // excellent place to do pre-route setup or post-route cleanup.\n\
-    execute: function(callback, args) {\n\
-      if (callback) callback.apply(this, args);\n\
-    },\n\
-\n\
-    // Simple proxy to `Backbone.history` to save a fragment into the history.\n\
-    navigate: function(fragment, options) {\n\
-      Backbone.history.navigate(fragment, options);\n\
-      return this;\n\
-    },\n\
-\n\
-    // Bind all defined routes to `Backbone.history`. We have to reverse the\n\
-    // order of the routes here to support behavior where the most general\n\
-    // routes can be defined at the bottom of the route map.\n\
-    _bindRoutes: function() {\n\
-      if (!this.routes) return;\n\
-      this.routes = _.result(this, 'routes');\n\
-      var route, routes = _.keys(this.routes);\n\
-      while ((route = routes.pop()) != null) {\n\
-        this.route(route, this.routes[route]);\n\
-      }\n\
-    },\n\
-\n\
-    // Convert a route string into a regular expression, suitable for matching\n\
-    // against the current location hash.\n\
-    _routeToRegExp: function(route) {\n\
-      route = route.replace(escapeRegExp, '\\\\$&')\n\
-                   .replace(optionalParam, '(?:$1)?')\n\
-                   .replace(namedParam, function(match, optional) {\n\
-                     return optional ? match : '([^/?]+)';\n\
-                   })\n\
-                   .replace(splatParam, '([^?]*?)');\n\
-      return new RegExp('^' + route + '(?:\\\\?([\\\\s\\\\S]*))?$');\n\
-    },\n\
-\n\
-    // Given a route, and a URL fragment that it matches, return the array of\n\
-    // extracted decoded parameters. Empty or unmatched parameters will be\n\
-    // treated as `null` to normalize cross-browser behavior.\n\
-    _extractParameters: function(route, fragment) {\n\
-      var params = route.exec(fragment).slice(1);\n\
-      return _.map(params, function(param, i) {\n\
-        // Don't decode the search params.\n\
-        if (i === params.length - 1) return param || null;\n\
-        return param ? decodeURIComponent(param) : null;\n\
-      });\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // Backbone.History\n\
-  // ----------------\n\
-\n\
-  // Handles cross-browser history management, based on either\n\
-  // [pushState](http://diveintohtml5.info/history.html) and real URLs, or\n\
-  // [onhashchange](https://developer.mozilla.org/en-US/docs/DOM/window.onhashchange)\n\
-  // and URL fragments. If the browser supports neither (old IE, natch),\n\
-  // falls back to polling.\n\
-  var History = Backbone.History = function() {\n\
-    this.handlers = [];\n\
-    _.bindAll(this, 'checkUrl');\n\
-\n\
-    // Ensure that `History` can be used outside of the browser.\n\
-    if (typeof window !== 'undefined') {\n\
-      this.location = window.location;\n\
-      this.history = window.history;\n\
-    }\n\
-  };\n\
-\n\
-  // Cached regex for stripping a leading hash/slash and trailing space.\n\
-  var routeStripper = /^[#\\/]|\\s+$/g;\n\
-\n\
-  // Cached regex for stripping leading and trailing slashes.\n\
-  var rootStripper = /^\\/+|\\/+$/g;\n\
-\n\
-  // Cached regex for detecting MSIE.\n\
-  var isExplorer = /msie [\\w.]+/;\n\
-\n\
-  // Cached regex for removing a trailing slash.\n\
-  var trailingSlash = /\\/$/;\n\
-\n\
-  // Cached regex for stripping urls of hash.\n\
-  var pathStripper = /#.*$/;\n\
-\n\
-  // Has the history handling already been started?\n\
-  History.started = false;\n\
-\n\
-  // Set up all inheritable **Backbone.History** properties and methods.\n\
-  _.extend(History.prototype, Events, {\n\
-\n\
-    // The default interval to poll for hash changes, if necessary, is\n\
-    // twenty times a second.\n\
-    interval: 50,\n\
-\n\
-    // Are we at the app root?\n\
-    atRoot: function() {\n\
-      return this.location.pathname.replace(/[^\\/]$/, '$&/') === this.root;\n\
-    },\n\
-\n\
-    // Gets the true hash value. Cannot use location.hash directly due to bug\n\
-    // in Firefox where location.hash will always be decoded.\n\
-    getHash: function(window) {\n\
-      var match = (window || this).location.href.match(/#(.*)$/);\n\
-      return match ? match[1] : '';\n\
-    },\n\
-\n\
-    // Get the cross-browser normalized URL fragment, either from the URL,\n\
-    // the hash, or the override.\n\
-    getFragment: function(fragment, forcePushState) {\n\
-      if (fragment == null) {\n\
-        if (this._hasPushState || !this._wantsHashChange || forcePushState) {\n\
-          fragment = decodeURI(this.location.pathname + this.location.search);\n\
-          var root = this.root.replace(trailingSlash, '');\n\
-          if (!fragment.indexOf(root)) fragment = fragment.slice(root.length);\n\
-        } else {\n\
-          fragment = this.getHash();\n\
-        }\n\
-      }\n\
-      return fragment.replace(routeStripper, '');\n\
-    },\n\
-\n\
-    // Start the hash change handling, returning `true` if the current URL matches\n\
-    // an existing route, and `false` otherwise.\n\
-    start: function(options) {\n\
-      if (History.started) throw new Error(\"Backbone.history has already been started\");\n\
-      History.started = true;\n\
-\n\
-      // Figure out the initial configuration. Do we need an iframe?\n\
-      // Is pushState desired ... is it available?\n\
-      this.options          = _.extend({root: '/'}, this.options, options);\n\
-      this.root             = this.options.root;\n\
-      this._wantsHashChange = this.options.hashChange !== false;\n\
-      this._wantsPushState  = !!this.options.pushState;\n\
-      this._hasPushState    = !!(this.options.pushState && this.history && this.history.pushState);\n\
-      var fragment          = this.getFragment();\n\
-      var docMode           = document.documentMode;\n\
-      var oldIE             = (isExplorer.exec(navigator.userAgent.toLowerCase()) && (!docMode || docMode <= 7));\n\
-\n\
-      // Normalize root to always include a leading and trailing slash.\n\
-      this.root = ('/' + this.root + '/').replace(rootStripper, '/');\n\
-\n\
-      if (oldIE && this._wantsHashChange) {\n\
-        var frame = Backbone.$('<iframe src=\"javascript:0\" tabindex=\"-1\">');\n\
-        this.iframe = frame.hide().appendTo('body')[0].contentWindow;\n\
-        this.navigate(fragment);\n\
-      }\n\
-\n\
-      // Depending on whether we're using pushState or hashes, and whether\n\
-      // 'onhashchange' is supported, determine how we check the URL state.\n\
-      if (this._hasPushState) {\n\
-        Backbone.$(window).on('popstate', this.checkUrl);\n\
-      } else if (this._wantsHashChange && ('onhashchange' in window) && !oldIE) {\n\
-        Backbone.$(window).on('hashchange', this.checkUrl);\n\
-      } else if (this._wantsHashChange) {\n\
-        this._checkUrlInterval = setInterval(this.checkUrl, this.interval);\n\
-      }\n\
-\n\
-      // Determine if we need to change the base url, for a pushState link\n\
-      // opened by a non-pushState browser.\n\
-      this.fragment = fragment;\n\
-      var loc = this.location;\n\
-\n\
-      // Transition from hashChange to pushState or vice versa if both are\n\
-      // requested.\n\
-      if (this._wantsHashChange && this._wantsPushState) {\n\
-\n\
-        // If we've started off with a route from a `pushState`-enabled\n\
-        // browser, but we're currently in a browser that doesn't support it...\n\
-        if (!this._hasPushState && !this.atRoot()) {\n\
-          this.fragment = this.getFragment(null, true);\n\
-          this.location.replace(this.root + '#' + this.fragment);\n\
-          // Return immediately as browser will do redirect to new url\n\
-          return true;\n\
-\n\
-        // Or if we've started out with a hash-based route, but we're currently\n\
-        // in a browser where it could be `pushState`-based instead...\n\
-        } else if (this._hasPushState && this.atRoot() && loc.hash) {\n\
-          this.fragment = this.getHash().replace(routeStripper, '');\n\
-          this.history.replaceState({}, document.title, this.root + this.fragment);\n\
-        }\n\
-\n\
-      }\n\
-\n\
-      if (!this.options.silent) return this.loadUrl();\n\
-    },\n\
-\n\
-    // Disable Backbone.history, perhaps temporarily. Not useful in a real app,\n\
-    // but possibly useful for unit testing Routers.\n\
-    stop: function() {\n\
-      Backbone.$(window).off('popstate', this.checkUrl).off('hashchange', this.checkUrl);\n\
-      if (this._checkUrlInterval) clearInterval(this._checkUrlInterval);\n\
-      History.started = false;\n\
-    },\n\
-\n\
-    // Add a route to be tested when the fragment changes. Routes added later\n\
-    // may override previous routes.\n\
-    route: function(route, callback) {\n\
-      this.handlers.unshift({route: route, callback: callback});\n\
-    },\n\
-\n\
-    // Checks the current URL to see if it has changed, and if it has,\n\
-    // calls `loadUrl`, normalizing across the hidden iframe.\n\
-    checkUrl: function(e) {\n\
-      var current = this.getFragment();\n\
-      if (current === this.fragment && this.iframe) {\n\
-        current = this.getFragment(this.getHash(this.iframe));\n\
-      }\n\
-      if (current === this.fragment) return false;\n\
-      if (this.iframe) this.navigate(current);\n\
-      this.loadUrl();\n\
-    },\n\
-\n\
-    // Attempt to load the current URL fragment. If a route succeeds with a\n\
-    // match, returns `true`. If no defined routes matches the fragment,\n\
-    // returns `false`.\n\
-    loadUrl: function(fragment) {\n\
-      fragment = this.fragment = this.getFragment(fragment);\n\
-      return _.any(this.handlers, function(handler) {\n\
-        if (handler.route.test(fragment)) {\n\
-          handler.callback(fragment);\n\
-          return true;\n\
-        }\n\
-      });\n\
-    },\n\
-\n\
-    // Save a fragment into the hash history, or replace the URL state if the\n\
-    // 'replace' option is passed. You are responsible for properly URL-encoding\n\
-    // the fragment in advance.\n\
-    //\n\
-    // The options object can contain `trigger: true` if you wish to have the\n\
-    // route callback be fired (not usually desirable), or `replace: true`, if\n\
-    // you wish to modify the current URL without adding an entry to the history.\n\
-    navigate: function(fragment, options) {\n\
-      if (!History.started) return false;\n\
-      if (!options || options === true) options = {trigger: !!options};\n\
-\n\
-      var url = this.root + (fragment = this.getFragment(fragment || ''));\n\
-\n\
-      // Strip the hash for matching.\n\
-      fragment = fragment.replace(pathStripper, '');\n\
-\n\
-      if (this.fragment === fragment) return;\n\
-      this.fragment = fragment;\n\
-\n\
-      // Don't include a trailing slash on the root.\n\
-      if (fragment === '' && url !== '/') url = url.slice(0, -1);\n\
-\n\
-      // If pushState is available, we use it to set the fragment as a real URL.\n\
-      if (this._hasPushState) {\n\
-        this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);\n\
-\n\
-      // If hash changes haven't been explicitly disabled, update the hash\n\
-      // fragment to store history.\n\
-      } else if (this._wantsHashChange) {\n\
-        this._updateHash(this.location, fragment, options.replace);\n\
-        if (this.iframe && (fragment !== this.getFragment(this.getHash(this.iframe)))) {\n\
-          // Opening and closing the iframe tricks IE7 and earlier to push a\n\
-          // history entry on hash-tag change.  When replace is true, we don't\n\
-          // want this.\n\
-          if(!options.replace) this.iframe.document.open().close();\n\
-          this._updateHash(this.iframe.location, fragment, options.replace);\n\
-        }\n\
-\n\
-      // If you've told us that you explicitly don't want fallback hashchange-\n\
-      // based history, then `navigate` becomes a page refresh.\n\
-      } else {\n\
-        return this.location.assign(url);\n\
-      }\n\
-      if (options.trigger) return this.loadUrl(fragment);\n\
-    },\n\
-\n\
-    // Update the hash location, either replacing the current entry, or adding\n\
-    // a new one to the browser history.\n\
-    _updateHash: function(location, fragment, replace) {\n\
-      if (replace) {\n\
-        var href = location.href.replace(/(javascript:|#).*$/, '');\n\
-        location.replace(href + '#' + fragment);\n\
-      } else {\n\
-        // Some browsers require that `hash` contains a leading #.\n\
-        location.hash = '#' + fragment;\n\
-      }\n\
-    }\n\
-\n\
-  });\n\
-\n\
-  // Create the default Backbone.history.\n\
-  Backbone.history = new History;\n\
-\n\
-  // Helpers\n\
-  // -------\n\
-\n\
-  // Helper function to correctly set up the prototype chain, for subclasses.\n\
-  // Similar to `goog.inherits`, but uses a hash of prototype properties and\n\
-  // class properties to be extended.\n\
-  var extend = function(protoProps, staticProps) {\n\
-    var parent = this;\n\
-    var child;\n\
-\n\
-    // The constructor function for the new subclass is either defined by you\n\
-    // (the \"constructor\" property in your `extend` definition), or defaulted\n\
-    // by us to simply call the parent's constructor.\n\
-    if (protoProps && _.has(protoProps, 'constructor')) {\n\
-      child = protoProps.constructor;\n\
-    } else {\n\
-      child = function(){ return parent.apply(this, arguments); };\n\
-    }\n\
-\n\
-    // Add static properties to the constructor function, if supplied.\n\
-    _.extend(child, parent, staticProps);\n\
-\n\
-    // Set the prototype chain to inherit from `parent`, without calling\n\
-    // `parent`'s constructor function.\n\
-    var Surrogate = function(){ this.constructor = child; };\n\
-    Surrogate.prototype = parent.prototype;\n\
-    child.prototype = new Surrogate;\n\
-\n\
-    // Add prototype properties (instance properties) to the subclass,\n\
-    // if supplied.\n\
-    if (protoProps) _.extend(child.prototype, protoProps);\n\
-\n\
-    // Set a convenience property in case the parent's prototype is needed\n\
-    // later.\n\
-    child.__super__ = parent.prototype;\n\
-\n\
-    return child;\n\
-  };\n\
-\n\
-  // Set up inheritance for the model, collection, router, view and history.\n\
-  Model.extend = Collection.extend = Router.extend = View.extend = History.extend = extend;\n\
-\n\
-  // Throw an error when a URL is needed, and none is supplied.\n\
-  var urlError = function() {\n\
-    throw new Error('A \"url\" property or function must be specified');\n\
-  };\n\
-\n\
-  // Wrap an optional error callback with a fallback error event.\n\
-  var wrapError = function(model, options) {\n\
-    var error = options.error;\n\
-    options.error = function(resp) {\n\
-      if (error) error(model, resp, options);\n\
-      model.trigger('error', model, resp, options);\n\
-    };\n\
-  };\n\
-\n\
-  return Backbone;\n\
-\n\
-}));\n\
-\n\
-//# sourceURL=components/jashkenas/backbone/1.1.2/backbone.js"
-));
-
-require.modules["jashkenas-backbone"] = require.modules["jashkenas~backbone@1.1.2"];
-require.modules["jashkenas~backbone"] = require.modules["jashkenas~backbone@1.1.2"];
-require.modules["backbone"] = require.modules["jashkenas~backbone@1.1.2"];
-
-
-require.register("learnboost~jsonp@0.0.4", Function("exports, module",
-"/**\n\
- * Module dependencies\n\
- */\n\
-\n\
-var debug = require(\"visionmedia~debug@0.8.1\")('jsonp');\n\
-\n\
-/**\n\
- * Module exports.\n\
- */\n\
-\n\
-module.exports = jsonp;\n\
-\n\
-/**\n\
- * Callback index.\n\
- */\n\
-\n\
-var count = 0;\n\
-\n\
-/**\n\
- * Noop function.\n\
- */\n\
-\n\
-function noop(){}\n\
-\n\
-/**\n\
- * JSONP handler\n\
- *\n\
- * Options:\n\
- *  - param {String} qs parameter (`callback`)\n\
- *  - timeout {Number} how long after a timeout error is emitted (`60000`)\n\
- *\n\
- * @param {String} url\n\
- * @param {Object|Function} optional options / callback\n\
- * @param {Function} optional callback\n\
- */\n\
-\n\
-function jsonp(url, opts, fn){\n\
-  if ('function' == typeof opts) {\n\
-    fn = opts;\n\
-    opts = {};\n\
-  }\n\
-  if (!opts) opts = {};\n\
-\n\
-  var prefix = opts.prefix || '__jp';\n\
-  var param = opts.param || 'callback';\n\
-  var timeout = null != opts.timeout ? opts.timeout : 60000;\n\
-  var enc = encodeURIComponent;\n\
-  var target = document.getElementsByTagName('script')[0] || document.head;\n\
-  var script;\n\
-  var timer;\n\
-\n\
-  // generate a unique id for this request\n\
-  var id = prefix + (count++);\n\
-\n\
-  if (timeout) {\n\
-    timer = setTimeout(function(){\n\
-      cleanup();\n\
-      if (fn) fn(new Error('Timeout'));\n\
-    }, timeout);\n\
-  }\n\
-\n\
-  function cleanup(){\n\
-    script.parentNode.removeChild(script);\n\
-    window[id] = noop;\n\
-  }\n\
-\n\
-  window[id] = function(data){\n\
-    debug('jsonp got', data);\n\
-    if (timer) clearTimeout(timer);\n\
-    cleanup();\n\
-    if (fn) fn(null, data);\n\
-  };\n\
-\n\
-  // add qs component\n\
-  url += (~url.indexOf('?') ? '&' : '?') + param + '=' + enc(id);\n\
-  url = url.replace('?&', '?');\n\
-\n\
-  debug('jsonp req \"%s\"', url);\n\
-\n\
-  // create script\n\
-  script = document.createElement('script');\n\
-  script.src = url;\n\
-  target.parentNode.insertBefore(script, target);\n\
-}\n\
-\n\
-//# sourceURL=components/learnboost/jsonp/0.0.4/index.js"
-));
-
-require.modules["learnboost-jsonp"] = require.modules["learnboost~jsonp@0.0.4"];
-require.modules["learnboost~jsonp"] = require.modules["learnboost~jsonp@0.0.4"];
-require.modules["jsonp"] = require.modules["learnboost~jsonp@0.0.4"];
-
-
-require.register("conveyal~otpprofiler.js@0.1.0", Function("exports, module",
-"module.exports.models = require(\"conveyal~otpprofiler.js@0.1.0/lib/models.js\");\n\
-\n\
-module.exports.transitive = require(\"conveyal~otpprofiler.js@0.1.0/lib/transitive.js\");\n\
-\n\
-//# sourceURL=components/conveyal/otpprofiler.js/0.1.0/lib/index.js"
-));
-
-require.register("conveyal~otpprofiler.js@0.1.0/lib/models.js", Function("exports, module",
-"/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var Backbone = require(\"jashkenas~backbone@1.1.2\");\n\
-var jsonp = require(\"learnboost~jsonp@0.0.4\");\n\
-var querystring = require(\"component~querystring@1.3.0\");\n\
-var _ = require(\"jashkenas~underscore@1.6.0\");\n\
-\n\
-module.exports.OtpProfileRequest = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    _.bindAll(this, 'request', 'processRequest');\n\
-\n\
-    this.on('change', this.request);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    from: null,\n\
-    to: null,\n\
-  },\n\
-\n\
-  request: function() {\n\
-\n\
-    var m = this;\n\
-\n\
-    // don't make incomplete requests\n\
-    if (!this.attributes.from || !this.attributes.to)\n\
-      return false;\n\
-\n\
-    request(this.urlRoot, this.attributes, function(err, data) {\n\
-      m.trigger((err ? 'failure' : 'success'), m.processRequest(data));\n\
-    });\n\
-  },\n\
-\n\
-  processRequest: function(data) {\n\
-\n\
-    var response = new module.exports.OtpProfileResponse(data);\n\
-\n\
-    response.set('request', this);\n\
-\n\
-    return response;\n\
-\n\
-  }\n\
-});\n\
-\n\
-module.exports.OtpProfileResponse = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-\n\
-    if (rawAttributes) {\n\
-\n\
-      var processedAttributes = _.omit(rawAttributes, ['options']);\n\
-\n\
-      processedAttributes.options = new module.exports.OtpProfileOptions();\n\
-      processedAttributes.options.add(rawAttributes.options);\n\
-\n\
-      this.set(processedAttributes);\n\
-\n\
-    }\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    request: null,\n\
-    options: []\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOption = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    var processedAttributes = _.omit(rawAttributes, ['segments']);\n\
-\n\
-    processedAttributes.segments = new module.exports.OtpProfileOptionSegments();\n\
-    processedAttributes.segments.add(rawAttributes.segments);\n\
-\n\
-    this.set(processedAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    finalWalkTime: null,\n\
-    stats: null,\n\
-    summary: null,\n\
-    segments: []\n\
-  },\n\
-\n\
-  getPatternIds: function(maxPerSegment) {\n\
-    var patternIds = [];\n\
-\n\
-    _.each(this.get('segments').models, function(segment) {\n\
-      var segmentPatternIds = segment.getPatternIds(maxPerSegment);\n\
-      for (var i = 0; i < segmentPatternIds.length; i++) {\n\
-        var patternId = segmentPatternIds[i];\n\
-        if (!_.contains(patternIds, patternId)) patternIds.push(patternId);\n\
-      }\n\
-    });\n\
-\n\
-    return patternIds;\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOptions = Backbone.Collection.extend({\n\
-\n\
-  type: 'OtpProfileOptions',\n\
-  model: module.exports.OtpProfileOption,\n\
-\n\
-  initialize: function() {},\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOptionSegment = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    var processedAttributes = _.omit(rawAttributes, ['segmentPatterns']);\n\
-\n\
-    processedAttributes.segmentPatterns = new module.exports.OtpProfileOptionSegmentPatterns();\n\
-    processedAttributes.segmentPatterns.add(rawAttributes.segmentPatterns);\n\
-\n\
-    this.set(processedAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    from: null,\n\
-    fromName: null,\n\
-    rideStats: null,\n\
-    route: null,\n\
-    routeLongName: null,\n\
-    routeShortName: null,\n\
-    segmentPatterns: [],\n\
-    to: null,\n\
-    toName: null,\n\
-    waitStats: null,\n\
-    walkTime: null\n\
-  },\n\
-\n\
-  getPatternIds: function(max) {\n\
-    var patternIds = [];\n\
-    _.each(this.get('segmentPatterns').models, function(pattern, i) {\n\
-      if (max && i >= max) return;\n\
-      patternIds.push(pattern.get('patternId'));\n\
-    });\n\
-\n\
-    return patternIds;\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOptionSegments = Backbone.Collection.extend({\n\
-\n\
-  type: 'OtpProfileOptionSegments',\n\
-  model: module.exports.OtpProfileOptionSegment,\n\
-\n\
-  initialize: function() {},\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOptionSegmentPattern = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    this.set(rawAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    fromIndex: null,\n\
-    nTrips: null,\n\
-    patternId: null,\n\
-    toIndex: null,\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpProfileOptionSegmentPatterns = Backbone.Collection.extend({\n\
-\n\
-  type: 'OtpProfileOptionSegments',\n\
-  model: module.exports.OtpProfileOptionSegmentPattern,\n\
-\n\
-  initialize: function() {},\n\
-\n\
-});\n\
-\n\
-/** index models **/\n\
-\n\
-module.exports.OtpIndexPatternRequest = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    _.bindAll(this, 'request', 'processRequest');\n\
-\n\
-    this.on('change', this.request);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    from: null,\n\
-    to: null,\n\
-  },\n\
-\n\
-  request: function() {\n\
-    var m = this;\n\
-\n\
-    request(this.urlRoot, this.attributes, function(err, data) {\n\
-      m.trigger((err ? 'failure' : 'success'), m.processRequest(data));\n\
-    });\n\
-  },\n\
-\n\
-  processRequest: function(data) {\n\
-\n\
-    var response = new module.exports.OtpIndexPattern(data);\n\
-\n\
-    response.set('request', this);\n\
-\n\
-    return response;\n\
-  }\n\
-});\n\
-\n\
-module.exports.OtpIndexPattern = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    var processedAttributes = _.omit(rawAttributes, ['stops', 'trips']);\n\
-\n\
-    processedAttributes.stops = new module.exports.OtpIndexStops();\n\
-    processedAttributes.stops.add(rawAttributes.stops);\n\
-\n\
-    processedAttributes.trips = new module.exports.OtpIndexTrips();\n\
-    processedAttributes.trips.add(rawAttributes.trips);\n\
-\n\
-    this.set(processedAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    desc: null,\n\
-    id: null,\n\
-    routeId: null,\n\
-    stops: [],\n\
-    trips: []\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpIndexStop = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    this.set(rawAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    agency: null,\n\
-    id: null,\n\
-    lat: null,\n\
-    lon: null,\n\
-    name: null\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpIndexStops = Backbone.Collection.extend({\n\
-\n\
-  type: 'OtpIndexStops',\n\
-  model: module.exports.OtpIndexStop,\n\
-\n\
-  initialize: function() {}\n\
-\n\
-});\n\
-\n\
-module.exports.OtpIndexTrip = Backbone.Model.extend({\n\
-\n\
-  initialize: function(opts) {\n\
-\n\
-    var rawAttributes = arguments[0];\n\
-    this.set(rawAttributes);\n\
-\n\
-  },\n\
-\n\
-  defaults: {\n\
-    agency: null,\n\
-    direction: null,\n\
-    id: null,\n\
-    serviceId: null,\n\
-    shapeId: null,\n\
-    tripHeadsign: null,\n\
-  }\n\
-\n\
-});\n\
-\n\
-module.exports.OtpIndexTrips = Backbone.Collection.extend({\n\
-\n\
-  type: 'OtpIndexTrips',\n\
-  model: module.exports.OtpIndexTrip,\n\
-\n\
-  initialize: function() {}\n\
-\n\
-});\n\
-\n\
-/**\n\
- * Make a `jsonp` request with `data`\n\
- */\n\
-\n\
-function request(url, data, callback) {\n\
-  jsonp(url + '?' + querystring.stringify(data), callback);\n\
-}\n\
-\n\
-//# sourceURL=components/conveyal/otpprofiler.js/0.1.0/lib/models.js"
-));
-
-require.register("conveyal~otpprofiler.js@0.1.0/lib/transitive.js", Function("exports, module",
-"var _ = require(\"jashkenas~underscore@1.6.0\");\n\
-\n\
-var OtpProfiler = {};\n\
-OtpProfiler.models = require(\"conveyal~otpprofiler.js@0.1.0/lib/models.js\");\n\
-\n\
-/**\n\
- * Expose `TransitiveLoader`\n\
- */\n\
-\n\
-module.exports.TransitiveLoader = TransitiveLoader;\n\
-\n\
-/**\n\
- *\n\
- */\n\
-\n\
-function TransitiveLoader(profileResponse, endpoint, callback, config) {\n\
-\n\
-  this.callback = callback;\n\
-  this.endpoint = endpoint;\n\
-  this.config = config || {};\n\
-\n\
-  this.options = [];\n\
-  this.patterns = {};\n\
-  this.stops = {};\n\
-\n\
-  // construct the list of patterns to load\n\
-  _.each(profileResponse.get('options').models, function(optionModel, i) {\n\
-    if (this.config.maxOptions && i >= this.config.maxOptions) return;\n\
-\n\
-    optionModel.getPatternIds(1).forEach(function(patternId) {\n\
-      this.patterns[patternId] = null;\n\
-    }, this);\n\
-\n\
-    this.options.push(optionModel);\n\
-  }, this);\n\
-\n\
-  this.patternsLoaded = 0;\n\
-  for (var patternId in this.patterns) {\n\
-    this.loadPattern(patternId);\n\
-  }\n\
-\n\
-}\n\
-\n\
-TransitiveLoader.prototype.loadPattern = function(patternId) {\n\
-\n\
-  var patternRequest = new OtpProfiler.models.OtpIndexPatternRequest();\n\
-  patternRequest.urlRoot = this.endpoint + 'index/patterns/' + patternId;\n\
-\n\
-  patternRequest.on('success', _.bind(function(patternModel) {\n\
-\n\
-    this.patterns[patternId] = patternModel;\n\
-\n\
-    this.patternsLoaded++;\n\
-    if (this.patternsLoaded === Object.keys(this.patterns).length) {\n\
-      this.allPatternsLoaded();\n\
-    }\n\
-  }, this));\n\
-  patternRequest.request();\n\
-\n\
-};\n\
-\n\
-TransitiveLoader.prototype.allPatternsLoaded = function() {\n\
-\n\
-  // initialize the stop key/value store\n\
-  for (var patternId in this.patterns) {\n\
-    var pattern = this.patterns[patternId];\n\
-\n\
-    for (var i = 0; i < pattern.get('stops').length; i++) {\n\
-      var stop = pattern.get('stops').at(i);\n\
-      if (this.stops.hasOwnProperty(stop.get('id'))) continue;\n\
-      this.stops[stop.get('id')] = stop;\n\
-    }\n\
-  }\n\
-\n\
-  this.callback.call(this, this.getTransitiveData());\n\
-};\n\
-\n\
-TransitiveLoader.prototype.getTransitiveData = function() {\n\
-\n\
-  var data = {};\n\
-\n\
-  // set up the stops collection\n\
-  data.stops = [];\n\
-  for (var stopId in this.stops) {\n\
-    var stop = this.stops[stopId];\n\
-    data.stops.push({\n\
-      stop_id: stopId,\n\
-      stop_name: stop.get('name'),\n\
-      stop_lat: stop.get('lat'),\n\
-      stop_lon: stop.get('lon')\n\
-    });\n\
-  }\n\
-\n\
-  // set up the patterns collection\n\
-  data.patterns = [];\n\
-  _.each(this.patterns, function(patternModel, patternId) {\n\
-    var patternObj = {\n\
-      pattern_id: patternId,\n\
-      stops: []\n\
-    };\n\
-\n\
-    if (patternModel.has('desc')) patternObj.pattern_name = patternModel.get(\n\
-      'desc');\n\
-    if (patternModel.has('routeId')) patternObj.route_id = patternModel.get(\n\
-      'routeId');\n\
-\n\
-    patternModel.get('stops').models.forEach(function(stopModel) {\n\
-      patternObj.stops.push({\n\
-        stop_id: stopModel.get('id')\n\
-      });\n\
-    });\n\
-\n\
-    data.patterns.push(patternObj);\n\
-  });\n\
-\n\
-  // set up places\n\
-  data.places = [];\n\
-  if (this.config.fromLocation) {\n\
-    data.places.push({\n\
-      place_id: 'from',\n\
-      place_name: this.config.fromLocation.name,\n\
-      place_lat: this.config.fromLocation.lat,\n\
-      place_lon: this.config.fromLocation.lon\n\
-    });\n\
-  }\n\
-  if (this.config.toLocation) {\n\
-    data.places.push({\n\
-      place_id: 'to',\n\
-      place_name: this.config.toLocation.name,\n\
-      place_lat: this.config.toLocation.lat,\n\
-      place_lon: this.config.toLocation.lon\n\
-    });\n\
-  }\n\
-\n\
-  // set up journeys\n\
-  data.journeys = [];\n\
-  _.each(this.options, function(optionModel, i) {\n\
-    var journey = {\n\
-      journey_id: 'option_' + i,\n\
-      journey_name: optionModel.get('summary') || 'Option ' + (i + 1),\n\
-      segments: []\n\
-    };\n\
-\n\
-    // add the start walk segment\n\
-    if (this.config.fromLocation) {\n\
-      var firstPattern = optionModel.get('segments').at(0).get(\n\
-        'segmentPatterns').at(0);\n\
-      var boardStop = this.patterns[firstPattern.get('patternId')].get(\n\
-        'stops').at(firstPattern.get('fromIndex'));\n\
-      var startSegment = {\n\
-        type: 'WALK',\n\
-        from: {\n\
-          type: 'PLACE',\n\
-          place_id: 'from'\n\
-        },\n\
-        to: {\n\
-          type: 'STOP',\n\
-          stop_id: boardStop.get('id')\n\
-        }\n\
-      };\n\
-\n\
-      journey.segments.push(startSegment);\n\
-    }\n\
-\n\
-    // iterate through the transit segments\n\
-    _.each(optionModel.get('segments').models, function(segmentModel,\n\
-      segmentIndex) {\n\
-\n\
-      // add the transit segment to the journey object\n\
-      var firstPattern = segmentModel.get('segmentPatterns').at(0);\n\
-      var transitSegment = {\n\
-        type: 'TRANSIT',\n\
-        pattern_id: firstPattern.get('patternId'),\n\
-        from_stop_index: firstPattern.get('fromIndex'),\n\
-        to_stop_index: firstPattern.get('toIndex')\n\
-      };\n\
-      journey.segments.push(transitSegment);\n\
-\n\
-      // do we need a walk transfer segment?\n\
-      if (optionModel.get('segments').length > segmentIndex + 1) {\n\
-        var alightStop = this.patterns[firstPattern.get('patternId')].get(\n\
-          'stops').at(firstPattern.get('toIndex'));\n\
-\n\
-        var nextSegment = optionModel.get('segments').at(segmentIndex + 1);\n\
-        var nextFirstPattern = nextSegment.get('segmentPatterns').at(0);\n\
-        var boardStop = this.patterns[nextFirstPattern.get('patternId')].get(\n\
-          'stops').at(nextFirstPattern.get('fromIndex'));\n\
-\n\
-        if (alightStop.get('id') !== boardStop.get('id')) {\n\
-          var transferSegment = {\n\
-            type: 'WALK',\n\
-            from: {\n\
-              type: 'STOP',\n\
-              stop_id: alightStop.get('id')\n\
-            },\n\
-            to: {\n\
-              type: 'STOP',\n\
-              stop_id: boardStop.get('id')\n\
-            }\n\
-          };\n\
-\n\
-          journey.segments.push(transferSegment);\n\
-        }\n\
-      }\n\
-    }, this);\n\
-\n\
-    // add the end walk segment\n\
-    if (this.config.fromLocation) {\n\
-      var lastPattern = optionModel.get('segments').at(optionModel.get(\n\
-        'segments').length - 1).get('segmentPatterns').at(0);\n\
-      var alightStop = this.patterns[lastPattern.get('patternId')].get(\n\
-        'stops').at(lastPattern.get('toIndex'));\n\
-\n\
-      var endSegment = {\n\
-        type: 'WALK',\n\
-        from: {\n\
-          type: 'STOP',\n\
-          stop_id: alightStop.get('id')\n\
-        },\n\
-        to: {\n\
-          type: 'PLACE',\n\
-          place_id: 'to'\n\
-        }\n\
-      };\n\
-\n\
-      journey.segments.push(endSegment);\n\
-    }\n\
-\n\
-    data.journeys.push(journey);\n\
-  }, this);\n\
-\n\
-  return data;\n\
-};\n\
-\n\
-//# sourceURL=components/conveyal/otpprofiler.js/0.1.0/lib/transitive.js"
-));
-
-require.modules["conveyal-otpprofiler.js"] = require.modules["conveyal~otpprofiler.js@0.1.0"];
-require.modules["conveyal~otpprofiler.js"] = require.modules["conveyal~otpprofiler.js@0.1.0"];
-require.modules["otpprofiler.js"] = require.modules["conveyal~otpprofiler.js@0.1.0"];
-
-
-require.register("javascript~augment@v4.0.1", Function("exports, module",
+require.register("javascript-augment/augment.js", Function("exports, require, module",
 "(function (global, factory) {\n\
     if (typeof define === \"function\" && define.amd) define(factory);\n\
     else if (typeof module === \"object\") module.exports = factory();\n\
@@ -14280,16 +10275,179 @@ require.register("javascript~augment@v4.0.1", Function("exports, module",
         constructor.prototype = prototype;\n\
         return constructor;\n\
     }\n\
-}));\n\
-//# sourceURL=components/javascript/augment/v4.0.1/augment.js"
+}));//@ sourceURL=javascript-augment/augment.js"
 ));
-
-require.modules["javascript-augment"] = require.modules["javascript~augment@v4.0.1"];
-require.modules["javascript~augment"] = require.modules["javascript~augment@v4.0.1"];
-require.modules["augment"] = require.modules["javascript~augment@v4.0.1"];
-
-
-require.register("component~set@1.0.0", Function("exports, module",
+require.register("visionmedia-debug/debug.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Expose `debug()` as the module.\n\
+ */\n\
+\n\
+module.exports = debug;\n\
+\n\
+/**\n\
+ * Create a debugger with the given `name`.\n\
+ *\n\
+ * @param {String} name\n\
+ * @return {Type}\n\
+ * @api public\n\
+ */\n\
+\n\
+function debug(name) {\n\
+  if (!debug.enabled(name)) return function(){};\n\
+\n\
+  return function(fmt){\n\
+    fmt = coerce(fmt);\n\
+\n\
+    var curr = new Date;\n\
+    var ms = curr - (debug[name] || curr);\n\
+    debug[name] = curr;\n\
+\n\
+    fmt = name\n\
+      + ' '\n\
+      + fmt\n\
+      + ' +' + debug.humanize(ms);\n\
+\n\
+    // This hackery is required for IE8\n\
+    // where `console.log` doesn't have 'apply'\n\
+    window.console\n\
+      && console.log\n\
+      && Function.prototype.apply.call(console.log, console, arguments);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * The currently active debug mode names.\n\
+ */\n\
+\n\
+debug.names = [];\n\
+debug.skips = [];\n\
+\n\
+/**\n\
+ * Enables a debug mode by name. This can include modes\n\
+ * separated by a colon and wildcards.\n\
+ *\n\
+ * @param {String} name\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.enable = function(name) {\n\
+  try {\n\
+    localStorage.debug = name;\n\
+  } catch(e){}\n\
+\n\
+  var split = (name || '').split(/[\\s,]+/)\n\
+    , len = split.length;\n\
+\n\
+  for (var i = 0; i < len; i++) {\n\
+    name = split[i].replace('*', '.*?');\n\
+    if (name[0] === '-') {\n\
+      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));\n\
+    }\n\
+    else {\n\
+      debug.names.push(new RegExp('^' + name + '$'));\n\
+    }\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Disable debug output.\n\
+ *\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.disable = function(){\n\
+  debug.enable('');\n\
+};\n\
+\n\
+/**\n\
+ * Humanize the given `ms`.\n\
+ *\n\
+ * @param {Number} m\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+debug.humanize = function(ms) {\n\
+  var sec = 1000\n\
+    , min = 60 * 1000\n\
+    , hour = 60 * min;\n\
+\n\
+  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';\n\
+  if (ms >= min) return (ms / min).toFixed(1) + 'm';\n\
+  if (ms >= sec) return (ms / sec | 0) + 's';\n\
+  return ms + 'ms';\n\
+};\n\
+\n\
+/**\n\
+ * Returns true if the given mode name is enabled, false otherwise.\n\
+ *\n\
+ * @param {String} name\n\
+ * @return {Boolean}\n\
+ * @api public\n\
+ */\n\
+\n\
+debug.enabled = function(name) {\n\
+  for (var i = 0, len = debug.skips.length; i < len; i++) {\n\
+    if (debug.skips[i].test(name)) {\n\
+      return false;\n\
+    }\n\
+  }\n\
+  for (var i = 0, len = debug.names.length; i < len; i++) {\n\
+    if (debug.names[i].test(name)) {\n\
+      return true;\n\
+    }\n\
+  }\n\
+  return false;\n\
+};\n\
+\n\
+/**\n\
+ * Coerce `val`.\n\
+ */\n\
+\n\
+function coerce(val) {\n\
+  if (val instanceof Error) return val.stack || val.message;\n\
+  return val;\n\
+}\n\
+\n\
+// persist\n\
+\n\
+try {\n\
+  if (window.localStorage) debug.enable(localStorage.debug);\n\
+} catch(e){}\n\
+//@ sourceURL=visionmedia-debug/debug.js"
+));
+require.register("yields-svg-attributes/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * SVG Attributes\n\
+ *\n\
+ * http://www.w3.org/TR/SVG/attindex.html\n\
+ */\n\
+\n\
+module.exports = [\n\
+  'height',\n\
+  'target',\n\
+  'title',\n\
+  'width',\n\
+  'y1',\n\
+  'y2',\n\
+  'x1',\n\
+  'x2',\n\
+  'cx',\n\
+  'cy',\n\
+  'dx',\n\
+  'dy',\n\
+  'rx',\n\
+  'ry',\n\
+  'd',\n\
+  'r',\n\
+  'y',\n\
+  'x'\n\
+];\n\
+//@ sourceURL=yields-svg-attributes/index.js"
+));
+require.register("component-set/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Set`.\n\
@@ -14377,7 +10535,9 @@ Set.prototype.each = function(fn){\n\
  * @api public\n\
  */\n\
 \n\
-Set.prototype.values = \n\
+Set.prototype.values =\n\
+Set.prototype.array =\n\
+Set.prototype.members =\n\
 Set.prototype.toJSON = function(){\n\
   return this.vals;\n\
 };\n\
@@ -14476,52 +10636,1652 @@ Set.prototype.isEmpty = function(){\n\
   return 0 == this.vals.length;\n\
 };\n\
 \n\
-\n\
-//# sourceURL=components/component/set/1.0.0/index.js"
+//@ sourceURL=component-set/index.js"
 ));
-
-require.modules["component-set"] = require.modules["component~set@1.0.0"];
-require.modules["component~set"] = require.modules["component~set@1.0.0"];
-require.modules["set"] = require.modules["component~set@1.0.0"];
-
-
-require.register("component~query@0.0.3", Function("exports, module",
-"function one(selector, el) {\n\
-  return el.querySelector(selector);\n\
-}\n\
-\n\
-exports = module.exports = function(selector, el){\n\
-  el = el || document;\n\
-  return one(selector, el);\n\
-};\n\
-\n\
-exports.all = function(selector, el){\n\
-  el = el || document;\n\
-  return el.querySelectorAll(selector);\n\
-};\n\
-\n\
-exports.engine = function(obj){\n\
-  if (!obj.one) throw new Error('.one callback required');\n\
-  if (!obj.all) throw new Error('.all callback required');\n\
-  one = obj.one;\n\
-  exports.all = obj.all;\n\
-  return exports;\n\
-};\n\
-\n\
-//# sourceURL=components/component/query/0.0.3/index.js"
-));
-
-require.modules["component-query"] = require.modules["component~query@0.0.3"];
-require.modules["component~query"] = require.modules["component~query@0.0.3"];
-require.modules["query"] = require.modules["component~query@0.0.3"];
-
-
-require.register("component~matches-selector@0.1.2", Function("exports, module",
+require.register("visionmedia-batch/index.js", Function("exports, require, module",
 "/**\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var query = require(\"component~query@0.0.3\");\n\
+try {\n\
+  var EventEmitter = require('events').EventEmitter;\n\
+} catch (err) {\n\
+  var Emitter = require('emitter');\n\
+}\n\
+\n\
+/**\n\
+ * Noop.\n\
+ */\n\
+\n\
+function noop(){}\n\
+\n\
+/**\n\
+ * Expose `Batch`.\n\
+ */\n\
+\n\
+module.exports = Batch;\n\
+\n\
+/**\n\
+ * Create a new Batch.\n\
+ */\n\
+\n\
+function Batch() {\n\
+  if (!(this instanceof Batch)) return new Batch;\n\
+  this.fns = [];\n\
+  this.concurrency(Infinity);\n\
+  this.throws(true);\n\
+  for (var i = 0, len = arguments.length; i < len; ++i) {\n\
+    this.push(arguments[i]);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Inherit from `EventEmitter.prototype`.\n\
+ */\n\
+\n\
+if (EventEmitter) {\n\
+  Batch.prototype.__proto__ = EventEmitter.prototype;\n\
+} else {\n\
+  Emitter(Batch.prototype);\n\
+}\n\
+\n\
+/**\n\
+ * Set concurrency to `n`.\n\
+ *\n\
+ * @param {Number} n\n\
+ * @return {Batch}\n\
+ * @api public\n\
+ */\n\
+\n\
+Batch.prototype.concurrency = function(n){\n\
+  this.n = n;\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Queue a function.\n\
+ *\n\
+ * @param {Function} fn\n\
+ * @return {Batch}\n\
+ * @api public\n\
+ */\n\
+\n\
+Batch.prototype.push = function(fn){\n\
+  this.fns.push(fn);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Set wether Batch will or will not throw up.\n\
+ *\n\
+ * @param  {Boolean} throws\n\
+ * @return {Batch}\n\
+ * @api public\n\
+ */\n\
+Batch.prototype.throws = function(throws) {\n\
+  this.e = !!throws;\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Execute all queued functions in parallel,\n\
+ * executing `cb(err, results)`.\n\
+ *\n\
+ * @param {Function} cb\n\
+ * @return {Batch}\n\
+ * @api public\n\
+ */\n\
+\n\
+Batch.prototype.end = function(cb){\n\
+  var self = this\n\
+    , total = this.fns.length\n\
+    , pending = total\n\
+    , results = []\n\
+    , errors = []\n\
+    , cb = cb || noop\n\
+    , fns = this.fns\n\
+    , max = this.n\n\
+    , throws = this.e\n\
+    , index = 0\n\
+    , done;\n\
+\n\
+  // empty\n\
+  if (!fns.length) return cb(null, results);\n\
+\n\
+  // process\n\
+  function next() {\n\
+    var i = index++;\n\
+    var fn = fns[i];\n\
+    if (!fn) return;\n\
+    var start = new Date;\n\
+\n\
+    try {\n\
+      fn(callback);\n\
+    } catch (err) {\n\
+      callback(err);\n\
+    }\n\
+\n\
+    function callback(err, res){\n\
+      if (done) return;\n\
+      if (err && throws) return done = true, cb(err);\n\
+      var complete = total - pending + 1;\n\
+      var end = new Date;\n\
+\n\
+      results[i] = res;\n\
+      errors[i] = err;\n\
+\n\
+      self.emit('progress', {\n\
+        index: i,\n\
+        value: res,\n\
+        error: err,\n\
+        pending: pending,\n\
+        total: total,\n\
+        complete: complete,\n\
+        percent: complete / total * 100 | 0,\n\
+        start: start,\n\
+        end: end,\n\
+        duration: end - start\n\
+      });\n\
+\n\
+      if (--pending) next()\n\
+      else if(!throws) cb(errors, results);\n\
+      else cb(null, results);\n\
+    }\n\
+  }\n\
+\n\
+  // concurrency\n\
+  for (var i = 0; i < fns.length; i++) {\n\
+    if (i == max) break;\n\
+    next();\n\
+  }\n\
+\n\
+  return this;\n\
+};\n\
+//@ sourceURL=visionmedia-batch/index.js"
+));
+require.register("component-reduce/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Reduce `arr` with `fn`.\n\
+ *\n\
+ * @param {Array} arr\n\
+ * @param {Function} fn\n\
+ * @param {Mixed} initial\n\
+ *\n\
+ * TODO: combatible error handling?\n\
+ */\n\
+\n\
+module.exports = function(arr, fn, initial){  \n\
+  var idx = 0;\n\
+  var len = arr.length;\n\
+  var curr = arguments.length == 3\n\
+    ? initial\n\
+    : arr[idx++];\n\
+\n\
+  while (idx < len) {\n\
+    curr = fn.call(null, curr, arr[idx], ++idx, arr);\n\
+  }\n\
+  \n\
+  return curr;\n\
+};//@ sourceURL=component-reduce/index.js"
+));
+require.register("visionmedia-superagent/lib/client.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var Emitter = require('emitter');\n\
+var reduce = require('reduce');\n\
+\n\
+/**\n\
+ * Root reference for iframes.\n\
+ */\n\
+\n\
+var root = 'undefined' == typeof window\n\
+  ? this\n\
+  : window;\n\
+\n\
+/**\n\
+ * Noop.\n\
+ */\n\
+\n\
+function noop(){};\n\
+\n\
+/**\n\
+ * Check if `obj` is a host object,\n\
+ * we don't want to serialize these :)\n\
+ *\n\
+ * TODO: future proof, move to compoent land\n\
+ *\n\
+ * @param {Object} obj\n\
+ * @return {Boolean}\n\
+ * @api private\n\
+ */\n\
+\n\
+function isHost(obj) {\n\
+  var str = {}.toString.call(obj);\n\
+\n\
+  switch (str) {\n\
+    case '[object File]':\n\
+    case '[object Blob]':\n\
+    case '[object FormData]':\n\
+      return true;\n\
+    default:\n\
+      return false;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Determine XHR.\n\
+ */\n\
+\n\
+function getXHR() {\n\
+  if (root.XMLHttpRequest\n\
+    && ('file:' != root.location.protocol || !root.ActiveXObject)) {\n\
+    return new XMLHttpRequest;\n\
+  } else {\n\
+    try { return new ActiveXObject('Microsoft.XMLHTTP'); } catch(e) {}\n\
+    try { return new ActiveXObject('Msxml2.XMLHTTP.6.0'); } catch(e) {}\n\
+    try { return new ActiveXObject('Msxml2.XMLHTTP.3.0'); } catch(e) {}\n\
+    try { return new ActiveXObject('Msxml2.XMLHTTP'); } catch(e) {}\n\
+  }\n\
+  return false;\n\
+}\n\
+\n\
+/**\n\
+ * Removes leading and trailing whitespace, added to support IE.\n\
+ *\n\
+ * @param {String} s\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+var trim = ''.trim\n\
+  ? function(s) { return s.trim(); }\n\
+  : function(s) { return s.replace(/(^\\s*|\\s*$)/g, ''); };\n\
+\n\
+/**\n\
+ * Check if `obj` is an object.\n\
+ *\n\
+ * @param {Object} obj\n\
+ * @return {Boolean}\n\
+ * @api private\n\
+ */\n\
+\n\
+function isObject(obj) {\n\
+  return obj === Object(obj);\n\
+}\n\
+\n\
+/**\n\
+ * Serialize the given `obj`.\n\
+ *\n\
+ * @param {Object} obj\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function serialize(obj) {\n\
+  if (!isObject(obj)) return obj;\n\
+  var pairs = [];\n\
+  for (var key in obj) {\n\
+    if (null != obj[key]) {\n\
+      pairs.push(encodeURIComponent(key)\n\
+        + '=' + encodeURIComponent(obj[key]));\n\
+    }\n\
+  }\n\
+  return pairs.join('&');\n\
+}\n\
+\n\
+/**\n\
+ * Expose serialization method.\n\
+ */\n\
+\n\
+ request.serializeObject = serialize;\n\
+\n\
+ /**\n\
+  * Parse the given x-www-form-urlencoded `str`.\n\
+  *\n\
+  * @param {String} str\n\
+  * @return {Object}\n\
+  * @api private\n\
+  */\n\
+\n\
+function parseString(str) {\n\
+  var obj = {};\n\
+  var pairs = str.split('&');\n\
+  var parts;\n\
+  var pair;\n\
+\n\
+  for (var i = 0, len = pairs.length; i < len; ++i) {\n\
+    pair = pairs[i];\n\
+    parts = pair.split('=');\n\
+    obj[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);\n\
+  }\n\
+\n\
+  return obj;\n\
+}\n\
+\n\
+/**\n\
+ * Expose parser.\n\
+ */\n\
+\n\
+request.parseString = parseString;\n\
+\n\
+/**\n\
+ * Default MIME type map.\n\
+ *\n\
+ *     superagent.types.xml = 'application/xml';\n\
+ *\n\
+ */\n\
+\n\
+request.types = {\n\
+  html: 'text/html',\n\
+  json: 'application/json',\n\
+  xml: 'application/xml',\n\
+  urlencoded: 'application/x-www-form-urlencoded',\n\
+  'form': 'application/x-www-form-urlencoded',\n\
+  'form-data': 'application/x-www-form-urlencoded'\n\
+};\n\
+\n\
+/**\n\
+ * Default serialization map.\n\
+ *\n\
+ *     superagent.serialize['application/xml'] = function(obj){\n\
+ *       return 'generated xml here';\n\
+ *     };\n\
+ *\n\
+ */\n\
+\n\
+ request.serialize = {\n\
+   'application/x-www-form-urlencoded': serialize,\n\
+   'application/json': JSON.stringify\n\
+ };\n\
+\n\
+ /**\n\
+  * Default parsers.\n\
+  *\n\
+  *     superagent.parse['application/xml'] = function(str){\n\
+  *       return { object parsed from str };\n\
+  *     };\n\
+  *\n\
+  */\n\
+\n\
+request.parse = {\n\
+  'application/x-www-form-urlencoded': parseString,\n\
+  'application/json': JSON.parse\n\
+};\n\
+\n\
+/**\n\
+ * Parse the given header `str` into\n\
+ * an object containing the mapped fields.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Object}\n\
+ * @api private\n\
+ */\n\
+\n\
+function parseHeader(str) {\n\
+  var lines = str.split(/\\r?\\n\
+/);\n\
+  var fields = {};\n\
+  var index;\n\
+  var line;\n\
+  var field;\n\
+  var val;\n\
+\n\
+  lines.pop(); // trailing CRLF\n\
+\n\
+  for (var i = 0, len = lines.length; i < len; ++i) {\n\
+    line = lines[i];\n\
+    index = line.indexOf(':');\n\
+    field = line.slice(0, index).toLowerCase();\n\
+    val = trim(line.slice(index + 1));\n\
+    fields[field] = val;\n\
+  }\n\
+\n\
+  return fields;\n\
+}\n\
+\n\
+/**\n\
+ * Return the mime type for the given `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function type(str){\n\
+  return str.split(/ *; */).shift();\n\
+};\n\
+\n\
+/**\n\
+ * Return header field parameters.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Object}\n\
+ * @api private\n\
+ */\n\
+\n\
+function params(str){\n\
+  return reduce(str.split(/ *; */), function(obj, str){\n\
+    var parts = str.split(/ *= */)\n\
+      , key = parts.shift()\n\
+      , val = parts.shift();\n\
+\n\
+    if (key && val) obj[key] = val;\n\
+    return obj;\n\
+  }, {});\n\
+};\n\
+\n\
+/**\n\
+ * Initialize a new `Response` with the given `xhr`.\n\
+ *\n\
+ *  - set flags (.ok, .error, etc)\n\
+ *  - parse header\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *  Aliasing `superagent` as `request` is nice:\n\
+ *\n\
+ *      request = superagent;\n\
+ *\n\
+ *  We can use the promise-like API, or pass callbacks:\n\
+ *\n\
+ *      request.get('/').end(function(res){});\n\
+ *      request.get('/', function(res){});\n\
+ *\n\
+ *  Sending data can be chained:\n\
+ *\n\
+ *      request\n\
+ *        .post('/user')\n\
+ *        .send({ name: 'tj' })\n\
+ *        .end(function(res){});\n\
+ *\n\
+ *  Or passed to `.send()`:\n\
+ *\n\
+ *      request\n\
+ *        .post('/user')\n\
+ *        .send({ name: 'tj' }, function(res){});\n\
+ *\n\
+ *  Or passed to `.post()`:\n\
+ *\n\
+ *      request\n\
+ *        .post('/user', { name: 'tj' })\n\
+ *        .end(function(res){});\n\
+ *\n\
+ * Or further reduced to a single call for simple cases:\n\
+ *\n\
+ *      request\n\
+ *        .post('/user', { name: 'tj' }, function(res){});\n\
+ *\n\
+ * @param {XMLHTTPRequest} xhr\n\
+ * @param {Object} options\n\
+ * @api private\n\
+ */\n\
+\n\
+function Response(req, options) {\n\
+  options = options || {};\n\
+  this.req = req;\n\
+  this.xhr = this.req.xhr;\n\
+  this.text = this.xhr.responseText;\n\
+  this.setStatusProperties(this.xhr.status);\n\
+  this.header = this.headers = parseHeader(this.xhr.getAllResponseHeaders());\n\
+  // getAllResponseHeaders sometimes falsely returns \"\" for CORS requests, but\n\
+  // getResponseHeader still works. so we get content-type even if getting\n\
+  // other headers fails.\n\
+  this.header['content-type'] = this.xhr.getResponseHeader('content-type');\n\
+  this.setHeaderProperties(this.header);\n\
+  this.body = this.req.method != 'HEAD'\n\
+    ? this.parseBody(this.text)\n\
+    : null;\n\
+}\n\
+\n\
+/**\n\
+ * Get case-insensitive `field` value.\n\
+ *\n\
+ * @param {String} field\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+Response.prototype.get = function(field){\n\
+  return this.header[field.toLowerCase()];\n\
+};\n\
+\n\
+/**\n\
+ * Set header related properties:\n\
+ *\n\
+ *   - `.type` the content type without params\n\
+ *\n\
+ * A response of \"Content-Type: text/plain; charset=utf-8\"\n\
+ * will provide you with a `.type` of \"text/plain\".\n\
+ *\n\
+ * @param {Object} header\n\
+ * @api private\n\
+ */\n\
+\n\
+Response.prototype.setHeaderProperties = function(header){\n\
+  // content-type\n\
+  var ct = this.header['content-type'] || '';\n\
+  this.type = type(ct);\n\
+\n\
+  // params\n\
+  var obj = params(ct);\n\
+  for (var key in obj) this[key] = obj[key];\n\
+};\n\
+\n\
+/**\n\
+ * Parse the given body `str`.\n\
+ *\n\
+ * Used for auto-parsing of bodies. Parsers\n\
+ * are defined on the `superagent.parse` object.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Mixed}\n\
+ * @api private\n\
+ */\n\
+\n\
+Response.prototype.parseBody = function(str){\n\
+  var parse = request.parse[this.type];\n\
+  return parse\n\
+    ? parse(str)\n\
+    : null;\n\
+};\n\
+\n\
+/**\n\
+ * Set flags such as `.ok` based on `status`.\n\
+ *\n\
+ * For example a 2xx response will give you a `.ok` of __true__\n\
+ * whereas 5xx will be __false__ and `.error` will be __true__. The\n\
+ * `.clientError` and `.serverError` are also available to be more\n\
+ * specific, and `.statusType` is the class of error ranging from 1..5\n\
+ * sometimes useful for mapping respond colors etc.\n\
+ *\n\
+ * \"sugar\" properties are also defined for common cases. Currently providing:\n\
+ *\n\
+ *   - .noContent\n\
+ *   - .badRequest\n\
+ *   - .unauthorized\n\
+ *   - .notAcceptable\n\
+ *   - .notFound\n\
+ *\n\
+ * @param {Number} status\n\
+ * @api private\n\
+ */\n\
+\n\
+Response.prototype.setStatusProperties = function(status){\n\
+  var type = status / 100 | 0;\n\
+\n\
+  // status / class\n\
+  this.status = status;\n\
+  this.statusType = type;\n\
+\n\
+  // basics\n\
+  this.info = 1 == type;\n\
+  this.ok = 2 == type;\n\
+  this.clientError = 4 == type;\n\
+  this.serverError = 5 == type;\n\
+  this.error = (4 == type || 5 == type)\n\
+    ? this.toError()\n\
+    : false;\n\
+\n\
+  // sugar\n\
+  this.accepted = 202 == status;\n\
+  this.noContent = 204 == status || 1223 == status;\n\
+  this.badRequest = 400 == status;\n\
+  this.unauthorized = 401 == status;\n\
+  this.notAcceptable = 406 == status;\n\
+  this.notFound = 404 == status;\n\
+  this.forbidden = 403 == status;\n\
+};\n\
+\n\
+/**\n\
+ * Return an `Error` representative of this response.\n\
+ *\n\
+ * @return {Error}\n\
+ * @api public\n\
+ */\n\
+\n\
+Response.prototype.toError = function(){\n\
+  var req = this.req;\n\
+  var method = req.method;\n\
+  var path = req.path;\n\
+\n\
+  var msg = 'cannot ' + method + ' ' + path + ' (' + this.status + ')';\n\
+  var err = new Error(msg);\n\
+  err.status = this.status;\n\
+  err.method = method;\n\
+  err.path = path;\n\
+\n\
+  return err;\n\
+};\n\
+\n\
+/**\n\
+ * Expose `Response`.\n\
+ */\n\
+\n\
+request.Response = Response;\n\
+\n\
+/**\n\
+ * Initialize a new `Request` with the given `method` and `url`.\n\
+ *\n\
+ * @param {String} method\n\
+ * @param {String} url\n\
+ * @api public\n\
+ */\n\
+\n\
+function Request(method, url) {\n\
+  var self = this;\n\
+  Emitter.call(this);\n\
+  this._query = this._query || [];\n\
+  this.method = method;\n\
+  this.url = url;\n\
+  this.header = {};\n\
+  this._header = {};\n\
+  this.on('end', function(){\n\
+    var res = new Response(self);\n\
+    if ('HEAD' == method) res.text = null;\n\
+    self.callback(null, res);\n\
+  });\n\
+}\n\
+\n\
+/**\n\
+ * Mixin `Emitter`.\n\
+ */\n\
+\n\
+Emitter(Request.prototype);\n\
+\n\
+/**\n\
+ * Allow for extension\n\
+ */\n\
+\n\
+Request.prototype.use = function(fn) {\n\
+  fn(this);\n\
+  return this;\n\
+}\n\
+\n\
+/**\n\
+ * Set timeout to `ms`.\n\
+ *\n\
+ * @param {Number} ms\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.timeout = function(ms){\n\
+  this._timeout = ms;\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Clear previous timeout.\n\
+ *\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.clearTimeout = function(){\n\
+  this._timeout = 0;\n\
+  clearTimeout(this._timer);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Abort the request, and clear potential timeout.\n\
+ *\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.abort = function(){\n\
+  if (this.aborted) return;\n\
+  this.aborted = true;\n\
+  this.xhr.abort();\n\
+  this.clearTimeout();\n\
+  this.emit('abort');\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Set header `field` to `val`, or multiple fields with one object.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *      req.get('/')\n\
+ *        .set('Accept', 'application/json')\n\
+ *        .set('X-API-Key', 'foobar')\n\
+ *        .end(callback);\n\
+ *\n\
+ *      req.get('/')\n\
+ *        .set({ Accept: 'application/json', 'X-API-Key': 'foobar' })\n\
+ *        .end(callback);\n\
+ *\n\
+ * @param {String|Object} field\n\
+ * @param {String} val\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.set = function(field, val){\n\
+  if (isObject(field)) {\n\
+    for (var key in field) {\n\
+      this.set(key, field[key]);\n\
+    }\n\
+    return this;\n\
+  }\n\
+  this._header[field.toLowerCase()] = val;\n\
+  this.header[field] = val;\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Get case-insensitive header `field` value.\n\
+ *\n\
+ * @param {String} field\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+Request.prototype.getHeader = function(field){\n\
+  return this._header[field.toLowerCase()];\n\
+};\n\
+\n\
+/**\n\
+ * Set Content-Type to `type`, mapping values from `request.types`.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *      superagent.types.xml = 'application/xml';\n\
+ *\n\
+ *      request.post('/')\n\
+ *        .type('xml')\n\
+ *        .send(xmlstring)\n\
+ *        .end(callback);\n\
+ *\n\
+ *      request.post('/')\n\
+ *        .type('application/xml')\n\
+ *        .send(xmlstring)\n\
+ *        .end(callback);\n\
+ *\n\
+ * @param {String} type\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.type = function(type){\n\
+  this.set('Content-Type', request.types[type] || type);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Set Accept to `type`, mapping values from `request.types`.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *      superagent.types.json = 'application/json';\n\
+ *\n\
+ *      request.get('/agent')\n\
+ *        .accept('json')\n\
+ *        .end(callback);\n\
+ *\n\
+ *      request.get('/agent')\n\
+ *        .accept('application/json')\n\
+ *        .end(callback);\n\
+ *\n\
+ * @param {String} accept\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.accept = function(type){\n\
+  this.set('Accept', request.types[type] || type);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Set Authorization field value with `user` and `pass`.\n\
+ *\n\
+ * @param {String} user\n\
+ * @param {String} pass\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.auth = function(user, pass){\n\
+  var str = btoa(user + ':' + pass);\n\
+  this.set('Authorization', 'Basic ' + str);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+* Add query-string `val`.\n\
+*\n\
+* Examples:\n\
+*\n\
+*   request.get('/shoes')\n\
+*     .query('size=10')\n\
+*     .query({ color: 'blue' })\n\
+*\n\
+* @param {Object|String} val\n\
+* @return {Request} for chaining\n\
+* @api public\n\
+*/\n\
+\n\
+Request.prototype.query = function(val){\n\
+  if ('string' != typeof val) val = serialize(val);\n\
+  if (val) this._query.push(val);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Send `data`, defaulting the `.type()` to \"json\" when\n\
+ * an object is given.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *       // querystring\n\
+ *       request.get('/search')\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // multiple data \"writes\"\n\
+ *       request.get('/search')\n\
+ *         .send({ search: 'query' })\n\
+ *         .send({ range: '1..5' })\n\
+ *         .send({ order: 'desc' })\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // manual json\n\
+ *       request.post('/user')\n\
+ *         .type('json')\n\
+ *         .send('{\"name\":\"tj\"})\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // auto json\n\
+ *       request.post('/user')\n\
+ *         .send({ name: 'tj' })\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // manual x-www-form-urlencoded\n\
+ *       request.post('/user')\n\
+ *         .type('form')\n\
+ *         .send('name=tj')\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // auto x-www-form-urlencoded\n\
+ *       request.post('/user')\n\
+ *         .type('form')\n\
+ *         .send({ name: 'tj' })\n\
+ *         .end(callback)\n\
+ *\n\
+ *       // defaults to x-www-form-urlencoded\n\
+  *      request.post('/user')\n\
+  *        .send('name=tobi')\n\
+  *        .send('species=ferret')\n\
+  *        .end(callback)\n\
+ *\n\
+ * @param {String|Object} data\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.send = function(data){\n\
+  var obj = isObject(data);\n\
+  var type = this.getHeader('Content-Type');\n\
+\n\
+  // merge\n\
+  if (obj && isObject(this._data)) {\n\
+    for (var key in data) {\n\
+      this._data[key] = data[key];\n\
+    }\n\
+  } else if ('string' == typeof data) {\n\
+    if (!type) this.type('form');\n\
+    type = this.getHeader('Content-Type');\n\
+    if ('application/x-www-form-urlencoded' == type) {\n\
+      this._data = this._data\n\
+        ? this._data + '&' + data\n\
+        : data;\n\
+    } else {\n\
+      this._data = (this._data || '') + data;\n\
+    }\n\
+  } else {\n\
+    this._data = data;\n\
+  }\n\
+\n\
+  if (!obj) return this;\n\
+  if (!type) this.type('json');\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Invoke the callback with `err` and `res`\n\
+ * and handle arity check.\n\
+ *\n\
+ * @param {Error} err\n\
+ * @param {Response} res\n\
+ * @api private\n\
+ */\n\
+\n\
+Request.prototype.callback = function(err, res){\n\
+  var fn = this._callback;\n\
+  if (2 == fn.length) return fn(err, res);\n\
+  if (err) return this.emit('error', err);\n\
+  fn(res);\n\
+};\n\
+\n\
+/**\n\
+ * Invoke callback with x-domain error.\n\
+ *\n\
+ * @api private\n\
+ */\n\
+\n\
+Request.prototype.crossDomainError = function(){\n\
+  var err = new Error('Origin is not allowed by Access-Control-Allow-Origin');\n\
+  err.crossDomain = true;\n\
+  this.callback(err);\n\
+};\n\
+\n\
+/**\n\
+ * Invoke callback with timeout error.\n\
+ *\n\
+ * @api private\n\
+ */\n\
+\n\
+Request.prototype.timeoutError = function(){\n\
+  var timeout = this._timeout;\n\
+  var err = new Error('timeout of ' + timeout + 'ms exceeded');\n\
+  err.timeout = timeout;\n\
+  this.callback(err);\n\
+};\n\
+\n\
+/**\n\
+ * Enable transmission of cookies with x-domain requests.\n\
+ *\n\
+ * Note that for this to work the origin must not be\n\
+ * using \"Access-Control-Allow-Origin\" with a wildcard,\n\
+ * and also must set \"Access-Control-Allow-Credentials\"\n\
+ * to \"true\".\n\
+ *\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.withCredentials = function(){\n\
+  this._withCredentials = true;\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Initiate request, invoking callback `fn(res)`\n\
+ * with an instanceof `Response`.\n\
+ *\n\
+ * @param {Function} fn\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.end = function(fn){\n\
+  var self = this;\n\
+  var xhr = this.xhr = getXHR();\n\
+  var query = this._query.join('&');\n\
+  var timeout = this._timeout;\n\
+  var data = this._data;\n\
+\n\
+  // store callback\n\
+  this._callback = fn || noop;\n\
+\n\
+  // state change\n\
+  xhr.onreadystatechange = function(){\n\
+    if (4 != xhr.readyState) return;\n\
+    if (0 == xhr.status) {\n\
+      if (self.aborted) return self.timeoutError();\n\
+      return self.crossDomainError();\n\
+    }\n\
+    self.emit('end');\n\
+  };\n\
+\n\
+  // progress\n\
+  if (xhr.upload) {\n\
+    xhr.upload.onprogress = function(e){\n\
+      e.percent = e.loaded / e.total * 100;\n\
+      self.emit('progress', e);\n\
+    };\n\
+  }\n\
+\n\
+  // timeout\n\
+  if (timeout && !this._timer) {\n\
+    this._timer = setTimeout(function(){\n\
+      self.abort();\n\
+    }, timeout);\n\
+  }\n\
+\n\
+  // querystring\n\
+  if (query) {\n\
+    query = request.serializeObject(query);\n\
+    this.url += ~this.url.indexOf('?')\n\
+      ? '&' + query\n\
+      : '?' + query;\n\
+  }\n\
+\n\
+  // initiate request\n\
+  xhr.open(this.method, this.url, true);\n\
+\n\
+  // CORS\n\
+  if (this._withCredentials) xhr.withCredentials = true;\n\
+\n\
+  // body\n\
+  if ('GET' != this.method && 'HEAD' != this.method && 'string' != typeof data && !isHost(data)) {\n\
+    // serialize stuff\n\
+    var serialize = request.serialize[this.getHeader('Content-Type')];\n\
+    if (serialize) data = serialize(data);\n\
+  }\n\
+\n\
+  // set header fields\n\
+  for (var field in this.header) {\n\
+    if (null == this.header[field]) continue;\n\
+    xhr.setRequestHeader(field, this.header[field]);\n\
+  }\n\
+\n\
+  // send stuff\n\
+  this.emit('request', this);\n\
+  xhr.send(data);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Expose `Request`.\n\
+ */\n\
+\n\
+request.Request = Request;\n\
+\n\
+/**\n\
+ * Issue a request:\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *    request('GET', '/users').end(callback)\n\
+ *    request('/users').end(callback)\n\
+ *    request('/users', callback)\n\
+ *\n\
+ * @param {String} method\n\
+ * @param {String|Function} url or callback\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+function request(method, url) {\n\
+  // callback\n\
+  if ('function' == typeof url) {\n\
+    return new Request('GET', method).end(url);\n\
+  }\n\
+\n\
+  // url first\n\
+  if (1 == arguments.length) {\n\
+    return new Request('GET', method);\n\
+  }\n\
+\n\
+  return new Request(method, url);\n\
+}\n\
+\n\
+/**\n\
+ * GET `url` with optional callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Mixed|Function} data or fn\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.get = function(url, data, fn){\n\
+  var req = request('GET', url);\n\
+  if ('function' == typeof data) fn = data, data = null;\n\
+  if (data) req.query(data);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * HEAD `url` with optional callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Mixed|Function} data or fn\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.head = function(url, data, fn){\n\
+  var req = request('HEAD', url);\n\
+  if ('function' == typeof data) fn = data, data = null;\n\
+  if (data) req.send(data);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * DELETE `url` with optional callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.del = function(url, fn){\n\
+  var req = request('DELETE', url);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * PATCH `url` with optional `data` and callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Mixed} data\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.patch = function(url, data, fn){\n\
+  var req = request('PATCH', url);\n\
+  if ('function' == typeof data) fn = data, data = null;\n\
+  if (data) req.send(data);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * POST `url` with optional `data` and callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Mixed} data\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.post = function(url, data, fn){\n\
+  var req = request('POST', url);\n\
+  if ('function' == typeof data) fn = data, data = null;\n\
+  if (data) req.send(data);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * PUT `url` with optional `data` and callback `fn(res)`.\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Mixed|Function} data or fn\n\
+ * @param {Function} fn\n\
+ * @return {Request}\n\
+ * @api public\n\
+ */\n\
+\n\
+request.put = function(url, data, fn){\n\
+  var req = request('PUT', url);\n\
+  if ('function' == typeof data) fn = data, data = null;\n\
+  if (data) req.send(data);\n\
+  if (fn) req.end(fn);\n\
+  return req;\n\
+};\n\
+\n\
+/**\n\
+ * Expose `request`.\n\
+ */\n\
+\n\
+module.exports = request;\n\
+//@ sourceURL=visionmedia-superagent/lib/client.js"
+));
+require.register("conveyal-otpprofiler.js/index.js", Function("exports, require, module",
+"var Batch = require('batch');\n\
+var clone;\n\
+var superagent = require('superagent');\n\
+\n\
+try {\n\
+  clone = require('clone');\n\
+} catch (e) {\n\
+  clone = require('component-clone');\n\
+}\n\
+\n\
+/**\n\
+ * Expose `Profiler`\n\
+ */\n\
+\n\
+module.exports = Profiler;\n\
+\n\
+/**\n\
+ * \"store\" routes & pattens\n\
+ */\n\
+\n\
+var store = {\n\
+  patterns: {},\n\
+  routes: null\n\
+};\n\
+\n\
+/**\n\
+ * Profiler\n\
+ *\n\
+ * @param {Object} options\n\
+ */\n\
+\n\
+function Profiler(opts) {\n\
+  if (!(this instanceof Profiler)) return new Profiler(opts);\n\
+  if (!opts.host) throw new Error('Profiler requires a host.');\n\
+\n\
+  this.host = opts.host;\n\
+  this.limit = opts.limit || 3;\n\
+}\n\
+\n\
+/**\n\
+ * Get a journey.\n\
+ *\n\
+ * @param {Object} options\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.journey = function(opts, callback) {\n\
+  var batch = new Batch();\n\
+  var profiler = this;\n\
+\n\
+  // If a profile isn't passed, retrieve the profile\n\
+  batch.push(function(done) {\n\
+    if (opts.profile) {\n\
+      done(null, opts.profile);\n\
+    } else {\n\
+      profiler.profile(opts, done);\n\
+    }\n\
+  });\n\
+\n\
+  // Get routes asynchronously\n\
+  batch.push(function(done) {\n\
+    if (opts.routes) {\n\
+      done(null, opts.routes);\n\
+    } else {\n\
+      profiler.routes(done);\n\
+    }\n\
+  });\n\
+\n\
+  batch.end(function(err, results) {\n\
+    if (err) {\n\
+      callback(err);\n\
+    } else {\n\
+      opts.profile = results[0];\n\
+      opts.routes = results[1];\n\
+\n\
+      profiler.patterns(opts, function(err, patterns) {\n\
+        if (err) {\n\
+          callback(err);\n\
+        } else {\n\
+          opts.patterns = patterns;\n\
+          callback(null, profiler.convertOtpData(opts));\n\
+        }\n\
+      });\n\
+    }\n\
+  });\n\
+};\n\
+\n\
+/**\n\
+ * Convert OTP data into a consumable format\n\
+ *\n\
+ * @param {Object} options\n\
+ * @return {Object} data\n\
+ */\n\
+\n\
+Profiler.prototype.convertOtpData = function(opts) {\n\
+  var data = {\n\
+    journeys: [],\n\
+    patterns: [],\n\
+    places: [],\n\
+    routes: [],\n\
+    stops: []\n\
+  };\n\
+\n\
+  var routeIds = [];\n\
+  var stopIds = [];\n\
+\n\
+  // Get a pattern by passing in the id\n\
+  var getPattern = function(id) {\n\
+    for (var i = 0; i < opts.patterns.length; i++) {\n\
+      var pattern = opts.patterns[i];\n\
+      if (pattern.id === id) return pattern;\n\
+    }\n\
+  };\n\
+\n\
+  // Collect all unique stops\n\
+  opts.patterns.forEach(function(pattern) {\n\
+    // Store all used route ids\n\
+    if (routeIds.indexOf(pattern.routeId) === -1) routeIds.push(pattern.routeId);\n\
+\n\
+    pattern.stops.forEach(function(stop) {\n\
+      if (stopIds.indexOf(stop.id) === -1) {\n\
+        // TODO: Just use normal names\n\
+        data.stops.push({\n\
+          stop_id: stop.id,\n\
+          stop_name: stop.name,\n\
+          stop_lat: stop.lat,\n\
+          stop_lon: stop.lon\n\
+        });\n\
+        stopIds.push(stop.id);\n\
+      }\n\
+    });\n\
+  });\n\
+\n\
+  // Collect routes\n\
+  opts.routes.forEach(function(route) {\n\
+    if (routeIds.indexOf(route.id) !== -1) {\n\
+      // TODO: Just use normal names\n\
+      data.routes.push({\n\
+        agency_id: route.agency,\n\
+        route_id: route.id,\n\
+        route_short_name: route.shortName,\n\
+        route_long_name: route.longName,\n\
+        route_type: getGtfsRouteType(route.mode),\n\
+        route_color: route.color\n\
+      });\n\
+    }\n\
+  });\n\
+\n\
+  // Collect patterns\n\
+  opts.patterns.forEach(function(pattern) {\n\
+    // TODO: Just use normal names\n\
+    var obj = {\n\
+      pattern_id: pattern.id,\n\
+      stops: []\n\
+    };\n\
+\n\
+    if (pattern.desc) obj.pattern_name = pattern.desc;\n\
+    if (pattern.routeId) obj.route_id = pattern.routeId;\n\
+\n\
+    pattern.stops.forEach(function(stop) {\n\
+      obj.stops.push({\n\
+        stop_id: stop.id\n\
+      });\n\
+    });\n\
+\n\
+    data.patterns.push(obj);\n\
+  });\n\
+\n\
+  // Collect places\n\
+  // TODO: Remove this\n\
+  if (opts.from) {\n\
+    data.places.push({\n\
+      place_id: 'from',\n\
+      place_name: opts.from.name,\n\
+      place_lat: opts.from.lat,\n\
+      place_lon: opts.from.lon\n\
+    });\n\
+  }\n\
+\n\
+  if (opts.to) {\n\
+    data.places.push({\n\
+      place_id: 'to',\n\
+      place_name: opts.to.name,\n\
+      place_lat: opts.to.lat,\n\
+      place_lon: opts.to.lon\n\
+    });\n\
+  }\n\
+\n\
+  // Collect journeys\n\
+  opts.profile.options.forEach(function(option, optionIndex) {\n\
+    var journey = {\n\
+      journey_id: 'option_' + optionIndex,\n\
+      journey_name: option.summary || 'Option ' + (optionIndex + 1),\n\
+      segments: []\n\
+    };\n\
+\n\
+    // Add the starting walk segment\n\
+    if (opts.from) {\n\
+      var firstPattern = option.segments[0].segmentPatterns[0];\n\
+      var boardStop = getPattern(firstPattern.patternId).stops[firstPattern.fromIndex];\n\
+\n\
+      journey.segments.push({\n\
+        type: 'WALK',\n\
+        from: {\n\
+          type: 'PLACE',\n\
+          place_id: 'from'\n\
+        },\n\
+        to: {\n\
+          type: 'STOP',\n\
+          stop_id: boardStop.id,\n\
+        }\n\
+      });\n\
+    }\n\
+\n\
+    option.segments.forEach(function(segment, segmentIndex) {\n\
+      // Add the transit segment\n\
+      var firstPattern = segment.segmentPatterns[0];\n\
+      journey.segments.push({\n\
+        type: 'TRANSIT',\n\
+        pattern_id: firstPattern.patternId,\n\
+        from_stop_index: firstPattern.fromIndex,\n\
+        to_stop_index: firstPattern.toIndex\n\
+      });\n\
+\n\
+      // Add a walk segment\n\
+      if (option.segments.length > segmentIndex + 1) {\n\
+        var alightStop = getPattern(firstPattern.patternId).stops[\n\
+          firstPattern.toIndex];\n\
+        var nextSegment = option.segments[segmentIndex + 1];\n\
+        var nextFirstPattern = nextSegment.segmentPatterns[0];\n\
+        var boardStop = getPattern(nextFirstPattern.patternId).stops[\n\
+          nextFirstPattern.fromIndex];\n\
+\n\
+        if (alightStop.id !== boardStop.id) {\n\
+          journey.segments.push({\n\
+            type: 'WALK',\n\
+            from: {\n\
+              type: 'STOP',\n\
+              stop_id: alightStop.id\n\
+            },\n\
+            to: {\n\
+              type: 'STOP',\n\
+              stop_id: boardStop.id\n\
+            }\n\
+          });\n\
+        }\n\
+      }\n\
+    });\n\
+\n\
+    // Add the ending walk segment\n\
+    if (opts.to) {\n\
+      var lastPattern = option.segments[option.segments.length - 1].segmentPatterns[\n\
+        0];\n\
+      var alightStop = getPattern(lastPattern.patternId).stops[lastPattern.toIndex];\n\
+\n\
+      journey.segments.push({\n\
+        type: 'WALK',\n\
+        from: {\n\
+          type: 'STOP',\n\
+          stop_id: alightStop.id\n\
+        },\n\
+        to: {\n\
+          type: 'PLACE',\n\
+          place_id: 'to'\n\
+        }\n\
+      });\n\
+    }\n\
+\n\
+    // Add the journey\n\
+    data.journeys.push(journey);\n\
+  });\n\
+\n\
+  return data;\n\
+};\n\
+\n\
+/**\n\
+ * Patterns\n\
+ *\n\
+ * @param {Object} options\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.patterns = function(opts, callback) {\n\
+  var batch = new Batch();\n\
+  var profiler = this;\n\
+\n\
+  // Get all unique pattern IDs\n\
+  var ids = this.getUniquePatternIds(opts.profile);\n\
+\n\
+  // Load all the patterns\n\
+  ids.forEach(function(id) {\n\
+    batch.push(function(done) {\n\
+      profiler.pattern(id, done);\n\
+    });\n\
+  });\n\
+\n\
+  batch.end(callback);\n\
+};\n\
+\n\
+/**\n\
+ * Get unique pattern ids from a profile\n\
+ *\n\
+ * @param {Object} profile\n\
+ * @return {Array} of pattern ids\n\
+ */\n\
+\n\
+Profiler.prototype.getUniquePatternIds = function(profile) {\n\
+  var ids = [];\n\
+\n\
+  // Iterate over each option and add the pattern if it does not already exist\n\
+  profile.options.forEach(function(option, index) {\n\
+    option.segments.forEach(function(segment) {\n\
+      segment.segmentPatterns.forEach(function(pattern) {\n\
+        if (ids.indexOf(pattern.patternId) === -1) {\n\
+          ids.push(pattern.patternId);\n\
+        }\n\
+      });\n\
+    });\n\
+  });\n\
+\n\
+  return ids;\n\
+};\n\
+\n\
+/**\n\
+ * Load a pattern\n\
+ *\n\
+ * @param {String} id\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.pattern = function(id, callback) {\n\
+  if (store.patterns[id]) {\n\
+    callback(null, store.patterns[id]);\n\
+  } else {\n\
+    this.request('/index/patterns/' + id, function(err, pattern) {\n\
+      if (err) {\n\
+        callback(err);\n\
+      } else {\n\
+        store.patterns[id] = pattern;\n\
+        callback(null, pattern);\n\
+      }\n\
+    });\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Profile\n\
+ *\n\
+ * @param {Object} query parameters to pass in\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.profile = function(params, callback) {\n\
+  var qs = clone(params);\n\
+  qs.from = params.from.lat + ',' + params.from.lon;\n\
+  qs.to = params.to.lat + ',' + params.to.lon;\n\
+\n\
+  // Options limit\n\
+  qs.limit = qs.limit || this.limit;\n\
+\n\
+  // Remove invalid options\n\
+  delete qs.profile;\n\
+  delete qs.routes;\n\
+\n\
+  // Request the profile\n\
+  this.request('/profile', qs, callback);\n\
+};\n\
+\n\
+/**\n\
+ * Routes. Get an index of all routes available.\n\
+ *\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.routes = function(callback) {\n\
+  if (store.routes) {\n\
+    callback(null, store.routes);\n\
+  } else {\n\
+    this.request('/index/routes', function(err, routes) {\n\
+      if (err) {\n\
+        callback(err);\n\
+      } else {\n\
+        store.routes = routes;\n\
+        callback(null, routes);\n\
+      }\n\
+    });\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Request\n\
+ *\n\
+ * @param {String} path\n\
+ * @param {Function} callback\n\
+ */\n\
+\n\
+Profiler.prototype.request = function(path, params, callback) {\n\
+  if (arguments.length === 2) {\n\
+    callback = params;\n\
+    params = null;\n\
+  }\n\
+\n\
+  superagent\n\
+    .get(this.host + path)\n\
+    .query(params)\n\
+    .end(function(err, res) {\n\
+      if (err || res.error || !res.ok) {\n\
+        callback(err || res.error || res.text);\n\
+      } else {\n\
+        callback(null, res.body);\n\
+      }\n\
+    });\n\
+};\n\
+\n\
+/**\n\
+ * Get GTFS Route Type\n\
+ *\n\
+ * @param {String} mode\n\
+ */\n\
+\n\
+function getGtfsRouteType(mode) {\n\
+  switch (mode) {\n\
+    case 'TRAM':\n\
+      return 0;\n\
+    case 'SUBWAY':\n\
+      return 1;\n\
+    case 'RAIL':\n\
+      return 2;\n\
+    case 'BUS':\n\
+      return 3;\n\
+    case 'FERRY':\n\
+      return 4;\n\
+    case 'CABLE_CAR':\n\
+      return 5;\n\
+    case 'GONDOLA':\n\
+      return 6;\n\
+    case 'FUNICULAR':\n\
+      return 7;\n\
+  }\n\
+}\n\
+//@ sourceURL=conveyal-otpprofiler.js/index.js"
+));
+require.register("component-matches-selector/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var query = require('query');\n\
 \n\
 /**\n\
  * Element prototype.\n\
@@ -14562,22 +12322,15 @@ function match(el, selector) {\n\
   }\n\
   return false;\n\
 }\n\
-\n\
-//# sourceURL=components/component/matches-selector/0.1.2/index.js"
+//@ sourceURL=component-matches-selector/index.js"
 ));
-
-require.modules["component-matches-selector"] = require.modules["component~matches-selector@0.1.2"];
-require.modules["component~matches-selector"] = require.modules["component~matches-selector@0.1.2"];
-require.modules["matches-selector"] = require.modules["component~matches-selector@0.1.2"];
-
-
-require.register("yields~traverse@0.1.1", Function("exports, module",
+require.register("yields-traverse/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * dependencies\n\
  */\n\
 \n\
-var matches = require(\"component~matches-selector@0.1.2\");\n\
+var matches = require('matches-selector');\n\
 \n\
 /**\n\
  * Traverse with the given `el`, `selector` and `len`.\n\
@@ -14606,18 +12359,11 @@ module.exports = function(type, el, selector, len){\n\
 \n\
   return ret;\n\
 }\n\
-\n\
-//# sourceURL=components/yields/traverse/0.1.1/index.js"
+//@ sourceURL=yields-traverse/index.js"
 ));
-
-require.modules["yields-traverse"] = require.modules["yields~traverse@0.1.1"];
-require.modules["yields~traverse"] = require.modules["yields~traverse@0.1.1"];
-require.modules["traverse"] = require.modules["yields~traverse@0.1.1"];
-
-
-require.register("ianstormtaylor~previous-sibling@0.0.1", Function("exports, module",
+require.register("ianstormtaylor-previous-sibling/index.js", Function("exports, require, module",
 "\n\
-var traverse = require(\"yields~traverse@0.1.1\");\n\
+var traverse = require('traverse');\n\
 \n\
 \n\
 /**\n\
@@ -14637,18 +12383,11 @@ module.exports = previousSibling;\n\
 function previousSibling (el, selector) {\n\
   el = traverse('previousSibling', el, selector)[0];\n\
   return el || null;\n\
-}\n\
-//# sourceURL=components/ianstormtaylor/previous-sibling/0.0.1/index.js"
+}//@ sourceURL=ianstormtaylor-previous-sibling/index.js"
 ));
-
-require.modules["ianstormtaylor-previous-sibling"] = require.modules["ianstormtaylor~previous-sibling@0.0.1"];
-require.modules["ianstormtaylor~previous-sibling"] = require.modules["ianstormtaylor~previous-sibling@0.0.1"];
-require.modules["previous-sibling"] = require.modules["ianstormtaylor~previous-sibling@0.0.1"];
-
-
-require.register("ianstormtaylor~next-sibling@0.0.1", Function("exports, module",
+require.register("ianstormtaylor-next-sibling/index.js", Function("exports, require, module",
 "\n\
-var traverse = require(\"yields~traverse@0.1.1\");\n\
+var traverse = require('traverse');\n\
 \n\
 \n\
 /**\n\
@@ -14668,16 +12407,9 @@ module.exports = nextSibling;\n\
 function nextSibling (el, selector) {\n\
   el = traverse('nextSibling', el, selector)[0];\n\
   return el || null;\n\
-}\n\
-//# sourceURL=components/ianstormtaylor/next-sibling/0.0.1/index.js"
+}//@ sourceURL=ianstormtaylor-next-sibling/index.js"
 ));
-
-require.modules["ianstormtaylor-next-sibling"] = require.modules["ianstormtaylor~next-sibling@0.0.1"];
-require.modules["ianstormtaylor~next-sibling"] = require.modules["ianstormtaylor~next-sibling@0.0.1"];
-require.modules["next-sibling"] = require.modules["ianstormtaylor~next-sibling@0.0.1"];
-
-
-require.register("component~debounce@0.0.3", Function("exports, module",
+require.register("component-debounce/index.js", Function("exports, require, module",
 "/**\n\
  * Debounces a function by the given threshold.\n\
  *\n\
@@ -14710,386 +12442,117 @@ module.exports = function debounce(func, threshold, execAsap){\n\
     timeout = setTimeout(delayed, threshold || 100);\n\
   };\n\
 };\n\
-\n\
-//# sourceURL=components/component/debounce/0.0.3/index.js"
+//@ sourceURL=component-debounce/index.js"
 ));
-
-require.modules["component-debounce"] = require.modules["component~debounce@0.0.3"];
-require.modules["component~debounce"] = require.modules["component~debounce@0.0.3"];
-require.modules["debounce"] = require.modules["component~debounce@0.0.3"];
-
-
-require.register("component~event@0.1.3", Function("exports, module",
-"var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',\n\
-    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',\n\
-    prefix = bind !== 'addEventListener' ? 'on' : '';\n\
+require.register("component-bind/index.js", Function("exports, require, module",
+"/**\n\
+ * Slice reference.\n\
+ */\n\
+\n\
+var slice = [].slice;\n\
 \n\
 /**\n\
- * Bind `el` event `type` to `fn`.\n\
+ * Bind `obj` to `fn`.\n\
  *\n\
- * @param {Element} el\n\
- * @param {String} type\n\
- * @param {Function} fn\n\
- * @param {Boolean} capture\n\
+ * @param {Object} obj\n\
+ * @param {Function|String} fn or string\n\
  * @return {Function}\n\
  * @api public\n\
  */\n\
 \n\
-exports.bind = function(el, type, fn, capture){\n\
-  el[bind](prefix + type, fn, capture || false);\n\
-  return fn;\n\
-};\n\
-\n\
-/**\n\
- * Unbind `el` event `type`'s callback `fn`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} type\n\
- * @param {Function} fn\n\
- * @param {Boolean} capture\n\
- * @return {Function}\n\
- * @api public\n\
- */\n\
-\n\
-exports.unbind = function(el, type, fn, capture){\n\
-  el[unbind](prefix + type, fn, capture || false);\n\
-  return fn;\n\
-};\n\
-//# sourceURL=components/component/event/0.1.3/index.js"
-));
-
-require.modules["component-event"] = require.modules["component~event@0.1.3"];
-require.modules["component~event"] = require.modules["component~event@0.1.3"];
-require.modules["event"] = require.modules["component~event@0.1.3"];
-
-
-require.register("discore~closest@0.1.2", Function("exports, module",
-"var matches = require(\"component~matches-selector@0.1.2\")\n\
-\n\
-module.exports = function (element, selector, checkYoSelf, root) {\n\
-  element = checkYoSelf ? {parentNode: element} : element\n\
-\n\
-  root = root || document\n\
-\n\
-  // Make sure `element !== document` and `element != null`\n\
-  // otherwise we get an illegal invocation\n\
-  while ((element = element.parentNode) && element !== document) {\n\
-    if (matches(element, selector))\n\
-      return element\n\
-    // After `matches` on the edge case that\n\
-    // the selector matches the root\n\
-    // (when the root is not the document)\n\
-    if (element === root)\n\
-      return  \n\
+module.exports = function(obj, fn){\n\
+  if ('string' == typeof fn) fn = obj[fn];\n\
+  if ('function' != typeof fn) throw new Error('bind() requires a function');\n\
+  var args = slice.call(arguments, 2);\n\
+  return function(){\n\
+    return fn.apply(obj, args.concat(slice.call(arguments)));\n\
   }\n\
-}\n\
-//# sourceURL=components/discore/closest/0.1.2/index.js"
+};\n\
+//@ sourceURL=component-bind/index.js"
 ));
-
-require.modules["discore-closest"] = require.modules["discore~closest@0.1.2"];
-require.modules["discore~closest"] = require.modules["discore~closest@0.1.2"];
-require.modules["closest"] = require.modules["discore~closest@0.1.2"];
-
-
-require.register("component~delegate@0.2.1", Function("exports, module",
+require.register("component-trim/index.js", Function("exports, require, module",
+"\n\
+exports = module.exports = trim;\n\
+\n\
+function trim(str){\n\
+  if (str.trim) return str.trim();\n\
+  return str.replace(/^\\s*|\\s*$/g, '');\n\
+}\n\
+\n\
+exports.left = function(str){\n\
+  if (str.trimLeft) return str.trimLeft();\n\
+  return str.replace(/^\\s*/, '');\n\
+};\n\
+\n\
+exports.right = function(str){\n\
+  if (str.trimRight) return str.trimRight();\n\
+  return str.replace(/\\s*$/, '');\n\
+};\n\
+//@ sourceURL=component-trim/index.js"
+));
+require.register("stephenmathieson-normalize/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Normalize the events provided to `fn`\n\
+ *\n\
+ * @api public\n\
+ * @param {Function|Event} fn\n\
+ * @return {Function|Event}\n\
+ */\n\
+\n\
+exports = module.exports = function (fn) {\n\
+  // handle functions which are passed an event\n\
+  if (typeof fn === 'function') {\n\
+    return function (event) {\n\
+      event = exports.normalize(event);\n\
+      fn.call(this, event);\n\
+    };\n\
+  }\n\
+\n\
+  // just normalize the event\n\
+  return exports.normalize(fn);\n\
+};\n\
+\n\
+/**\n\
+ * Normalize the given `event`\n\
+ *\n\
+ * @api private\n\
+ * @param {Event} event\n\
+ * @return {Event}\n\
+ */\n\
+\n\
+exports.normalize = function (event) {\n\
+  event = event || window.event;\n\
+\n\
+  event.target = event.target || event.srcElement;\n\
+\n\
+  event.which = event.which ||  event.keyCode || event.charCode;\n\
+\n\
+  event.preventDefault = event.preventDefault || function () {\n\
+    this.returnValue = false;\n\
+  };\n\
+\n\
+  event.stopPropagation = event.stopPropagation || function () {\n\
+    this.cancelBubble = true;\n\
+  };\n\
+\n\
+  return event;\n\
+};\n\
+//@ sourceURL=stephenmathieson-normalize/index.js"
+));
+require.register("component-pillbox/index.js", Function("exports, require, module",
 "/**\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var closest = require(\"discore~closest@0.1.2\")\n\
-  , event = require(\"component~event@0.1.3\");\n\
-\n\
-/**\n\
- * Delegate event `type` to `selector`\n\
- * and invoke `fn(e)`. A callback function\n\
- * is returned which may be passed to `.unbind()`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} selector\n\
- * @param {String} type\n\
- * @param {Function} fn\n\
- * @param {Boolean} capture\n\
- * @return {Function}\n\
- * @api public\n\
- */\n\
-\n\
-exports.bind = function(el, selector, type, fn, capture){\n\
-  return event.bind(el, type, function(e){\n\
-    var target = e.target || e.srcElement;\n\
-    e.delegateTarget = closest(target, selector, true, el);\n\
-    if (e.delegateTarget) fn.call(el, e);\n\
-  }, capture);\n\
-};\n\
-\n\
-/**\n\
- * Unbind event `type`'s callback `fn`.\n\
- *\n\
- * @param {Element} el\n\
- * @param {String} type\n\
- * @param {Function} fn\n\
- * @param {Boolean} capture\n\
- * @api public\n\
- */\n\
-\n\
-exports.unbind = function(el, type, fn, capture){\n\
-  event.unbind(el, type, fn, capture);\n\
-};\n\
-\n\
-//# sourceURL=components/component/delegate/0.2.1/index.js"
-));
-
-require.modules["component-delegate"] = require.modules["component~delegate@0.2.1"];
-require.modules["component~delegate"] = require.modules["component~delegate@0.2.1"];
-require.modules["delegate"] = require.modules["component~delegate@0.2.1"];
-
-
-require.register("component~events@1.0.6", Function("exports, module",
-"\n\
-/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var events = require(\"component~event@0.1.3\");\n\
-var delegate = require(\"component~delegate@0.2.1\");\n\
-\n\
-/**\n\
- * Expose `Events`.\n\
- */\n\
-\n\
-module.exports = Events;\n\
-\n\
-/**\n\
- * Initialize an `Events` with the given\n\
- * `el` object which events will be bound to,\n\
- * and the `obj` which will receive method calls.\n\
- *\n\
- * @param {Object} el\n\
- * @param {Object} obj\n\
- * @api public\n\
- */\n\
-\n\
-function Events(el, obj) {\n\
-  if (!(this instanceof Events)) return new Events(el, obj);\n\
-  if (!el) throw new Error('element required');\n\
-  if (!obj) throw new Error('object required');\n\
-  this.el = el;\n\
-  this.obj = obj;\n\
-  this._events = {};\n\
-}\n\
-\n\
-/**\n\
- * Subscription helper.\n\
- */\n\
-\n\
-Events.prototype.sub = function(event, method, cb){\n\
-  this._events[event] = this._events[event] || {};\n\
-  this._events[event][method] = cb;\n\
-};\n\
-\n\
-/**\n\
- * Bind to `event` with optional `method` name.\n\
- * When `method` is undefined it becomes `event`\n\
- * with the \"on\" prefix.\n\
- *\n\
- * Examples:\n\
- *\n\
- *  Direct event handling:\n\
- *\n\
- *    events.bind('click') // implies \"onclick\"\n\
- *    events.bind('click', 'remove')\n\
- *    events.bind('click', 'sort', 'asc')\n\
- *\n\
- *  Delegated event handling:\n\
- *\n\
- *    events.bind('click li > a')\n\
- *    events.bind('click li > a', 'remove')\n\
- *    events.bind('click a.sort-ascending', 'sort', 'asc')\n\
- *    events.bind('click a.sort-descending', 'sort', 'desc')\n\
- *\n\
- * @param {String} event\n\
- * @param {String|function} [method]\n\
- * @return {Function} callback\n\
- * @api public\n\
- */\n\
-\n\
-Events.prototype.bind = function(event, method){\n\
-  var e = parse(event);\n\
-  var el = this.el;\n\
-  var obj = this.obj;\n\
-  var name = e.name;\n\
-  var method = method || 'on' + name;\n\
-  var args = [].slice.call(arguments, 2);\n\
-\n\
-  // callback\n\
-  function cb(){\n\
-    var a = [].slice.call(arguments).concat(args);\n\
-    obj[method].apply(obj, a);\n\
-  }\n\
-\n\
-  // bind\n\
-  if (e.selector) {\n\
-    cb = delegate.bind(el, e.selector, name, cb);\n\
-  } else {\n\
-    events.bind(el, name, cb);\n\
-  }\n\
-\n\
-  // subscription for unbinding\n\
-  this.sub(name, method, cb);\n\
-\n\
-  return cb;\n\
-};\n\
-\n\
-/**\n\
- * Unbind a single binding, all bindings for `event`,\n\
- * or all bindings within the manager.\n\
- *\n\
- * Examples:\n\
- *\n\
- *  Unbind direct handlers:\n\
- *\n\
- *     events.unbind('click', 'remove')\n\
- *     events.unbind('click')\n\
- *     events.unbind()\n\
- *\n\
- * Unbind delegate handlers:\n\
- *\n\
- *     events.unbind('click', 'remove')\n\
- *     events.unbind('click')\n\
- *     events.unbind()\n\
- *\n\
- * @param {String|Function} [event]\n\
- * @param {String|Function} [method]\n\
- * @api public\n\
- */\n\
-\n\
-Events.prototype.unbind = function(event, method){\n\
-  if (0 == arguments.length) return this.unbindAll();\n\
-  if (1 == arguments.length) return this.unbindAllOf(event);\n\
-\n\
-  // no bindings for this event\n\
-  var bindings = this._events[event];\n\
-  if (!bindings) return;\n\
-\n\
-  // no bindings for this method\n\
-  var cb = bindings[method];\n\
-  if (!cb) return;\n\
-\n\
-  events.unbind(this.el, event, cb);\n\
-};\n\
-\n\
-/**\n\
- * Unbind all events.\n\
- *\n\
- * @api private\n\
- */\n\
-\n\
-Events.prototype.unbindAll = function(){\n\
-  for (var event in this._events) {\n\
-    this.unbindAllOf(event);\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Unbind all events for `event`.\n\
- *\n\
- * @param {String} event\n\
- * @api private\n\
- */\n\
-\n\
-Events.prototype.unbindAllOf = function(event){\n\
-  var bindings = this._events[event];\n\
-  if (!bindings) return;\n\
-\n\
-  for (var method in bindings) {\n\
-    this.unbind(event, method);\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Parse `event`.\n\
- *\n\
- * @param {String} event\n\
- * @return {Object}\n\
- * @api private\n\
- */\n\
-\n\
-function parse(event) {\n\
-  var parts = event.split(/ +/);\n\
-  return {\n\
-    name: parts.shift(),\n\
-    selector: parts.join(' ')\n\
-  }\n\
-}\n\
-\n\
-//# sourceURL=components/component/events/1.0.6/index.js"
-));
-
-require.modules["component-events"] = require.modules["component~events@1.0.6"];
-require.modules["component~events"] = require.modules["component~events@1.0.6"];
-require.modules["events"] = require.modules["component~events@1.0.6"];
-
-
-require.register("component~keyname@0.0.1", Function("exports, module",
-"\n\
-/**\n\
- * Key name map.\n\
- */\n\
-\n\
-var map = {\n\
-  8: 'backspace',\n\
-  9: 'tab',\n\
-  13: 'enter',\n\
-  16: 'shift',\n\
-  17: 'ctrl',\n\
-  18: 'alt',\n\
-  20: 'capslock',\n\
-  27: 'esc',\n\
-  32: 'space',\n\
-  33: 'pageup',\n\
-  34: 'pagedown',\n\
-  35: 'end',\n\
-  36: 'home',\n\
-  37: 'left',\n\
-  38: 'up',\n\
-  39: 'right',\n\
-  40: 'down',\n\
-  45: 'ins',\n\
-  46: 'del',\n\
-  91: 'meta',\n\
-  93: 'meta',\n\
-  224: 'meta'\n\
-};\n\
-\n\
-/**\n\
- * Return key name for `n`.\n\
- *\n\
- * @param {Number} n\n\
- * @return {String}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(n){\n\
-  return map[n];\n\
-};\n\
-//# sourceURL=components/component/keyname/0.0.1/index.js"
-));
-
-require.modules["component-keyname"] = require.modules["component~keyname@0.0.1"];
-require.modules["component~keyname"] = require.modules["component~keyname@0.0.1"];
-require.modules["keyname"] = require.modules["component~keyname@0.0.1"];
-
-
-require.register("component~pillbox@1.3.1", Function("exports, module",
-"\n\
-/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var Emitter = require(\"component~emitter@1.1.2\")\n\
-  , keyname = require(\"component~keyname@0.0.1\")\n\
-  , events = require(\"component~events@1.0.6\")\n\
-  , each = require(\"component~each@0.2.3\")\n\
-  , Set = require(\"component~set@1.0.0\");\n\
+var Emitter = require('emitter')\n\
+  , keyname = require('keyname')\n\
+  , events = require('events')\n\
+  , each = require('each')\n\
+  , Set = require('set')\n\
+  , bind = require('bind')\n\
+  , trim = require('trim')\n\
+  , normalize = require('normalize');\n\
 \n\
 /**\n\
  * Expose `Pillbox`.\n\
@@ -15108,13 +12571,16 @@ module.exports = Pillbox\n\
 \n\
 function Pillbox(input, options) {\n\
   if (!(this instanceof Pillbox)) return new Pillbox(input, options);\n\
-  var self = this\n\
   this.options = options || {}\n\
   this.input = input;\n\
   this.tags = new Set;\n\
   this.el = document.createElement('div');\n\
   this.el.className = 'pillbox';\n\
-  this.el.style = input.style;\n\
+  try {\n\
+    this.el.style = input.style;\n\
+  } catch (e) {\n\
+    // IE8 just can't handle this\n\
+  }\n\
   input.parentNode.insertBefore(this.el, input);\n\
   input.parentNode.removeChild(input);\n\
   this.el.appendChild(input);\n\
@@ -15159,7 +12625,7 @@ Pillbox.prototype.unbind = function(){\n\
  * @api private\n\
  */\n\
 \n\
-Pillbox.prototype.onkeydown = function(e){\n\
+Pillbox.prototype.onkeydown = normalize(function(e){\n\
   switch (keyname(e.which)) {\n\
     case 'enter':\n\
       e.preventDefault();\n\
@@ -15167,7 +12633,8 @@ Pillbox.prototype.onkeydown = function(e){\n\
       e.target.value = '';\n\
       break;\n\
     case 'space':\n\
-      if (!this.options.space) return;\n\
+      if (this.options.space === false || this.options.allowSpace === true) \n\
+        return;\n\
       e.preventDefault();\n\
       this.add(e.target.value);\n\
       e.target.value = '';\n\
@@ -15178,7 +12645,7 @@ Pillbox.prototype.onkeydown = function(e){\n\
       }\n\
       break;\n\
   }\n\
-};\n\
+});\n\
 \n\
 /**\n\
  * Handle click.\n\
@@ -15233,7 +12700,7 @@ Pillbox.prototype.last = function(){\n\
 \n\
 Pillbox.prototype.add = function(tag) {\n\
   var self = this\n\
-  tag = tag.trim();\n\
+  tag = trim(tag);\n\
 \n\
   // blank\n\
   if ('' == tag) return;\n\
@@ -15260,7 +12727,7 @@ Pillbox.prototype.add = function(tag) {\n\
   var del = document.createElement('a');\n\
   del.appendChild(document.createTextNode('✕'));\n\
   del.href = '#';\n\
-  del.onclick = this.remove.bind(this, tag);\n\
+  del.onclick = bind(this, this.remove, tag);\n\
   span.appendChild(del);\n\
 \n\
   this.el.insertBefore(span, this.input);\n\
@@ -15292,17 +12759,52 @@ Pillbox.prototype.remove = function(tag) {\n\
 \n\
   return this;\n\
 }\n\
-\n\
-\n\
-//# sourceURL=components/component/pillbox/1.3.1/index.js"
+//@ sourceURL=component-pillbox/index.js"
 ));
-
-require.modules["component-pillbox"] = require.modules["component~pillbox@1.3.1"];
-require.modules["component~pillbox"] = require.modules["component~pillbox@1.3.1"];
-require.modules["pillbox"] = require.modules["component~pillbox@1.3.1"];
-
-
-require.register("component~indexof@0.0.3", Function("exports, module",
+require.register("component-keyname/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Key name map.\n\
+ */\n\
+\n\
+var map = {\n\
+  8: 'backspace',\n\
+  9: 'tab',\n\
+  13: 'enter',\n\
+  16: 'shift',\n\
+  17: 'ctrl',\n\
+  18: 'alt',\n\
+  20: 'capslock',\n\
+  27: 'esc',\n\
+  32: 'space',\n\
+  33: 'pageup',\n\
+  34: 'pagedown',\n\
+  35: 'end',\n\
+  36: 'home',\n\
+  37: 'left',\n\
+  38: 'up',\n\
+  39: 'right',\n\
+  40: 'down',\n\
+  45: 'ins',\n\
+  46: 'del',\n\
+  91: 'meta',\n\
+  93: 'meta',\n\
+  224: 'meta'\n\
+};\n\
+\n\
+/**\n\
+ * Return key name for `n`.\n\
+ *\n\
+ * @param {Number} n\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(n){\n\
+  return map[n];\n\
+};//@ sourceURL=component-keyname/index.js"
+));
+require.register("component-indexof/index.js", Function("exports, require, module",
 "module.exports = function(arr, obj){\n\
   if (arr.indexOf) return arr.indexOf(obj);\n\
   for (var i = 0; i < arr.length; ++i) {\n\
@@ -15310,20 +12812,14 @@ require.register("component~indexof@0.0.3", Function("exports, module",
   }\n\
   return -1;\n\
 };\n\
-//# sourceURL=components/component/indexof/0.0.3/index.js"
+//@ sourceURL=component-indexof/index.js"
 ));
-
-require.modules["component-indexof"] = require.modules["component~indexof@0.0.3"];
-require.modules["component~indexof"] = require.modules["component~indexof@0.0.3"];
-require.modules["indexof"] = require.modules["component~indexof@0.0.3"];
-
-
-require.register("component~classes@1.2.1", Function("exports, module",
+require.register("component-classes/index.js", Function("exports, require, module",
 "/**\n\
  * Module dependencies.\n\
  */\n\
 \n\
-var index = require(\"component~indexof@0.0.3\");\n\
+var index = require('indexof');\n\
 \n\
 /**\n\
  * Whitespace regexp.\n\
@@ -15503,16 +12999,291 @@ ClassList.prototype.contains = function(name){\n\
     ? this.list.contains(name)\n\
     : !! ~index(this.array(), name);\n\
 };\n\
-\n\
-//# sourceURL=components/component/classes/1.2.1/index.js"
+//@ sourceURL=component-classes/index.js"
 ));
-
-require.modules["component-classes"] = require.modules["component~classes@1.2.1"];
-require.modules["component~classes"] = require.modules["component~classes@1.2.1"];
-require.modules["classes"] = require.modules["component~classes@1.2.1"];
-
-
-require.register("component~domify@1.2.2", Function("exports, module",
+require.register("component-event/index.js", Function("exports, require, module",
+"var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',\n\
+    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',\n\
+    prefix = bind !== 'addEventListener' ? 'on' : '';\n\
+\n\
+/**\n\
+ * Bind `el` event `type` to `fn`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} type\n\
+ * @param {Function} fn\n\
+ * @param {Boolean} capture\n\
+ * @return {Function}\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.bind = function(el, type, fn, capture){\n\
+  el[bind](prefix + type, fn, capture || false);\n\
+  return fn;\n\
+};\n\
+\n\
+/**\n\
+ * Unbind `el` event `type`'s callback `fn`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} type\n\
+ * @param {Function} fn\n\
+ * @param {Boolean} capture\n\
+ * @return {Function}\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.unbind = function(el, type, fn, capture){\n\
+  el[unbind](prefix + type, fn, capture || false);\n\
+  return fn;\n\
+};//@ sourceURL=component-event/index.js"
+));
+require.register("discore-closest/index.js", Function("exports, require, module",
+"var matches = require('matches-selector')\n\
+\n\
+module.exports = function (element, selector, checkYoSelf, root) {\n\
+  element = checkYoSelf ? {parentNode: element} : element\n\
+\n\
+  root = root || document\n\
+\n\
+  // Make sure `element !== document` and `element != null`\n\
+  // otherwise we get an illegal invocation\n\
+  while ((element = element.parentNode) && element !== document) {\n\
+    if (matches(element, selector))\n\
+      return element\n\
+    // After `matches` on the edge case that\n\
+    // the selector matches the root\n\
+    // (when the root is not the document)\n\
+    if (element === root)\n\
+      return  \n\
+  }\n\
+}//@ sourceURL=discore-closest/index.js"
+));
+require.register("component-delegate/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var closest = require('closest')\n\
+  , event = require('event');\n\
+\n\
+/**\n\
+ * Delegate event `type` to `selector`\n\
+ * and invoke `fn(e)`. A callback function\n\
+ * is returned which may be passed to `.unbind()`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} selector\n\
+ * @param {String} type\n\
+ * @param {Function} fn\n\
+ * @param {Boolean} capture\n\
+ * @return {Function}\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.bind = function(el, selector, type, fn, capture){\n\
+  return event.bind(el, type, function(e){\n\
+    var target = e.target || e.srcElement;\n\
+    e.delegateTarget = closest(target, selector, true, el);\n\
+    if (e.delegateTarget) fn.call(el, e);\n\
+  }, capture);\n\
+};\n\
+\n\
+/**\n\
+ * Unbind event `type`'s callback `fn`.\n\
+ *\n\
+ * @param {Element} el\n\
+ * @param {String} type\n\
+ * @param {Function} fn\n\
+ * @param {Boolean} capture\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.unbind = function(el, type, fn, capture){\n\
+  event.unbind(el, type, fn, capture);\n\
+};\n\
+//@ sourceURL=component-delegate/index.js"
+));
+require.register("component-events/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var events = require('event');\n\
+var delegate = require('delegate');\n\
+\n\
+/**\n\
+ * Expose `Events`.\n\
+ */\n\
+\n\
+module.exports = Events;\n\
+\n\
+/**\n\
+ * Initialize an `Events` with the given\n\
+ * `el` object which events will be bound to,\n\
+ * and the `obj` which will receive method calls.\n\
+ *\n\
+ * @param {Object} el\n\
+ * @param {Object} obj\n\
+ * @api public\n\
+ */\n\
+\n\
+function Events(el, obj) {\n\
+  if (!(this instanceof Events)) return new Events(el, obj);\n\
+  if (!el) throw new Error('element required');\n\
+  if (!obj) throw new Error('object required');\n\
+  this.el = el;\n\
+  this.obj = obj;\n\
+  this._events = {};\n\
+}\n\
+\n\
+/**\n\
+ * Subscription helper.\n\
+ */\n\
+\n\
+Events.prototype.sub = function(event, method, cb){\n\
+  this._events[event] = this._events[event] || {};\n\
+  this._events[event][method] = cb;\n\
+};\n\
+\n\
+/**\n\
+ * Bind to `event` with optional `method` name.\n\
+ * When `method` is undefined it becomes `event`\n\
+ * with the \"on\" prefix.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *  Direct event handling:\n\
+ *\n\
+ *    events.bind('click') // implies \"onclick\"\n\
+ *    events.bind('click', 'remove')\n\
+ *    events.bind('click', 'sort', 'asc')\n\
+ *\n\
+ *  Delegated event handling:\n\
+ *\n\
+ *    events.bind('click li > a')\n\
+ *    events.bind('click li > a', 'remove')\n\
+ *    events.bind('click a.sort-ascending', 'sort', 'asc')\n\
+ *    events.bind('click a.sort-descending', 'sort', 'desc')\n\
+ *\n\
+ * @param {String} event\n\
+ * @param {String|function} [method]\n\
+ * @return {Function} callback\n\
+ * @api public\n\
+ */\n\
+\n\
+Events.prototype.bind = function(event, method){\n\
+  var e = parse(event);\n\
+  var el = this.el;\n\
+  var obj = this.obj;\n\
+  var name = e.name;\n\
+  var method = method || 'on' + name;\n\
+  var args = [].slice.call(arguments, 2);\n\
+\n\
+  // callback\n\
+  function cb(){\n\
+    var a = [].slice.call(arguments).concat(args);\n\
+    obj[method].apply(obj, a);\n\
+  }\n\
+\n\
+  // bind\n\
+  if (e.selector) {\n\
+    cb = delegate.bind(el, e.selector, name, cb);\n\
+  } else {\n\
+    events.bind(el, name, cb);\n\
+  }\n\
+\n\
+  // subscription for unbinding\n\
+  this.sub(name, method, cb);\n\
+\n\
+  return cb;\n\
+};\n\
+\n\
+/**\n\
+ * Unbind a single binding, all bindings for `event`,\n\
+ * or all bindings within the manager.\n\
+ *\n\
+ * Examples:\n\
+ *\n\
+ *  Unbind direct handlers:\n\
+ *\n\
+ *     events.unbind('click', 'remove')\n\
+ *     events.unbind('click')\n\
+ *     events.unbind()\n\
+ *\n\
+ * Unbind delegate handlers:\n\
+ *\n\
+ *     events.unbind('click', 'remove')\n\
+ *     events.unbind('click')\n\
+ *     events.unbind()\n\
+ *\n\
+ * @param {String|Function} [event]\n\
+ * @param {String|Function} [method]\n\
+ * @api public\n\
+ */\n\
+\n\
+Events.prototype.unbind = function(event, method){\n\
+  if (0 == arguments.length) return this.unbindAll();\n\
+  if (1 == arguments.length) return this.unbindAllOf(event);\n\
+\n\
+  // no bindings for this event\n\
+  var bindings = this._events[event];\n\
+  if (!bindings) return;\n\
+\n\
+  // no bindings for this method\n\
+  var cb = bindings[method];\n\
+  if (!cb) return;\n\
+\n\
+  events.unbind(this.el, event, cb);\n\
+};\n\
+\n\
+/**\n\
+ * Unbind all events.\n\
+ *\n\
+ * @api private\n\
+ */\n\
+\n\
+Events.prototype.unbindAll = function(){\n\
+  for (var event in this._events) {\n\
+    this.unbindAllOf(event);\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Unbind all events for `event`.\n\
+ *\n\
+ * @param {String} event\n\
+ * @api private\n\
+ */\n\
+\n\
+Events.prototype.unbindAllOf = function(event){\n\
+  var bindings = this._events[event];\n\
+  if (!bindings) return;\n\
+\n\
+  for (var method in bindings) {\n\
+    this.unbind(event, method);\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Parse `event`.\n\
+ *\n\
+ * @param {String} event\n\
+ * @return {Object}\n\
+ * @api private\n\
+ */\n\
+\n\
+function parse(event) {\n\
+  var parts = event.split(/ +/);\n\
+  return {\n\
+    name: parts.shift(),\n\
+    selector: parts.join(' ')\n\
+  }\n\
+}\n\
+//@ sourceURL=component-events/index.js"
+));
+require.register("component-domify/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `parse`.\n\
@@ -15600,32 +13371,49 @@ function parse(html) {\n\
 \n\
   return fragment;\n\
 }\n\
-\n\
-//# sourceURL=components/component/domify/1.2.2/index.js"
+//@ sourceURL=component-domify/index.js"
 ));
-
-require.modules["component-domify"] = require.modules["component~domify@1.2.2"];
-require.modules["component~domify"] = require.modules["component~domify@1.2.2"];
-require.modules["domify"] = require.modules["component~domify@1.2.2"];
-
-
-require.register("yields~select@0.5.1", Function("exports, module",
+require.register("component-query/index.js", Function("exports, require, module",
+"function one(selector, el) {\n\
+  return el.querySelector(selector);\n\
+}\n\
+\n\
+exports = module.exports = function(selector, el){\n\
+  el = el || document;\n\
+  return one(selector, el);\n\
+};\n\
+\n\
+exports.all = function(selector, el){\n\
+  el = el || document;\n\
+  return el.querySelectorAll(selector);\n\
+};\n\
+\n\
+exports.engine = function(obj){\n\
+  if (!obj.one) throw new Error('.one callback required');\n\
+  if (!obj.all) throw new Error('.all callback required');\n\
+  one = obj.one;\n\
+  exports.all = obj.all;\n\
+  return exports;\n\
+};\n\
+//@ sourceURL=component-query/index.js"
+));
+require.register("yields-select/index.js", Function("exports, require, module",
 "/**\n\
  * dependencies\n\
  */\n\
 \n\
-var previous = require(\"ianstormtaylor~previous-sibling@0.0.1\");\n\
-var template = require(\"yields~select@0.5.1/template.html\");\n\
-var next = require(\"ianstormtaylor~next-sibling@0.0.1\");\n\
-var debounce = require(\"component~debounce@0.0.3\");\n\
-var Pillbox = require(\"component~pillbox@1.3.1\");\n\
-var classes = require(\"component~classes@1.2.1\");\n\
-var Emitter = require(\"component~emitter@1.1.2\");\n\
-var keyname = require(\"component~keyname@0.0.1\");\n\
-var events = require(\"component~events@1.0.6\");\n\
-var domify = require(\"component~domify@1.2.2\");\n\
-var query = require(\"component~query@0.0.3\");\n\
-var each = require(\"component~each@0.2.3\");\n\
+var previous = require('previous-sibling');\n\
+var template = require('./template.html');\n\
+var next = require('next-sibling');\n\
+var debounce = require('debounce');\n\
+var Pillbox = require('pillbox');\n\
+var classes = require('classes');\n\
+var Emitter = require('emitter');\n\
+var keyname = require('keyname');\n\
+var events = require('events');\n\
+var domify = require('domify');\n\
+var query = require('query');\n\
+var each = require('each');\n\
 var tpl = domify(template);\n\
 \n\
 /**\n\
@@ -16333,28 +14121,19 @@ function option(obj, value, el){\n\
   // opt\n\
   return obj;\n\
 }\n\
-\n\
-//# sourceURL=components/yields/select/0.5.1/index.js"
+//@ sourceURL=yields-select/index.js"
 ));
-
-require.define("yields~select@0.5.1/template.html", "<div class='select select-single'>\n  <div class='select-box'>\n    <input type='text' class='select-input'>\n  </div>\n  <div class='select-dropdown' hidden>\n    <ul class='select-options'></ul>\n  </div>\n</div>\n");
-
-require.modules["yields-select"] = require.modules["yields~select@0.5.1"];
-require.modules["yields~select"] = require.modules["yields~select@0.5.1"];
-require.modules["select"] = require.modules["yields~select@0.5.1"];
-
-
-require.register("transitive/lib/graph/index.js", Function("exports, module",
+require.register("transitive/lib/graph/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var Edge = require(\"transitive/lib/graph/edge.js\");\n\
-var Vertex = require(\"transitive/lib/graph/vertex.js\");\n\
-var MultiPoint = require(\"transitive/lib/point/multipoint.js\");\n\
+var Edge = require('./edge');\n\
+var Vertex = require('./vertex');\n\
+var MultiPoint = require('../point/multipoint');\n\
 \n\
-var PriorityQueue = require(\"janogonzalez~priorityqueuejs@0.2.0\");\n\
+var PriorityQueue = require('priorityqueuejs');\n\
 \n\
 /**\n\
  * Expose `Graph`\n\
@@ -16956,7 +14735,11 @@ NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
 NetworkGraph.prototype.collapseTransfers = function(threshold) {\n\
   threshold = threshold || 200;\n\
   this.edges.forEach(function(edge) {\n\
-    if(edge.getLength() > threshold) return;\n\
+    if(edge.getLength() > threshold || \n\
+       edge.fromVertex.point.containsFromPoint() || \n\
+       edge.fromVertex.point.containsToPoint() || \n\
+       edge.toVertex.point.containsFromPoint() || \n\
+       edge.toVertex.point.containsToPoint()) return;\n\
     //if(edge.fromVertex.point.getType() === 'PLACE' || edge.toVertex.point.getType() === 'PLACE') return;\n\
     var walk = true;\n\
     edge.pathSegments.forEach(function(segment) {\n\
@@ -17231,11 +15014,9 @@ function latLonToSphericalMercator(lat, lon) {\n\
   var x = r * lon * Math.PI/180;\n\
   var y = r * Math.log(Math.tan(Math.PI/4 + lat * Math.PI/360));\n\
   return [x,y];\n\
-}\n\
-//# sourceURL=lib/graph/index.js"
+}//@ sourceURL=transitive/lib/graph/index.js"
 ));
-
-require.register("transitive/lib/graph/edge.js", Function("exports, module",
+require.register("transitive/lib/graph/edge.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Edge`\n\
@@ -17251,7 +15032,11 @@ module.exports = Edge;\n\
  * @param {Vertex}\n\
  */\n\
 \n\
+var edgeId = 0;\n\
+\n\
+\n\
 function Edge(pointArray, fromVertex, toVertex) {\n\
+  this.id = edgeId++;\n\
   this.pointArray = pointArray;\n\
   this.fromVertex = fromVertex;\n\
   this.toVertex = toVertex;\n\
@@ -17805,11 +15590,9 @@ Edge.prototype.setPointLabelPosition = function(pos, skip) {\n\
 Edge.prototype.toString = function() {\n\
   return this.fromVertex.point.getId() + '_' + this.toVertex.point.getId();\n\
 };\n\
-\n\
-//# sourceURL=lib/graph/edge.js"
+//@ sourceURL=transitive/lib/graph/edge.js"
 ));
-
-require.register("transitive/lib/graph/vertex.js", Function("exports, module",
+require.register("transitive/lib/graph/vertex.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Vertex`\n\
@@ -17885,21 +15668,18 @@ Vertex.prototype.addEdge = function(edge) {\n\
 Vertex.prototype.removeEdge = function(edge) {\n\
   var index = this.edges.indexOf(edge);\n\
   if(index !== -1) this.edges.splice(index, 1);\n\
-};\n\
-//# sourceURL=lib/graph/vertex.js"
+};//@ sourceURL=transitive/lib/graph/vertex.js"
 ));
-
-require.register("transitive/lib/styler/index.js", Function("exports, module",
+require.register("transitive/lib/styler/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var each = require(\"component~each@0.2.3\");\n\
-var merge = require(\"cristiandouce~merge-util@0.1.0\");\n\
-var styles = require(\"transitive/lib/styler/styles.js\");\n\
-var StyleSheet = require(\"trevorgerhardt~stylesheet@master\");\n\
-var svgAttributes = require(\"yields~svg-attributes@master\");\n\
+var each = require('each');\n\
+var merge = require('merge-util');\n\
+var styles = require('./styles');\n\
+var svgAttributes = require('svg-attributes');\n\
 \n\
 /**\n\
  * Element Types\n\
@@ -17913,6 +15693,7 @@ var types = [ 'labels',\n\
               'stops_merged',\n\
               'stops_pattern',\n\
               'places',\n\
+              'places_icon',\n\
               'multipoints_merged',\n\
               'multipoints_pattern'\n\
             ];\n\
@@ -18057,6 +15838,12 @@ Styler.prototype.renderPlace = function(display, place) {\n\
     display,\n\
     place.svgGroup.selectAll('.transitive-place-circle'),\n\
     this.places\n\
+  );\n\
+\n\
+  this.applyAttrAndStyle(\n\
+    display,\n\
+    place.svgGroup.selectAll('.transitive-place-icon'),\n\
+    this.places_icon\n\
   );\n\
 \n\
   this.applyAttrAndStyle(\n\
@@ -18224,17 +16011,17 @@ Styler.prototype.compute = function(rules, display, data, index) {\n\
 function isFunction(val) {\n\
   return Object.prototype.toString.call(val) === '[object Function]';\n\
 }\n\
-\n\
-//# sourceURL=lib/styler/index.js"
+//@ sourceURL=transitive/lib/styler/index.js"
 ));
-
-require.register("transitive/lib/styler/styles.js", Function("exports, module",
+require.register("transitive/lib/styler/styles.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var d3 = require('d3');\n\
+var clone = require('clone');\n\
+\n\
 \n\
 /**\n\
  * Scales for utility functions to use\n\
@@ -18270,20 +16057,65 @@ exports.utils = {\n\
  * Default stop rules\n\
  */\n\
 \n\
-exports.stops_merged = {\n\
+var stops_merged = {\n\
+  \n\
   fill: [\n\
-    '#fff'\n\
+    '#fff',\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return point.focused ? '#000' : notFocusedColor;\n\
+    }\n\
   ],\n\
+  \n\
   stroke: [\n\
     '#000',\n\
     function (display, data, index, utils) {\n\
-      if(!data.owner.isFocused()) return notFocusedColor;\n\
+      var point = data.owner;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return '#fff';\n\
+      if(!point.isFocused()) return notFocusedColor;\n\
+      if(point.containsTransferPoint()) return '#008';\n\
     }\n\
   ],\n\
+\n\
   'stroke-width': [\n\
     2,\n\
-  ]\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if(point.containsTransferPoint()) return 3;\n\
+    }\n\
+  ],\n\
+\n\
+  /**\n\
+   *  Transitive-specific attribute specifying the shape of the main stop marker.\n\
+   *  Can be 'roundedrect', 'rectangle' or 'circle'\n\
+   */ \n\
+  'marker-type': [\n\
+    'roundedrect',\n\
+    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
+      if((point.containsBoardPoint() || point.containsAlightPoint()) && !point.containsTransferPoint()) return 'circle';\n\
+    }\n\
+  ],  \n\
+\n\
+  /**\n\
+   *  Transitive-specific attribute specifying any additional padding, in pixels,\n\
+   *  to apply to main stop marker. A value of zero (default) results in a that\n\
+   *  marker is flush to the edges of the pattern segment(s) the point is set against.\n\
+   *  A value greater than zero creates a marker that is larger than the width of\n\
+   *  the segments(s).\n\
+   */ \n\
+  'marker-padding': [\n\
+    3\n\
+  ],\n\
+\n\
+  visibility: [ function(display, data) {\n\
+    if(!data.owner.containsSegmentEndPoint()) return 'hidden';\n\
+  }]\n\
+\n\
 };\n\
+\n\
+exports.stops_merged = stops_merged;\n\
+\n\
 \n\
 exports.stops_pattern = {\n\
   cx: [\n\
@@ -18301,49 +16133,31 @@ exports.stops_pattern = {\n\
       return utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
     },\n\
     function (display, data, index, utils) {\n\
-      if (data.point.isEndPoint) {\n\
-        var width = data.point.renderData.length * utils.strokeWidth(display) / 2;\n\
-        return 1.75 * width;\n\
-      }\n\
-    },\n\
-    function (display, data, index, utils) {\n\
+      var point = data.owner;\n\
       var busOnly = true;\n\
-      data.point.patterns.forEach(function(pattern) {\n\
+      point.getPatterns().forEach(function(pattern) {\n\
         if(pattern.route.route_type !== 3) busOnly = false;\n\
       });\n\
-      if(busOnly && !data.point.isSegmentEndPoint) {\n\
+      if(busOnly && !point.containsSegmentEndPoint()) {\n\
         return 0.5 * utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
       }\n\
     }\n\
   ],\n\
   stroke: [\n\
-    '#000',\n\
+    /*'#000',\n\
     function (display, data) {\n\
       if(!data.point.focused || !data.point.isPatternFocused(data.segment.pattern.getId())) return notFocusedColor;\n\
-      if (data.point.isEndPoint && data.path.parent.route && data.path.parent.route.route_color) {\n\
-        return '#' + data.pattern.route.route_color;\n\
-      } else if (data.path.parent.route && data.path.parent.route.route_color) {\n\
-        return 'gray';\n\
-      }\n\
-    }\n\
+    }*/\n\
   ],\n\
   'stroke-width': [\n\
     1,\n\
     function (display, data, index, utils) {\n\
       return utils.pixels(display.zoom.scale(), 0.5, 1, 1.5) + 'px';\n\
-    },\n\
-    function (display, data, index, utils) {\n\
-      if (data.point.isSegmentEndPoint) {\n\
-        return '2px';\n\
-      }\n\
     }\n\
   ],\n\
   visibility: [ function(display, data) {\n\
-    if(data.point.isSegmentEndPoint && data.point.patternCount > 1) return 'hidden';\n\
-    if (data.point.renderData.length > 1) {\n\
-      if (data.point.renderData[0].displayed && data.point.isEndPoint) return 'hidden';\n\
-      data.point.renderData[0].displayed = true;\n\
-    }\n\
+    if(data.point.isSegmentEndPoint) return 'hidden';\n\
+    //if(data.point.isSegmentEndPoint && data.point.patternCount > 1) return 'hidden';\n\
   }]\n\
 };\n\
 \n\
@@ -18361,21 +16175,13 @@ exports.places = {\n\
     0,\n\
   ],\n\
   fill: [\n\
-    '#fff',\n\
-    function (display, data) {\n\
-      if(!data.point.focused) return notFocusedColor;\n\
-      if(data.point.getId() === 'from') return '#0f0';\n\
-      if(data.point.getId() === 'to') return '#f00';\n\
-    }\n\
+    '#fff'\n\
   ],\n\
   r: [\n\
-    10\n\
+    16\n\
   ],\n\
   stroke: [\n\
-    '#2EB1E6',\n\
-    function (display, data) {\n\
-      if(data.point.getId() === 'from' || data.point.getId() === 'to') return '#fff';\n\
-    }\n\
+    '#000'\n\
   ],\n\
   'stroke-width': [\n\
     3\n\
@@ -18385,65 +16191,31 @@ exports.places = {\n\
   }]\n\
 };\n\
 \n\
+/** icons typically defined in implementation-specific styles (see test2d for example) **/\n\
+\n\
+exports.places_icon = {\n\
+  visibility: [ \n\
+    'hidden'\n\
+  ]\n\
+};\n\
+\n\
 \n\
 /**\n\
- * Default MultiPoint rules\n\
+ * Default MultiPoint rules -- based on Stop rules\n\
  */\n\
 \n\
-exports.multipoints_merged = {\n\
-  fill: [\n\
-    '#fff',\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint()) return '#0f0';\n\
-      if(point.containsToPoint()) return '#f00';\n\
-    }\n\
-  ],\n\
-  r: [\n\
-    6,\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return 10;\n\
-    }\n\
-  ],\n\
-  stroke: [\n\
-    '#000',\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return '#fff';\n\
-      if(!point.focused) return notFocusedColor;\n\
-    }\n\
-  ],\n\
-  'stroke-width': [\n\
-    4,\n\
-    function (display, data) {\n\
-      var point = data.owner;\n\
-      if(point.containsFromPoint() || point.containsToPoint()) return 3;\n\
-    }\n\
-  ],\n\
-  visibility: [ function(display, data) {\n\
-    return 'visible';\n\
-  }]\n\
-};\n\
+var multipoints_merged = clone(stops_merged);\n\
+\n\
+multipoints_merged.visibility = [\n\
+  true\n\
+];\n\
+\n\
+exports.multipoints_merged = multipoints_merged;\n\
 \n\
 \n\
-exports.multipoints_pattern = {\n\
-  fill: [\n\
-    '#fff'\n\
-  ],\n\
-  r: [\n\
-    6\n\
-  ],\n\
-  stroke: [\n\
-    '#000'\n\
-  ],\n\
-  'stroke-width': [\n\
-    4\n\
-  ],\n\
-  visibility: [ function(display, data) {\n\
-    return 'hidden';\n\
-  }]\n\
-};\n\
+\n\
+exports.multipoints_pattern = exports.stops_pattern; \n\
+\n\
 \n\
 \n\
 /**\n\
@@ -18463,22 +16235,13 @@ exports.labels = {\n\
       return utils.fontSize(display, data) + 'px';\n\
     }\n\
   ],\n\
-  /*visibility: [\n\
-    'hidden',\n\
-    function (display, data) {\n\
-      if(data.point.getType() === 'STOP' && data.point.isSegmentEndPoint) return 'visible';\n\
-      if(data.point.getType() === 'MULTI' || data.point.getType() === 'PLACE') return 'visible';\n\
-      /*if (display.zoom.scale() > 1) return 'visible';\n\
-      if (display.zoom.scale() >= 0.6 && data.point && data.point.isBranchPoint) return 'visible';\n\
-      if (display.zoom.scale() >= 0.4 && data.point && data.point.isSegmentEndPoint) return 'visible';\n\
+  'font-weight': [\n\
+    function(display, data, index, utils) {\n\
+      var point = data.owner.parent;\n\
+      if(point.containsBoardPoint() || point.containsAlightPoint()) return 'bold';\n\
     }\n\
-  ],*/\n\
-  /*'text-transform': [\n\
-    'capitalize',\n\
-    function (display, data) {\n\
-      if (data.point && (data.point.isSegmentEndPoint || data.point.containsToPoint() || data.point.containsFromPoint())) return 'uppercase';\n\
-    }\n\
-  ]*/\n\
+  ],\n\
+\n\
 };\n\
 \n\
 /**\n\
@@ -18499,7 +16262,7 @@ exports.segments = {\n\
         }\n\
       }\n\
       else if(segment.type === 'WALK') {\n\
-        return '#444';\n\
+        return 'none';\n\
       }\n\
     }\n\
   ],\n\
@@ -18507,10 +16270,6 @@ exports.segments = {\n\
     false,\n\
     function (display, data) {\n\
       var segment = data;\n\
-      if (segment.type !== 'TRANSIT') {\n\
-        return '5, 5';\n\
-      }\n\
-\n\
       if (segment.frequency && segment.frequency.average < 12) {\n\
         if (segment.frequency.average > 6) return '12px, 12px';\n\
         return '12px, 2px';\n\
@@ -18522,13 +16281,35 @@ exports.segments = {\n\
     function (display, data, index, utils) {\n\
       var segment = data;\n\
       if (segment.type !== 'TRANSIT') {\n\
-        return '5px';\n\
+        return '1px';\n\
       }\n\
       if(segment.pattern.route.route_type === 3) {\n\
         return utils.pixels(display.zoom.scale(), 3, 6, 10) + 'px';\n\
       }\n\
       return utils.pixels(display.zoom.scale(), 5, 12, 19) + 'px';\n\
     }\n\
+  ],\n\
+  'marker-mid': [\n\
+    function (display, data) {\n\
+      var segment = data;\n\
+      if (segment.type !== 'TRANSIT') {\n\
+        var r = 3;\n\
+        display.svg.append('defs').append('svg:marker')\n\
+          .attr('id', 'WalkCircleMarker-' + segment.getId())\n\
+          .attr('refX', r)\n\
+          .attr('refY', r)\n\
+          .attr('markerWidth', r * 2)\n\
+          .attr('markerHeight', r * 2)\n\
+          .attr('markerUnits', 'userSpaceOnUse')\n\
+            .append('svg:circle')\n\
+              .attr('cx', r)\n\
+              .attr('cy', r)\n\
+              .attr('r', r)\n\
+              .attr('fill', segment.focused ? '#5ae3f9' : notFocusedColor);\n\
+\n\
+        return 'url(#WalkCircleMarker-' + segment.getId() + ')';\n\
+      }\n\
+    }  \n\
   ],\n\
   fill: [ 'none' ],\n\
   envelope: [\n\
@@ -18611,14 +16392,12 @@ exports.segment_labels = {\n\
   ]\n\
 \n\
 };\n\
-\n\
-//# sourceURL=lib/styler/styles.js"
+//@ sourceURL=transitive/lib/styler/styles.js"
 ));
-
-require.register("transitive/lib/point/index.js", Function("exports, module",
-"var augment = require(\"javascript~augment@v4.0.1\");\n\
+require.register("transitive/lib/point/index.js", Function("exports, require, module",
+"var augment = require('augment');\n\
 \n\
-var PointLabel = require(\"transitive/lib/labeler/pointlabel.js\");\n\
+var PointLabel = require('../labeler/pointlabel');\n\
 \n\
 \n\
 var Point = augment(Object, function () {\n\
@@ -18684,6 +16463,31 @@ var Point = augment(Object, function () {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    return [];\n\
+  };\n\
+\n\
+\n\
   /**\n\
    * Draw the point\n\
    *\n\
@@ -18724,35 +16528,11 @@ var Point = augment(Object, function () {\n\
 \n\
   //** Shared geom utility functions **//\n\
 \n\
-  this.constructMergedCircle = function(display, patternStylerKey) {\n\
-    console.log('cmc: '+ this.getName());\n\
+  this.constructMergedMarker = function(display, patternStylerKey) {\n\
 \n\
-    var debug = (this.getId() === '5742');\n\
-    var dataArray = this.getRenderDataArray();\n\
 \n\
-    var xValues = [], yValues = [];\n\
-    dataArray.forEach(function(data) {\n\
-      var x = display.xScale(data.x) + data.offsetX;\n\
-      var y = display.yScale(data.y) - data.offsetY;\n\
-      //if(debug) console.log(x + ', ' + y);\n\
-      xValues.push(x);\n\
-      yValues.push(y);\n\
-    });\n\
-    var minX = Math.min.apply(Math, xValues), minY = Math.min.apply(Math, yValues);\n\
-    var maxX = Math.max.apply(Math, xValues), maxY = Math.max.apply(Math, yValues);\n\
-    var baseRadius = Math.max( (maxX - minX), (maxY - minY) ) / 2;\n\
-\n\
-    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { 'point': this });\n\
-    var padding = parseFloat(patternRadius);//.substring(0, patternRadius.length - 2), 10) - 2;\n\
-\n\
-    return {\n\
-      'cx': (minX+maxX)/2,\n\
-      'cy': (minY+maxY)/2,\n\
-      'r': baseRadius + padding\n\
-    };\n\
-  };\n\
-\n\
-  this.constructMergedPolygon = function(display, patternStylerKey) {\n\
+    var markerType = display.styler.compute(display.styler.stops_merged['marker-type'], display, { owner : this });\n\
+    var markerPadding = display.styler.compute(display.styler.stops_merged['marker-padding'], display, { owner : this }) || 0;\n\
 \n\
     var dataArray = this.getRenderDataArray();\n\
 \n\
@@ -18765,64 +16545,34 @@ var Point = augment(Object, function () {\n\
     });\n\
     var minX = Math.min.apply(Math, xValues), minY = Math.min.apply(Math, yValues);\n\
     var maxX = Math.max.apply(Math, xValues), maxY = Math.max.apply(Math, yValues);\n\
+    var dx = maxX - minX, dy = maxY - minY;\n\
 \n\
-    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { 'point': this });\n\
-    var r = parseFloat(patternRadius); //.substring(0, patternRadius.length - 2), 10) - 2;\n\
-\n\
-    var x0, y0, x1, y1, x2, y2, x3, y3, pathStr;\n\
-    var dx = maxX - minX;\n\
-    var dy = maxY - minY;\n\
-    var l = Math.sqrt(dx * dx + dy * dy);\n\
-    if(l === 0) {\n\
-      x0 = minX + r;\n\
-      y0 = minY;\n\
-      x1 = minX - r;\n\
-      y1 = minY;\n\
-      pathStr = 'M ' + x0 + ' ' + y0;\n\
-      pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x1 + ' ' + y1;\n\
-      pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x0 + ' ' + y0;\n\
-      pathStr += ' Z';\n\
-      return {\n\
-        'd': pathStr\n\
-      };\n\
+    var width, height;\n\
+    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { owner: this });\n\
+    var r = parseFloat(patternRadius) + markerPadding;\n\
+    \n\
+    if(markerType === 'circle') {\n\
+      width = height = Math.max(dx, dy) + 2 * r;\n\
+      r = width/2;\n\
+    }\n\
+    else {\n\
+      width = dx + 2 * r;\n\
+      height = dy + 2 * r;\n\
+      if(markerType === 'rectangle') r = 0;\n\
     }\n\
 \n\
-    var vector = {\n\
-      x: dx / l,\n\
-      y: dy / l\n\
-    };\n\
-\n\
-    var leftVector = {\n\
-      x : -vector.y,\n\
-      y : vector.x\n\
-    };\n\
-\n\
-    var rightVector = {\n\
-      x : vector.y,\n\
-      y : -vector.x\n\
-    };\n\
-\n\
-    x0 = minX + r * leftVector.x;\n\
-    y0 = minY + r * leftVector.y;\n\
-    x1 = maxX + r * leftVector.x;\n\
-    y1 = maxY + r * leftVector.y;\n\
-    x2 = maxX + r * rightVector.x;\n\
-    y2 = maxY + r * rightVector.y;\n\
-    x3 = minX + r * rightVector.x;\n\
-    y3 = minY + r * rightVector.y;\n\
-\n\
-    pathStr = 'M ' + x0 + ' ' + y0;\n\
-    pathStr += ' L ' + x1 + ' ' + y1;\n\
-    pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x2 + ' ' + y2;\n\
-    pathStr += ' L ' + x3 + ' ' + y3;\n\
-    pathStr += ' A ' + r + ' ' + r + ' 0 0 0 ' + x0 + ' ' + y0;\n\
-    pathStr += ' Z';\n\
     return {\n\
-      'd': pathStr\n\
+      x: (minX+maxX)/2 - width/2,\n\
+      y: (minY+maxY)/2 - height/2,\n\
+      width: width,\n\
+      height: height,\n\
+      rx: r,\n\
+      ry: r\n\
     };\n\
+\n\
   };\n\
 \n\
-  \n\
+\n\
   this.refreshLabel = function(display) {\n\
 \n\
     if(!this.renderLabel) return; //|| !this.labelAnchor) return;\n\
@@ -18857,19 +16607,17 @@ var Point = augment(Object, function () {\n\
  * Expose `Point`\n\
  */\n\
 \n\
-module.exports = Point;\n\
-//# sourceURL=lib/point/index.js"
+module.exports = Point;//@ sourceURL=transitive/lib/point/index.js"
 ));
-
-require.register("transitive/lib/point/stop.js", Function("exports, module",
+require.register("transitive/lib/point/stop.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
+var augment = require('augment');\n\
 \n\
-var Point = require(\"transitive/lib/point/index.js\");\n\
+var Point = require('./index');\n\
 \n\
 /**\n\
  *  Place: a Point subclass representing a 'place' that can be rendered on the\n\
@@ -18884,17 +16632,9 @@ var Stop = augment(Point, function(base) {\n\
 \n\
     this.patterns = [];\n\
 \n\
-    // flag indicating whether this stop is the endpoint of a pattern\n\
-    this.isEndPoint = false;\n\
-\n\
-    // flag indicating whether this stop is a point of convergence/divergence between 2+ patterns\n\
-    this.isBranchPoint = false;\n\
-\n\
     this.patternRenderData = {};\n\
     this.patternFocused = {};\n\
     this.patternCount = 0;\n\
-    \n\
-    this.mergedType = 'POLYGON';\n\
   };\n\
 \n\
   /**\n\
@@ -18938,6 +16678,31 @@ var Stop = augment(Point, function(base) {\n\
 \n\
   this.getLon = function() {\n\
     return this.stop_lon;\n\
+  };\n\
+\n\
+\n\
+  this.containsSegmentEndPoint = function() {\n\
+    return this.isSegmentEndPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    return this.isBoardPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    return this.isAlightPoint;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    return this.isTransferPoint;\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    return this.patterns;\n\
   };\n\
 \n\
 \n\
@@ -19006,21 +16771,8 @@ var Stop = augment(Point, function(base) {\n\
 \n\
     this.initSvg(display);\n\
 \n\
-    // set up a visible merged marker\n\
-    if(this.patternCount > 1 && this.isSegmentEndPoint) {\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('circle');\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('path');\n\
-      }\n\
-    }\n\
-    else { // create an invisible merged marker to serve as the label anchor only\n\
-      this.mergedMarker = this.markerSvg.append('g').append('path')\n\
-        .attr({ visibility: 'hidden' });\n\
-    }\n\
-\n\
-    this.mergedMarker\n\
+    // set up the merged marker\n\
+    this.mergedMarker = this.markerSvg.append('g').append('rect')\n\
       .attr('class', 'transitive-sortable transitive-stop-marker-merged')\n\
       .datum(this.getMergedRenderData());\n\
 \n\
@@ -19054,12 +16806,7 @@ var Stop = augment(Point, function(base) {\n\
     // refresh the merged marker\n\
     if(this.mergedMarker) {\n\
       this.mergedMarker.datum(this.getMergedRenderData());\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker.attr(this.constructMergedCircle(display, 'stops_pattern'));\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker.attr(this.constructMergedPolygon(display, 'stops_pattern'));\n\
-      }\n\
+      this.mergedMarker.attr(this.constructMergedMarker(display, 'stops_pattern'));\n\
     }\n\
 \n\
   };\n\
@@ -19104,20 +16851,18 @@ var Stop = augment(Point, function(base) {\n\
  */\n\
 \n\
 module.exports = Stop;\n\
-\n\
-//# sourceURL=lib/point/stop.js"
+//@ sourceURL=transitive/lib/point/stop.js"
 ));
-
-require.register("transitive/lib/point/place.js", Function("exports, module",
+require.register("transitive/lib/point/place.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var augment = require('augment');\n\
+var d3 = require('d3');\n\
 \n\
-var Point = require(\"transitive/lib/point/index.js\");\n\
+var Point = require('./index');\n\
 \n\
 /**\n\
  *  Place: a Point subclass representing a 'place' that can be rendered on the\n\
@@ -19180,6 +16925,11 @@ var Place = augment(Point, function(base) {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    return true;\n\
+  };\n\
+\n\
+\n\
   this.containsFromPoint = function() {\n\
     return (this.getId() === 'from');\n\
   };\n\
@@ -19213,13 +16963,19 @@ var Place = augment(Point, function(base) {\n\
       });\n\
 \n\
     // set up the markers\n\
-    this.marker = this.markerSvg.selectAll('circle')\n\
-      .data(this.renderData)\n\
-      .enter()\n\
-      .append('circle')\n\
+    this.marker = this.markerSvg.append('circle')\n\
+      .datum({ owner: this })\n\
       .attr('class', 'transitive-place-circle');\n\
 \n\
+    var iconUrl = display.styler.compute(display.styler.places_icon['xlink:href'], display, { owner : this });\n\
+    if(iconUrl) {\n\
+      this.icon = this.markerSvg.append('image')\n\
+        .datum({ owner: this })\n\
+        .attr('class', 'transitive-place-icon')\n\
+        .attr('xlink:href', iconUrl);\n\
+    }\n\
   };\n\
+\n\
 \n\
   /**\n\
    * Refresh the place\n\
@@ -19230,13 +16986,13 @@ var Place = augment(Point, function(base) {\n\
   this.refresh = function(display) {\n\
     if (!this.renderData) return;\n\
 \n\
-    // refresh the pattern-level markers\n\
-    this.marker.data(this.renderData);\n\
-    this.marker.attr('transform', (function (d, i) {\n\
-      var x = display.xScale(d.x) + d.offsetX;\n\
-      var y = display.yScale(d.y) - d.offsetY;\n\
-      return 'translate(' + x +', ' + y +')';\n\
-    }).bind(this));\n\
+    // refresh the marker/icon\n\
+    var data = this.renderData[0];\n\
+    var x = display.xScale(data.x) + data.offsetX;\n\
+    var y = display.yScale(data.y) - data.offsetY;\n\
+    var translate = 'translate(' + x +', ' + y +')';\n\
+    this.marker.attr('transform', translate);\n\
+    if(this.icon) this.icon.attr('transform', translate);\n\
 \n\
   };\n\
 });\n\
@@ -19248,19 +17004,17 @@ var Place = augment(Point, function(base) {\n\
 \n\
 module.exports = Place;\n\
 \n\
-\n\
-//# sourceURL=lib/point/place.js"
+//@ sourceURL=transitive/lib/point/place.js"
 ));
-
-require.register("transitive/lib/point/multipoint.js", Function("exports, module",
+require.register("transitive/lib/point/multipoint.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
+var augment = require('augment');\n\
 \n\
-var Point = require(\"transitive/lib/point/index.js\");\n\
+var Point = require('./index');\n\
 \n\
 /**\n\
  *  MultiPoint: a Point subclass representing a collection of multiple points\n\
@@ -19277,7 +17031,6 @@ var MultiPoint = augment(Point, function(base) {\n\
         this.addPoint(point);\n\
       }, this);\n\
     }\n\
-    this.mergedType = 'POLYGON';\n\
     this.renderData = [];\n\
     this.id = 'multi';\n\
     this.toPoint = this.fromPoint = null;\n\
@@ -19311,6 +17064,38 @@ var MultiPoint = augment(Point, function(base) {\n\
   };\n\
 \n\
 \n\
+  this.containsSegmentEndPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsSegmentEndPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsBoardPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsBoardPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsAlightPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsAlightPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
+  this.containsTransferPoint = function() {\n\
+    for(var i = 0; i < this.points.length; i++) { \n\
+      if(this.points[i].containsTransferPoint()) return true;\n\
+    }\n\
+    return false;\n\
+  };\n\
+\n\
+\n\
   this.containsFromPoint = function() {\n\
     return (this.fromPoint !== null);\n\
   };\n\
@@ -19318,6 +17103,19 @@ var MultiPoint = augment(Point, function(base) {\n\
 \n\
   this.containsToPoint = function() {\n\
     return (this.toPoint !== null);\n\
+  };\n\
+\n\
+\n\
+  this.getPatterns = function() {\n\
+    var patterns = [];\n\
+    \n\
+    this.points.forEach(function(point) {\n\
+      point.patterns.forEach(function(pattern) {\n\
+        if(patterns.indexOf(pattern) === -1) patterns.push(pattern);\n\
+      });\n\
+    });\n\
+\n\
+    return patterns;\n\
   };\n\
 \n\
 \n\
@@ -19390,16 +17188,10 @@ var MultiPoint = augment(Point, function(base) {\n\
         .attr('class', 'transitive-multipoint-marker-merged');\n\
     }\n\
     else if(this.hasOffsetPoints || this.renderData.length > 1) {\n\
-      if(this.mergedType === 'CIRCLE') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('circle')\n\
-          .datum({ owner : this })\n\
-          .attr('class', 'transitive-multipoint-marker-merged');\n\
-      }\n\
-      else if(this.mergedType === 'POLYGON') {\n\
-        this.mergedMarker = this.markerSvg.append('g').append('path')\n\
-          .datum({ owner : this })\n\
-          .attr('class', 'transitive-multipoint-marker-merged');\n\
-      }\n\
+\n\
+      this.mergedMarker = this.markerSvg.append('g').append('rect')\n\
+        .datum({ owner : this })\n\
+        .attr('class', 'transitive-multipoint-marker-merged');\n\
     }\n\
   };\n\
 \n\
@@ -19413,30 +17205,11 @@ var MultiPoint = augment(Point, function(base) {\n\
   this.refresh = function(display) {\n\
     if (!this.renderData) return;\n\
 \n\
-    var data;\n\
     // refresh the merged marker\n\
     if(this.mergedMarker) {\n\
-      if(this.fromPoint || this.toPoint) {\n\
-        data = this.renderData[0];\n\
-        this.mergedMarker\n\
-          .attr({\n\
-            'cx' : display.xScale(data.x) + data.offsetX,\n\
-            'cy' : display.yScale(data.y) - data.offsetY\n\
-          });\n\
-      }\n\
-      else {\n\
-        if(this.mergedType === 'CIRCLE') {\n\
-          this.mergedMarker\n\
-            .datum({ owner : this })\n\
-            .attr(this.constructMergedCircle(display, 'multipoints_pattern'));\n\
-        }\n\
-        else if(this.mergedType === 'POLYGON') {\n\
-          this.mergedMarker\n\
-            .datum({ owner : this })\n\
-            .attr(this.constructMergedPolygon(display, 'multipoints_pattern'));\n\
-        }\n\
-      }\n\
-    }\n\
+      this.mergedMarker.datum({ owner : this });\n\
+      this.mergedMarker.attr(this.constructMergedMarker(display, 'multipoints_pattern'));\n\
+    }    \n\
 \n\
     \n\
     /*var cx, cy;\n\
@@ -19461,18 +17234,16 @@ var MultiPoint = augment(Point, function(base) {\n\
  * Expose `MultiPoint`\n\
  */\n\
 \n\
-module.exports = MultiPoint;\n\
-//# sourceURL=lib/point/multipoint.js"
+module.exports = MultiPoint;//@ sourceURL=transitive/lib/point/multipoint.js"
 ));
-
-require.register("transitive/lib/labeler/index.js", Function("exports, module",
+require.register("transitive/lib/labeler/index.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var augment = require('augment');\n\
+var d3 = require('d3');\n\
 \n\
 \n\
 /**\n\
@@ -19766,17 +17537,15 @@ var Labeler = augment(Object, function () {\n\
  * Expose `Labeler`\n\
  */\n\
 \n\
-module.exports = Labeler;\n\
-//# sourceURL=lib/labeler/index.js"
+module.exports = Labeler;//@ sourceURL=transitive/lib/labeler/index.js"
 ));
-
-require.register("transitive/lib/labeler/label.js", Function("exports, module",
+require.register("transitive/lib/labeler/label.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
+var augment = require('augment');\n\
 \n\
 \n\
 /**\n\
@@ -19851,19 +17620,17 @@ var Label = augment(Object, function () {\n\
  * Expose `Label`\n\
  */\n\
 \n\
-module.exports = Label;\n\
-//# sourceURL=lib/labeler/label.js"
+module.exports = Label;//@ sourceURL=transitive/lib/labeler/label.js"
 ));
-
-require.register("transitive/lib/labeler/pointlabel.js", Function("exports, module",
+require.register("transitive/lib/labeler/pointlabel.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
+var augment = require('augment');\n\
 \n\
-var Label = require(\"transitive/lib/labeler/label.js\");\n\
+var Label = require('./label');\n\
 \n\
 \n\
 /**\n\
@@ -19892,7 +17659,7 @@ var PointLabel = augment(Label, function(base) {\n\
     var typeStr = this.parent.getType().toLowerCase();\n\
 \n\
     this.mainLabel = this.svgGroup.append('text')\n\
-      .datum({ point: this.parent })\n\
+      .datum({ owner: this })\n\
       .attr('id', 'transitive-' + typeStr + '-label-' + this.parent.getId())\n\
       .text(this.getText())\n\
       .attr('class', 'transitive-' + typeStr + '-label');\n\
@@ -20094,19 +17861,17 @@ var PointLabel = augment(Label, function(base) {\n\
  * Expose `PointLabel`\n\
  */\n\
 \n\
-module.exports = PointLabel;\n\
-//# sourceURL=lib/labeler/pointlabel.js"
+module.exports = PointLabel;//@ sourceURL=transitive/lib/labeler/pointlabel.js"
 ));
-
-require.register("transitive/lib/labeler/segmentlabel.js", Function("exports, module",
+require.register("transitive/lib/labeler/segmentlabel.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var augment = require(\"javascript~augment@v4.0.1\");\n\
+var augment = require('augment');\n\
 \n\
-var Label = require(\"transitive/lib/labeler/label.js\");\n\
+var Label = require('./label');\n\
 \n\
 \n\
 /**\n\
@@ -20209,17 +17974,15 @@ var SegmentLabel = augment(Label, function(base) {\n\
  * Expose `SegmentLabel`\n\
  */\n\
 \n\
-module.exports = SegmentLabel;\n\
-//# sourceURL=lib/labeler/segmentlabel.js"
+module.exports = SegmentLabel;//@ sourceURL=transitive/lib/labeler/segmentlabel.js"
 ));
-
-require.register("transitive/lib/display.js", Function("exports, module",
+require.register("transitive/lib/display.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var d3 = require('d3');\n\
 \n\
 /**\n\
  * Expose `Display`\n\
@@ -20337,19 +18100,37 @@ Display.prototype.drawGrid = function(cellSize) {\n\
 \n\
 \n\
 Display.prototype.lineInterpolator = function(points) {\n\
-  if(points.length === 2) return points.join(' ');\n\
-\n\
-  //console.log('LI');\n\
-  //console.log(points);\n\
   \n\
+  var dx, dy;\n\
+\n\
+  if(points.length === 2) { // a simple straight line\n\
+    \n\
+    if(this.getType() === 'WALK') { // resample walk segments for marker placement\n\
+      \n\
+      var newPoints = [ points[0] ];\n\
+      dx  = points[1][0] - points[0][0];\n\
+      dy  = points[1][1] - points[0][1];\n\
+      var len = Math.sqrt(dx * dx + dy * dy);\n\
+      var spacing = 10;\n\
+\n\
+      for(var l = spacing; l < len; l += spacing) {\n\
+        var t = l / len;\n\
+        newPoints.push([points[0][0] + t * dx, points[0][1] + t * dy]);\n\
+      }\n\
+\n\
+      newPoints.push(points[1]);\n\
+      return newPoints.join(' ');\n\
+    }\n\
+\n\
+    return points.join(' ');\n\
+  }\n\
+\n\
   var str = points[0];\n\
   for(var i = 1; i < points.length; i++) {\n\
-    //console.log(this.renderData[i]);\n\
-    if(this.renderData[i].arc) {//points[i][0] !== points[i-1][0] && points[i][1] !== points[i-1][1]) {\n\
-      var dx  = points[i][0] - points[i-1][0];\n\
-      var dy  = points[i][1] - points[i-1][1];\n\
+    if(this.renderData[i].arc) {\n\
+      dx  = points[i][0] - points[i-1][0];\n\
+      dy  = points[i][1] - points[i-1][1];\n\
       var sweep = (this.renderData[i].arc > 0) ? 0 : 1;\n\
-      //var sweep = (dx/Math.abs(dx) === dy/Math.abs(dy)) ? 1 : 0;\n\
       str += 'A ' + Math.abs(dx) + ',' + Math.abs(dy) + ' 0 0 ' + sweep + ' ' + points[i];\n\
     }\n\
     else {\n\
@@ -20410,17 +18191,15 @@ function setScales(display, height, width, graph) {\n\
 }\n\
 \n\
 \n\
-\n\
-//# sourceURL=lib/display.js"
+//@ sourceURL=transitive/lib/display.js"
 ));
-
-require.register("transitive/lib/path.js", Function("exports, module",
+require.register("transitive/lib/path.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Dependencies\n\
  */\n\
 \n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var d3 = require('d3');\n\
 \n\
 /**\n\
  * Expose `NetworkPath`\n\
@@ -20876,12 +18655,10 @@ NetworkPath.prototype.endVertex = function() {\n\
 \n\
 NetworkPath.prototype.toString = function() {\n\
   return this.startVertex().stop.stop_name + ' to ' + this.endVertex().stop.stop_name;\n\
-};\n\
-//# sourceURL=lib/path.js"
+};//@ sourceURL=transitive/lib/path.js"
 ));
-
-require.register("transitive/lib/pattern.js", Function("exports, module",
-"var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+require.register("transitive/lib/pattern.js", Function("exports, require, module",
+"var d3 = require('d3');\n\
 \n\
 /**\n\
  * Expose `RoutePattern`\n\
@@ -20920,11 +18697,9 @@ RoutePattern.prototype.getElementId = function() {\n\
 RoutePattern.prototype.getName = function() {\n\
   return this.pattern_name;\n\
 };\n\
-\n\
-//# sourceURL=lib/pattern.js"
+//@ sourceURL=transitive/lib/pattern.js"
 ));
-
-require.register("transitive/lib/route.js", Function("exports, module",
+require.register("transitive/lib/route.js", Function("exports, require, module",
 "\n\
 /**\n\
  * Expose `Route`\n\
@@ -20975,13 +18750,11 @@ Route.prototype.getColor = function() {\n\
 \n\
   return this.route_color;*/\n\
 };\n\
-\n\
-//# sourceURL=lib/route.js"
+//@ sourceURL=transitive/lib/route.js"
 ));
-
-require.register("transitive/lib/journey.js", Function("exports, module",
-"var Segment = require(\"transitive/lib/segment.js\");\n\
-var NetworkPath = require(\"transitive/lib/path.js\");\n\
+require.register("transitive/lib/journey.js", Function("exports, require, module",
+"var Segment = require('./segment');\n\
+var NetworkPath = require('./path');\n\
 \n\
 /**\n\
  * Expose `Journey`\n\
@@ -21039,34 +18812,26 @@ Journey.prototype.getElementId = function() {\n\
   this.patterns.push(pattern);\n\
   pattern.journey = this;\n\
 };*/\n\
-\n\
-//# sourceURL=lib/journey.js"
+//@ sourceURL=transitive/lib/journey.js"
 ));
-
-require.register("transitive", Function("exports, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
-var debug = require(\"visionmedia~debug@0.8.1\")('transitive');\n\
-var Display = require(\"transitive/lib/display.js\");\n\
-var Emitter = require(\"component~emitter@1.1.2\");\n\
-var Graph = require(\"transitive/lib/graph/index.js\");\n\
-var NetworkPath = require(\"transitive/lib/path.js\");\n\
-var Route = require(\"transitive/lib/route.js\");\n\
-var RoutePattern = require(\"transitive/lib/pattern.js\");\n\
-var Journey = require(\"transitive/lib/journey.js\");\n\
-var Stop = require(\"transitive/lib/point/stop.js\");\n\
-var Place = require(\"transitive/lib/point/place.js\");\n\
-var Styler = require(\"transitive/lib/styler/index.js\");\n\
-var Segment = require(\"transitive/lib/segment.js\");\n\
-var Labeler = require(\"transitive/lib/labeler/index.js\");\n\
-var Label = require(\"transitive/lib/labeler/label.js\");\n\
-\n\
-var toFunction = require(\"component~to-function@2.0.0\");\n\
-var each = require(\"component~each@0.2.3\");\n\
+require.register("transitive/lib/transitive.js", Function("exports, require, module",
+"var d3 = require('d3');\n\
+var debug = require('debug')('transitive');\n\
+var Display = require('./display');\n\
+var Emitter = require('emitter');\n\
+var Graph = require('./graph');\n\
+var NetworkPath = require('./path');\n\
+var Route = require('./route');\n\
+var RoutePattern = require('./pattern');\n\
+var Journey = require('./journey');\n\
+var Stop = require('./point/stop');\n\
+var Place = require('./point/place');\n\
+var Styler = require('./styler');\n\
+var Segment = require('./segment');\n\
+var Labeler = require('./labeler');\n\
+var Label = require('./labeler/label');\n\
+var toFunction = require('to-function');\n\
+var each = require('each');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
@@ -21084,32 +18849,30 @@ module.exports.d3 = Transitive.prototype.d3 = d3;\n\
  * Expose `version`\n\
  */\n\
 \n\
-module.exports.version = '0.0.0';\n\
+module.exports.version = '0.0.3';\n\
 \n\
 /**\n\
  * Create a new instance of `Transitive`\n\
  *\n\
- * @param {Element} element to render to\n\
- * @param {Object} data to render\n\
- * @param {Object} styles to apply\n\
  * @param {Object} options object\n\
+ *   - data {Object} data to render\n\
+ *   - drawGrid {Boolean} defaults to false\n\
+ *   - el {Element} element to render to\n\
+ *   - gridCellSize {Number} size of the grid\n\
+ *   - style {Object} styles to apply\n\
  */\n\
 \n\
-function Transitive(el, data, styles, options) {\n\
-  if (!(this instanceof Transitive)) {\n\
-    return new Transitive(el, data, styles, options);\n\
-  }\n\
+function Transitive(options) {\n\
+  if (!(this instanceof Transitive)) return new Transitive(options);\n\
+  if (options.el) this.setElement(options.el);\n\
 \n\
   this.clearFilters();\n\
-  this.data = data;\n\
-  this.setElement(el);\n\
-  this.style = new Styler(styles);\n\
+  this.data = options.data;\n\
+  this.gridCellSize = options.gridCellSize || 500;\n\
   this.labeler = new Labeler(this);\n\
-  \n\
   this.options = options;\n\
-  this.gridCellSize = this.options.gridCellSize || 500;\n\
-\n\
   this.paths = [];\n\
+  this.style = new Styler(options.styles);\n\
 }\n\
 \n\
 /**\n\
@@ -21244,7 +19007,6 @@ Transitive.prototype.load = function(data) {\n\
   for (var stopId in this.adjacentStops) {\n\
     if (this.adjacentStops[stopId].length > 2) {\n\
       this.addVertexPoint(this.stops[stopId]);\n\
-      this.stops[stopId].isBranchPoint = true;\n\
     }\n\
   }\n\
 \n\
@@ -21257,6 +19019,7 @@ Transitive.prototype.load = function(data) {\n\
 \n\
   this.populateGraphEdges(); //this.patterns, this.graph);\n\
   this.graph.collapseTransfers();\n\
+  this.annotateTransitPoints();\n\
   this.populateRenderSegments();\n\
   this.labeler.updateLabelList();\n\
 \n\
@@ -21301,7 +19064,7 @@ Transitive.prototype.processSegment = function(segment) {\n\
   var previousStop = null;\n\
   for(var i=0; i < segment.points.length; i++) {\n\
     var point = segment.points[i];\n\
-    \n\
+\n\
     // called for each pair of adjacent stops in sequence\n\
     if(previousStop && point.getType() === 'STOP') {\n\
       this.addStopAdjacency(point.getId(), previousStop.getId());\n\
@@ -21309,7 +19072,7 @@ Transitive.prototype.processSegment = function(segment) {\n\
     }\n\
 \n\
     previousStop = (point.getType() === 'STOP') ? point : null;\n\
-    \n\
+\n\
     // add the start and end points to the vertexStops collection\n\
     var startPoint = segment.points[0];\n\
     this.addVertexPoint(startPoint);\n\
@@ -21464,8 +19227,10 @@ Transitive.prototype.sortElements = function(journeyId) {\n\
   });\n\
 \n\
   this.display.svg.selectAll('.transitive-sortable').sort(function(a, b) {\n\
+    //console.log(a.owner);\n\
     var aIndex = (typeof a.getZIndex === 'function') ? a.getZIndex() : a.owner.getZIndex();\n\
     var bIndex = (typeof b.getZIndex === 'function') ? b.getZIndex() : b.owner.getZIndex();\n\
+    //if(a.console.log(aIndex);\n\
     return aIndex - bIndex;\n\
   });\n\
 };\n\
@@ -21627,26 +19392,79 @@ Transitive.prototype.populateGraphEdges = function() {\n\
   }\n\
 };\n\
 \n\
-Transitive.prototype.populateRenderSegments = function() {\n\
+\n\
+Transitive.prototype.annotateTransitPoints = function() {\n\
+  var lookup = {};\n\
   this.renderSegments = [];\n\
 \n\
   this.paths.forEach(function(path) {\n\
+\n\
+    var transitSegments = [];\n\
     path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
+    });\n\
+\n\
+    path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') {\n\
+\n\
+        // if first transit segment in path, mark 'from' endpoint as board point\n\
+        if(transitSegments.indexOf(pathSegment) === 0) {\n\
+          pathSegment.points[0].isBoardPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'to' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if last transit segment in path, mark 'to' endpoint as alight point\n\
+        else if(transitSegments.indexOf(pathSegment) === transitSegments.length-1) {\n\
+          pathSegment.points[pathSegment.points.length-1].isAlightPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'from' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[0].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if this is an 'internal' transit segment, mark both endpoints as transfer points\n\
+        else if(transitSegments.length > 2) {\n\
+          pathSegment.points[0].isTransferPoint = true;\n\
+          pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+      }\n\
+    });\n\
+  });\n\
+};\n\
+\n\
+\n\
+Transitive.prototype.populateRenderSegments = function() {\n\
+  var lookup = {};\n\
+  this.renderSegments = [];\n\
+\n\
+  this.paths.forEach(function(path) {\n\
+\n\
+    path.segments.forEach(function(pathSegment) {\n\
+\n\
       pathSegment.renderSegments = [];\n\
       pathSegment.graphEdges.forEach(function(edge) {\n\
-        var renderSegment = new Segment(pathSegment.type);\n\
-        renderSegment.pattern = pathSegment.pattern;\n\
-        renderSegment.addEdge(edge);\n\
-        renderSegment.points.push(edge.fromVertex.point);\n\
-        renderSegment.points.push(edge.toVertex.point);\n\
-        edge.addRenderSegment(renderSegment);\n\
+        var renderSegment;\n\
+        var key = edge.id + '_' + pathSegment.getType() + (pathSegment.pattern ? '_' + pathSegment.pattern.pattern_id : '');\n\
+        if(key in lookup) {\n\
+          renderSegment = lookup[key];\n\
+        }\n\
+        else {\n\
+          renderSegment = new Segment(pathSegment.type);\n\
+          renderSegment.pattern = pathSegment.pattern;\n\
+          renderSegment.addEdge(edge);\n\
+          renderSegment.points.push(edge.fromVertex.point);\n\
+          renderSegment.points.push(edge.toVertex.point);\n\
+          edge.addRenderSegment(renderSegment);\n\
 \n\
-        this.renderSegments.push(renderSegment);\n\
+          this.renderSegments.push(renderSegment);\n\
+          lookup[key] = renderSegment;\n\
+        }\n\
         pathSegment.renderSegments.push(renderSegment);\n\
       }, this);\n\
     }, this);\n\
   }, this);\n\
-\n\
 };\n\
 \n\
 \n\
@@ -21674,18 +19492,16 @@ function applyFilters(data, filters) {\n\
   });\n\
 \n\
   return data;\n\
-}\n\
-//# sourceURL=lib/transitive.js"
+}//@ sourceURL=transitive/lib/transitive.js"
 ));
-
-require.register("transitive/lib/segment.js", Function("exports, module",
+require.register("transitive/lib/segment.js", Function("exports, require, module",
 "/**\n\
  * Dependencies\n\
  */\n\
 \n\
-var d3 = require(\"mbostock~d3@v3.4.6\");\n\
+var d3 = require('d3');\n\
 \n\
-var SegmentLabel = require(\"transitive/lib/labeler/segmentlabel.js\");\n\
+var SegmentLabel = require('./labeler/segmentlabel');\n\
 \n\
 \n\
 var segmentId = 0;\n\
@@ -21897,21 +19713,11 @@ Segment.prototype.refresh = function(display) {\n\
 \n\
 \n\
 Segment.prototype.refreshRenderData = function(updatePoints, styler, display) {\n\
+  \n\
+  this.computeLineWidth(styler, display);\n\
+\n\
   this.renderData = [];\n\
-\n\
   var pointIndex = 0;\n\
-\n\
-  if(styler && display) {\n\
-    // compute the line width\n\
-    var env = styler.compute(styler.segments.envelope, display, this);\n\
-    if(env) {\n\
-      this.lineWidth = parseFloat(env.substring(0, env.length - 2), 10) - 2;\n\
-    }\n\
-    else {\n\
-      var lw = styler.compute(styler.segments['stroke-width'], display, this);\n\
-      this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
-    }\n\
-  }\n\
 \n\
   this.graphEdges.forEach(function(edge, edgeIndex) {\n\
 \n\
@@ -21968,7 +19774,7 @@ Segment.prototype.refreshRenderData = function(updatePoints, styler, display) {\
 \n\
 \n\
     // the internal points for this edge\n\
-    if(edge.curvaturePoints && edge.curvaturePoints.length > 0) {\n\
+    if(this.getType() !== 'WALK' && edge.curvaturePoints && edge.curvaturePoints.length > 0) {\n\
       var cpoints = edge.getCurvaturePoints(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
       edgeRenderData = edgeRenderData.concat(cpoints);\n\
     }\n\
@@ -21997,6 +19803,22 @@ Segment.prototype.refreshRenderData = function(updatePoints, styler, display) {\
   }, this);\n\
 \n\
 };\n\
+\n\
+\n\
+Segment.prototype.computeLineWidth = function(styler, display) {\n\
+  if(styler && display) {\n\
+    // compute the line width\n\
+    var env = styler.compute(styler.segments.envelope, display, this);\n\
+    if(env) {\n\
+      this.lineWidth = parseFloat(env.substring(0, env.length - 2), 10) - 2;\n\
+    }\n\
+    else {\n\
+      var lw = styler.compute(styler.segments['stroke-width'], display, this);\n\
+      this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
+    }\n\
+  }\n\
+};\n\
+\n\
 \n\
 Segment.prototype.refreshLabel = function(display) {\n\
   if(!this.renderLabel) return;\n\
@@ -22110,11 +19932,289 @@ function getAveragePointOffsets(point) {\n\
   }\n\
 \n\
   return null;\n\
+}//@ sourceURL=transitive/lib/segment.js"
+));
+require.register("transitive/lib/profiler.js", Function("exports, require, module",
+"/**\n\
+ * Expose `TransitiveLoader`\n\
+ */\n\
+\n\
+module.exports = ProfilerLoader;\n\
+\n\
+/**\n\
+ *\n\
+ */\n\
+\n\
+function ProfilerLoader(profiler, od, callback) {\n\
+\n\
+  this.callback = callback;\n\
+  this.profiler = profiler;\n\
+\n\
+  this.routes = {};\n\
+  \n\
+  this.opts = {\n\
+    from: od.from,\n\
+    to: od.to\n\
+  };\n\
+\n\
+  profiler.profile(od, (function(err, profile) {\n\
+\n\
+    console.log(profile);\n\
+    this.opts.profile = profile;\n\
+    this.opts.limit = profile.options.length;\n\
+    this.loadRoutes();\n\
+\n\
+  }).bind(this));\n\
+\n\
 }\n\
-//# sourceURL=lib/segment.js"
+\n\
+\n\
+ProfilerLoader.prototype.loadRoutes = function(profileResponse) {\n\
+\n\
+  this.profiler.routes((function(err, routes) {\n\
+\n\
+    routes.forEach(function(route) {\n\
+      this.routes[route.id] = route;\n\
+    }, this);\n\
+\n\
+    this.loadPatterns();\n\
+\n\
+  }).bind(this));\n\
+\n\
+};\n\
+\n\
+\n\
+ProfilerLoader.prototype.loadPatterns = function(profileResponse) {\n\
+\n\
+  this.profiler.patterns(this.opts, (function(err, patterns) {\n\
+    this.opts.patterns = patterns;\n\
+\n\
+    this.opts.routes = [];\n\
+    patterns.forEach(function(pattern) {\n\
+      var route = this.routes[pattern.routeId];\n\
+      if(this.opts.routes.indexOf(route) === -1) {\n\
+        this.opts.routes.push(route);\n\
+      }\n\
+    }, this);\n\
+\n\
+    this.constructData();\n\
+\n\
+  }).bind(this));\n\
+\n\
+};\n\
+\n\
+\n\
+ProfilerLoader.prototype.constructData = function() {\n\
+\n\
+  var data = this.profiler.convertOtpData(this.opts);\n\
+  this.callback.call(this, data);\n\
+\n\
+};\n\
+\n\
+//@ sourceURL=transitive/lib/profiler.js"
 ));
 
-require.modules["transitive"] = require.modules["transitive"];
 
 
-require("transitive")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+require.register("yields-select/template.html", Function("exports, require, module",
+"module.exports = '<div class=\\'select select-single\\'>\\n\
+  <div class=\\'select-box\\'>\\n\
+    <input type=\\'text\\' class=\\'select-input\\'>\\n\
+  </div>\\n\
+  <div class=\\'select-dropdown\\' hidden>\\n\
+    <ul class=\\'select-options\\'></ul>\\n\
+  </div>\\n\
+</div>\\n\
+';//@ sourceURL=yields-select/template.html"
+));
+require.alias("component-each/index.js", "transitive/deps/each/index.js");
+require.alias("component-each/index.js", "each/index.js");
+require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
+
+require.alias("component-type/index.js", "component-each/deps/type/index.js");
+
+require.alias("component-clone/index.js", "transitive/deps/clone/index.js");
+require.alias("component-clone/index.js", "clone/index.js");
+require.alias("component-type/index.js", "component-clone/deps/type/index.js");
+
+require.alias("component-emitter/index.js", "transitive/deps/emitter/index.js");
+require.alias("component-emitter/index.js", "emitter/index.js");
+
+require.alias("component-to-function/index.js", "transitive/deps/to-function/index.js");
+require.alias("component-to-function/index.js", "to-function/index.js");
+require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
+
+require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
+require.alias("cristiandouce-merge-util/index.js", "merge-util/index.js");
+require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
+
+require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
+require.alias("mbostock-d3/d3.js", "transitive/deps/d3/d3.js");
+require.alias("mbostock-d3/d3.js", "transitive/deps/d3/index.js");
+require.alias("mbostock-d3/d3.js", "d3/index.js");
+require.alias("mbostock-d3/d3.js", "mbostock-d3/index.js");
+require.alias("janogonzalez-priorityqueuejs/index.js", "transitive/deps/priorityqueuejs/index.js");
+require.alias("janogonzalez-priorityqueuejs/index.js", "priorityqueuejs/index.js");
+
+require.alias("javascript-augment/augment.js", "transitive/deps/augment/augment.js");
+require.alias("javascript-augment/augment.js", "transitive/deps/augment/index.js");
+require.alias("javascript-augment/augment.js", "augment/index.js");
+require.alias("javascript-augment/augment.js", "javascript-augment/index.js");
+require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/debug.js");
+require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/index.js");
+require.alias("visionmedia-debug/debug.js", "debug/index.js");
+require.alias("visionmedia-debug/debug.js", "visionmedia-debug/index.js");
+require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");
+require.alias("yields-svg-attributes/index.js", "yields-svg-attributes/index.js");
+require.alias("component-set/index.js", "transitive/deps/set/index.js");
+require.alias("component-set/index.js", "set/index.js");
+
+require.alias("conveyal-otpprofiler.js/index.js", "transitive/deps/otpprofiler.js/index.js");
+require.alias("conveyal-otpprofiler.js/index.js", "otpprofiler.js/index.js");
+require.alias("component-clone/index.js", "conveyal-otpprofiler.js/deps/clone/index.js");
+require.alias("component-type/index.js", "component-clone/deps/type/index.js");
+
+require.alias("visionmedia-batch/index.js", "conveyal-otpprofiler.js/deps/batch/index.js");
+require.alias("component-emitter/index.js", "visionmedia-batch/deps/emitter/index.js");
+
+require.alias("visionmedia-superagent/lib/client.js", "conveyal-otpprofiler.js/deps/superagent/lib/client.js");
+require.alias("visionmedia-superagent/lib/client.js", "conveyal-otpprofiler.js/deps/superagent/index.js");
+require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
+
+require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
+
+require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("yields-select/index.js", "transitive/deps/select/index.js");
+require.alias("yields-select/index.js", "transitive/deps/select/index.js");
+require.alias("yields-select/index.js", "select/index.js");
+require.alias("ianstormtaylor-previous-sibling/index.js", "yields-select/deps/previous-sibling/index.js");
+require.alias("yields-traverse/index.js", "ianstormtaylor-previous-sibling/deps/traverse/index.js");
+require.alias("yields-traverse/index.js", "ianstormtaylor-previous-sibling/deps/traverse/index.js");
+require.alias("component-matches-selector/index.js", "yields-traverse/deps/matches-selector/index.js");
+require.alias("component-query/index.js", "component-matches-selector/deps/query/index.js");
+
+require.alias("yields-traverse/index.js", "yields-traverse/index.js");
+require.alias("ianstormtaylor-next-sibling/index.js", "yields-select/deps/next-sibling/index.js");
+require.alias("yields-traverse/index.js", "ianstormtaylor-next-sibling/deps/traverse/index.js");
+require.alias("yields-traverse/index.js", "ianstormtaylor-next-sibling/deps/traverse/index.js");
+require.alias("component-matches-selector/index.js", "yields-traverse/deps/matches-selector/index.js");
+require.alias("component-query/index.js", "component-matches-selector/deps/query/index.js");
+
+require.alias("yields-traverse/index.js", "yields-traverse/index.js");
+require.alias("component-debounce/index.js", "yields-select/deps/debounce/index.js");
+require.alias("component-debounce/index.js", "yields-select/deps/debounce/index.js");
+require.alias("component-debounce/index.js", "component-debounce/index.js");
+require.alias("component-pillbox/index.js", "yields-select/deps/pillbox/index.js");
+require.alias("component-bind/index.js", "component-pillbox/deps/bind/index.js");
+
+require.alias("component-trim/index.js", "component-pillbox/deps/trim/index.js");
+
+require.alias("component-events/index.js", "component-pillbox/deps/events/index.js");
+require.alias("component-event/index.js", "component-events/deps/event/index.js");
+
+require.alias("component-delegate/index.js", "component-events/deps/delegate/index.js");
+require.alias("discore-closest/index.js", "component-delegate/deps/closest/index.js");
+require.alias("discore-closest/index.js", "component-delegate/deps/closest/index.js");
+require.alias("component-matches-selector/index.js", "discore-closest/deps/matches-selector/index.js");
+require.alias("component-query/index.js", "component-matches-selector/deps/query/index.js");
+
+require.alias("discore-closest/index.js", "discore-closest/index.js");
+require.alias("component-event/index.js", "component-delegate/deps/event/index.js");
+
+require.alias("component-keyname/index.js", "component-pillbox/deps/keyname/index.js");
+
+require.alias("component-emitter/index.js", "component-pillbox/deps/emitter/index.js");
+
+require.alias("component-each/index.js", "component-pillbox/deps/each/index.js");
+require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
+
+require.alias("component-type/index.js", "component-each/deps/type/index.js");
+
+require.alias("component-set/index.js", "component-pillbox/deps/set/index.js");
+
+require.alias("stephenmathieson-normalize/index.js", "component-pillbox/deps/normalize/index.js");
+require.alias("stephenmathieson-normalize/index.js", "component-pillbox/deps/normalize/index.js");
+require.alias("stephenmathieson-normalize/index.js", "stephenmathieson-normalize/index.js");
+require.alias("component-emitter/index.js", "yields-select/deps/emitter/index.js");
+
+require.alias("component-keyname/index.js", "yields-select/deps/keyname/index.js");
+
+require.alias("component-classes/index.js", "yields-select/deps/classes/index.js");
+require.alias("component-indexof/index.js", "component-classes/deps/indexof/index.js");
+
+require.alias("component-events/index.js", "yields-select/deps/events/index.js");
+require.alias("component-event/index.js", "component-events/deps/event/index.js");
+
+require.alias("component-delegate/index.js", "component-events/deps/delegate/index.js");
+require.alias("discore-closest/index.js", "component-delegate/deps/closest/index.js");
+require.alias("discore-closest/index.js", "component-delegate/deps/closest/index.js");
+require.alias("component-matches-selector/index.js", "discore-closest/deps/matches-selector/index.js");
+require.alias("component-query/index.js", "component-matches-selector/deps/query/index.js");
+
+require.alias("discore-closest/index.js", "discore-closest/index.js");
+require.alias("component-event/index.js", "component-delegate/deps/event/index.js");
+
+require.alias("component-domify/index.js", "yields-select/deps/domify/index.js");
+
+require.alias("component-query/index.js", "yields-select/deps/query/index.js");
+
+require.alias("component-each/index.js", "yields-select/deps/each/index.js");
+require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
+
+require.alias("component-type/index.js", "component-each/deps/type/index.js");
+
+require.alias("yields-select/index.js", "yields-select/index.js");
+require.alias("transitive/lib/transitive.js", "transitive/index.js");
