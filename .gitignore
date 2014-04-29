@@ -13,6 +13,7 @@ pids
 logs
 results
 
+build
 node_modules
 components
 npm-debug.log
