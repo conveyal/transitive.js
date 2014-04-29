@@ -638,11 +638,8 @@ require.register("component-to-function/index.js", Function("exports, require, m
 "/**\n\
  * Module Dependencies\n\
  */\n\
-try {\n\
-  var expr = require('props');\n\
-} catch(e) {\n\
-  var expr = require('component-props');\n\
-}\n\
+\n\
+var expr = require('props');\n\
 \n\
 /**\n\
  * Expose `toFunction()`.\n\
@@ -10638,6 +10635,189 @@ Set.prototype.isEmpty = function(){\n\
 \n\
 //@ sourceURL=component-set/index.js"
 ));
+require.register("component-trim/index.js", Function("exports, require, module",
+"\n\
+exports = module.exports = trim;\n\
+\n\
+function trim(str){\n\
+  if (str.trim) return str.trim();\n\
+  return str.replace(/^\\s*|\\s*$/g, '');\n\
+}\n\
+\n\
+exports.left = function(str){\n\
+  if (str.trimLeft) return str.trimLeft();\n\
+  return str.replace(/^\\s*/, '');\n\
+};\n\
+\n\
+exports.right = function(str){\n\
+  if (str.trimRight) return str.trimRight();\n\
+  return str.replace(/\\s*$/, '');\n\
+};\n\
+//@ sourceURL=component-trim/index.js"
+));
+require.register("component-querystring/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * Module dependencies.\n\
+ */\n\
+\n\
+var encode = encodeURIComponent;\n\
+var decode = decodeURIComponent;\n\
+var trim = require('trim');\n\
+var type = require('type');\n\
+\n\
+/**\n\
+ * Parse the given query `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Object}\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.parse = function(str){\n\
+  if ('string' != typeof str) return {};\n\
+\n\
+  str = trim(str);\n\
+  if ('' == str) return {};\n\
+  if ('?' == str.charAt(0)) str = str.slice(1);\n\
+\n\
+  var obj = {};\n\
+  var pairs = str.split('&');\n\
+  for (var i = 0; i < pairs.length; i++) {\n\
+    var parts = pairs[i].split('=');\n\
+    var key = decode(parts[0]);\n\
+    var m;\n\
+\n\
+    if (m = /(\\w+)\\[(\\d+)\\]/.exec(key)) {\n\
+      obj[m[1]] = obj[m[1]] || [];\n\
+      obj[m[1]][m[2]] = decode(parts[1]);\n\
+      continue;\n\
+    }\n\
+\n\
+    obj[parts[0]] = null == parts[1]\n\
+      ? ''\n\
+      : decode(parts[1]);\n\
+  }\n\
+\n\
+  return obj;\n\
+};\n\
+\n\
+/**\n\
+ * Stringify the given `obj`.\n\
+ *\n\
+ * @param {Object} obj\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+exports.stringify = function(obj){\n\
+  if (!obj) return '';\n\
+  var pairs = [];\n\
+\n\
+  for (var key in obj) {\n\
+    var value = obj[key];\n\
+\n\
+    if ('array' == type(value)) {\n\
+      for (var i = 0; i < value.length; ++i) {\n\
+        pairs.push(encode(key + '[' + i + ']') + '=' + encode(value[i]));\n\
+      }\n\
+      continue;\n\
+    }\n\
+\n\
+    pairs.push(encode(key) + '=' + encode(obj[key]));\n\
+  }\n\
+\n\
+  return pairs.join('&');\n\
+};\n\
+//@ sourceURL=component-querystring/index.js"
+));
+require.register("learnboost-jsonp/index.js", Function("exports, require, module",
+"/**\n\
+ * Module dependencies\n\
+ */\n\
+\n\
+var debug = require('debug')('jsonp');\n\
+\n\
+/**\n\
+ * Module exports.\n\
+ */\n\
+\n\
+module.exports = jsonp;\n\
+\n\
+/**\n\
+ * Callback index.\n\
+ */\n\
+\n\
+var count = 0;\n\
+\n\
+/**\n\
+ * Noop function.\n\
+ */\n\
+\n\
+function noop(){}\n\
+\n\
+/**\n\
+ * JSONP handler\n\
+ *\n\
+ * Options:\n\
+ *  - param {String} qs parameter (`callback`)\n\
+ *  - timeout {Number} how long after a timeout error is emitted (`60000`)\n\
+ *\n\
+ * @param {String} url\n\
+ * @param {Object|Function} optional options / callback\n\
+ * @param {Function} optional callback\n\
+ */\n\
+\n\
+function jsonp(url, opts, fn){\n\
+  if ('function' == typeof opts) {\n\
+    fn = opts;\n\
+    opts = {};\n\
+  }\n\
+  if (!opts) opts = {};\n\
+\n\
+  var prefix = opts.prefix || '__jp';\n\
+  var param = opts.param || 'callback';\n\
+  var timeout = null != opts.timeout ? opts.timeout : 60000;\n\
+  var enc = encodeURIComponent;\n\
+  var target = document.getElementsByTagName('script')[0] || document.head;\n\
+  var script;\n\
+  var timer;\n\
+\n\
+  // generate a unique id for this request\n\
+  var id = prefix + (count++);\n\
+\n\
+  if (timeout) {\n\
+    timer = setTimeout(function(){\n\
+      cleanup();\n\
+      if (fn) fn(new Error('Timeout'));\n\
+    }, timeout);\n\
+  }\n\
+\n\
+  function cleanup(){\n\
+    script.parentNode.removeChild(script);\n\
+    window[id] = noop;\n\
+  }\n\
+\n\
+  window[id] = function(data){\n\
+    debug('jsonp got', data);\n\
+    if (timer) clearTimeout(timer);\n\
+    cleanup();\n\
+    if (fn) fn(null, data);\n\
+  };\n\
+\n\
+  // add qs component\n\
+  url += (~url.indexOf('?') ? '&' : '?') + param + '=' + enc(id);\n\
+  url = url.replace('?&', '?');\n\
+\n\
+  debug('jsonp req \"%s\"', url);\n\
+\n\
+  // create script\n\
+  script = document.createElement('script');\n\
+  script.src = url;\n\
+  target.parentNode.insertBefore(script, target);\n\
+}\n\
+//@ sourceURL=learnboost-jsonp/index.js"
+));
 require.register("visionmedia-batch/index.js", Function("exports, require, module",
 "/**\n\
  * Module dependencies.\n\
@@ -10823,7 +11003,8 @@ module.exports = function(arr, fn, initial){  \n\
   }\n\
   \n\
   return curr;\n\
-};//@ sourceURL=component-reduce/index.js"
+};\n\
+//@ sourceURL=component-reduce/index.js"
 ));
 require.register("visionmedia-superagent/lib/client.js", Function("exports, require, module",
 "/**\n\
@@ -11245,13 +11426,13 @@ Response.prototype.setStatusProperties = function(status){\n\
 Response.prototype.toError = function(){\n\
   var req = this.req;\n\
   var method = req.method;\n\
-  var path = req.path;\n\
+  var url = req.url;\n\
 \n\
-  var msg = 'cannot ' + method + ' ' + path + ' (' + this.status + ')';\n\
+  var msg = 'cannot ' + method + ' ' + url + ' (' + this.status + ')';\n\
   var err = new Error(msg);\n\
   err.status = this.status;\n\
   err.method = method;\n\
-  err.path = path;\n\
+  err.url = url;\n\
 \n\
   return err;\n\
 };\n\
@@ -11474,6 +11655,53 @@ Request.prototype.query = function(val){\n\
 };\n\
 \n\
 /**\n\
+ * Write the field `name` and `val` for \"multipart/form-data\"\n\
+ * request bodies.\n\
+ *\n\
+ * ``` js\n\
+ * request.post('/upload')\n\
+ *   .field('foo', 'bar')\n\
+ *   .end(callback);\n\
+ * ```\n\
+ *\n\
+ * @param {String} name\n\
+ * @param {String|Blob|File} val\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.field = function(name, val){\n\
+  debug('field', name, val);\n\
+  if (!this._formData) this._formData = new FormData();\n\
+  this._formData.append(name, val);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
+ * Queue the given `file` as an attachment to the specified `field`,\n\
+ * with optional `filename`.\n\
+ *\n\
+ * ``` js\n\
+ * request.post('/upload')\n\
+ *   .attach(new Blob(['<a id=\"a\"><b id=\"b\">hey!</b></a>'], { type: \"text/html\"}))\n\
+ *   .end(callback);\n\
+ * ```\n\
+ *\n\
+ * @param {String} field\n\
+ * @param {Blob|File} file\n\
+ * @param {String} filename\n\
+ * @return {Request} for chaining\n\
+ * @api public\n\
+ */\n\
+\n\
+Request.prototype.attach = function(field, file, filename){\n\
+  debug('attach', field, file);\n\
+  if (!this._formData) this._formData = new FormData();\n\
+  this._formData.append(field, file, filename);\n\
+  return this;\n\
+};\n\
+\n\
+/**\n\
  * Send `data`, defaulting the `.type()` to \"json\" when\n\
  * an object is given.\n\
  *\n\
@@ -11623,7 +11851,7 @@ Request.prototype.end = function(fn){\n\
   var xhr = this.xhr = getXHR();\n\
   var query = this._query.join('&');\n\
   var timeout = this._timeout;\n\
-  var data = this._data;\n\
+  var data = this._formData || this._data;\n\
 \n\
   // store callback\n\
   this._callback = fn || noop;\n\
@@ -11835,29 +12063,16 @@ module.exports = request;\n\
 ));
 require.register("conveyal-otpprofiler.js/index.js", Function("exports, require, module",
 "var Batch = require('batch');\n\
-var clone;\n\
-var superagent = require('superagent');\n\
-\n\
-try {\n\
-  clone = require('clone');\n\
-} catch (e) {\n\
-  clone = require('component-clone');\n\
-}\n\
+var clone = require('clone');\n\
+var each = require('each');\n\
+var jsonp = require('jsonp');\n\
+var stringify = require('querystring').stringify;\n\
 \n\
 /**\n\
  * Expose `Profiler`\n\
  */\n\
 \n\
 module.exports = Profiler;\n\
-\n\
-/**\n\
- * \"store\" routes & pattens\n\
- */\n\
-\n\
-var store = {\n\
-  patterns: {},\n\
-  routes: null\n\
-};\n\
 \n\
 /**\n\
  * Profiler\n\
@@ -11869,8 +12084,8 @@ function Profiler(opts) {\n\
   if (!(this instanceof Profiler)) return new Profiler(opts);\n\
   if (!opts.host) throw new Error('Profiler requires a host.');\n\
 \n\
-  this.host = opts.host;\n\
   this.limit = opts.limit || 3;\n\
+  this.host = opts.host;\n\
 }\n\
 \n\
 /**\n\
@@ -11949,11 +12164,11 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
   };\n\
 \n\
   // Collect all unique stops\n\
-  opts.patterns.forEach(function(pattern) {\n\
+  each(opts.patterns, function(pattern) {\n\
     // Store all used route ids\n\
     if (routeIds.indexOf(pattern.routeId) === -1) routeIds.push(pattern.routeId);\n\
 \n\
-    pattern.stops.forEach(function(stop) {\n\
+    each(pattern.stops, function(stop) {\n\
       if (stopIds.indexOf(stop.id) === -1) {\n\
         // TODO: Just use normal names\n\
         data.stops.push({\n\
@@ -11968,7 +12183,7 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
   });\n\
 \n\
   // Collect routes\n\
-  opts.routes.forEach(function(route) {\n\
+  each(opts.routes, function(route) {\n\
     if (routeIds.indexOf(route.id) !== -1) {\n\
       // TODO: Just use normal names\n\
       data.routes.push({\n\
@@ -11983,7 +12198,7 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
   });\n\
 \n\
   // Collect patterns\n\
-  opts.patterns.forEach(function(pattern) {\n\
+  each(opts.patterns, function(pattern) {\n\
     // TODO: Just use normal names\n\
     var obj = {\n\
       pattern_id: pattern.id,\n\
@@ -11993,7 +12208,7 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
     if (pattern.desc) obj.pattern_name = pattern.desc;\n\
     if (pattern.routeId) obj.route_id = pattern.routeId;\n\
 \n\
-    pattern.stops.forEach(function(stop) {\n\
+    each(pattern.stops, function(stop) {\n\
       obj.stops.push({\n\
         stop_id: stop.id\n\
       });\n\
@@ -12023,7 +12238,7 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
   }\n\
 \n\
   // Collect journeys\n\
-  opts.profile.options.forEach(function(option, optionIndex) {\n\
+  each(opts.profile.options, function(option, optionIndex) {\n\
     var journey = {\n\
       journey_id: 'option_' + optionIndex,\n\
       journey_name: option.summary || 'Option ' + (optionIndex + 1),\n\
@@ -12048,7 +12263,7 @@ Profiler.prototype.convertOtpData = function(opts) {\n\
       });\n\
     }\n\
 \n\
-    option.segments.forEach(function(segment, segmentIndex) {\n\
+    each(option.segments, function(segment, segmentIndex) {\n\
       // Add the transit segment\n\
       var firstPattern = segment.segmentPatterns[0];\n\
       journey.segments.push({\n\
@@ -12124,7 +12339,7 @@ Profiler.prototype.patterns = function(opts, callback) {\n\
   var ids = this.getUniquePatternIds(opts.profile);\n\
 \n\
   // Load all the patterns\n\
-  ids.forEach(function(id) {\n\
+  each(ids, function(id) {\n\
     batch.push(function(done) {\n\
       profiler.pattern(id, done);\n\
     });\n\
@@ -12144,9 +12359,9 @@ Profiler.prototype.getUniquePatternIds = function(profile) {\n\
   var ids = [];\n\
 \n\
   // Iterate over each option and add the pattern if it does not already exist\n\
-  profile.options.forEach(function(option, index) {\n\
-    option.segments.forEach(function(segment) {\n\
-      segment.segmentPatterns.forEach(function(pattern) {\n\
+  each(profile.options, function(option, index) {\n\
+    each(option.segments, function(segment) {\n\
+      each(segment.segmentPatterns, function(pattern) {\n\
         if (ids.indexOf(pattern.patternId) === -1) {\n\
           ids.push(pattern.patternId);\n\
         }\n\
@@ -12165,18 +12380,7 @@ Profiler.prototype.getUniquePatternIds = function(profile) {\n\
  */\n\
 \n\
 Profiler.prototype.pattern = function(id, callback) {\n\
-  if (store.patterns[id]) {\n\
-    callback(null, store.patterns[id]);\n\
-  } else {\n\
-    this.request('/index/patterns/' + id, function(err, pattern) {\n\
-      if (err) {\n\
-        callback(err);\n\
-      } else {\n\
-        store.patterns[id] = pattern;\n\
-        callback(null, pattern);\n\
-      }\n\
-    });\n\
-  }\n\
+  this.request('/index/patterns/' + id, callback);\n\
 };\n\
 \n\
 /**\n\
@@ -12199,7 +12403,7 @@ Profiler.prototype.profile = function(params, callback) {\n\
   delete qs.routes;\n\
 \n\
   // Request the profile\n\
-  this.request('/profile', qs, callback);\n\
+  this.request('/profile?' + stringify(qs), callback);\n\
 };\n\
 \n\
 /**\n\
@@ -12209,18 +12413,7 @@ Profiler.prototype.profile = function(params, callback) {\n\
  */\n\
 \n\
 Profiler.prototype.routes = function(callback) {\n\
-  if (store.routes) {\n\
-    callback(null, store.routes);\n\
-  } else {\n\
-    this.request('/index/routes', function(err, routes) {\n\
-      if (err) {\n\
-        callback(err);\n\
-      } else {\n\
-        store.routes = routes;\n\
-        callback(null, routes);\n\
-      }\n\
-    });\n\
-  }\n\
+  this.request('/index/routes', callback);\n\
 };\n\
 \n\
 /**\n\
@@ -12230,22 +12423,8 @@ Profiler.prototype.routes = function(callback) {\n\
  * @param {Function} callback\n\
  */\n\
 \n\
-Profiler.prototype.request = function(path, params, callback) {\n\
-  if (arguments.length === 2) {\n\
-    callback = params;\n\
-    params = null;\n\
-  }\n\
-\n\
-  superagent\n\
-    .get(this.host + path)\n\
-    .query(params)\n\
-    .end(function(err, res) {\n\
-      if (err || res.error || !res.ok) {\n\
-        callback(err || res.error || res.text);\n\
-      } else {\n\
-        callback(null, res.body);\n\
-      }\n\
-    });\n\
+Profiler.prototype.request = function(path, callback) {\n\
+  jsonp(this.host + path, callback);\n\
 };\n\
 \n\
 /**\n\
@@ -12469,26 +12648,6 @@ module.exports = function(obj, fn){\n\
   }\n\
 };\n\
 //@ sourceURL=component-bind/index.js"
-));
-require.register("component-trim/index.js", Function("exports, require, module",
-"\n\
-exports = module.exports = trim;\n\
-\n\
-function trim(str){\n\
-  if (str.trim) return str.trim();\n\
-  return str.replace(/^\\s*|\\s*$/g, '');\n\
-}\n\
-\n\
-exports.left = function(str){\n\
-  if (str.trimLeft) return str.trimLeft();\n\
-  return str.replace(/^\\s*/, '');\n\
-};\n\
-\n\
-exports.right = function(str){\n\
-  if (str.trimRight) return str.trimRight();\n\
-  return str.replace(/\\s*$/, '');\n\
-};\n\
-//@ sourceURL=component-trim/index.js"
 ));
 require.register("stephenmathieson-normalize/index.js", Function("exports, require, module",
 "\n\
@@ -13057,7 +13216,8 @@ module.exports = function (element, selector, checkYoSelf, root) {\n\
     if (element === root)\n\
       return  \n\
   }\n\
-}//@ sourceURL=discore-closest/index.js"
+}\n\
+//@ sourceURL=discore-closest/index.js"
 ));
 require.register("component-delegate/index.js", Function("exports, require, module",
 "/**\n\
@@ -14145,9 +14305,9 @@ module.exports = NetworkGraph;\n\
  *  An graph representing the underlying 'wireframe' network\n\
  */\n\
 \n\
-function NetworkGraph() {\n\
-  this.vertices = [];\n\
-  this.edges = [];\n\
+function NetworkGraph(vertices, edges) {\n\
+  this.vertices = vertices || [];\n\
+  this.edges = edges || [];\n\
 }\n\
 \n\
 /**\n\
@@ -14965,6 +15125,19 @@ NetworkGraph.prototype.recenter = function() {\n\
   });\n\
 };\n\
 \n\
+\n\
+NetworkGraph.prototype.clone = function() {\n\
+  var vertices = [];\n\
+  this.vertices.forEach(function(vertex) {\n\
+    vertices.push(vertex.clone());\n\
+  });\n\
+\n\
+  var edges = [];\n\
+  this.edges.forEach(function(edge) {\n\
+    edge.push(edge.clone());\n\
+  });\n\
+};\n\
+\n\
 /**\n\
  * Check if arrays are equal\n\
  */\n\
@@ -15615,6 +15788,7 @@ function Vertex(point, x, y) {\n\
   this.y = this.origY = y;\n\
   this.edges = [];\n\
 }\n\
+\n\
 \n\
 \n\
 /**\n\
@@ -16494,7 +16668,9 @@ var Point = augment(Object, function () {\n\
    * @param {Display} display\n\
    */\n\
 \n\
-  this.draw = function(display) { };\n\
+  this.render = function(display) {\n\
+    this.label.svgGroup = null;\n\
+  };\n\
 \n\
 \n\
   /**\n\
@@ -16574,8 +16750,7 @@ var Point = augment(Object, function () {\n\
 \n\
 \n\
   this.refreshLabel = function(display) {\n\
-\n\
-    if(!this.renderLabel) return; //|| !this.labelAnchor) return;\n\
+    if(!this.renderLabel) return;\n\
     this.label.refresh(display);\n\
   };\n\
 \n\
@@ -16762,8 +16937,8 @@ var Stop = augment(Point, function(base) {\n\
    * @param {Display} display\n\
    */\n\
 \n\
-  this.draw = function(display) {\n\
-\n\
+  this.render = function(display) {\n\
+    base.render.call(this, display);\n\
     if(Object.keys(this.patternRenderData).length === 0) return;\n\
     //if (this.renderData.length === 0) return;\n\
 \n\
@@ -16827,7 +17002,8 @@ var Stop = augment(Point, function(base) {\n\
   };\n\
 \n\
   this.getMarkerBBox = function() {\n\
-    //console.log('q');\n\
+    //console.log('gMBB ' + this.getName());\n\
+    //console.log(this);\n\
     if(this.mergedMarker) return this.mergedMarker.node().getBBox();\n\
     console.log(this.patternMarkers[0]);\n\
     return this.patternMarkers.node().getBBox();\n\
@@ -16951,7 +17127,8 @@ var Place = augment(Point, function(base) {\n\
    * @param {Display} display\n\
    */\n\
 \n\
-  this.draw = function(display) {\n\
+  this.render = function(display) {\n\
+    base.render.call(this, display);\n\
     if (!this.renderData) return;\n\
 \n\
     this.initSvg(display);\n\
@@ -17156,7 +17333,8 @@ var MultiPoint = augment(Point, function(base) {\n\
    * @param {Display} display\n\
    */\n\
 \n\
-  this.draw = function(display) {\n\
+  this.render = function(display) {\n\
+    base.render.call(this, display);\n\
 \n\
     if (!this.renderData) return;\n\
 \n\
@@ -17264,6 +17442,7 @@ var Labeler = augment(Object, function () {\n\
 \n\
     this.points = [];\n\
     this.transitive.graph.vertices.forEach(function(vertex) {\n\
+      //console.log('- ' + vertex.point.getName());\n\
       var point = vertex.point;\n\
       if(point.getType() === 'PLACE' || point.getType() === 'MULTI' || (point.getType() === 'STOP' && point.isSegmentEndPoint)) {\n\
         this.points.push(point);\n\
@@ -17442,7 +17621,6 @@ var Labeler = augment(Object, function () {\n\
 \n\
     this.points.forEach(function(point) {\n\
 \n\
-      //console.log(' ' + point.getName());\n\
       var labelText = point.label.getText();\n\
       var fontFamily = styler.compute(styler.labels['font-family'], this.transitive.display, {point: point});\n\
       var fontSize = styler.compute(styler.labels['font-size'], this.transitive.display, {point: point});\n\
@@ -17497,7 +17675,6 @@ var Labeler = augment(Object, function () {\n\
       }\n\
 \n\
     }, this);\n\
-    \n\
     return labeledPoints;\n\
   };\n\
 \n\
@@ -17657,7 +17834,6 @@ var PointLabel = augment(Label, function(base) {\n\
     this.svgGroup = this.parent.labelSvg.append('g');\n\
 \n\
     var typeStr = this.parent.getType().toLowerCase();\n\
-\n\
     this.mainLabel = this.svgGroup.append('text')\n\
       .datum({ owner: this })\n\
       .attr('id', 'transitive-' + typeStr + '-label-' + this.parent.getId())\n\
@@ -17673,7 +17849,6 @@ var PointLabel = augment(Label, function(base) {\n\
 \n\
     this.svgGroup\n\
       .attr('text-anchor', this.labelPosition > 0 ? 'start' : 'end')\n\
-      //.attr('visibility', this.visibility ? 'visible' : 'hidden')\n\
       .attr('transform', (function (d, i) {\n\
         return 'translate(' + this.labelAnchor.x +',' + this.labelAnchor.y +')';\n\
       }).bind(this));\n\
@@ -17686,7 +17861,6 @@ var PointLabel = augment(Label, function(base) {\n\
 \n\
 \n\
   this.setOrientation = function(orientation) {\n\
-    //console.log('lab anch: '+ this.parent.getName());\n\
     this.orientation = orientation;\n\
 \n\
     var markerBBox = this.parent.getMarkerBBox();\n\
@@ -18235,6 +18409,16 @@ function NetworkPath(parent) { //id, data) {\n\
   // temporarily hardcoding the line width; need to get this from the styler\n\
   this.lineWidth = 10;\n\
 }\n\
+\n\
+\n\
+NetworkPath.prototype.clearGraphData = function(segment) {\n\
+  this.graphEdges = [];\n\
+  this.segments.forEach(function(segment) {\n\
+    segment.clearGraphData();\n\
+  });\n\
+  //this.transferPoints = [];\n\
+};\n\
+\n\
 \n\
 /**\n\
  * addSegment: add a new segment to the end of this NetworkPath\n\
@@ -18817,8 +19001,12 @@ Journey.prototype.getElementId = function() {\n\
 require.register("transitive/lib/transitive.js", Function("exports, require, module",
 "var d3 = require('d3');\n\
 var debug = require('debug')('transitive');\n\
-var Display = require('./display');\n\
 var Emitter = require('emitter');\n\
+var toFunction = require('to-function');\n\
+var each = require('each');\n\
+var clone = require('clone');\n\
+\n\
+var Display = require('./display');\n\
 var Graph = require('./graph');\n\
 var NetworkPath = require('./path');\n\
 var Route = require('./route');\n\
@@ -18830,8 +19018,6 @@ var Styler = require('./styler');\n\
 var Segment = require('./segment');\n\
 var Labeler = require('./labeler');\n\
 var Label = require('./labeler/label');\n\
-var toFunction = require('to-function');\n\
-var each = require('each');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
@@ -18868,7 +19054,7 @@ function Transitive(options) {\n\
 \n\
   this.clearFilters();\n\
   this.data = options.data;\n\
-  this.gridCellSize = options.gridCellSize || 500;\n\
+  this.baseGridCellSize = this.gridCellSize = options.gridCellSize || 500;\n\
   this.labeler = new Labeler(this);\n\
   this.options = options;\n\
   this.paths = [];\n\
@@ -18925,8 +19111,6 @@ Transitive.prototype.clearFilters = function(type) {\n\
 \n\
 Transitive.prototype.load = function(data) {\n\
   debug('load', data);\n\
-\n\
-  this.graph = new Graph();\n\
 \n\
   // A list of points (stops & places) that will become vertices in the network graph. This\n\
   // includes all stops that serve as a pattern endpoint and/or a\n\
@@ -19010,24 +19194,39 @@ Transitive.prototype.load = function(data) {\n\
     }\n\
   }\n\
 \n\
-  // populate the vertices in the graph object\n\
-  for(var i = 0; i < this.vertexPoints.length; i++) {\n\
-    var point = this.vertexPoints[i];\n\
-    var vertex = this.graph.addVertex(point);\n\
-    //point.graphVertex = vertex;\n\
-  }\n\
-\n\
-  this.populateGraphEdges(); //this.patterns, this.graph);\n\
-  this.graph.collapseTransfers();\n\
-  this.annotateTransitPoints();\n\
-  this.populateRenderSegments();\n\
-  this.labeler.updateLabelList();\n\
-\n\
-  this.updateGeometry(true);\n\
+  this.createGraph();\n\
   this.setScale();\n\
 \n\
   this.emit('load', this);\n\
   return this;\n\
+};\n\
+\n\
+\n\
+/** Graph Creation/Processing Methods **/\n\
+\n\
+\n\
+Transitive.prototype.createGraph = function() {\n\
+\n\
+  this.graph = new Graph();\n\
+\n\
+  // populate the vertices in the graph object\n\
+  for(var i = 0; i < this.vertexPoints.length; i++) {\n\
+    var point = this.vertexPoints[i];\n\
+    var vertex = this.graph.addVertex(point);\n\
+  }\n\
+\n\
+  this.populateGraphEdges();\n\
+\n\
+  this.processGraph();\n\
+};\n\
+\n\
+\n\
+Transitive.prototype.processGraph = function() {\n\
+  this.graph.collapseTransfers(this.gridCellSize / 2);\n\
+  this.annotateTransitPoints();\n\
+  this.populateRenderSegments();\n\
+  this.labeler.updateLabelList();\n\
+  this.updateGeometry(true);\n\
 };\n\
 \n\
 Transitive.prototype.updateGeometry = function(snapGrid) {\n\
@@ -19086,9 +19285,225 @@ Transitive.prototype.processSegment = function(segment) {\n\
 };\n\
 \n\
 \n\
+/**\n\
+ * Helper function for stopAjacency table\n\
+ *\n\
+ * @param {Stop} adjacent stops list\n\
+ * @param {Stop} stopA\n\
+ * @param {Stop} stopB\n\
+ */\n\
+\n\
+Transitive.prototype.addStopAdjacency = function(stopIdA, stopIdB) {\n\
+  if (!this.adjacentStops[stopIdA]) this.adjacentStops[stopIdA] = [];\n\
+  if (this.adjacentStops[stopIdA].indexOf(stopIdB) === -1) this.adjacentStops[stopIdA].push(stopIdB);\n\
+};\n\
+\n\
+\n\
+/**\n\
+ * Populate the graph edges\n\
+ *\n\
+ * @param {Object} patterns\n\
+ * @param {Graph} graph\n\
+ */\n\
+\n\
+Transitive.prototype.populateGraphEdges = function() {\n\
+  // vertex associated with the last vertex point we passed in this sequence\n\
+  var lastVertex = null;\n\
+\n\
+  // collection of 'internal' (i.e. non-vertex) points passed\n\
+  // since the last vertex point\n\
+  var internalPoints = [];\n\
+\n\
+  for(var p = 0; p < this.paths.length; p++) {\n\
+    var path = this.paths[p];\n\
+    for(var s = 0; s < path.segments.length; s++) {\n\
+      var segment = path.segments[s];\n\
+\n\
+      lastVertex = null;\n\
+      var lastVertexIndex = 0;\n\
+\n\
+      for(var i=0; i< segment.points.length; i++) {\n\
+        var point = segment.points[i];\n\
+        if (point.graphVertex) { // this is a vertex point\n\
+          if (lastVertex !== null) {\n\
+            var edge = this.graph.getEquivalentEdge(internalPoints, lastVertex,\n\
+              point.graphVertex);\n\
+\n\
+            if (!edge) {\n\
+              edge = this.graph.addEdge(internalPoints, lastVertex, point.graphVertex);\n\
+\n\
+              // calculate the angle and apply to edge stops\n\
+              var dx = point.graphVertex.x - lastVertex.x;\n\
+              var dy = point.graphVertex.y - lastVertex.y;\n\
+              var angle = Math.atan2(dy, dx) * 180 / Math.PI;\n\
+              point.angle = lastVertex.point.angle = angle;\n\
+              for(var is = 0; is < internalPoints.length; is++) {\n\
+                internalPoints[is].angle = angle;\n\
+              }\n\
+            }\n\
+\n\
+            path.addEdge(edge);\n\
+            segment.graphEdges.push(edge);\n\
+            edge.addPath(path);\n\
+            edge.addPathSegment(segment);\n\
+\n\
+          }\n\
+\n\
+          lastVertex = point.graphVertex;\n\
+          lastVertexIndex = i;\n\
+          internalPoints = [];\n\
+        } else { // this is an internal point\n\
+          internalPoints.push(point);\n\
+        }\n\
+      }\n\
+    }\n\
+  }\n\
+};\n\
+\n\
+\n\
+Transitive.prototype.annotateTransitPoints = function() {\n\
+  var lookup = {};\n\
+  this.renderSegments = [];\n\
+\n\
+  this.paths.forEach(function(path) {\n\
+\n\
+    var transitSegments = [];\n\
+    path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
+    });\n\
+\n\
+    path.segments.forEach(function(pathSegment) {\n\
+      if(pathSegment.type === 'TRANSIT') {\n\
+\n\
+        // if first transit segment in path, mark 'from' endpoint as board point\n\
+        if(transitSegments.indexOf(pathSegment) === 0) {\n\
+          pathSegment.points[0].isBoardPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'to' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if last transit segment in path, mark 'to' endpoint as alight point\n\
+        else if(transitSegments.indexOf(pathSegment) === transitSegments.length-1) {\n\
+          pathSegment.points[pathSegment.points.length-1].isAlightPoint = true;\n\
+\n\
+          // if there are additional transit segments, mark the 'from' endpoint as a transfer point\n\
+          if(transitSegments.length > 1) pathSegment.points[0].isTransferPoint = true;\n\
+        }\n\
+\n\
+        // if this is an 'internal' transit segment, mark both endpoints as transfer points\n\
+        else if(transitSegments.length > 2) {\n\
+          pathSegment.points[0].isTransferPoint = true;\n\
+          pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+        }\n\
+\n\
+      }\n\
+    });\n\
+  });\n\
+};\n\
+\n\
+\n\
+Transitive.prototype.populateRenderSegments = function() {\n\
+  var lookup = {};\n\
+  this.renderSegments = [];\n\
+\n\
+  this.paths.forEach(function(path) {\n\
+\n\
+    path.segments.forEach(function(pathSegment) {\n\
+\n\
+      pathSegment.renderSegments = [];\n\
+      pathSegment.graphEdges.forEach(function(edge) {\n\
+        var renderSegment;\n\
+        var key = edge.id + '_' + pathSegment.getType() + (pathSegment.pattern ? '_' + pathSegment.pattern.pattern_id : '');\n\
+        if(key in lookup) {\n\
+          renderSegment = lookup[key];\n\
+        }\n\
+        else {\n\
+          renderSegment = new Segment(pathSegment.type);\n\
+          renderSegment.pattern = pathSegment.pattern;\n\
+          renderSegment.addEdge(edge);\n\
+          renderSegment.points.push(edge.fromVertex.point);\n\
+          renderSegment.points.push(edge.toVertex.point);\n\
+          edge.addRenderSegment(renderSegment);\n\
+\n\
+          this.renderSegments.push(renderSegment);\n\
+          lookup[key] = renderSegment;\n\
+        }\n\
+        pathSegment.renderSegments.push(renderSegment);\n\
+      }, this);\n\
+    }, this);\n\
+  }, this);\n\
+};\n\
+\n\
+\n\
+\n\
 Transitive.prototype.addVertexPoint = function(point) {\n\
   if(this.vertexPoints.indexOf(point) !== -1) return;\n\
   this.vertexPoints.push(point);\n\
+};\n\
+\n\
+\n\
+/** Display/Render Methods **/\n\
+\n\
+\n\
+/**\n\
+ * Set the DOM element that serves as the main map canvas\n\
+ */\n\
+\n\
+Transitive.prototype.setElement = function(el) {\n\
+  if (this.el) this.el.innerHTML = null;\n\
+\n\
+  this.el = el;\n\
+\n\
+  this.initDisplay();\n\
+\n\
+  this.setScale();\n\
+  this.lastScale = this.display.zoom.scale();\n\
+\n\
+  this.emit('set element', this);\n\
+  return this;\n\
+};\n\
+\n\
+\n\
+/**\n\
+ * Create the Display object and set up the pan/zoom functionality\n\
+ */\n\
+\n\
+Transitive.prototype.initDisplay = function() {\n\
+\n\
+  this.display = new Display(this.el);\n\
+  this.display.zoom.on('zoom', (function() {\n\
+    var scale = this.display.zoom.scale();\n\
+    if(scale !== this.lastScale) {\n\
+      this.lastScale = scale;\n\
+      this.gridCellSize = this.baseGridCellSize * (1/scale);\n\
+\n\
+      this.paths.forEach(function(path) {\n\
+        path.clearGraphData();\n\
+      });\n\
+\n\
+      this.createGraph();\n\
+      this.render();\n\
+    }\n\
+    else {\n\
+      this.refresh();\n\
+    }\n\
+  }).bind(this));\n\
+};\n\
+\n\
+\n\
+/**\n\
+ * Set scale\n\
+ */\n\
+\n\
+Transitive.prototype.setScale = function() {\n\
+  if (this.display && this.el && this.graph) {\n\
+    this.display.setScale(this.el.clientHeight, this.el.clientWidth,\n\
+      this.graph);\n\
+  }\n\
+\n\
+  this.emit('set scale', this);\n\
+  return this;\n\
 };\n\
 \n\
 \n\
@@ -19097,16 +19512,20 @@ Transitive.prototype.addVertexPoint = function(point) {\n\
  */\n\
 \n\
 Transitive.prototype.render = function() {\n\
-  this.load(this.data);\n\
-  var display = this.display;\n\
-  display.styler = this.style;\n\
+  \n\
+  if(!this.loaded) {\n\
+    this.load(this.data);\n\
+    this.loaded = true;\n\
+  }\n\
+\n\
+  //var display = this.display;\n\
+  this.display.styler = this.style;\n\
 \n\
   var offsetLeft = this.el.offsetLeft;\n\
   var offsetTop = this.el.offsetTop;\n\
 \n\
   // remove all old svg elements\n\
   this.display.empty();\n\
-\n\
 \n\
   // draw the path highlights\n\
   for(var p = 0; p < this.paths.length; p++) {\n\
@@ -19116,19 +19535,20 @@ Transitive.prototype.render = function() {\n\
   // draw the segments\n\
   for(var s = 0; s < this.renderSegments.length; s++) {\n\
     var segment = this.renderSegments[s];\n\
+    //console.log(segment);\n\
     segment.refreshRenderData(true, this.style, this.display);\n\
     segment.draw(this.display, 0); // 10);\n\
   }\n\
 \n\
   // draw the vertex-based points\n\
   this.graph.vertices.forEach(function(vertex) {\n\
-    vertex.point.draw(this.display);\n\
+    vertex.point.render(this.display);\n\
   }, this);\n\
 \n\
   // draw the edge-based points\n\
   this.graph.edges.forEach(function(edge) {\n\
     edge.pointArray.forEach(function(point) {\n\
-      point.draw(this.display);\n\
+      point.render(this.display);\n\
     }, this);\n\
   }, this);\n\
 \n\
@@ -19284,189 +19704,6 @@ Transitive.prototype.focusJourney = function(journeyId) {\n\
   this.refresh();\n\
 };\n\
 \n\
-/**\n\
- * Set element\n\
- */\n\
-\n\
-Transitive.prototype.setElement = function(el) {\n\
-  if (this.el) this.el.innerHTML = null;\n\
-\n\
-  this.el = el;\n\
-\n\
-  this.display = new Display(el);\n\
-  this.display.zoom.on('zoom', this.refresh.bind(this));\n\
-\n\
-  this.setScale();\n\
-\n\
-  this.emit('set element', this);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Set scale\n\
- */\n\
-\n\
-Transitive.prototype.setScale = function() {\n\
-  if (this.display && this.el && this.graph) {\n\
-    this.display.setScale(this.el.clientHeight, this.el.clientWidth,\n\
-      this.graph);\n\
-  }\n\
-\n\
-  this.emit('set scale', this);\n\
-  return this;\n\
-};\n\
-\n\
-\n\
-/**\n\
- * Helper function for stopAjacency table\n\
- *\n\
- * @param {Stop} adjacent stops list\n\
- * @param {Stop} stopA\n\
- * @param {Stop} stopB\n\
- */\n\
-\n\
-Transitive.prototype.addStopAdjacency = function(stopIdA, stopIdB) {\n\
-  if (!this.adjacentStops[stopIdA]) this.adjacentStops[stopIdA] = [];\n\
-  if (this.adjacentStops[stopIdA].indexOf(stopIdB) === -1) this.adjacentStops[stopIdA].push(stopIdB);\n\
-};\n\
-\n\
-\n\
-/**\n\
- * Populate the graph edges\n\
- *\n\
- * @param {Object} patterns\n\
- * @param {Graph} graph\n\
- */\n\
-\n\
-Transitive.prototype.populateGraphEdges = function() {\n\
-  // vertex associated with the last vertex point we passed in this sequence\n\
-  var lastVertex = null;\n\
-\n\
-  // collection of 'internal' (i.e. non-vertex) points passed\n\
-  // since the last vertex point\n\
-  var internalPoints = [];\n\
-\n\
-  for(var p = 0; p < this.paths.length; p++) {\n\
-    var path = this.paths[p];\n\
-    for(var s = 0; s < path.segments.length; s++) {\n\
-      var segment = path.segments[s];\n\
-\n\
-      lastVertex = null;\n\
-      var lastVertexIndex = 0;\n\
-\n\
-      for(var i=0; i< segment.points.length; i++) {\n\
-        var point = segment.points[i];\n\
-        if (point.graphVertex) { // this is a vertex point\n\
-          if (lastVertex !== null) {\n\
-            var edge = this.graph.getEquivalentEdge(internalPoints, lastVertex,\n\
-              point.graphVertex);\n\
-\n\
-            if (!edge) {\n\
-              edge = this.graph.addEdge(internalPoints, lastVertex, point.graphVertex);\n\
-\n\
-              // calculate the angle and apply to edge stops\n\
-              var dx = point.graphVertex.x - lastVertex.x;\n\
-              var dy = point.graphVertex.y - lastVertex.y;\n\
-              var angle = Math.atan2(dy, dx) * 180 / Math.PI;\n\
-              point.angle = lastVertex.point.angle = angle;\n\
-              for(var is = 0; is < internalPoints.length; is++) {\n\
-                internalPoints[is].angle = angle;\n\
-              }\n\
-            }\n\
-\n\
-            path.addEdge(edge);\n\
-            segment.graphEdges.push(edge);\n\
-            edge.addPath(path);\n\
-            edge.addPathSegment(segment);\n\
-\n\
-          }\n\
-\n\
-          lastVertex = point.graphVertex;\n\
-          lastVertexIndex = i;\n\
-          internalPoints = [];\n\
-        } else { // this is an internal point\n\
-          internalPoints.push(point);\n\
-        }\n\
-      }\n\
-    }\n\
-  }\n\
-};\n\
-\n\
-\n\
-Transitive.prototype.annotateTransitPoints = function() {\n\
-  var lookup = {};\n\
-  this.renderSegments = [];\n\
-\n\
-  this.paths.forEach(function(path) {\n\
-\n\
-    var transitSegments = [];\n\
-    path.segments.forEach(function(pathSegment) {\n\
-      if(pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
-    });\n\
-\n\
-    path.segments.forEach(function(pathSegment) {\n\
-      if(pathSegment.type === 'TRANSIT') {\n\
-\n\
-        // if first transit segment in path, mark 'from' endpoint as board point\n\
-        if(transitSegments.indexOf(pathSegment) === 0) {\n\
-          pathSegment.points[0].isBoardPoint = true;\n\
-\n\
-          // if there are additional transit segments, mark the 'to' endpoint as a transfer point\n\
-          if(transitSegments.length > 1) pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
-        }\n\
-\n\
-        // if last transit segment in path, mark 'to' endpoint as alight point\n\
-        else if(transitSegments.indexOf(pathSegment) === transitSegments.length-1) {\n\
-          pathSegment.points[pathSegment.points.length-1].isAlightPoint = true;\n\
-\n\
-          // if there are additional transit segments, mark the 'from' endpoint as a transfer point\n\
-          if(transitSegments.length > 1) pathSegment.points[0].isTransferPoint = true;\n\
-        }\n\
-\n\
-        // if this is an 'internal' transit segment, mark both endpoints as transfer points\n\
-        else if(transitSegments.length > 2) {\n\
-          pathSegment.points[0].isTransferPoint = true;\n\
-          pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
-        }\n\
-\n\
-      }\n\
-    });\n\
-  });\n\
-};\n\
-\n\
-\n\
-Transitive.prototype.populateRenderSegments = function() {\n\
-  var lookup = {};\n\
-  this.renderSegments = [];\n\
-\n\
-  this.paths.forEach(function(path) {\n\
-\n\
-    path.segments.forEach(function(pathSegment) {\n\
-\n\
-      pathSegment.renderSegments = [];\n\
-      pathSegment.graphEdges.forEach(function(edge) {\n\
-        var renderSegment;\n\
-        var key = edge.id + '_' + pathSegment.getType() + (pathSegment.pattern ? '_' + pathSegment.pattern.pattern_id : '');\n\
-        if(key in lookup) {\n\
-          renderSegment = lookup[key];\n\
-        }\n\
-        else {\n\
-          renderSegment = new Segment(pathSegment.type);\n\
-          renderSegment.pattern = pathSegment.pattern;\n\
-          renderSegment.addEdge(edge);\n\
-          renderSegment.points.push(edge.fromVertex.point);\n\
-          renderSegment.points.push(edge.toVertex.point);\n\
-          edge.addRenderSegment(renderSegment);\n\
-\n\
-          this.renderSegments.push(renderSegment);\n\
-          lookup[key] = renderSegment;\n\
-        }\n\
-        pathSegment.renderSegments.push(renderSegment);\n\
-      }, this);\n\
-    }, this);\n\
-  }, this);\n\
-};\n\
-\n\
 \n\
 Transitive.prototype.offsetSegment = function(segment, axisId, offset) {\n\
   if(segment.pattern) {\n\
@@ -19531,6 +19768,12 @@ function Segment(type) {\n\
   this.sortableType = 'SEGMENT';\n\
 \n\
 }\n\
+\n\
+Segment.prototype.clearGraphData = function() {\n\
+  this.graphEdges = [];\n\
+  this.edgeFromOffsets = {};\n\
+  this.edgeToOffsets = {};\n\
+};\n\
 \n\
 \n\
 Segment.prototype.getId = function() {\n\
@@ -20063,6 +20306,8 @@ ProfilerLoader.prototype.constructData = function() {\n\
 
 
 
+
+
 require.register("yields-select/template.html", Function("exports, require, module",
 "module.exports = '<div class=\\'select select-single\\'>\\n\
   <div class=\\'select-box\\'>\\n\
@@ -20125,6 +20370,23 @@ require.alias("conveyal-otpprofiler.js/index.js", "otpprofiler.js/index.js");
 require.alias("component-clone/index.js", "conveyal-otpprofiler.js/deps/clone/index.js");
 require.alias("component-type/index.js", "component-clone/deps/type/index.js");
 
+require.alias("component-each/index.js", "conveyal-otpprofiler.js/deps/each/index.js");
+require.alias("component-to-function/index.js", "component-each/deps/to-function/index.js");
+require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
+
+require.alias("component-type/index.js", "component-each/deps/type/index.js");
+
+require.alias("component-querystring/index.js", "conveyal-otpprofiler.js/deps/querystring/index.js");
+require.alias("component-trim/index.js", "component-querystring/deps/trim/index.js");
+
+require.alias("component-type/index.js", "component-querystring/deps/type/index.js");
+
+require.alias("learnboost-jsonp/index.js", "conveyal-otpprofiler.js/deps/jsonp/index.js");
+require.alias("learnboost-jsonp/index.js", "conveyal-otpprofiler.js/deps/jsonp/index.js");
+require.alias("visionmedia-debug/debug.js", "learnboost-jsonp/deps/debug/debug.js");
+require.alias("visionmedia-debug/debug.js", "learnboost-jsonp/deps/debug/index.js");
+require.alias("visionmedia-debug/debug.js", "visionmedia-debug/index.js");
+require.alias("learnboost-jsonp/index.js", "learnboost-jsonp/index.js");
 require.alias("visionmedia-batch/index.js", "conveyal-otpprofiler.js/deps/batch/index.js");
 require.alias("component-emitter/index.js", "visionmedia-batch/deps/emitter/index.js");
 
