@@ -8,17 +8,18 @@ var d3 = require('d3');
 var Transitive = require('transitive');
 var OtpProfiler = require('otpprofiler.js');
 
-
 var init = function(profiler, od) {
-
-  var loader = new Transitive.ProfilerLoader(profiler, od, function(transitiveData) { 
+  profiler.journey(od, function(err, transitiveData) {
 
     console.log("generated transitive data:");
     console.log(transitiveData);
 
-    var transitive = new Transitive(document.getElementById('canvas'), transitiveData, STYLES, {
-      gridCellSize : 800,
-      drawGrid: true 
+    var transitive = new Transitive({
+      data: transitiveData,
+      drawGrid: true,
+      el: document.getElementById('canvas'),
+      gridCellSize: 800,
+      styles: STYLES
     });
 
     // apply computed behaviors
@@ -42,15 +43,12 @@ var init = function(profiler, od) {
       };
       div.onmouseout=function(event) {
         transitive.focusJourney();
-      };      
+      };
       document.getElementById('list').appendChild(div);
     });
 
   });
-
 };
-
-
 
 // Create new instance
 var profiler = new OtpProfiler({
@@ -58,13 +56,12 @@ var profiler = new OtpProfiler({
   limit: 3 // limit the number of options to profile, defaults to 3
 });
 
-
 // O/D points
 var od = {
   from: {
     name: 'Start: ATP Office',
-    lat: 38.894624, 
-    lon: -77.074159 
+    lat: 38.894624,
+    lon: -77.074159
   },
   to: {
     name: 'End: Union Station',
@@ -72,7 +69,6 @@ var od = {
     lon: -77.00597
   }
 };
-
 
 /** dynamically loaded data example **/
 init(profiler, od);
