@@ -83,7 +83,8 @@ function dragVertices(transitive) {
         var dy = Math.abs(point.graphVertex.y - y);
         //console.log('move by ' + dx + ', ' + dy);
 
-        if(dx >= 400 || dy >= 400) {
+        var min = transitive.gridCellSize / 2;
+        if(dx >= min || dy >= min) {
           //console.log(data.point);
           point.graphVertex.moveTo(x, y);
           transitive.updateGeometry(true);

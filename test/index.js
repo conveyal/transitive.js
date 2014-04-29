@@ -18,7 +18,7 @@ var init = function(profiler, od) {
       data: transitiveData,
       drawGrid: true,
       el: document.getElementById('canvas'),
-      gridCellSize: 800,
+      gridCellSize: 600,
       styles: STYLES
     });
 
@@ -59,12 +59,12 @@ var profiler = new OtpProfiler({
 // O/D points
 var od = {
   from: {
-    name: 'Start: ATP Office',
+    name: '',
     lat: 38.894624,
     lon: -77.074159
   },
   to: {
-    name: 'End: Union Station',
+    name: '',
     lat: 38.89788,
     lon: -77.00597
   }
