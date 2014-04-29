@@ -21,7 +21,7 @@
   },
   "development": {
     "component/set": "*",
-    "conveyal/otpprofiler.js": "0.2.3",
+    "conveyal/otpprofiler.js": "0.3.0",
     "yields/select": "*"
   },
   "main": "lib/transitive.js",

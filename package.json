@@ -10,7 +10,7 @@
     "url": "git://github.com/conveyal/transitive.js.git"
   },
   "devDependencies": {
-    "component": "^0.19.8",
+    "component": "^0.19.9",
     "component-uglifyjs": "^0.3.0",
     "js-beautify": "^1.4.2",
     "jshint": "^2.5.0",
