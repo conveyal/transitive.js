@@ -52,7 +52,7 @@ var init = function(profiler, od) {
 
 // Create new instance
 var profiler = new OtpProfiler({
-  host: 'http://localhost:8001/otp-rest-servlet',
+  host: 'http://localhost:8080/otp/routers/default',
   limit: 3 // limit the number of options to profile, defaults to 3
 });
 
