@@ -44,7 +44,7 @@ L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
 
 var transitive = new Transitive({
   drawGrid: true,
-  el: map.getPanes().overlayPane,
+  // el: map.getPanes().overlayPane,
   gridCellSize: 600,
   styles: STYLES
 });
@@ -59,11 +59,9 @@ transitive.on('render', function(transitive) {
   });
 });
 
-/**
- * Profile
- */
-
-profiler.journey(od, processJourney);
+transitive.on('initialize display', function(transitive, display) {
+  display.svg.attr('class', 'leaflet-zoom-hidden');
+});
 
 /**
  * Process journey results
