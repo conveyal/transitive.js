@@ -3,6 +3,7 @@ body {
 }
 
 #canvas {
+  position: relative;
   height: 500px;
   border: 1px solid #ddd;
   border-radius: 3px;
@@ -10,9 +11,20 @@ body {
   background-color: #fff;
 }
 
+#legend {
+  position: absolute;
+  height: 30px;
+  border: 2px solid #888;
+  left: 20px;
+  bottom: 20px;
+  width: 100px;
+  background-color: #eee;
+}
+
+
 #list {
   float: right;
-  height: 500px;
+  height: 460px;
   width: 340px;
   border: 1px solid #ddd;
   border-radius: 3px;

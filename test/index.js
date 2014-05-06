@@ -18,6 +18,7 @@ var init = function(profiler, od) {
       data: transitiveData,
       drawGrid: true,
       el: document.getElementById('canvas'),
+      legendEl: document.getElementById('legend'),
       gridCellSize: 600,
       styles: STYLES
     });
