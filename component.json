@@ -46,6 +46,7 @@
     "lib/journey.js",
     "lib/transitive.js",
     "lib/segment.js",
+    "lib/rendersegment.js",
     "lib/profiler.js",
     "lib/legend.js",
     "lib/util.js"
