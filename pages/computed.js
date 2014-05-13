@@ -50,7 +50,7 @@ function highlightOptionOnHover(transitive) {
       .on('mouseenter', function (data) {
         // highlight the path
         segment.lineGraph.style('stroke', '#5bc0de');
-        var edge = segment.graphEdges[0];
+        var edge = segment.graphEdge;
         /*console.log('(' + edge.fromVertex.x + ', '+ edge.fromVertex.y+ ') to (' + edge.toVertex.x + ', ' + edge.toVertex.y+ ')');
         console.log(segment);
         if(segment.pattern) {
@@ -61,15 +61,6 @@ function highlightOptionOnHover(transitive) {
         segment.lineGraph.style('stroke', currentColor);
       });
   });
-
-  for(var stopId in transitive.stops) {
-    var stop = transitive.stops[stopId];
-    if(!stop.markerSvg) continue;
-    stop.markerSvg.on('mouseenter', (function() {
-      console.log(this.stop);
-    }).bind({ stop : stop }));
-  }
-
 }
 
 /**
