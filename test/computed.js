@@ -50,7 +50,7 @@ function highlightOptionOnHover(transitive) {
       .on('mouseenter', function (data) {
         // highlight the path
         segment.lineGraph.style('stroke', '#5bc0de');
-        var edge = segment.graphEdges[0];
+        var edge = segment.graphEdge;
         /*console.log('(' + edge.fromVertex.x + ', '+ edge.fromVertex.y+ ') to (' + edge.toVertex.x + ', ' + edge.toVertex.y+ ')');
         console.log(segment);
         if(segment.pattern) {
