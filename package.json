@@ -12,8 +12,8 @@
   "devDependencies": {
     "component": "^0.19.9",
     "component-uglifyjs": "^0.3.0",
-    "js-beautify": "^1.4.2",
-    "jshint": "^2.5.0",
+    "js-beautify": "^1.5.1",
+    "jshint": "^2.5.1",
     "serve": "^1.4.0"
   },
   "scripts": {
