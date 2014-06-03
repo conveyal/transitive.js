@@ -11,7 +11,6 @@
     "component/each": "0.2.3",
     "component/clone": "*",
     "component/emitter": "1.1.2",
-    "component/to-function": "2.0.3",
     "mbostock/d3": "v3.4.6",
     "javascript/augment": "v4.0.1",
     "visionmedia/debug": "0.8.1",

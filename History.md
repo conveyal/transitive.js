@@ -2,6 +2,8 @@
 ## Master
 
 * Add `.jsbeautify` config file
+* Removed data filters, should be done outside the lib
+* Removed unused libs
 
 ## 0.2.1 — 2014-05-19
 
