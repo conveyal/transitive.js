@@ -1,4 +1,8 @@
 
+## Master
+
+* Add `.jsbeautify` config file
+
 ## 0.2.1 — 2014-05-19
 
 * Bug fixes and error handling
