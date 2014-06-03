@@ -6,7 +6,9 @@ JS := $(shell find lib -name '*.js' -print)
 
 PORT = 3000
 
-build: transitive.js
+build: components $(JS)
+	$(MAKE) lint
+	$(COMPONENT) build --dev --verbose
 
 beautify:
 	@./node_modules/.bin/js-beautify --replace $(JS)
@@ -30,9 +32,7 @@ release: transitive.min.js
 server:
 	$(SERVE) --port $(PORT)
 
-transitive.js: components $(JS)
-	$(MAKE) lint
-	$(COMPONENT) build --dev --verbose
+transitive.js: build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
