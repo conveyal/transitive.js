@@ -43,3 +43,13 @@ body {
 .listItem:hover {
   font-weight: bold;
 }
+
+/**
+ * Transitive Styles
+ */
+
+.transitive .gridline {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1px;
+}
