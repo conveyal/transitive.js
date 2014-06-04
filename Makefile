@@ -38,7 +38,4 @@ transitive.js: build
 transitive.min.js: transitive.js
 	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
 
-watch:
-	watch $(MAKE) build
-
 .PHONY: build clean install lint release server watch
