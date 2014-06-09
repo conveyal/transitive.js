@@ -48,6 +48,10 @@
     "lib/transitive.js",
     "lib/rendersegment.js",
     "lib/legend.js",
+    "lib/tile-layer.js",
     "lib/util.js"
+  ],
+  "styles": [
+    "style.css"
   ]
 }
