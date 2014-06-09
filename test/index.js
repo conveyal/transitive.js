@@ -15,9 +15,10 @@ var transitive = new Transitive({
   legendEl : document.getElementById('legend'),
   data: DATA,
   styles: STYLES,
-  gridCellSize: 400,
+  gridCellSize: 300,
   useDynamicRendering: true,
-  drawGrid: true
+  drawGrid: false,
+  mapboxId: 'conveyal.ie3o67m0'
 });
 
 // apply computed behaviors
