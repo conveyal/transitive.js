@@ -3,6 +3,7 @@
  * Dependencies
  */
 
+var d3 = require('d3');
 var each = require('each');
 
 /**
@@ -68,7 +69,6 @@ function highlightOptionOnHover(transitive) {
  */
 
 function dragVertices(transitive) {
-  var d3 = transitive.d3;
   var drag = d3.behavior.drag()
     .on('dragstart', function () {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
