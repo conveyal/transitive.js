@@ -48,6 +48,7 @@
     "lib/transitive.js",
     "lib/rendersegment.js",
     "lib/legend.js",
+    "lib/spherical-mercator.js",
     "lib/tile-layer.js",
     "lib/util.js"
   ],
