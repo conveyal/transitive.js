@@ -18154,10 +18154,6 @@ require.register("transitive/lib/pathsegment.js", Function("exports, require, mo
  * Dependencies\n\
  */\n\
 \n\
-//var d3 = require('d3');\n\
-\n\
-//var SegmentLabel = require('./labeler/segmentlabel');\n\
-\n\
 var segmentId = 0;\n\
 \n\
 /**\n\
@@ -18233,13 +18229,15 @@ PathSegment.prototype.getAdjacentEdge = function(edge, vertex) {\n\
   // check previous edge\n\
   if (index > 0) {\n\
     var prevEdge = this.graphEdges[index - 1].edge;\n\
-    if (prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;\n\
+    if (prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex)\n\
+      return prevEdge;\n\
   }\n\
 \n\
   // check next edge\n\
   if (index < this.graphEdges.length - 1) {\n\
     var nextEdge = this.graphEdges[index + 1].edge;\n\
-    if (nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;\n\
+    if (nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex)\n\
+      return nextEdge;\n\
   }\n\
 \n\
   return null;\n\

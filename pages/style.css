@@ -1,13 +1,14 @@
 body {
   font-family: 'Helvetica', arial, sans-serif;
-  margin: 20px 20px;
+  margin: 0;
 }
 
 #canvas {
-  position: relative;
-  height: 500px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
   margin-right: 400px;
   background-color: #fff;
 }
@@ -15,30 +16,28 @@ body {
 #legend {
   position: absolute;
   height: 30px;
-  border: 2px solid #888;
+  border: 1px solid #e7e7e7;
   left: 20px;
   bottom: 20px;
-  width: 100px;
-  background-color: #eee;
+  background-color: #fff;
+  z-index: 150;
+  font-weight: 300;
+}
+
+#list {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  border: 1px solid #e7e7e7;
+  background-color: #fff;
+  padding: 20px 20px 0;
   z-index: 150;
 }
 
-
-#list {
-  float: right;
-  height: 460px;
-  width: 340px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  background-color: #fff;
-  padding: 20px 20px;
-}
-
 .listItem {
-  font-family: sans-serif;
-  font-size: 14px;
-  margin-bottom: 15px;
-  color: #888;
+  margin-bottom: 20px;
+  color: #333;
   cursor: default;
 }
 
