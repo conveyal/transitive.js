@@ -3,6 +3,7 @@ JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
 
 JS := $(shell find lib -name '*.js' -print)
+TESTJS := $(shell find test -name '*.js' -print)
 
 PORT = 3000
 
@@ -11,7 +12,7 @@ build: components $(JS)
 	$(COMPONENT) build --dev --verbose
 
 beautify:
-	@./node_modules/.bin/js-beautify --replace $(JS)
+	@./node_modules/.bin/js-beautify --replace $(JS) $(TESTJS)
 
 clean:
 	rm -rf build components

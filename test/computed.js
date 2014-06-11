@@ -1,4 +1,3 @@
-
 /**
  * Dependencies
  */
@@ -21,21 +20,19 @@ var COMPUTED = [
  */
 
 function showLabelsOnHover(transitive) {
-  each(transitive.stops, function (k, stop) {
+  each(transitive.stops, function(k, stop) {
     if (!stop.svgGroup) return;
     stop.svgGroup.selectAll('.transitive-stop-circle')
-      .on('mouseenter', function (data) {
-        //console.log(data.point.graphVertex.x + ', ' + data.point.graphVertex.y);
+      .on('mouseenter', function(data) {
         stop.svgGroup.select('#transitive-stop-label-' + data.point.getId())
           .style('visibility', 'visible');
       })
-      .on('mouseleave', function (data) {
+      .on('mouseleave', function(data) {
         stop.svgGroup.select('#transitive-stop-label-' + data.point.getId())
           .style('visibility', 'hidden');
       });
   });
 }
-
 
 /**
  * Highlight option on hover
@@ -48,17 +45,12 @@ function highlightOptionOnHover(transitive) {
     //var segment = transitive.renderSegments[s];
     var currentColor = segment.lineGraph.style('stroke');
     segment.lineGraph
-      .on('mouseenter', function (data) {
+      .on('mouseenter', function(data) {
         // highlight the path
         segment.lineGraph.style('stroke', '#5bc0de');
         var edge = segment.graphEdge;
-        /*console.log('(' + edge.fromVertex.x + ', '+ edge.fromVertex.y+ ') to (' + edge.toVertex.x + ', ' + edge.toVertex.y+ ')');
-        console.log(segment);
-        if(segment.pattern) {
-          console.log(segment.pattern.pattern_name + ' (' + segment.pattern.getId() + ')');
-        }*/
       })
-      .on('mouseleave', function (data) {
+      .on('mouseleave', function(data) {
         segment.lineGraph.style('stroke', currentColor);
       });
   });
@@ -70,21 +62,23 @@ function highlightOptionOnHover(transitive) {
 
 function dragVertices(transitive) {
   var drag = d3.behavior.drag()
-    .on('dragstart', function () {
+    .on('dragstart', function() {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
     })
-    .on('drag', function (data, index) {
+    .on('drag', function(data, index) {
       var point = data.owner;
       if (point.graphVertex) {
-        var x = transitive.display.xScale.invert(d3.event.sourceEvent.pageX - transitive.el.offsetLeft);
-        var y = transitive.display.yScale.invert(d3.event.sourceEvent.pageY - transitive.el.offsetTop);
+        var x = transitive.display.xScale.invert(d3.event.sourceEvent.pageX -
+          transitive.el.offsetLeft);
+        var y = transitive.display.yScale.invert(d3.event.sourceEvent.pageY -
+          transitive.el.offsetTop);
 
         var dx = Math.abs(point.graphVertex.x - x);
         var dy = Math.abs(point.graphVertex.y - y);
         //console.log('move by ' + dx + ', ' + dy);
 
         var min = transitive.gridCellSize / 2;
-        if(dx >= min || dy >= min) {
+        if (dx >= min || dy >= min) {
           //console.log(data.point);
           point.graphVertex.moveTo(x, y);
           transitive.updateGeometry(true);
@@ -94,14 +88,14 @@ function dragVertices(transitive) {
       }
     });
 
-  each(transitive.graph.vertices, function (vertex) {
+  each(transitive.graph.vertices, function(vertex) {
     if (!vertex.point || !vertex.point.svgGroup) return;
-    if(vertex.point.getType() === 'STOP') {
+    if (vertex.point.getType() === 'STOP') {
       vertex.point.mergedMarker.call(drag);
       vertex.point.patternMarkers.call(drag);
-    }
-    else if(vertex.point.getType() === 'MULTI') {
-      vertex.point.svgGroup.selectAll('.transitive-multipoint-marker-merged').call(drag);
+    } else if (vertex.point.getType() === 'MULTI') {
+      vertex.point.svgGroup.selectAll('.transitive-multipoint-marker-merged')
+        .call(drag);
     }
   });
 }
