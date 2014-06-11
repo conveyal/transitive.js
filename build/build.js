@@ -199,8 +199,225 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("component-type/index.js", Function("exports, require, module",
+require.register("component-props/index.js", Function("exports, require, module",
 "/**\n\
+ * Global Names\n\
+ */\n\
+\n\
+var globals = /\\b(this|Array|Date|Object|Math|JSON)\\b/g;\n\
+\n\
+/**\n\
+ * Return immediate identifiers parsed from `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @param {String|Function} map function or prefix\n\
+ * @return {Array}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(str, fn){\n\
+  var p = unique(props(str));\n\
+  if (fn && 'string' == typeof fn) fn = prefixed(fn);\n\
+  if (fn) return map(str, p, fn);\n\
+  return p;\n\
+};\n\
+\n\
+/**\n\
+ * Return immediate identifiers in `str`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Array}\n\
+ * @api private\n\
+ */\n\
+\n\
+function props(str) {\n\
+  return str\n\
+    .replace(/\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\//g, '')\n\
+    .replace(globals, '')\n\
+    .match(/[$a-zA-Z_]\\w*/g)\n\
+    || [];\n\
+}\n\
+\n\
+/**\n\
+ * Return `str` with `props` mapped with `fn`.\n\
+ *\n\
+ * @param {String} str\n\
+ * @param {Array} props\n\
+ * @param {Function} fn\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function map(str, props, fn) {\n\
+  var re = /\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\/|[a-zA-Z_]\\w*/g;\n\
+  return str.replace(re, function(_){\n\
+    if ('(' == _[_.length - 1]) return fn(_);\n\
+    if (!~props.indexOf(_)) return _;\n\
+    return fn(_);\n\
+  });\n\
+}\n\
+\n\
+/**\n\
+ * Return unique array.\n\
+ *\n\
+ * @param {Array} arr\n\
+ * @return {Array}\n\
+ * @api private\n\
+ */\n\
+\n\
+function unique(arr) {\n\
+  var ret = [];\n\
+\n\
+  for (var i = 0; i < arr.length; i++) {\n\
+    if (~ret.indexOf(arr[i])) continue;\n\
+    ret.push(arr[i]);\n\
+  }\n\
+\n\
+  return ret;\n\
+}\n\
+\n\
+/**\n\
+ * Map with prefix `str`.\n\
+ */\n\
+\n\
+function prefixed(str) {\n\
+  return function(_){\n\
+    return str + _;\n\
+  };\n\
+}\n\
+//@ sourceURL=component-props/index.js"
+));
+require.register("component-to-function/index.js", Function("exports, require, module",
+"/**\n\
+ * Module Dependencies\n\
+ */\n\
+\n\
+var expr = require('props');\n\
+\n\
+/**\n\
+ * Expose `toFunction()`.\n\
+ */\n\
+\n\
+module.exports = toFunction;\n\
+\n\
+/**\n\
+ * Convert `obj` to a `Function`.\n\
+ *\n\
+ * @param {Mixed} obj\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function toFunction(obj) {\n\
+  switch ({}.toString.call(obj)) {\n\
+    case '[object Object]':\n\
+      return objectToFunction(obj);\n\
+    case '[object Function]':\n\
+      return obj;\n\
+    case '[object String]':\n\
+      return stringToFunction(obj);\n\
+    case '[object RegExp]':\n\
+      return regexpToFunction(obj);\n\
+    default:\n\
+      return defaultToFunction(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Default to strict equality.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function defaultToFunction(val) {\n\
+  return function(obj){\n\
+    return val === obj;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert `re` to a function.\n\
+ *\n\
+ * @param {RegExp} re\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function regexpToFunction(re) {\n\
+  return function(obj){\n\
+    return re.test(obj);\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Convert property `str` to a function.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function stringToFunction(str) {\n\
+  // immediate such as \"> 20\"\n\
+  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
+\n\
+  // properties such as \"name.first\" or \"age > 18\" or \"age > 18 && age < 36\"\n\
+  return new Function('_', 'return ' + get(str));\n\
+}\n\
+\n\
+/**\n\
+ * Convert `object` to a function.\n\
+ *\n\
+ * @param {Object} object\n\
+ * @return {Function}\n\
+ * @api private\n\
+ */\n\
+\n\
+function objectToFunction(obj) {\n\
+  var match = {}\n\
+  for (var key in obj) {\n\
+    match[key] = typeof obj[key] === 'string'\n\
+      ? defaultToFunction(obj[key])\n\
+      : toFunction(obj[key])\n\
+  }\n\
+  return function(val){\n\
+    if (typeof val !== 'object') return false;\n\
+    for (var key in match) {\n\
+      if (!(key in val)) return false;\n\
+      if (!match[key](val[key])) return false;\n\
+    }\n\
+    return true;\n\
+  }\n\
+}\n\
+\n\
+/**\n\
+ * Built the getter function. Supports getter style functions\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function get(str) {\n\
+  var props = expr(str);\n\
+  if (!props.length) return '_.' + str;\n\
+\n\
+  var val;\n\
+  for(var i = 0, prop; prop = props[i]; i++) {\n\
+    val = '_.' + prop;\n\
+    val = \"('function' == typeof \" + val + \" ? \" + val + \"() : \" + val + \")\";\n\
+    str = str.replace(new RegExp(prop, 'g'), val);\n\
+  }\n\
+\n\
+  return str;\n\
+}\n\
+//@ sourceURL=component-to-function/index.js"
+));
+require.register("component-type/index.js", Function("exports, require, module",
+"\n\
+/**\n\
  * toString ref.\n\
  */\n\
 \n\
@@ -216,21 +433,18 @@ var toString = Object.prototype.toString;\n\
 \n\
 module.exports = function(val){\n\
   switch (toString.call(val)) {\n\
+    case '[object Function]': return 'function';\n\
     case '[object Date]': return 'date';\n\
     case '[object RegExp]': return 'regexp';\n\
     case '[object Arguments]': return 'arguments';\n\
     case '[object Array]': return 'array';\n\
-    case '[object Error]': return 'error';\n\
+    case '[object String]': return 'string';\n\
   }\n\
 \n\
   if (val === null) return 'null';\n\
   if (val === undefined) return 'undefined';\n\
-  if (val !== val) return 'nan';\n\
   if (val && val.nodeType === 1) return 'element';\n\
-\n\
-  val = val.valueOf\n\
-    ? val.valueOf()\n\
-    : Object.prototype.valueOf.apply(val)\n\
+  if (val === Object(val)) return 'object';\n\
 \n\
   return typeof val;\n\
 };\n\
@@ -549,272 +763,6 @@ Emitter.prototype.hasListeners = function(event){\n\
   return !! this.listeners(event).length;\n\
 };\n\
 //@ sourceURL=component-emitter/index.js"
-));
-require.register("component-props/index.js", Function("exports, require, module",
-"/**\n\
- * Global Names\n\
- */\n\
-\n\
-var globals = /\\b(this|Array|Date|Object|Math|JSON)\\b/g;\n\
-\n\
-/**\n\
- * Return immediate identifiers parsed from `str`.\n\
- *\n\
- * @param {String} str\n\
- * @param {String|Function} map function or prefix\n\
- * @return {Array}\n\
- * @api public\n\
- */\n\
-\n\
-module.exports = function(str, fn){\n\
-  var p = unique(props(str));\n\
-  if (fn && 'string' == typeof fn) fn = prefixed(fn);\n\
-  if (fn) return map(str, p, fn);\n\
-  return p;\n\
-};\n\
-\n\
-/**\n\
- * Return immediate identifiers in `str`.\n\
- *\n\
- * @param {String} str\n\
- * @return {Array}\n\
- * @api private\n\
- */\n\
-\n\
-function props(str) {\n\
-  return str\n\
-    .replace(/\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\//g, '')\n\
-    .replace(globals, '')\n\
-    .match(/[$a-zA-Z_]\\w*/g)\n\
-    || [];\n\
-}\n\
-\n\
-/**\n\
- * Return `str` with `props` mapped with `fn`.\n\
- *\n\
- * @param {String} str\n\
- * @param {Array} props\n\
- * @param {Function} fn\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function map(str, props, fn) {\n\
-  var re = /\\.\\w+|\\w+ *\\(|\"[^\"]*\"|'[^']*'|\\/([^/]+)\\/|[a-zA-Z_]\\w*/g;\n\
-  return str.replace(re, function(_){\n\
-    if ('(' == _[_.length - 1]) return fn(_);\n\
-    if (!~props.indexOf(_)) return _;\n\
-    return fn(_);\n\
-  });\n\
-}\n\
-\n\
-/**\n\
- * Return unique array.\n\
- *\n\
- * @param {Array} arr\n\
- * @return {Array}\n\
- * @api private\n\
- */\n\
-\n\
-function unique(arr) {\n\
-  var ret = [];\n\
-\n\
-  for (var i = 0; i < arr.length; i++) {\n\
-    if (~ret.indexOf(arr[i])) continue;\n\
-    ret.push(arr[i]);\n\
-  }\n\
-\n\
-  return ret;\n\
-}\n\
-\n\
-/**\n\
- * Map with prefix `str`.\n\
- */\n\
-\n\
-function prefixed(str) {\n\
-  return function(_){\n\
-    return str + _;\n\
-  };\n\
-}\n\
-//@ sourceURL=component-props/index.js"
-));
-require.register("component-to-function/index.js", Function("exports, require, module",
-"/**\n\
- * Module Dependencies\n\
- */\n\
-try {\n\
-  var expr = require('props');\n\
-} catch(e) {\n\
-  var expr = require('component-props');\n\
-}\n\
-\n\
-/**\n\
- * Expose `toFunction()`.\n\
- */\n\
-\n\
-module.exports = toFunction;\n\
-\n\
-/**\n\
- * Convert `obj` to a `Function`.\n\
- *\n\
- * @param {Mixed} obj\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function toFunction(obj) {\n\
-  switch ({}.toString.call(obj)) {\n\
-    case '[object Object]':\n\
-      return objectToFunction(obj);\n\
-    case '[object Function]':\n\
-      return obj;\n\
-    case '[object String]':\n\
-      return stringToFunction(obj);\n\
-    case '[object RegExp]':\n\
-      return regexpToFunction(obj);\n\
-    default:\n\
-      return defaultToFunction(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Default to strict equality.\n\
- *\n\
- * @param {Mixed} val\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function defaultToFunction(val) {\n\
-  return function(obj){\n\
-    return val === obj;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert `re` to a function.\n\
- *\n\
- * @param {RegExp} re\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function regexpToFunction(re) {\n\
-  return function(obj){\n\
-    return re.test(obj);\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Convert property `str` to a function.\n\
- *\n\
- * @param {String} str\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function stringToFunction(str) {\n\
-  // immediate such as \"> 20\"\n\
-  if (/^ *\\W+/.test(str)) return new Function('_', 'return _ ' + str);\n\
-\n\
-  // properties such as \"name.first\" or \"age > 18\" or \"age > 18 && age < 36\"\n\
-  return new Function('_', 'return ' + get(str));\n\
-}\n\
-\n\
-/**\n\
- * Convert `object` to a function.\n\
- *\n\
- * @param {Object} object\n\
- * @return {Function}\n\
- * @api private\n\
- */\n\
-\n\
-function objectToFunction(obj) {\n\
-  var match = {}\n\
-  for (var key in obj) {\n\
-    match[key] = typeof obj[key] === 'string'\n\
-      ? defaultToFunction(obj[key])\n\
-      : toFunction(obj[key])\n\
-  }\n\
-  return function(val){\n\
-    if (typeof val !== 'object') return false;\n\
-    for (var key in match) {\n\
-      if (!(key in val)) return false;\n\
-      if (!match[key](val[key])) return false;\n\
-    }\n\
-    return true;\n\
-  }\n\
-}\n\
-\n\
-/**\n\
- * Built the getter function. Supports getter style functions\n\
- *\n\
- * @param {String} str\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-function get(str) {\n\
-  var props = expr(str);\n\
-  if (!props.length) return '_.' + str;\n\
-\n\
-  var val;\n\
-  for(var i = 0, prop; prop = props[i]; i++) {\n\
-    val = '_.' + prop;\n\
-    val = \"('function' == typeof \" + val + \" ? \" + val + \"() : \" + val + \")\";\n\
-    str = str.replace(new RegExp(prop, 'g'), val);\n\
-  }\n\
-\n\
-  return str;\n\
-}\n\
-//@ sourceURL=component-to-function/index.js"
-));
-require.register("cristiandouce-merge-util/index.js", Function("exports, require, module",
-"/**\n\
- * Module dependencies.\n\
- */\n\
-\n\
-var has = Object.prototype.hasOwnProperty;\n\
-\n\
-try {\n\
-  var type = require('type-component');\n\
-} catch (err) {\n\
-  var type = require('type');\n\
-}\n\
-\n\
-/**\n\
- * Expose merge\n\
- */\n\
-\n\
-module.exports = merge;\n\
-\n\
-/**\n\
- * Merge `b` into `a`.\n\
- *\n\
- * @param {Object} a\n\
- * @param {Object} b\n\
- * @param {Boolean} inheritance\n\
- * @return {Object} a\n\
- * @api public\n\
- */\n\
-\n\
-function merge (a, b, inheritance){\n\
-  for (var key in b) {\n\
-    var copy = !!inheritance\n\
-     ? b[key] != null\n\
-     : (has.call(b, key)) && b[key] != null\n\
-\n\
-    if (copy) {\n\
-      if (!a) a = {};\n\
-      if ('object' === type(b[key])) {\n\
-        a[key] = merge(a[key], b[key], inheritance);\n\
-      } else {\n\
-        a[key] = b[key];\n\
-      }\n\
-    }\n\
-  }\n\
-  return a;\n\
-};//@ sourceURL=cristiandouce-merge-util/index.js"
 ));
 require.register("mbostock-d3/d3.js", Function("exports, require, module",
 "!function() {\n\
@@ -10084,181 +10032,6 @@ require.register("mbostock-d3/d3.js", Function("exports, require, module",
   }\n\
 }();//@ sourceURL=mbostock-d3/d3.js"
 ));
-require.register("janogonzalez-priorityqueuejs/index.js", Function("exports, require, module",
-"/**\n\
- * Expose `PriorityQueue`.\n\
- */\n\
-module.exports = PriorityQueue;\n\
-\n\
-/**\n\
- * Initializes a new empty `PriorityQueue` with the given `comparator(a, b)`\n\
- * function, uses `.DEFAULT_COMPARATOR()` when no function is provided.\n\
- *\n\
- * The comparator function must return a positive number when `a > b`, 0 when\n\
- * `a == b` and a negative number when `a < b`.\n\
- *\n\
- * @param {Function}\n\
- * @return {PriorityQueue}\n\
- * @api public\n\
- */\n\
-function PriorityQueue(comparator) {\n\
-  this._comparator = comparator || PriorityQueue.DEFAULT_COMPARATOR;\n\
-  this._elements = [];\n\
-}\n\
-\n\
-/**\n\
- * Compares `a` and `b`, when `a > b` it returns a positive number, when\n\
- * it returns 0 and when `a < b` it returns a negative number.\n\
- *\n\
- * @param {String|Number} a\n\
- * @param {String|Number} b\n\
- * @return {Number}\n\
- * @api public\n\
- */\n\
-PriorityQueue.DEFAULT_COMPARATOR = function(a, b) {\n\
-  if (a instanceof Number && b instanceof Number) {\n\
-    return a - b;\n\
-  } else {\n\
-    a = a.toString();\n\
-    b = b.toString();\n\
-\n\
-    if (a == b) return 0;\n\
-\n\
-    return (a > b) ? 1 : -1;\n\
-  }\n\
-};\n\
-\n\
-/**\n\
- * Returns whether the priority queue is empty or not.\n\
- *\n\
- * @return {Boolean}\n\
- * @api public\n\
- */\n\
-PriorityQueue.prototype.isEmpty = function() {\n\
-  return this.size() === 0;\n\
-};\n\
-\n\
-/**\n\
- * Peeks at the top element of the priority queue.\n\
- *\n\
- * @return {Object}\n\
- * @throws {Error} when the queue is empty.\n\
- * @api public\n\
- */\n\
-PriorityQueue.prototype.peek = function() {\n\
-  if (this.isEmpty()) throw new Error('PriorityQueue is empty');\n\
-\n\
-  return this._elements[0];\n\
-};\n\
-\n\
-/**\n\
- * Dequeues the top element of the priority queue.\n\
- *\n\
- * @return {Object}\n\
- * @throws {Error} when the queue is empty.\n\
- * @api public\n\
- */\n\
-PriorityQueue.prototype.deq = function() {\n\
-  var first = this.peek();\n\
-  var last = this._elements.pop();\n\
-  var size = this.size();\n\
-\n\
-  if (size === 0) return first;\n\
-\n\
-  this._elements[0] = last;\n\
-  var current = 0;\n\
-\n\
-  while (current < size) {\n\
-    var largest = current;\n\
-    var left = (2 * current) + 1;\n\
-    var right = (2 * current) + 2;\n\
-\n\
-    if (left < size && this._compare(left, largest) > 0) {\n\
-      largest = left;\n\
-    }\n\
-\n\
-    if (right < size && this._compare(right, largest) > 0) {\n\
-      largest = right;\n\
-    }\n\
-\n\
-    if (largest === current) break;\n\
-\n\
-    this._swap(largest, current);\n\
-    current = largest;\n\
-  }\n\
-\n\
-  return first;\n\
-};\n\
-\n\
-/**\n\
- * Enqueues the `element` at the priority queue and returns its new size.\n\
- *\n\
- * @param {Object} element\n\
- * @return {Number}\n\
- * @api public\n\
- */\n\
-PriorityQueue.prototype.enq = function(element) {\n\
-  var size = this._elements.push(element);\n\
-  var current = size - 1;\n\
-\n\
-  while (current > 0) {\n\
-    var parent = Math.floor((current - 1) / 2);\n\
-\n\
-    if (this._compare(current, parent) < 0) break;\n\
-\n\
-    this._swap(parent, current);\n\
-    current = parent;\n\
-  }\n\
-\n\
-  return size;\n\
-};\n\
-\n\
-/**\n\
- * Returns the size of the priority queue.\n\
- *\n\
- * @return {Number}\n\
- * @api public\n\
- */\n\
-PriorityQueue.prototype.size = function() {\n\
-  return this._elements.length;\n\
-};\n\
-\n\
-/**\n\
- *  Iterates over queue elements\n\
- *\n\
- *  @param {Function} fn\n\
- */\n\
-PriorityQueue.prototype.forEach = function(fn) {\n\
-  return this._elements.forEach(fn);\n\
-};\n\
-\n\
-/**\n\
- * Compares the values at position `a` and `b` in the priority queue using its\n\
- * comparator function.\n\
- *\n\
- * @param {Number} a\n\
- * @param {Number} b\n\
- * @return {Number}\n\
- * @api private\n\
- */\n\
-PriorityQueue.prototype._compare = function(a, b) {\n\
-  return this._comparator(this._elements[a], this._elements[b]);\n\
-};\n\
-\n\
-/**\n\
- * Swaps the values at position `a` and `b` in the priority queue.\n\
- *\n\
- * @param {Number} a\n\
- * @param {Number} b\n\
- * @api private\n\
- */\n\
-PriorityQueue.prototype._swap = function(a, b) {\n\
-  var aux = this._elements[a];\n\
-  this._elements[a] = this._elements[b];\n\
-  this._elements[b] = aux;\n\
-};\n\
-//@ sourceURL=janogonzalez-priorityqueuejs/index.js"
-));
 require.register("javascript-augment/augment.js", Function("exports, require, module",
 "(function (global, factory) {\n\
     if (typeof define === \"function\" && define.amd) define(factory);\n\
@@ -10281,78 +10054,400 @@ require.register("javascript-augment/augment.js", Function("exports, require, mo
     }\n\
 }));//@ sourceURL=javascript-augment/augment.js"
 ));
-require.register("visionmedia-debug/debug.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Expose `debug()` as the module.\n\
+require.register("guille-ms.js/index.js", Function("exports, require, module",
+"/**\n\
+ * Helpers.\n\
  */\n\
 \n\
-module.exports = debug;\n\
+var s = 1000;\n\
+var m = s * 60;\n\
+var h = m * 60;\n\
+var d = h * 24;\n\
+var y = d * 365.25;\n\
 \n\
 /**\n\
- * Create a debugger with the given `name`.\n\
+ * Parse or format the given `val`.\n\
  *\n\
- * @param {String} name\n\
- * @return {Type}\n\
+ * Options:\n\
+ *\n\
+ *  - `long` verbose formatting [false]\n\
+ *\n\
+ * @param {String|Number} val\n\
+ * @param {Object} options\n\
+ * @return {String|Number}\n\
  * @api public\n\
  */\n\
 \n\
-function debug(name) {\n\
-  if (!debug.enabled(name)) return function(){};\n\
+module.exports = function(val, options){\n\
+  options = options || {};\n\
+  if ('string' == typeof val) return parse(val);\n\
+  return options.long\n\
+    ? long(val)\n\
+    : short(val);\n\
+};\n\
 \n\
-  return function(fmt){\n\
-    fmt = coerce(fmt);\n\
+/**\n\
+ * Parse the given `str` and return milliseconds.\n\
+ *\n\
+ * @param {String} str\n\
+ * @return {Number}\n\
+ * @api private\n\
+ */\n\
 \n\
-    var curr = new Date;\n\
-    var ms = curr - (debug[name] || curr);\n\
-    debug[name] = curr;\n\
-\n\
-    fmt = name\n\
-      + ' '\n\
-      + fmt\n\
-      + ' +' + debug.humanize(ms);\n\
-\n\
-    // This hackery is required for IE8\n\
-    // where `console.log` doesn't have 'apply'\n\
-    window.console\n\
-      && console.log\n\
-      && Function.prototype.apply.call(console.log, console, arguments);\n\
+function parse(str) {\n\
+  var match = /^((?:\\d+)?\\.?\\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(str);\n\
+  if (!match) return;\n\
+  var n = parseFloat(match[1]);\n\
+  var type = (match[2] || 'ms').toLowerCase();\n\
+  switch (type) {\n\
+    case 'years':\n\
+    case 'year':\n\
+    case 'y':\n\
+      return n * y;\n\
+    case 'days':\n\
+    case 'day':\n\
+    case 'd':\n\
+      return n * d;\n\
+    case 'hours':\n\
+    case 'hour':\n\
+    case 'h':\n\
+      return n * h;\n\
+    case 'minutes':\n\
+    case 'minute':\n\
+    case 'm':\n\
+      return n * m;\n\
+    case 'seconds':\n\
+    case 'second':\n\
+    case 's':\n\
+      return n * s;\n\
+    case 'ms':\n\
+      return n;\n\
   }\n\
 }\n\
 \n\
 /**\n\
- * The currently active debug mode names.\n\
+ * Short format for `ms`.\n\
+ *\n\
+ * @param {Number} ms\n\
+ * @return {String}\n\
+ * @api private\n\
  */\n\
 \n\
-debug.names = [];\n\
-debug.skips = [];\n\
+function short(ms) {\n\
+  if (ms >= d) return Math.round(ms / d) + 'd';\n\
+  if (ms >= h) return Math.round(ms / h) + 'h';\n\
+  if (ms >= m) return Math.round(ms / m) + 'm';\n\
+  if (ms >= s) return Math.round(ms / s) + 's';\n\
+  return ms + 'ms';\n\
+}\n\
 \n\
 /**\n\
- * Enables a debug mode by name. This can include modes\n\
- * separated by a colon and wildcards.\n\
+ * Long format for `ms`.\n\
  *\n\
- * @param {String} name\n\
+ * @param {Number} ms\n\
+ * @return {String}\n\
+ * @api private\n\
+ */\n\
+\n\
+function long(ms) {\n\
+  return plural(ms, d, 'day')\n\
+    || plural(ms, h, 'hour')\n\
+    || plural(ms, m, 'minute')\n\
+    || plural(ms, s, 'second')\n\
+    || ms + ' ms';\n\
+}\n\
+\n\
+/**\n\
+ * Pluralization helper.\n\
+ */\n\
+\n\
+function plural(ms, n, name) {\n\
+  if (ms < n) return;\n\
+  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;\n\
+  return Math.ceil(ms / n) + ' ' + name + 's';\n\
+}\n\
+//@ sourceURL=guille-ms.js/index.js"
+));
+require.register("visionmedia-debug/browser.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * This is the web browser implementation of `debug()`.\n\
+ *\n\
+ * Expose `debug()` as the module.\n\
+ */\n\
+\n\
+exports = module.exports = require('./debug');\n\
+exports.log = log;\n\
+exports.save = save;\n\
+exports.load = load;\n\
+exports.useColors = useColors;\n\
+\n\
+/**\n\
+ * Colors.\n\
+ */\n\
+\n\
+exports.colors = [\n\
+  'cyan',\n\
+  'green',\n\
+  'goldenrod', // \"yellow\" is just too bright on a white background...\n\
+  'blue',\n\
+  'purple',\n\
+  'red'\n\
+];\n\
+\n\
+/**\n\
+ * Currently only WebKit-based Web Inspectors and the Firebug\n\
+ * extension (*not* the built-in Firefox web inpector) are\n\
+ * known to support \"%c\" CSS customizations.\n\
+ *\n\
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors\n\
+ */\n\
+\n\
+function useColors() {\n\
+  // is webkit? http://stackoverflow.com/a/16459606/376773\n\
+  return ('WebkitAppearance' in document.documentElement.style) ||\n\
+    // is firebug? http://stackoverflow.com/a/398120/376773\n\
+    (window.console && (console.firebug || (console.exception && console.table)));\n\
+}\n\
+\n\
+/**\n\
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.\n\
+ */\n\
+\n\
+exports.formatters.j = function(v) {\n\
+  return JSON.stringify(v);\n\
+};\n\
+\n\
+/**\n\
+ * Invokes `console.log()` when available.\n\
+ * No-op when `console.log` is not a \"function\".\n\
+ *\n\
  * @api public\n\
  */\n\
 \n\
-debug.enable = function(name) {\n\
-  try {\n\
-    localStorage.debug = name;\n\
-  } catch(e){}\n\
+function log() {\n\
+  var args = arguments;\n\
+  var useColors = this.useColors;\n\
 \n\
-  var split = (name || '').split(/[\\s,]+/)\n\
-    , len = split.length;\n\
+  args[0] = (useColors ? '%c' : '')\n\
+    + this.namespace\n\
+    + (useColors ? '%c ' : ' ')\n\
+    + args[0]\n\
+    + (useColors ? '%c ' : ' ')\n\
+    + '+' + exports.humanize(this.diff);\n\
+\n\
+  if (useColors) {\n\
+    var c = 'color: ' + this.color;\n\
+    args = [args[0], c, ''].concat(Array.prototype.slice.call(args, 1));\n\
+\n\
+    // the final \"%c\" is somewhat tricky, because there could be other\n\
+    // arguments passed either before or after the %c, so we need to\n\
+    // figure out the correct index to insert the CSS into\n\
+    var index = 0;\n\
+    var lastC = 0;\n\
+    args[0].replace(/%[a-z%]/g, function(match) {\n\
+      if ('%%' === match) return;\n\
+      index++;\n\
+      if ('%c' === match) {\n\
+        // we only are interested in the *last* %c\n\
+        // (the user may have provided their own)\n\
+        lastC = index;\n\
+      }\n\
+    });\n\
+\n\
+    args.splice(lastC, 0, c);\n\
+  }\n\
+\n\
+  // This hackery is required for IE8,\n\
+  // where the `console.log` function doesn't have 'apply'\n\
+  return 'object' == typeof console\n\
+    && 'function' == typeof console.log\n\
+    && Function.prototype.apply.call(console.log, console, args);\n\
+}\n\
+\n\
+/**\n\
+ * Save `namespaces`.\n\
+ *\n\
+ * @param {String} namespaces\n\
+ * @api private\n\
+ */\n\
+\n\
+function save(namespaces) {\n\
+  try {\n\
+    localStorage.debug = namespaces;\n\
+  } catch(e) {}\n\
+}\n\
+\n\
+/**\n\
+ * Load `namespaces`.\n\
+ *\n\
+ * @return {String} returns the previously persisted debug modes\n\
+ * @api private\n\
+ */\n\
+\n\
+function load() {\n\
+  var r;\n\
+  try {\n\
+    r = localStorage.debug;\n\
+  } catch(e) {}\n\
+  return r;\n\
+}\n\
+\n\
+/**\n\
+ * Enable namespaces listed in `localStorage.debug` initially.\n\
+ */\n\
+\n\
+exports.enable(load());\n\
+//@ sourceURL=visionmedia-debug/browser.js"
+));
+require.register("visionmedia-debug/debug.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * This is the common logic for both the Node.js and web browser\n\
+ * implementations of `debug()`.\n\
+ *\n\
+ * Expose `debug()` as the module.\n\
+ */\n\
+\n\
+exports = module.exports = debug;\n\
+exports.coerce = coerce;\n\
+exports.disable = disable;\n\
+exports.enable = enable;\n\
+exports.enabled = enabled;\n\
+exports.humanize = require('ms');\n\
+\n\
+/**\n\
+ * The currently active debug mode names, and names to skip.\n\
+ */\n\
+\n\
+exports.names = [];\n\
+exports.skips = [];\n\
+\n\
+/**\n\
+ * Map of special \"%n\" handling functions, for the debug \"format\" argument.\n\
+ *\n\
+ * Valid key names are a single, lowercased letter, i.e. \"n\".\n\
+ */\n\
+\n\
+exports.formatters = {};\n\
+\n\
+/**\n\
+ * Previously assigned color.\n\
+ */\n\
+\n\
+var prevColor = 0;\n\
+\n\
+/**\n\
+ * Previous log timestamp.\n\
+ */\n\
+\n\
+var prevTime;\n\
+\n\
+/**\n\
+ * Select a color.\n\
+ *\n\
+ * @return {Number}\n\
+ * @api private\n\
+ */\n\
+\n\
+function selectColor() {\n\
+  return exports.colors[prevColor++ % exports.colors.length];\n\
+}\n\
+\n\
+/**\n\
+ * Create a debugger with the given `namespace`.\n\
+ *\n\
+ * @param {String} namespace\n\
+ * @return {Function}\n\
+ * @api public\n\
+ */\n\
+\n\
+function debug(namespace) {\n\
+\n\
+  // define the `disabled` version\n\
+  function disabled() {\n\
+  }\n\
+  disabled.enabled = false;\n\
+\n\
+  // define the `enabled` version\n\
+  function enabled() {\n\
+\n\
+    var self = enabled;\n\
+\n\
+    // set `diff` timestamp\n\
+    var curr = +new Date();\n\
+    var ms = curr - (prevTime || curr);\n\
+    self.diff = ms;\n\
+    self.prev = prevTime;\n\
+    self.curr = curr;\n\
+    prevTime = curr;\n\
+\n\
+    // add the `color` if not set\n\
+    if (null == self.useColors) self.useColors = exports.useColors();\n\
+    if (null == self.color && self.useColors) self.color = selectColor();\n\
+\n\
+    var args = Array.prototype.slice.call(arguments);\n\
+\n\
+    args[0] = exports.coerce(args[0]);\n\
+\n\
+    if ('string' !== typeof args[0]) {\n\
+      // anything else let's inspect with %o\n\
+      args = ['%o'].concat(args);\n\
+    }\n\
+\n\
+    // apply any `formatters` transformations\n\
+    var index = 0;\n\
+    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {\n\
+      // if we encounter an escaped % then don't increase the array index\n\
+      if (match === '%%') return match;\n\
+      index++;\n\
+      var formatter = exports.formatters[format];\n\
+      if ('function' === typeof formatter) {\n\
+        var val = args[index];\n\
+        match = formatter.call(self, val);\n\
+\n\
+        // now we need to remove `args[index]` since it's inlined in the `format`\n\
+        args.splice(index, 1);\n\
+        index--;\n\
+      }\n\
+      return match;\n\
+    });\n\
+\n\
+    exports.log.apply(self, args);\n\
+  }\n\
+  enabled.enabled = true;\n\
+\n\
+  var fn = exports.enabled(namespace) ? enabled : disabled;\n\
+\n\
+  fn.namespace = namespace;\n\
+\n\
+  return fn;\n\
+}\n\
+\n\
+/**\n\
+ * Enables a debug mode by namespaces. This can include modes\n\
+ * separated by a colon and wildcards.\n\
+ *\n\
+ * @param {String} namespaces\n\
+ * @api public\n\
+ */\n\
+\n\
+function enable(namespaces) {\n\
+  exports.save(namespaces);\n\
+\n\
+  var split = (namespaces || '').split(/[\\s,]+/);\n\
+  var len = split.length;\n\
 \n\
   for (var i = 0; i < len; i++) {\n\
-    name = split[i].replace('*', '.*?');\n\
-    if (name[0] === '-') {\n\
-      debug.skips.push(new RegExp('^' + name.substr(1) + '$'));\n\
-    }\n\
-    else {\n\
-      debug.names.push(new RegExp('^' + name + '$'));\n\
+    if (!split[i]) continue; // ignore empty strings\n\
+    namespaces = split[i].replace('*', '.*?');\n\
+    if (namespaces[0] === '-') {\n\
+      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));\n\
+    } else {\n\
+      exports.names.push(new RegExp('^' + namespaces + '$'));\n\
     }\n\
   }\n\
-};\n\
+}\n\
 \n\
 /**\n\
  * Disable debug output.\n\
@@ -10360,28 +10455,9 @@ debug.enable = function(name) {\n\
  * @api public\n\
  */\n\
 \n\
-debug.disable = function(){\n\
-  debug.enable('');\n\
-};\n\
-\n\
-/**\n\
- * Humanize the given `ms`.\n\
- *\n\
- * @param {Number} m\n\
- * @return {String}\n\
- * @api private\n\
- */\n\
-\n\
-debug.humanize = function(ms) {\n\
-  var sec = 1000\n\
-    , min = 60 * 1000\n\
-    , hour = 60 * min;\n\
-\n\
-  if (ms >= hour) return (ms / hour).toFixed(1) + 'h';\n\
-  if (ms >= min) return (ms / min).toFixed(1) + 'm';\n\
-  if (ms >= sec) return (ms / sec | 0) + 's';\n\
-  return ms + 'ms';\n\
-};\n\
+function disable() {\n\
+  exports.enable('');\n\
+}\n\
 \n\
 /**\n\
  * Returns true if the given mode name is enabled, false otherwise.\n\
@@ -10391,34 +10467,33 @@ debug.humanize = function(ms) {\n\
  * @api public\n\
  */\n\
 \n\
-debug.enabled = function(name) {\n\
-  for (var i = 0, len = debug.skips.length; i < len; i++) {\n\
-    if (debug.skips[i].test(name)) {\n\
+function enabled(name) {\n\
+  var i, len;\n\
+  for (i = 0, len = exports.skips.length; i < len; i++) {\n\
+    if (exports.skips[i].test(name)) {\n\
       return false;\n\
     }\n\
   }\n\
-  for (var i = 0, len = debug.names.length; i < len; i++) {\n\
-    if (debug.names[i].test(name)) {\n\
+  for (i = 0, len = exports.names.length; i < len; i++) {\n\
+    if (exports.names[i].test(name)) {\n\
       return true;\n\
     }\n\
   }\n\
   return false;\n\
-};\n\
+}\n\
 \n\
 /**\n\
  * Coerce `val`.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {Mixed}\n\
+ * @api private\n\
  */\n\
 \n\
 function coerce(val) {\n\
   if (val instanceof Error) return val.stack || val.message;\n\
   return val;\n\
 }\n\
-\n\
-// persist\n\
-\n\
-try {\n\
-  if (window.localStorage) debug.enable(localStorage.debug);\n\
-} catch(e){}\n\
 //@ sourceURL=visionmedia-debug/debug.js"
 ));
 require.register("yields-svg-attributes/index.js", Function("exports, require, module",
@@ -14131,18 +14206,14 @@ function option(obj, value, el){\n\
 //@ sourceURL=yields-select/index.js"
 ));
 require.register("transitive/lib/graph/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
+"var d3 = require('d3');\n\
+var debug = require('debug')('transitive:graph');\n\
+var each = require('each');\n\
 \n\
 var Edge = require('./edge');\n\
 var Vertex = require('./vertex');\n\
 var MultiPoint = require('../point/multipoint');\n\
 var Util = require('../util');\n\
-\n\
-var PriorityQueue = require('priorityqueuejs');\n\
-var each = require('each');\n\
 \n\
 /**\n\
  * Expose `Graph`\n\
@@ -14154,18 +14225,63 @@ module.exports = NetworkGraph;\n\
  *  An graph representing the underlying 'wireframe' network\n\
  */\n\
 \n\
-function NetworkGraph(vertices, edges) {\n\
-  this.vertices = vertices || [];\n\
-  this.edges = edges || [];\n\
+function NetworkGraph(vertices) {\n\
+  this.edges = [];\n\
+  this.vertices = [];\n\
+\n\
+  // Add all base vertices\n\
+  for (var i in vertices) this.addVertex(vertices[i]);\n\
 }\n\
+\n\
+/**\n\
+ * Get the bounds of the graph\n\
+ *\n\
+ * @return {Object}\n\
+ *   - {Object} x\n\
+ *     - {Number} max\n\
+ *     - {Number} min\n\
+ *   - {Object} y\n\
+ *     - {Number} max\n\
+ *     - {Number} min\n\
+ *   - {Object} lon\n\
+ *     - {Number} max\n\
+ *     - {Number} min\n\
+ *   - {Object} lat\n\
+ *     - {Number} max\n\
+ *     - {Number} min\n\
+ */\n\
+\n\
+NetworkGraph.prototype.bounds = function() {\n\
+  var x = {\n\
+    max: -Infinity,\n\
+    min: Infinity\n\
+  };\n\
+  var y = {\n\
+    max: -Infinity,\n\
+    min: Infinity\n\
+  };\n\
+\n\
+  for (var i in this.vertices) {\n\
+    var vertex = this.vertices[i];\n\
+    x.min = Math.min(x.min, vertex.x);\n\
+    x.max = Math.max(x.max, vertex.x);\n\
+    y.min = Math.min(y.min, vertex.y);\n\
+    y.max = Math.max(y.max, vertex.y);\n\
+  }\n\
+\n\
+  return {\n\
+    x: x,\n\
+    y: y\n\
+  };\n\
+};\n\
 \n\
 /**\n\
  * Add Vertex\n\
  */\n\
 \n\
 NetworkGraph.prototype.addVertex = function(point, x, y) {\n\
-  if(x === undefined || y === undefined) {\n\
-    var xy = latLonToSphericalMercator(point.getLat(), point.getLon());\n\
+  if (x === undefined || y === undefined) {\n\
+    var xy = Util.latLonToSphericalMercator(point.getLat(), point.getLon());\n\
     x = xy[0];\n\
     y = xy[1];\n\
   }\n\
@@ -14178,36 +14294,40 @@ NetworkGraph.prototype.addVertex = function(point, x, y) {\n\
  * Add Edge\n\
  */\n\
 \n\
-NetworkGraph.prototype.addEdge = function(stopArray, fromVertex, toVertex) {\n\
-  if (this.vertices.indexOf(fromVertex) === -1) {\n\
-    console.log('Error: NetworkGraph does not contain Edge fromVertex');\n\
+NetworkGraph.prototype.addEdge = function(stops, from, to) {\n\
+  if (this.vertices.indexOf(from) === -1 || this.vertices.indexOf(to) === -1) {\n\
+    debug('Error: Cannot add edge. Graph does not contain vertices.');\n\
     return;\n\
   }\n\
 \n\
-  if (this.vertices.indexOf(toVertex) === -1) {\n\
-    console.log('Error: NetworkGraph does not contain Edge toVertex');\n\
-    return;\n\
-  }\n\
-\n\
-  var edge = new Edge(stopArray, fromVertex, toVertex);\n\
+  var edge = new Edge(stops, from, to);\n\
   this.edges.push(edge);\n\
-  fromVertex.edges.push(edge);\n\
-  toVertex.edges.push(edge);\n\
+  from.edges.push(edge);\n\
+  to.edges.push(edge);\n\
 \n\
   return edge;\n\
 };\n\
 \n\
 NetworkGraph.prototype.removeEdge = function(edge) {\n\
+\n\
+  // remove from the graph's edge collection\n\
   var edgeIndex = this.edges.indexOf(edge);\n\
-  if(edgeIndex !== -1) this.edges.splice(edgeIndex, 1);\n\
+  if (edgeIndex !== -1) this.edges.splice(edgeIndex, 1);\n\
+\n\
+  // remove from any associated path segment edge lists\n\
   edge.pathSegments.forEach(function(segment) {\n\
     segment.removeEdge(edge);\n\
   });\n\
+\n\
+  // remove from the endpoint vertex incidentEdge collections\n\
+  edge.fromVertex.removeEdge(edge);\n\
+  edge.toVertex.removeEdge(edge);\n\
 };\n\
 \n\
 NetworkGraph.prototype.mergeVertices = function(vertexArray) {\n\
 \n\
-  var xTotal = 0, yTotal = 0;\n\
+  var xTotal = 0,\n\
+    yTotal = 0;\n\
 \n\
   var multiPoint = new MultiPoint();\n\
   var mergedVertex = new Vertex(multiPoint, 0, 0);\n\
@@ -14218,7 +14338,8 @@ NetworkGraph.prototype.mergeVertices = function(vertexArray) {\n\
     xTotal += vertex.x;\n\
     yTotal += vertex.y;\n\
     vertex.edges.forEach(function(edge) {\n\
-      if(vertexArray.indexOf(edge.fromVertex) !== -1 && vertexArray.indexOf(edge.toVertex) !== -1) {\n\
+      if (vertexArray.indexOf(edge.fromVertex) !== -1 && vertexArray.indexOf(\n\
+        edge.toVertex) !== -1) {\n\
         this.removeEdge(edge);\n\
         return;\n\
       }\n\
@@ -14226,7 +14347,7 @@ NetworkGraph.prototype.mergeVertices = function(vertexArray) {\n\
       mergedVertex.addEdge(edge);\n\
     }, this);\n\
     var index = this.vertices.indexOf(vertex);\n\
-    if(index !== -1) this.vertices.splice(index, 1);\n\
+    if (index !== -1) this.vertices.splice(index, 1);\n\
   }, this);\n\
 \n\
   mergedVertex.x = xTotal / vertexArray.length;\n\
@@ -14239,7 +14360,6 @@ NetworkGraph.prototype.mergeVertices = function(vertexArray) {\n\
   this.vertices.push(mergedVertex);\n\
 };\n\
 \n\
-\n\
 /**\n\
  * Get the equivalent edge\n\
  */\n\
@@ -14247,10 +14367,8 @@ NetworkGraph.prototype.mergeVertices = function(vertexArray) {\n\
 NetworkGraph.prototype.getEquivalentEdge = function(pointArray, from, to) {\n\
   for (var e = 0; e < this.edges.length; e++) {\n\
     var edge = this.edges[e];\n\
-    if (edge.fromVertex === from\n\
-      && edge.toVertex === to\n\
-      && pointArray.length === edge.pointArray.length\n\
-      && equal(pointArray, edge.pointArray)) {\n\
+    if (edge.fromVertex === from && edge.toVertex === to && pointArray.length ===\n\
+      edge.pointArray.length && equal(pointArray, edge.pointArray)) {\n\
       return edge;\n\
     }\n\
   }\n\
@@ -14269,7 +14387,7 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
 \n\
   for (var e = 0; e < this.edges.length; e++) {\n\
     var edge = this.edges[e];\n\
-    if(edge.patterns.length > maxPatterns) {\n\
+    if (edge.patterns.length > maxPatterns) {\n\
       trunkEdge = edge;\n\
       maxPatterns = edge.patterns.length;\n\
     }\n\
@@ -14282,9 +14400,9 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
 \n\
   // determine the direction relative to the trunk edge\n\
   var llDir = trunkEdge.toVertex.x - trunkEdge.fromVertex.x;\n\
-  if(llDir === 0) llDir = trunkEdge.toVertex.y - trunkEdge.fromVertex.y;\n\
+  if (llDir === 0) llDir = trunkEdge.toVertex.y - trunkEdge.fromVertex.y;\n\
 \n\
-  if(llDir > 0) {\n\
+  if (llDir > 0) {\n\
     // make the trunk edge from (0,0) to (x,0)\n\
     trunkEdge.fromVertex.moveTo(0, 0);\n\
     trunkEdge.toVertex.moveTo(trunkEdge.stopArray.length + 1, 0);\n\
@@ -14292,8 +14410,7 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
     // explore the graph in both directions\n\
     this.extend1D(trunkEdge, trunkEdge.fromVertex, -1, 0);\n\
     this.extend1D(trunkEdge, trunkEdge.toVertex, 1, 0);\n\
-  }\n\
-  else {\n\
+  } else {\n\
     // make the trunk edge from (x,0) to (0,0)\n\
     trunkEdge.toVertex.moveTo(0, 0);\n\
     trunkEdge.fromVertex.moveTo(trunkEdge.stopArray.length + 1, 0);\n\
@@ -14307,78 +14424,77 @@ NetworkGraph.prototype.convertTo1D = function(stopArray, from, to) {\n\
 };\n\
 \n\
 NetworkGraph.prototype.extend1D = function(edge, vertex, direction, y) {\n\
+  debug('extend1D');\n\
 \n\
   var edges = vertex.incidentEdges(edge);\n\
-  if(edges.length === 0) { // no additional edges to explore; we're done\n\
+  if (edges.length === 0) { // no additional edges to explore; we're done\n\
     return;\n\
-  }\n\
-  else if(edges.length === 1) { // exactly one other edge to explore\n\
+  } else if (edges.length === 1) { // exactly one other edge to explore\n\
     var extEdge = edges[0];\n\
     var oppVertex = extEdge.oppositeVertex(vertex);\n\
     extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);\n\
 \n\
-    if(this.exploredVertices.indexOf(oppVertex) !== -1) {\n\
-      console.log('Warning: found cycle in 1d graph');\n\
+    if (this.exploredVertices.indexOf(oppVertex) !== -1) {\n\
+      debug('extend1D: Warning: found cycle in 1d graph');\n\
       return;\n\
     }\n\
     this.exploredVertices.push(oppVertex);\n\
 \n\
     oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);\n\
     this.extend1D(extEdge, oppVertex, direction, y);\n\
-  }\n\
-  else { // branch case\n\
+  } else { // branch case\n\
     //console.log('branch:');\n\
 \n\
     // iterate through the branches\n\
     edges.forEach(function(extEdge, i) {\n\
       var oppVertex = extEdge.oppositeVertex(vertex);\n\
 \n\
-      if(this.exploredVertices.indexOf(oppVertex) !== -1) {\n\
-        console.log('Warning: found cycle in 1d graph (branch)');\n\
+      if (this.exploredVertices.indexOf(oppVertex) !== -1) {\n\
+        debug('extend1D: Warning: found cycle in 1d graph (branch)');\n\
         return;\n\
       }\n\
       this.exploredVertices.push(oppVertex);\n\
 \n\
       // the first branch encountered is rendered as the straight line\n\
       // TODO: apply logic to this based on trip count, etc.\n\
-      if(i === 0) {\n\
-        oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) * direction, y);\n\
+      if (i === 0) {\n\
+        oppVertex.moveTo(vertex.x + (extEdge.stopArray.length + 1) *\n\
+          direction, y);\n\
         extEdge.setStopLabelPosition((y > 0) ? 1 : -1, vertex);\n\
         this.extend1D(extEdge, oppVertex, direction, y);\n\
-      }\n\
-      else { // subsequent branches\n\
+      } else { // subsequent branches\n\
 \n\
         //console.log('branch y+'+i);\n\
-        var branchY = y+i;\n\
+        var branchY = y + i;\n\
 \n\
-        if(extEdge.stopArray.length === 0) {\n\
+        if (extEdge.stopArray.length === 0) {\n\
           oppVertex.moveTo(vertex.x + 1 * direction, branchY);\n\
           return;\n\
         }\n\
 \n\
         var newVertexStop;\n\
-        if(extEdge.fromVertex === vertex) {\n\
+        if (extEdge.fromVertex === vertex) {\n\
           newVertexStop = extEdge.stopArray[0];\n\
           extEdge.stopArray.splice(0, 1);\n\
-        }\n\
-        else if(extEdge.toVertex === vertex) {\n\
-          newVertexStop = extEdge.stopArray[extEdge.stopArray.length-1];\n\
-          extEdge.stopArray.splice(extEdge.stopArray.length-1, 1);\n\
+        } else if (extEdge.toVertex === vertex) {\n\
+          newVertexStop = extEdge.stopArray[extEdge.stopArray.length - 1];\n\
+          extEdge.stopArray.splice(extEdge.stopArray.length - 1, 1);\n\
         }\n\
 \n\
-        var newVertex = this.addVertex(newVertexStop, vertex.x+direction, branchY);\n\
+        var newVertex = this.addVertex(newVertexStop, vertex.x + direction,\n\
+          branchY);\n\
 \n\
         this.splitEdge(extEdge, newVertex, vertex);\n\
         extEdge.setStopLabelPosition((branchY > 0) ? 1 : -1, vertex);\n\
 \n\
-        oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) * direction, branchY);\n\
+        oppVertex.moveTo(newVertex.x + (extEdge.stopArray.length + 1) *\n\
+          direction, branchY);\n\
         this.extend1D(extEdge, oppVertex, direction, branchY);\n\
       }\n\
       //console.log(extEdge);\n\
     }, this);\n\
   }\n\
 };\n\
-\n\
 \n\
 /**\n\
  *\n\
@@ -14388,15 +14504,13 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
 \n\
   var newEdge;\n\
   // attach the existing edge to the inserted vertex\n\
-  if(edge.fromVertex === adjacentVertex) {\n\
+  if (edge.fromVertex === adjacentVertex) {\n\
     newEdge = this.addEdge([], adjacentVertex, newVertex);\n\
     edge.fromVertex = newVertex;\n\
-  }\n\
-  else if(edge.toVertex === adjacentVertex) {\n\
+  } else if (edge.toVertex === adjacentVertex) {\n\
     newEdge = this.addEdge([], newVertex, adjacentVertex);\n\
     edge.toVertex = newVertex;\n\
-  }\n\
-  else { // invalid params\n\
+  } else { // invalid params\n\
     console.log('Warning: invalid params to graph.splitEdge');\n\
     return;\n\
   }\n\
@@ -14421,78 +14535,109 @@ NetworkGraph.prototype.splitEdge = function(edge, newVertex, adjacentVertex) {\n
 \n\
 };\n\
 \n\
+NetworkGraph.prototype.splitEdgeAtInternalPoints = function(edge, points) {\n\
+  var subEdgePoints = [],\n\
+    newEdge, newEdges = [];\n\
+  var fromVertex = edge.fromVertex;\n\
+  each(edge.pointArray, function(point) {\n\
+    if (points.indexOf(point) !== -1) {\n\
+      var x = point.worldX;\n\
+      var y = point.worldY;\n\
+      var newVertex = this.addVertex(point, x, y);\n\
+      newVertex.isInternal = true;\n\
+      newEdge = this.addEdge(subEdgePoints, fromVertex, newVertex);\n\
+      newEdge.isInternal = true;\n\
+      newEdges.push(newEdge);\n\
+      subEdgePoints = [];\n\
+      fromVertex = newVertex;\n\
+    } else {\n\
+      subEdgePoints.push(point);\n\
+    }\n\
+  }, this);\n\
 \n\
-NetworkGraph.prototype.apply2DOffsets2 = function(transitive) {\n\
+  // create the last sub-edge\n\
+  newEdge = this.addEdge(subEdgePoints, fromVertex, edge.toVertex);\n\
+  newEdge.isInternal = true;\n\
+  newEdges.push(newEdge);\n\
+\n\
+  // remove the original edge from the graph\n\
+  each(edge.pathSegments, function(pathSegment) {\n\
+    pathSegment.replaceEdge(edge, newEdges);\n\
+  });\n\
+\n\
+  this.removeEdge(edge);\n\
+\n\
+};\n\
+\n\
+NetworkGraph.prototype.apply2DOffsets = function(transitive) {\n\
 \n\
   this.doPatternComparison();\n\
   //console.log(this.patternComparisons);\n\
 \n\
   var alignmentBundles = {}; // maps axis discriptor (e.g x_VAL or y_VAL) to array of segments bundled on that axis\n\
 \n\
-    each(this.edges, function(edge) {\n\
+  each(this.edges, function(edge) {\n\
 \n\
     var fromAlignmentId = edge.getFromAlignmentId();\n\
     var toAlignmentId = edge.getToAlignmentId();\n\
 \n\
     each(edge.renderSegments, function(segment) {\n\
-      if(segment.getType() !== 'TRANSIT') return;\n\
+      if (segment.getType() !== 'TRANSIT') return;\n\
 \n\
-      if(!(fromAlignmentId in alignmentBundles)) {\n\
+      if (!(fromAlignmentId in alignmentBundles)) {\n\
         alignmentBundles[fromAlignmentId] = [];\n\
       }\n\
       var fromBundle = alignmentBundles[fromAlignmentId];\n\
-      if(fromBundle.indexOf(segment.pattern) === -1) {\n\
+      if (fromBundle.indexOf(segment.pattern) === -1) {\n\
         fromBundle.push(segment.pattern);\n\
       }\n\
 \n\
-      if(!(toAlignmentId in alignmentBundles)) {\n\
+      if (!(toAlignmentId in alignmentBundles)) {\n\
         alignmentBundles[toAlignmentId] = [];\n\
       }\n\
       var toBundle = alignmentBundles[toAlignmentId];\n\
-      if(toBundle.indexOf(segment.pattern) === -1) {\n\
+      if (toBundle.indexOf(segment.pattern) === -1) {\n\
         toBundle.push(segment.pattern);\n\
       }\n\
 \n\
     });\n\
   });\n\
 \n\
-  //console.log(alignmentBundles);\n\
-\n\
-\n\
   var bundleSorter = (function(a, b) {\n\
 \n\
-    var abCompId= a.getId() + '_' + b.getId();\n\
-    if(abCompId in this.patternComparisons) {\n\
+    var abCompId = a.getId() + '_' + b.getId();\n\
+    if (abCompId in this.patternComparisons) {\n\
       return this.patternComparisons[abCompId];\n\
-    } \n\
+    }\n\
 \n\
-    var baCompId= b.getId() + '_' + a.getId();\n\
-    if(baCompId in this.patternComparisons) {\n\
+    var baCompId = b.getId() + '_' + a.getId();\n\
+    if (baCompId in this.patternComparisons) {\n\
       return this.patternComparisons[baCompId];\n\
-    } \n\
+    }\n\
 \n\
-    if(a.route.route_type !== b.route.route_type) {\n\
+    if (a.route && b.route && a.route.route_type !== b.route.route_type) {\n\
       return a.route.route_type > b.route.route_type;\n\
     }\n\
     var aVector = a.getAlignmentVector(this.currentAlignmentId);\n\
     var bVector = b.getAlignmentVector(this.currentAlignmentId);\n\
 \n\
-    if(Util.isOutwardVector(aVector) && Util.isOutwardVector(bVector)) return a.getId() > b.getId();\n\
+    if (Util.isOutwardVector(aVector) && Util.isOutwardVector(bVector))\n\
+      return a.getId() > b.getId();\n\
     return a.getId() < b.getId();\n\
   }).bind(this);\n\
 \n\
-  for(var alignmentId in alignmentBundles) {\n\
+  for (var alignmentId in alignmentBundles) {\n\
     var bundlePatterns = alignmentBundles[alignmentId];\n\
 \n\
     var lw = 1.2;\n\
-    var bundleWidth = lw * (bundlePatterns.length-1);\n\
+    var bundleWidth = lw * (bundlePatterns.length - 1);\n\
 \n\
     // sort step goes here\n\
     this.currentAlignmentId = alignmentId;\n\
     bundlePatterns.sort(bundleSorter);\n\
-    \n\
+\n\
     //console.log('offsetting bundle:');\n\
-    for(var i=0; i < bundlePatterns.length; i++) {\n\
+    for (var i = 0; i < bundlePatterns.length; i++) {\n\
       var offset = (-bundleWidth / 2) + i * lw;\n\
       //console.log(' - ' + bundlePatterns[i].getId() + ' | ' + bundlePatterns[i].getName() + ' at ' + offset);\n\
       bundlePatterns[i].offsetAlignment(alignmentId, offset);\n\
@@ -14517,22 +14662,17 @@ NetworkGraph.prototype.doPatternComparison = function() {\n\
 \n\
   each(this.vertices, function(vertex) {\n\
     var edges = vertex.incidentEdges();\n\
-    //console.log('V: '+ vertex.point.getName() +' | edges: ' + edges.length);\n\
-    if(edges.length < 2) return;\n\
-    for(var i = 0; i < edges.length-1; i++) {\n\
-      for(var j = i+1; j < edges.length; j++) {\n\
-        var e1 = edges[i], e2 = edges[j];\n\
-        if(!e1.hasTransit() || !e2.hasTransit()) continue;\n\
-        //console.log ( ' comparing edges: ' + e1.id + ' and ' + e2.id);\n\
+    if (edges.length < 2) return;\n\
+    for (var i = 0; i < edges.length - 1; i++) {\n\
+      for (var j = i + 1; j < edges.length; j++) {\n\
+        var e1 = edges[i],\n\
+          e2 = edges[j];\n\
+        if (!e1.hasTransit() || !e2.hasTransit()) continue;\n\
 \n\
         var outVector1 = getOutVector(e1, vertex);\n\
         var outVector2 = getOutVector(e2, vertex);\n\
-        \n\
-        //console.log('   ov1: ' + outVector1.x + ', ' + outVector1.y);\n\
-        //console.log('   ov2: ' + outVector2.x + ', ' + outVector2.y);\n\
 \n\
-        if(outVector1.x === outVector2.x && outVector1.y === outVector2.y) {\n\
-          //console.log('    MATCH');\n\
+        if (outVector1.x === outVector2.x && outVector1.y === outVector2.y) {\n\
           this.bundleMatch(vertex, e1, e2, outVector1, outVector2);\n\
         }\n\
       }\n\
@@ -14540,23 +14680,21 @@ NetworkGraph.prototype.doPatternComparison = function() {\n\
   }, this);\n\
 };\n\
 \n\
-NetworkGraph.prototype.bundleMatch = function(vertex, e1,  e2, outVector1, outVector2) {\n\
+NetworkGraph.prototype.bundleMatch = function(vertex, e1, e2, outVector1,\n\
+  outVector2) {\n\
   var isOutward = Util.isOutwardVector(outVector1);\n\
 \n\
   var opp1 = e1.oppositeVertex(vertex);\n\
   var opp2 = e2.oppositeVertex(vertex);\n\
   var ccw = Util.ccw(opp1.x, opp1.y, vertex.x, vertex.y, opp2.x, opp2.y);\n\
-  //console.log('    out=' + isOutward + ' ccw=' + ccw);\n\
 \n\
-  if((ccw > 0 && isOutward) || (ccw < 0 && !isOutward)) {\n\
+  if ((ccw > 0 && isOutward) || (ccw < 0 && !isOutward)) {\n\
     // e1 patterns are 'less' than e2 patterns\n\
-    //console.log('    e1 < e2');\n\
     this.edgePatternComparison(e1, e2);\n\
   }\n\
 \n\
-  if((ccw > 0 && !isOutward) || (ccw < 0 && isOutward)) {\n\
+  if ((ccw > 0 && !isOutward) || (ccw < 0 && isOutward)) {\n\
     // e2 patterns are 'less' than e2 patterns\n\
-    //console.log('    e2 < e1');\n\
     this.edgePatternComparison(e2, e1);\n\
   }\n\
 };\n\
@@ -14575,467 +14713,56 @@ NetworkGraph.prototype.edgePatternComparison = function(e1, e2) {\n\
 \n\
 function getOutVector(edge, vertex) {\n\
 \n\
-  if(edge.fromVertex === vertex) {\n\
+  if (edge.fromVertex === vertex) {\n\
     return edge.fromVector;\n\
   }\n\
-  if(edge.toVertex === vertex) {\n\
-    return {\n\
-      x : -edge.toVector.x,\n\
-      y : -edge.toVector.y,\n\
+  if (edge.toVertex === vertex) {\n\
+    var v = {\n\
+      x: -edge.toVector.x,\n\
+      y: -edge.toVector.y,\n\
     };\n\
+    return v;\n\
   }\n\
+\n\
+  console.log('Warning: getOutVector() called on invalid edge / vertex pair');\n\
+  console.log(' - Edge: ' + edge.toString());\n\
+  console.log(' - Vertex: ' + vertex.toString());\n\
 }\n\
-\n\
-\n\
-NetworkGraph.prototype.apply2DOffsets = function(transitive) {\n\
-\n\
-  // initialize the bundle comparisons\n\
-  this.bundleComparisons = {};\n\
-\n\
-  // loop through all vertices with order of 3+ (i.e. where pattern convergence/divergence is possible)\n\
-  this.vertices.forEach(function(vertex) {\n\
-    if(vertex.edges.length <= 2) return;\n\
-\n\
-    // loop through the incident edges with 2+ patterns\n\
-    vertex.edges.forEach(function(edge) {\n\
-      //console.log(edge);\n\
-      if(edge.pathSegments.length < 2) return;\n\
-\n\
-      // compare each pattern pair sharing this edge\n\
-      for(var i = 0; i < edge.pathSegments.length; i++) {\n\
-        for(var j = i+1; j < edge.pathSegments.length; j++) {\n\
-          var p1 = edge.pathSegments[i], p2 = edge.pathSegments[j];\n\
-          var adjEdge1 = p1.getAdjacentEdge(edge, vertex);\n\
-          var adjEdge2 = p2.getAdjacentEdge(edge, vertex);\n\
-\n\
-          if(adjEdge1 !== null && adjEdge2 !== null && adjEdge1 !== adjEdge2) {\n\
-            var oppVertex1 = adjEdge1.oppositeVertex(vertex);\n\
-            var oppVertex2 = adjEdge2.oppositeVertex(vertex);\n\
-\n\
-            var dx = edge.toVertex.x - edge.fromVertex.x;\n\
-            if(dx > 0 && oppVertex1.y < oppVertex2.y) {\n\
-              this.bundleComparison(p2, p1);\n\
-            }\n\
-            else if(dx > 0 && oppVertex1.y > oppVertex2.y) {\n\
-              this.bundleComparison(p1, p2);\n\
-            }\n\
-            else if(dx < 0 && oppVertex1.y < oppVertex2.y) {\n\
-              this.bundleComparison(p1, p2);\n\
-            }\n\
-            else if(dx < 0 && oppVertex1.y > oppVertex2.y) {\n\
-              this.bundleComparison(p2, p1);\n\
-            }\n\
-          }\n\
-        }\n\
-      }\n\
-    }, this);\n\
-  }, this);\n\
-\n\
-\n\
-\n\
-  this.edges.forEach(function(edge) {\n\
-    edge.calculateGridEdges(transitive.gridCellSize);\n\
-  }, this);\n\
-\n\
-  var gridEdgeSegments = {};\n\
-\n\
-  transitive.renderSegments.forEach(function(segment) {\n\
-    segment.gridEdgeLookup = {};\n\
-    //segment.graphEdges.forEach(function(edge) {\n\
-    var edge = segment.graphEdge;\n\
-    if(!edge.gridEdges) return;\n\
-    edge.gridEdges.forEach(function(gridEdgeId) {\n\
-\n\
-      if(!(gridEdgeId in gridEdgeSegments)) {\n\
-        gridEdgeSegments[gridEdgeId] = [];\n\
-      }\n\
-      \n\
-      var segmentList = gridEdgeSegments[gridEdgeId];\n\
-      if(segmentList.indexOf(segment) === -1) {\n\
-        segmentList.push(segment);\n\
-        segment.gridEdgeLookup[gridEdgeId] = edge;\n\
-      }\n\
-    });\n\
-    //});\n\
-  });\n\
-  \n\
-  this.gridEdgeSegments = gridEdgeSegments;\n\
-\n\
-\n\
-  //var graphEdgeBundles = {};\n\
-\n\
-  var axisBundles = {}; // maps axis discriptor (e.g x_VAL or y_VAL) to array of segments bundled on that axis\n\
-\n\
-  for(var gridEdgeId in gridEdgeSegments) {\n\
-\n\
-    var gridSegments = gridEdgeSegments[gridEdgeId];\n\
-    //if(gridSegments.length <= 1) continue;\n\
-    \n\
-    var gridEdgeCoords = gridEdgeId.split('_');\n\
-    var axis;\n\
-    if(gridEdgeCoords[0] === gridEdgeCoords[2]) { // x coords equal\n\
-      axis = 'x_' + gridEdgeCoords[0];\n\
-    }\n\
-    else if(gridEdgeCoords[1] === gridEdgeCoords[3]) { // y coords equal\n\
-      axis = 'y_' + gridEdgeCoords[1];\n\
-    }\n\
-    else {\n\
-      // handle diagonal grid edges later\n\
-      continue;\n\
-    }\n\
-\n\
-    if(!(axis in axisBundles)) {\n\
-      axisBundles[axis] = [];\n\
-    }\n\
-    var axisSegments = axisBundles[axis];\n\
-\n\
-    for(var i =0; i < gridSegments.length; i++) {\n\
-      var segment = gridSegments[i];\n\
-      addSegmentToAxis(segment, axisSegments);\n\
-    }\n\
-  }\n\
-\n\
-\n\
-  var bundleSorter = (function(a, b) {\n\
-    var key = a.getId() + ',' + b.getId();\n\
-    var compValue = this.bundleComparisons[key];\n\
-    if(compValue < 0) return -1;\n\
-    if(compValue > 0) return 1;\n\
-    return 0;\n\
-  }).bind(this);\n\
-\n\
-  for(var axisId in axisBundles) {\n\
-    var segments = axisBundles[axisId];\n\
-    var lw = 1.2;\n\
-    var bundleWidth = lw * (segments.length - 1);\n\
-\n\
-    var sortedSegments = segments.concat().sort(bundleSorter);\n\
-\n\
-    for(var s = 0; s < sortedSegments.length; s++) {\n\
-      var seg = sortedSegments[s];\n\
-      var offset = (-bundleWidth / 2) + s * lw;\n\
-      var edge = seg.graphEdge;\n\
-      var dx = edge.toVertex.x - edge.fromVertex.x, dy = edge.toVertex.y - edge.fromVertex.y;\n\
-      if((axisId.charAt(0) === 'x' && dy > 0) || (axisId.charAt(0) === 'y' && dx > 0)) {\n\
-        //console.log('fw');\n\
-      }\n\
-      else {\n\
-        //console.log('bw');\n\
-        offset = -offset;\n\
-      }\n\
-      transitive.offsetSegment(seg, axisId, offset);\n\
-    }\n\
-  }\n\
-};\n\
-\n\
-\n\
-function addSegmentToAxis(segment, axisSegments) {\n\
-  var axisHasPattern = false;\n\
-  for(var s = 0; s < axisSegments.length; s++) {\n\
-    if(segment.pattern && axisSegments[s].pattern.getId() === segment.pattern.getId()) {\n\
-      axisHasPattern = true;\n\
-    }\n\
-  }\n\
-  if(!axisHasPattern && segment.getType() === 'TRANSIT') {\n\
-    axisSegments.push(segment);\n\
-  }\n\
-}\n\
-\n\
-/*NetworkGraph.prototype.apply2DOffsets = function() {\n\
-\n\
-  // initialize the bundle comparisons\n\
-  this.bundleComparisons = {};\n\
-\n\
-  // loop through all vertices with order of 3+ (i.e. where pattern convergence/divergence is possible)\n\
-  this.vertices.forEach(function(vertex) {\n\
-    if(vertex.edges.length <= 2) return;\n\
-\n\
-    // loop through the incident edges with 2+ patterns\n\
-    vertex.edges.forEach(function(edge) {\n\
-      if(edge.paths.length < 2) return;\n\
-\n\
-      // compare each pattern pair sharing this edge\n\
-      for(var i = 0; i < edge.paths.length; i++) {\n\
-        for(var j = i+1; j < edge.paths.length; j++) {\n\
-          var p1 = edge.paths[i], p2 = edge.paths[j];\n\
-          var adjEdge1 = p1.getAdjacentEdge(edge, vertex);\n\
-          var adjEdge2 = p2.getAdjacentEdge(edge, vertex);\n\
-\n\
-          if(adjEdge1 !== null && adjEdge2 !== null && adjEdge1 !== adjEdge2) {\n\
-            var oppVertex1 = adjEdge1.oppositeVertex(vertex);\n\
-            var oppVertex2 = adjEdge2.oppositeVertex(vertex);\n\
-\n\
-            var dx = edge.toVertex.x - edge.fromVertex.x;\n\
-            if(dx > 0 && oppVertex1.y < oppVertex2.y) {\n\
-              this.bundleComparison(p2, p1);\n\
-            }\n\
-            else if(dx > 0 && oppVertex1.y > oppVertex2.y) {\n\
-              this.bundleComparison(p1, p2);\n\
-            }\n\
-            else if(dx < 0 && oppVertex1.y < oppVertex2.y) {\n\
-              this.bundleComparison(p1, p2);\n\
-            }\n\
-            else if(dx < 0 && oppVertex1.y > oppVertex2.y) {\n\
-              this.bundleComparison(p2, p1);\n\
-            }\n\
-          }\n\
-        }\n\
-      }\n\
-    }, this);\n\
-  }, this);\n\
-\n\
-  // create a copy of the array, sorted by bundle size (decreasing)\n\
-  var sortedEdges = this.edges.concat().sort(function compare(a,b) {\n\
-    if(a.paths.length > b.paths.length) return -1;\n\
-    if(a.paths.length < b.paths.length) return 1;\n\
-    return 0;\n\
-  });\n\
-\n\
-  sortedEdges.forEach(function(edge) {\n\
-    //if(edge.toVertex.y !== edge.fromVertex.y) return;\n\
-    if(edge.paths.length === 1) {\n\
-      edge.paths[0].setEdgeOffset(edge, 0);\n\
-    }\n\
-    else { // 2+ paths\n\
-      var this_ = this;\n\
-\n\
-      // compute the offsets for this buncle\n\
-      var sortedPaths = edge.paths.concat().sort(function compare(a, b) {\n\
-        var key = a.pattern_id + ',' + b.pattern_id;\n\
-        var compValue = this_.bundleComparisons[key];\n\
-        if(compValue < 0) return -1;\n\
-        if(compValue > 0) return 1;\n\
-        return 0;\n\
-      });\n\
-      sortedPaths.forEach(function(pattern, i) {\n\
-        pattern.setEdgeOffset(edge, (-i + (edge.paths.length-1)/2) * -1.2, i, true);\n\
-      });\n\
-    }\n\
-  }, this);\n\
-};*/\n\
-\n\
-/**\n\
- *  Helper method for creating comparisons between patterns for bundle offsetting\n\
- */\n\
-\n\
-NetworkGraph.prototype.bundleComparison = function(p1, p2) {\n\
-\n\
-  var key = p1.getId() + ',' + p2.getId();\n\
-  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
-  this.bundleComparisons[key] += 1;\n\
-\n\
-  key = p2.getId() + ',' + p1.getId();\n\
-  if(!(key in this.bundleComparisons)) this.bundleComparisons[key] = 0;\n\
-  this.bundleComparisons[key] -= 1;\n\
-};\n\
 \n\
 NetworkGraph.prototype.collapseTransfers = function(threshold) {\n\
   threshold = threshold || 200;\n\
   this.edges.forEach(function(edge) {\n\
-    if(edge.getLength() > threshold || \n\
-       edge.fromVertex.point.containsFromPoint() || \n\
-       edge.fromVertex.point.containsToPoint() || \n\
-       edge.toVertex.point.containsFromPoint() || \n\
-       edge.toVertex.point.containsToPoint()) return;\n\
+    if (edge.getLength() > threshold ||\n\
+      edge.fromVertex.point.containsFromPoint() ||\n\
+      edge.fromVertex.point.containsToPoint() ||\n\
+      edge.toVertex.point.containsFromPoint() ||\n\
+      edge.toVertex.point.containsToPoint()) return;\n\
     //if(edge.fromVertex.point.getType() === 'PLACE' || edge.toVertex.point.getType() === 'PLACE') return;\n\
     var walk = true;\n\
     edge.pathSegments.forEach(function(segment) {\n\
       walk = walk && segment.type === 'WALK';\n\
     });\n\
-    if(walk) {\n\
+    if (walk) {\n\
       this.mergeVertices([edge.fromVertex, edge.toVertex]);\n\
     }\n\
   }, this);\n\
 };\n\
 \n\
-\n\
 NetworkGraph.prototype.snapToGrid = function(cellSize) {\n\
-  this.cellSize = cellSize;\n\
-\n\
-  this.recenter();\n\
-\n\
-  var xCoords = [], yCoords = [];\n\
+  //this.recenter();\n\
   this.vertices.forEach(function(vertex) {\n\
-    xCoords.push(vertex.x);\n\
-    yCoords.push(vertex.y);\n\
+    var nx = Math.round(vertex.x / cellSize) * cellSize;\n\
+    var ny = Math.round(vertex.y / cellSize) * cellSize;\n\
+    vertex.x = nx;\n\
+    vertex.y = ny;\n\
   });\n\
-\n\
-  var medianX = median(xCoords), medianY = median(yCoords);\n\
-\n\
-  // set up priority-queue of all vertices, sorted by distance from median point\n\
-  var vertexQueue = new PriorityQueue(function(a, b) {\n\
-    return b.dist - a.dist;\n\
-  });\n\
-  this.vertices.forEach(function(vertex) {\n\
-    var dx = vertex.x - medianX, dy = vertex.y - medianY;\n\
-    vertexQueue.enq({\n\
-      dist: Math.sqrt(dx*dx + dy*dy),\n\
-      dx: dx,\n\
-      dy: dy,\n\
-      vertex: vertex\n\
-    });\n\
-  });\n\
-\n\
-  this.orderedVertices = [];\n\
-  while(vertexQueue.size() > 0) {\n\
-    var vertexInfo = vertexQueue.deq();\n\
-\n\
-    this.orderedVertices.push(vertexInfo.vertex);\n\
-  }\n\
-\n\
-  var coords = {}; // maps \"X_Y\"-format ID to the vertex object\n\
-  this.snapVertex(this.orderedVertices[0], null, coords);\n\
 };\n\
 \n\
-\n\
-NetworkGraph.prototype.snapVertex = function(vertex, inEdge, coords) {\n\
-  var cellSize = this.cellSize;\n\
-\n\
-  if(vertex.snapped) return;\n\
-\n\
-  var newx = Math.round(vertex.x / cellSize) * cellSize;\n\
-  var newy = Math.round(vertex.y / cellSize) * cellSize;\n\
-\n\
-  var coordId = newx + '_' + newy;\n\
-  if(coordId in coords) { // grid coordinate already in use\n\
-\n\
-    // set up priority-queue of potential alternates\n\
-    var queue = new PriorityQueue(function(a, b) {\n\
-      return b.dist - a.dist;\n\
-    });\n\
-\n\
-    var r = 3;\n\
-    for(var xr = -r; xr <= r; xr++) {\n\
-      for(var yr = -r; yr <= r; yr++) {\n\
-        if(xr === 0 && yr === 0) continue;\n\
-        var x = newx + xr * cellSize;\n\
-        var y = newy + yr * cellSize;\n\
-        var dist = Math.sqrt((newx-x)*(newx-x) + (newy-y)*(newy-y));\n\
-        queue.enq({\n\
-          dist: dist,\n\
-          x: x,\n\
-          y: y\n\
-        });\n\
-      }\n\
-    }\n\
-\n\
-    while(queue.size() > 0) {\n\
-      var next = queue.deq();\n\
-      coordId = next.x + '_' + next.y;\n\
-      if(!(coordId in coords)) {\n\
-        newx = next.x;\n\
-        newy = next.y;\n\
-        break;\n\
-      }\n\
-    }\n\
-    coords[newx + '_' + newy] = vertex;\n\
-  }\n\
-  else {\n\
-    coords[coordId] = vertex;\n\
-  }\n\
-\n\
-  vertex.x = newx;\n\
-  vertex.y = newy;\n\
-\n\
-  vertex.snapped = true;\n\
-  vertex.edges.forEach(function(edge) {\n\
-    if(edge.fromVertex.snapped && edge.toVertex.snapped) {\n\
-      var edgeGridPoints = edge.getGridPoints(cellSize);\n\
-      edgeGridPoints.forEach(function(gridPointArr) {\n\
-        var gridPointId = gridPointArr[0] + '_' + gridPointArr[1];\n\
-        coords[gridPointId] = edge;\n\
-      });\n\
-    }\n\
-  });\n\
-\n\
-  // recurse through the remaining edges of this vertex\n\
-  vertex.incidentEdges(inEdge).forEach(function(edge) {\n\
-    var oppVertex = edge.oppositeVertex(vertex);\n\
-    if(!oppVertex.snapped) this.snapVertex(oppVertex, edge, coords);\n\
-  }, this);\n\
-};\n\
-\n\
-/*function coordInUse(x, y, inEdge, toVertex, coords, cellSize) {\n\
-  var coordId = x + '_' + y;\n\
-  if(!inEdge) return coordId in coords;\n\
-\n\
-  var fromVertex = inEdge.oppositeVertex(toVertex);\n\
-  var edgeCoords = inEdge.getGridPointsFromCoords(fromVertex.x, fromVertex.y, x, y, cellSize);\n\
-  console.log(edgeCoords);\n\
-\n\
-  edgeCoords.forEach(function(coord) {\n\
-    coordId = coord[0] + '_' + coord[1];\n\
-    if(coordId in coords) return true;\n\
-  });\n\
-\n\
-  return false;\n\
-}*/\n\
-\n\
-\n\
-NetworkGraph.prototype.calculateGeometry = function(cellSize) {\n\
+NetworkGraph.prototype.calculateGeometry = function(cellSize, angleConstraint) {\n\
   this.edges.forEach(function(edge) {\n\
-    edge.calculateGeometry(cellSize);\n\
+    edge.calculateGeometry(cellSize, angleConstraint);\n\
   });\n\
 };\n\
-\n\
-\n\
-NetworkGraph.prototype.optimizeCurvature = function() {\n\
-\n\
-  // optimize same-pattern neighbors of axial edges first\n\
-  this.edges.forEach(function(edge) {\n\
-    if(edge.isAxial()) {\n\
-      edge.renderSegments.forEach(function(segment) {\n\
-        if(segment.getType() === 'TRANSIT') {\n\
-          this.alignPatternIncidentEdges(edge.fromVertex, edge, segment.pattern);\n\
-          this.alignPatternIncidentEdges(edge.toVertex, edge, segment.pattern);\n\
-        }\n\
-      }, this);\n\
-    }\n\
-  }, this);\n\
-\n\
-  // optimize other neighbors of axial edges\n\
-  this.edges.forEach(function(edge) {\n\
-    if(edge.isAxial()) {\n\
-      edge.renderSegments.forEach(function(segment) {\n\
-        if(segment.getType() === 'TRANSIT') {\n\
-          this.alignOtherIncidentEdges(edge.fromVertex, edge, segment.pattern);\n\
-          this.alignOtherIncidentEdges(edge.toVertex, edge, segment.pattern);\n\
-        }\n\
-      }, this);\n\
-    }\n\
-  }, this);\n\
-\n\
-};\n\
-\n\
-\n\
-NetworkGraph.prototype.alignPatternIncidentEdges = function(vertex, inEdge, pattern) {\n\
-  vertex.incidentEdges(inEdge).forEach(function(edge) {\n\
-    edge.renderSegments.forEach(function(segment) {\n\
-      if(!edge.aligned && segment.getType() === 'TRANSIT' && segment.pattern === pattern) {\n\
-        edge.align(vertex, inEdge.getVector(vertex));\n\
-      }\n\
-    });\n\
-  });\n\
-};\n\
-\n\
-\n\
-NetworkGraph.prototype.alignOtherIncidentEdges = function(vertex, inEdge, pattern) {\n\
-  vertex.incidentEdges(inEdge).forEach(function(edge) {\n\
-    edge.renderSegments.forEach(function(segment) {\n\
-      if(!edge.aligned && segment.getType() === 'TRANSIT' && segment.pattern === pattern) {\n\
-        var vector = inEdge.getVector(vertex);\n\
-        edge.align(vertex, { x: vector.y, y: -vector.x });\n\
-      }\n\
-    });\n\
-\n\
-    /*var segment = edge.renderSegment;\n\
-    if(!edge.aligned && segment.getType() === 'TRANSIT' && segment.pattern !== pattern) {\n\
-      var vector = inEdge.getVector(vertex);\n\
-      edge.align(vertex, { x: vector.y, y: -vector.x });\n\
-    }*/\n\
-  });\n\
-};\n\
-\n\
 \n\
 NetworkGraph.prototype.resetCoordinates = function() {\n\
   this.vertices.forEach(function(vertex) {\n\
@@ -15045,23 +14772,23 @@ NetworkGraph.prototype.resetCoordinates = function() {\n\
   });\n\
 };\n\
 \n\
-\n\
 NetworkGraph.prototype.recenter = function() {\n\
 \n\
-  var xCoords = [], yCoords = [];\n\
+  var xCoords = [],\n\
+    yCoords = [];\n\
   this.vertices.forEach(function(v) {\n\
     xCoords.push(v.x);\n\
     yCoords.push(v.y);\n\
   });\n\
 \n\
-  var mx = median(xCoords), my = median(yCoords);\n\
+  var mx = d3.median(xCoords),\n\
+    my = d3.median(yCoords);\n\
 \n\
   this.vertices.forEach(function(v) {\n\
     v.x = v.x - mx;\n\
     v.y = v.y - my;\n\
   });\n\
 };\n\
-\n\
 \n\
 NetworkGraph.prototype.clone = function() {\n\
   var vertices = [];\n\
@@ -15092,43 +14819,14 @@ function equal(a, b) {\n\
 \n\
   return true;\n\
 }\n\
-\n\
-\n\
-/**\n\
- * Compute the median of an array of values\n\
- */\n\
-\n\
-function median(values) {\n\
-\n\
-  values.sort(function(a, b) {\n\
-    return a - b;\n\
-  });\n\
-\n\
-  var half = Math.floor(values.length / 2);\n\
-\n\
-  if(values.length % 2) {\n\
-    return values[half];\n\
-  }\n\
-  else {\n\
-    return (values[half - 1] + values[half]) / 2.0;\n\
-  }\n\
-}\n\
-\n\
-\n\
-/**\n\
- * Convert lat/lon coords to spherical mercator meter x/y coords\n\
- */\n\
-\n\
-function latLonToSphericalMercator(lat, lon) {\n\
-  var r = 6378137;\n\
-  var x = r * lon * Math.PI/180;\n\
-  var y = r * Math.log(Math.tan(Math.PI/4 + lat * Math.PI/360));\n\
-  return [x,y];\n\
-}//@ sourceURL=transitive/lib/graph/index.js"
+//@ sourceURL=transitive/lib/graph/index.js"
 ));
 require.register("transitive/lib/graph/edge.js", Function("exports, require, module",
-"var Util = require('../util');\n\
+"var each = require('each');\n\
 \n\
+var Util = require('../util');\n\
+\n\
+var debug = require('debug')('transitive:edge');\n\
 \n\
 /**\n\
  * Expose `Edge`\n\
@@ -15146,40 +14844,60 @@ module.exports = Edge;\n\
 \n\
 var edgeId = 0;\n\
 \n\
-\n\
 function Edge(pointArray, fromVertex, toVertex) {\n\
   this.id = edgeId++;\n\
   this.pointArray = pointArray;\n\
   this.fromVertex = fromVertex;\n\
   this.toVertex = toVertex;\n\
-  this.paths = [];\n\
   this.pathSegments = [];\n\
   this.renderSegments = [];\n\
-\n\
-  this.curveAngle = 90;\n\
-\n\
-  //this.calculateVectors();\n\
 }\n\
 \n\
+Edge.prototype.getId = function() {\n\
+  return this.id;\n\
+};\n\
 \n\
 /**\n\
  *\n\
  */\n\
 \n\
 Edge.prototype.getLength = function() {\n\
-  var dx = this.toVertex.x - this.fromVertex.x, dy = this.toVertex.y - this.fromVertex.y;\n\
+  var dx = this.toVertex.x - this.fromVertex.x,\n\
+    dy = this.toVertex.y - this.fromVertex.y;\n\
   return Math.sqrt(dx * dx + dy * dy);\n\
 };\n\
 \n\
+Edge.prototype.getWorldLength = function() {\n\
+  var x1 = this.fromVertex.point.worldX;\n\
+  var y1 = this.fromVertex.point.worldY;\n\
+  var x2, y2;\n\
+\n\
+  var len = 0;\n\
+  each(this.pointArray, function(point) {\n\
+    x2 = point.worldX;\n\
+    y2 = point.worldY;\n\
+\n\
+    len += Util.distance(x1, y1, x2, y2);\n\
+\n\
+    x1 = x2;\n\
+    y1 = y2;\n\
+  });\n\
+\n\
+  x2 = this.toVertex.point.worldX;\n\
+  y2 = this.toVertex.point.worldY;\n\
+  len += Util.distance(x1, y1, x2, y2);\n\
+\n\
+  return len;\n\
+};\n\
 \n\
 /**\n\
  *\n\
  */\n\
 \n\
 Edge.prototype.isAxial = function() {\n\
-  return (this.toVertex.x === this.fromVertex.x) || (this.toVertex.y === this.fromVertex.y);\n\
+  return (this.toVertex.x === this.fromVertex.x) || (this.toVertex.y === this.fromVertex\n\
+    .y);\n\
 };\n\
-\n\
 \n\
 /**\n\
  *\n\
@@ -15189,305 +14907,212 @@ Edge.prototype.hasCurvature = function() {\n\
   return this.elbow !== null;\n\
 };\n\
 \n\
-\n\
 /**\n\
  *\n\
  */\n\
 \n\
 Edge.prototype.replaceVertex = function(oldVertex, newVertex) {\n\
-  if(oldVertex === this.fromVertex) this.fromVertex = newVertex;\n\
-  if(oldVertex === this.toVertex) this.toVertex = newVertex;\n\
+  if (oldVertex === this.fromVertex) this.fromVertex = newVertex;\n\
+  if (oldVertex === this.toVertex) this.toVertex = newVertex;\n\
 };\n\
-\n\
 \n\
 /**\n\
- *  Add a path that traverses this edge\n\
+ *  Add a path segment that traverses this edge\n\
  */\n\
 \n\
-Edge.prototype.addPath = function(path) {\n\
-  if (this.paths.indexOf(path) === -1) this.paths.push(path);\n\
-};\n\
-\n\
-\n\
 Edge.prototype.addPathSegment = function(segment) {\n\
-  for(var i = 0; i < this.pathSegments.length; i++) {\n\
-    if(this.pathSegments[i].pattern && segment.pattern\n\
-       && this.pathSegments[i].pattern === segment.pattern) {\n\
-      return;\n\
-    }\n\
-  }\n\
   this.pathSegments.push(segment);\n\
 };\n\
-\n\
 \n\
 /**\n\
  *\n\
  */\n\
 \n\
 Edge.prototype.addRenderSegment = function(segment) {\n\
-  if(this.renderSegments.indexOf(segment) !== -1) return;\n\
+  if (this.renderSegments.indexOf(segment) !== -1) return;\n\
   this.renderSegments.push(segment);\n\
 };\n\
 \n\
-\n\
 /** internal geometry functions **/\n\
 \n\
-Edge.prototype.calculateGeometry = function(cellSize) {\n\
+Edge.prototype.calculateGeometry = function(cellSize, angleConstraint) {\n\
 \n\
-  this.elbow = this.getCurveElbow(cellSize);\n\
+  angleConstraint = angleConstraint || 45;\n\
+\n\
+  var angleConstraintR = angleConstraint * Math.PI / 180;\n\
+\n\
+  var fx = this.fromVertex.point.worldX,\n\
+    fy = this.fromVertex.point.worldY;\n\
+  var tx = this.toVertex.point.worldX,\n\
+    ty = this.toVertex.point.worldY;\n\
+\n\
+  var fromAdjPoint = this.getAdjPoint(this.fromVertex.point); // this.pointArray.length > 0 ? this.pointArray[0] : this.toVertex.point;\n\
+\n\
+  var dx = fromAdjPoint.worldX - fx;\n\
+  var dy = fromAdjPoint.worldY - fy;\n\
+\n\
+  var fromAngle = Util.getVectorAngle(dx, dy); // * 180 / Math.PI;\n\
+  var constrainedFromAngle = Math.round(fromAngle / angleConstraintR) *\n\
+    angleConstraintR;\n\
+  var fvx = Math.cos(constrainedFromAngle),\n\
+    fvy = Math.sin(constrainedFromAngle);\n\
+\n\
+  var toAdjPoint = this.getAdjPoint(this.toVertex.point); //this.pointArray.length > 0 ? this.pointArray[this.pointArray.length-1] : this.fromVertex.point;\n\
+\n\
+  dx = toAdjPoint.worldX - tx;\n\
+  dy = toAdjPoint.worldY - ty;\n\
+\n\
+  var toAngle = Util.getVectorAngle(dx, dy); // * 180 / Math.PI;\n\
+  var constrainedToAngle = Math.round(toAngle / angleConstraintR) *\n\
+    angleConstraintR;\n\
+  var tvx = Math.cos(constrainedToAngle),\n\
+    tvy = Math.sin(constrainedToAngle);\n\
+\n\
+  var tol = 0.00001;\n\
+  var s1 = (this.toVertex.y - this.fromVertex.y) / (this.toVertex.x - this.fromVertex\n\
+    .x);\n\
+  var s2 = fvy / fvx;\n\
+\n\
+  var isect = Util.rayIntersection(fx, fy, fvx, fvy, tx, ty, tvx, tvy);\n\
+  if (equalVectors(fvx, fvy, -tvx, -tvy, tol) && Math.abs(s1 - s2) < tol) {\n\
+    //console.log('STRAIGHT');\n\
+  } else if (!isect.intersect) {\n\
+    var i = 0;\n\
+\n\
+    while (i++ < 10) {\n\
+\n\
+      // adjust from\n\
+      var ccw = Util.ccw(fx, fy, (fx + fvx), (fy + fvy), tx, ty);\n\
+      constrainedFromAngle += (ccw > 0) ? angleConstraintR : -angleConstraintR;\n\
+      fvx = Math.cos(constrainedFromAngle);\n\
+      fvy = Math.sin(constrainedFromAngle);\n\
+      isect = Util.rayIntersection(fx, fy, fvx, fvy, tx, ty, tvx, tvy);\n\
+      if (isect.intersect) break;\n\
+\n\
+      // adjust to\n\
+      ccw = Util.ccw(tx, ty, (tx + tvx), (ty + tvy), fx, fy);\n\
+      constrainedToAngle += (ccw > 0) ? angleConstraintR : -angleConstraintR;\n\
+      tvx = Math.cos(constrainedToAngle);\n\
+      tvy = Math.sin(constrainedToAngle);\n\
+      isect = Util.rayIntersection(fx, fy, fvx, fvy, tx, ty, tvx, tvy);\n\
+      if (isect.intersect) break;\n\
+\n\
+    }\n\
+  }\n\
+\n\
+  this.fromAngle = constrainedFromAngle;\n\
+  this.toAngle = constrainedToAngle;\n\
 \n\
   this.calculateVectors();\n\
-\n\
-  this.curvaturePoints = [];\n\
-  if(this.elbow !== null) this.calculateCurvaturePoints();\n\
-\n\
+  this.calculateAlignmentIds();\n\
 };\n\
 \n\
+Edge.prototype.getAdjPoint = function(point) {\n\
+  if (point === this.fromVertex.point) return this.pointArray.length > 0 ? this\n\
+    .pointArray[0] : this.toVertex.point;\n\
+  if (point === this.toVertex.point) return this.pointArray.length > 0 ? this.pointArray[\n\
+    this.pointArray.length - 1] : this.fromVertex.point;\n\
+};\n\
 \n\
-Edge.prototype.calculateCurvaturePoints = function() {\n\
+function equalVectors(x1, y1, x2, y2, tol) {\n\
+  tol = tol || 0;\n\
+  return Math.abs(x1 - x2) < tol && Math.abs(y1 - y2) < tol;\n\
+}\n\
 \n\
-  // construct the curvature points\n\
-  var x1 = this.fromVertex.x, y1 = this.fromVertex.y;\n\
-  var x2 = this.toVertex.x, y2 = this.toVertex.y;\n\
-  var dx = x2 - x1, dy = y2 - y1;\n\
-  \n\
-  var dex1 = x1 - this.elbow.x, dex2 = x2 - this.elbow.x, dey1 = y1 - this.elbow.y, dey2 = y2 - this.elbow.y;\n\
-  var e1len = Math.sqrt(dex1 * dex1 + dey1 * dey1);\n\
-  var e2len = Math.sqrt(dex2 * dex2 + dey2 * dey2);\n\
+Edge.prototype.calculateVectors = function(fromAngle, toAngle) {\n\
 \n\
-  // unit vector from elbow to 'from' point\n\
-  var e1Vector = {\n\
-    x: dex1 / e1len,\n\
-    y: dey1 / e1len\n\
+  this.fromVector = {\n\
+    x: Math.cos(this.fromAngle),\n\
+    y: Math.sin(this.fromAngle)\n\
   };\n\
 \n\
-  // unit vector from elbow to 'to' point\n\
-  var e2Vector = {\n\
-    x: dex2 / e2len,\n\
-    y: dey2 / e2len\n\
+  this.fromleftVector = {\n\
+    x: -this.fromVector.y,\n\
+    y: this.fromVector.x\n\
   };\n\
 \n\
-  this.radius = Math.min(250, Math.min(Math.abs(dx), Math.abs(dy)));\n\
+  this.fromRightVector = {\n\
+    x: this.fromVector.y,\n\
+    y: -this.fromVector.x\n\
+  };\n\
 \n\
+  this.toVector = {\n\
+    x: Math.cos(this.toAngle + Math.PI),\n\
+    y: Math.sin(this.toAngle + Math.PI)\n\
+  };\n\
 \n\
-  this.curvaturePoints.push({\n\
-    x : this.elbow.x + e1Vector.x * this.radius,\n\
-    y : this.elbow.y + e1Vector.y * this.radius\n\
-  });\n\
-  this.curvaturePoints.push({\n\
-    x : this.elbow.x + e2Vector.x * this.radius,\n\
-    y : this.elbow.y + e2Vector.y * this.radius,\n\
-    arc: this.curveAngle\n\
-  });\n\
+  this.toleftVector = {\n\
+    x: -this.toVector.y,\n\
+    y: this.toVector.x\n\
+  };\n\
+\n\
+  this.toRightVector = {\n\
+    x: this.toVector.y,\n\
+    y: -this.toVector.x\n\
+  };\n\
 };\n\
 \n\
+/**\n\
+ *  Compute the 'alignment id', a string that uniquely identifies a line in\n\
+ *  2D space given a point and angle relative to the x-axis.\n\
+ */\n\
 \n\
-Edge.prototype.getCurveElbow = function(cellSize) {\n\
-  return this.getCurveElbowFromCoords(this.fromVertex.x, this.fromVertex.y, this.toVertex.x, this.toVertex.y, cellSize);\n\
+Edge.prototype.calculateAlignmentId = function(x, y, angle) {\n\
+  var angleD = Math.round(angle * 180 / Math.PI);\n\
+  if (angleD > 90) angleD -= 180;\n\
+  if (angleD <= -90) angleD += 180;\n\
+\n\
+  if (angleD === 90) {\n\
+    return '90_x' + x;\n\
+  }\n\
+\n\
+  // calculate the y-axis crossing\n\
+  var ya = Math.round(y - x * Math.tan(angle));\n\
+  return angleD + '_y' + ya;\n\
 };\n\
 \n\
-\n\
-Edge.prototype.getCurveElbowFromCoords = function(x1, y1, x2, y2, cellSize) {\n\
-  var dx = x2 - x1, dy = y2 - y1;\n\
-\n\
-  // keep diagonal edges that traverse a single grid cell straight\n\
-  if(Math.abs(dx) === cellSize && Math.abs(dy) === cellSize && !this.hasTransit()) return null;\n\
-\n\
-  var inQ1 = (dx > 0 && dy > 0);\n\
-  var inQ2 = (dx < 0 && dy > 0);\n\
-  var inQ3 = (dx < 0 && dy < 0);\n\
-  var inQ4 = (dx > 0 && dy < 0);\n\
-\n\
-  if(this.curveAngle === 90 && (inQ1 || inQ3)) return { x: x2, y: y1 };\n\
-  if(this.curveAngle === 90 && (inQ2 || inQ4)) return { x: x1, y: y2 };\n\
-  if(this.curveAngle === -90 && (inQ1 || inQ3)) return { x: x1, y: y2 };\n\
-  if(this.curveAngle === -90 && (inQ2 || inQ4)) return { x: x2, y: y1 };\n\
-\n\
-  return null;\n\
+Edge.prototype.calculateAlignmentIds = function() {\n\
+  this.fromAlignmentId = this.calculateAlignmentId(this.fromVertex.x, this.fromVertex\n\
+    .y, this.fromAngle);\n\
+  this.toAlignmentId = this.calculateAlignmentId(this.toVertex.x, this.toVertex\n\
+    .y, this.toAngle);\n\
 };\n\
-\n\
 \n\
 Edge.prototype.hasTransit = function(cellSize) {\n\
-  for(var i = 0; i < this.renderSegments.length; i++) {\n\
-    if(this.renderSegments[i].getType() === 'TRANSIT') {\n\
+  for (var i = 0; i < this.renderSegments.length; i++) {\n\
+    if (this.renderSegments[i].getType() === 'TRANSIT') {\n\
       return true;\n\
     }\n\
   }\n\
   return false;\n\
 };\n\
 \n\
-Edge.prototype.calculateVectors = function(cellSize) {\n\
-\n\
-  var dx = this.elbow ? (this.elbow.x - this.fromVertex.x) : (this.toVertex.x - this.fromVertex.x);\n\
-  var dy = this.elbow ? (this.elbow.y - this.fromVertex.y) : (this.toVertex.y - this.fromVertex.y);\n\
-  var l = Math.sqrt(dx * dx + dy * dy);\n\
-\n\
-  this.fromVector = {\n\
-    x: dx / l,\n\
-    y: dy / l\n\
-  };\n\
-\n\
-  this.fromleftVector = {\n\
-    x : -this.fromVector.y,\n\
-    y : this.fromVector.x\n\
-  };\n\
-\n\
-  this.fromRightVector = {\n\
-    x : this.fromVector.y,\n\
-    y : -this.fromVector.x\n\
-  };\n\
-\n\
-\n\
-  dx = this.elbow ? (this.toVertex.x - this.elbow.x) : (this.toVertex.x - this.fromVertex.x);\n\
-  dy = this.elbow ? (this.toVertex.y - this.elbow.y) : (this.toVertex.y - this.fromVertex.y);\n\
-  l = Math.sqrt(dx * dx + dy * dy);\n\
-\n\
-  this.toVector = {\n\
-    x: dx / l,\n\
-    y: dy / l\n\
-  };\n\
-\n\
-  this.toleftVector = {\n\
-    x : -this.toVector.y,\n\
-    y : this.toVector.x\n\
-  };\n\
-\n\
-  this.toRightVector = {\n\
-    x : this.toVector.y,\n\
-    y : -this.toVector.x\n\
-  };\n\
-\n\
-};\n\
-\n\
-\n\
 Edge.prototype.getFromAlignmentId = function() {\n\
-  if(this.fromVector.x === 0) return 'x_' + this.fromVertex.x;\n\
-  if(this.fromVector.y === 0) return 'y_' + this.fromVertex.y;\n\
+  return this.fromAlignmentId;\n\
 };\n\
-\n\
 \n\
 Edge.prototype.getToAlignmentId = function() {\n\
-  if(this.toVector.x === 0) return 'x_' + this.toVertex.x;\n\
-  if(this.toVector.y === 0) return 'y_' + this.toVertex.y;\n\
+  return this.toAlignmentId;\n\
 };\n\
-\n\
-\n\
-Edge.prototype.getGridPoints = function(cellSize) {\n\
-  return this.getGridPointsFromCoords(this.fromVertex.x, this.fromVertex.y, this.toVertex.x, this.toVertex.y, cellSize);\n\
-  /*var gridPoints = [];\n\
-\n\
-  var elbow = this.elbow;\n\
-  \n\
-  gridPoints.push([ this.fromVertex.x, this.fromVertex.y ]);\n\
-\n\
-  //console.log(this);\n\
-\n\
-  if(elbow && elbow.x === this.fromVertex.x) { // follows y-axis first\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(cellSize, this.fromVertex.x));\n\
-    gridPoints.push([ elbow.x, elbow.y ]);\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(cellSize, this.toVertex.y));\n\
-  }\n\
-  else if(elbow && elbow.y == this.fromVertex.y) { // follows x-axis first\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(cellSize, this.fromVertex.y));\n\
-    gridPoints.push([ elbow.x, elbow.y ]);\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(cellSize, this.toVertex.x));\n\
-  }\n\
-  else if(this.fromVertex.x === this.toVertex.x) { // vertical edge\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(cellSize, this.fromVertex.x));\n\
-  }\n\
-  else if(this.fromVertex.y === this.toVertex.y) { // horizontal edge\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(cellSize, this.fromVertex.y));\n\
-  }\n\
-\n\
-  gridPoints.push([ this.toVertex.x, this.toVertex.y ]);\n\
-\n\
-  //console.log(gridPoints);\n\
-  return gridPoints;*/\n\
-};\n\
-\n\
-\n\
-Edge.prototype.getGridPointsFromCoords = function(fx, fy, tx, ty, cellSize) {\n\
-  var gridPoints = [];\n\
-\n\
-  var elbow = this.elbow ? this.elbow : this.getCurveElbowFromCoords(fx, fy, tx, ty, cellSize);\n\
-  gridPoints.push([ fx, fy ]);\n\
-\n\
-  if(elbow && elbow.x === fx) { // follows y-axis first\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(fy, ty, fx, cellSize));\n\
-    gridPoints.push([ elbow.x, elbow.y ]);\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(fx, tx, ty, cellSize));\n\
-  }\n\
-  else if(elbow && elbow.y === fy) { // follows x-axis first\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(fx, tx, fy, cellSize));\n\
-    gridPoints.push([ elbow.x, elbow.y ]);\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(fy, ty, tx, cellSize));\n\
-  }\n\
-  else if(fx === tx) { // vertical edge\n\
-    gridPoints = gridPoints.concat(this.getYAxisGridPoints(fy, ty, fx, cellSize));\n\
-  }\n\
-  else if(fy === ty) { // horizontal edge\n\
-    gridPoints = gridPoints.concat(this.getXAxisGridPoints(fx, tx, fy, cellSize));\n\
-  }\n\
-\n\
-  gridPoints.push([ tx, ty ]);\n\
-\n\
-  return gridPoints;\n\
-};\n\
-\n\
-Edge.prototype.getXAxisGridPoints = function(fx, tx, y, cellSize) {\n\
-  var gridPoints = [];\n\
-  var dx = tx - fx;\n\
-  var xCellCount = Math.abs(dx) / cellSize;\n\
-\n\
-  for(var xc = 1; xc < xCellCount; xc++) {\n\
-    gridPoints.push([\n\
-      fx + xc * cellSize * (dx / Math.abs(dx)),\n\
-      y\n\
-    ]);\n\
-  }\n\
-\n\
-  return gridPoints;\n\
-};\n\
-\n\
-Edge.prototype.getYAxisGridPoints = function(fy, ty, x, cellSize) {\n\
-  var gridPoints = [];\n\
-  var dy = ty - fy;\n\
-  var yCellCount = Math.abs(dy) / cellSize;\n\
-\n\
-  for(var yc = 1; yc < yCellCount; yc++) {\n\
-    gridPoints.push([\n\
-      x,\n\
-      fy + yc * cellSize * (dy / Math.abs(dy))\n\
-    ]);\n\
-  }\n\
-  return gridPoints;\n\
-};\n\
-\n\
-Edge.prototype.calculateGridEdges = function(cellSize) {\n\
-  this.gridEdges = [];\n\
-  this.gridPoints = this.getGridPoints(cellSize);\n\
-  for(var i=0; i < this.gridPoints.length-1; i++) {\n\
-    var x1 = this.gridPoints[i][0], y1 = this.gridPoints[i][1];\n\
-    var x2 = this.gridPoints[i+1][0], y2 = this.gridPoints[i+1][1];\n\
-    var id = Math.min(x1, x2) + '_' + Math.min(y1, y2) + '_' + Math.max(x1, x2) + '_' + Math.max(y1, y2);\n\
-    this.gridEdges.push(id);\n\
-  }\n\
-\n\
-};\n\
-\n\
 \n\
 Edge.prototype.align = function(vertex, vector) {\n\
-  if(this.aligned || !this.hasCurvature()) return;\n\
+  if (this.aligned || !this.hasCurvature()) return;\n\
   var currentVector = this.getVector(vertex);\n\
-  if(Math.abs(currentVector.x) !== Math.abs(vector.x) || Math.abs(currentVector.y) !== Math.abs(vector.y)) {\n\
+  if (Math.abs(currentVector.x) !== Math.abs(vector.x) || Math.abs(\n\
+    currentVector.y) !== Math.abs(vector.y)) {\n\
     this.curveAngle = -this.curveAngle;\n\
     this.calculateGeometry();\n\
   }\n\
   this.aligned = true;\n\
 };\n\
 \n\
-\n\
 Edge.prototype.getRenderCoords = function(fromOffsetPx, toOffsetPx, display) {\n\
+\n\
+  var isBase = (fromOffsetPx === 0 && toOffsetPx === 0);\n\
+\n\
+  if (!this.baseRenderCoords && !isBase) {\n\
+    this.calculateBaseRenderCoords(display);\n\
+  }\n\
 \n\
   var fromOffsetX = fromOffsetPx * this.fromRightVector.x;\n\
   var fromOffsetY = fromOffsetPx * this.fromRightVector.y;\n\
@@ -15497,54 +15122,100 @@ Edge.prototype.getRenderCoords = function(fromOffsetPx, toOffsetPx, display) {\n
 \n\
   var fx = display.xScale(this.fromVertex.x) + fromOffsetX;\n\
   var fy = display.yScale(this.fromVertex.y) - fromOffsetY;\n\
-  var fvx = this.fromVector.x, fvy = this.fromVector.y;\n\
+  var fvx = this.fromVector.x,\n\
+    fvy = -this.fromVector.y;\n\
 \n\
   var tx = display.xScale(this.toVertex.x) + toOffsetX;\n\
   var ty = display.yScale(this.toVertex.y) - toOffsetY;\n\
-  var tvx = this.toVector.x, tvy = this.toVector.y;\n\
-\n\
+  var tvx = -this.toVector.x,\n\
+    tvy = this.toVector.y;\n\
 \n\
   var coords = [];\n\
 \n\
-  coords.push({ x: fx, y : fy});\n\
-  var len = null;\n\
-  \n\
-  if(!this.isStraight()) {\n\
-    var u = (fy*tvx + tvy*tx - ty*tvx - tvy*fx ) / (fvx*tvy - fvy*tvx);\n\
-    //console.log('u=' + u);\n\
-    //console.log(this.toString());\n\
-    if(!isNaN(u)) {\n\
+  coords.push({\n\
+    x: fx,\n\
+    y: fy\n\
+  });\n\
+  var len = null,\n\
+    x1, y1, x2, y2;\n\
+\n\
+  if ((isBase && !this.isStraight()) || (!isBase && this.baseRenderCoords.length ===\n\
+    4)) {\n\
+\n\
+    var isect = Util.rayIntersection(fx, fy, fvx, fvy, tx, ty, tvx, tvy);\n\
+    if (isect.intersect) {\n\
+      var u = isect.u;\n\
       var ex = fx + fvx * u;\n\
       var ey = fy + fvy * u;\n\
 \n\
-      var rPx = this.getBaseRadiusPx() + (fromOffsetPx + toOffsetPx) / 2;\n\
-      var x1 = ex - this.fromVector.x * rPx;\n\
-      var y1 = ey + this.fromVector.y * rPx;\n\
-      coords.push({ \n\
+      // calculate the angle of the arc\n\
+      var angleR = this.getElbowAngle();\n\
+\n\
+      // calculate the radius of the arc in pixels, taking offsets into consideration\n\
+      var rPx = this.getBaseRadiusPx() - (fromOffsetPx + toOffsetPx) / 2;\n\
+\n\
+      // calculate the distance from the elbow to place the arc endpoints in each direction\n\
+      var d = rPx * Math.tan(angleR / 2);\n\
+\n\
+      // make sure the arc endpoint placement distance is not longer than the either of the\n\
+      // elbow-to-edge-endpoint distances\n\
+      var l1 = Util.distance(fx, fy, ex, ey),\n\
+        l2 = Util.distance(tx, ty, ex, ey);\n\
+      d = Math.min(Math.min(l1, l2), d);\n\
+\n\
+      x1 = ex - this.fromVector.x * d;\n\
+      y1 = ey + this.fromVector.y * d;\n\
+      coords.push({\n\
         x: x1,\n\
         y: y1,\n\
         len: Util.distance(fx, fy, x1, y1)\n\
       });\n\
 \n\
-      var x2 = ex + this.toVector.x * rPx; \n\
-      var y2 = ey - this.toVector.y * rPx;\n\
+      x2 = ex + this.toVector.x * d;\n\
+      y2 = ey - this.toVector.y * d;\n\
 \n\
-      var angleR = this.getElbowAngle();\n\
-      var radius = Util.getRadiusFromAngleChord(angleR, Util.distance(x1, y1, x2, y2));\n\
+      var radius = Util.getRadiusFromAngleChord(angleR, Util.distance(x1, y1,\n\
+        x2, y2));\n\
       this.ccw = Util.ccw(fx, fy, ex, ey, tx, ty);\n\
-      var arc = angleR * (180/Math.PI) * (this.ccw < 0 ? 1 : -1);\n\
-      coords.push({ \n\
-        x: x2, \n\
+      var arc = angleR * (180 / Math.PI) * (this.ccw < 0 ? 1 : -1);\n\
+      coords.push({\n\
+        x: x2,\n\
         y: y2,\n\
         len: angleR * radius,\n\
-        arc: arc\n\
+        arc: arc,\n\
+        radius: radius\n\
       });\n\
 \n\
       len = Util.distance(x2, y2, tx, ty);\n\
+    } else if (!isBase) {\n\
+\n\
+      var flen = this.baseRenderCoords[1].len;\n\
+      var tlen = this.baseRenderCoords[3].len;\n\
+\n\
+      if (flen === 0 || tlen === 0) {\n\
+        x1 = fx + fvx * flen;\n\
+        y1 = fy + fvy * flen;\n\
+        x2 = tx + tvx * tlen;\n\
+        y2 = ty + tvy * tlen;\n\
+\n\
+        coords.push({\n\
+          x: x1,\n\
+          y: y1,\n\
+          len: flen\n\
+        });\n\
+\n\
+        coords.push({\n\
+          x: x2,\n\
+          y: y2,\n\
+          len: Util.distance(x1, y1, x2, y2)\n\
+        });\n\
+\n\
+        len = tlen;\n\
+      }\n\
     }\n\
   }\n\
-  \n\
-  if(!len) len = Util.distance(fx, fy, tx, ty);\n\
+\n\
+  if (!len) len = Util.distance(fx, fy, tx, ty);\n\
 \n\
   coords.push({\n\
     x: tx,\n\
@@ -15555,316 +15226,103 @@ Edge.prototype.getRenderCoords = function(fromOffsetPx, toOffsetPx, display) {\n
   return coords;\n\
 };\n\
 \n\
-\n\
-Edge.prototype.isStraight = function() {\n\
-  return (this.fromVector.x === this.toVector.x && this.fromVector.y === this.toVector.y);\n\
+Edge.prototype.calculateBaseRenderCoords = function(display) {\n\
+  this.baseRenderCoords = this.getRenderCoords(0, 0, display);\n\
 };\n\
 \n\
+Edge.prototype.isStraight = function() {\n\
+  var tol = 0.00001;\n\
+  return (Math.abs(this.fromVector.x - this.toVector.x) < tol &&\n\
+    Math.abs(this.fromVector.y - this.toVector.y) < tol);\n\
+};\n\
 \n\
 Edge.prototype.getBaseRadiusPx = function() {\n\
   return 15;\n\
 };\n\
 \n\
-\n\
 Edge.prototype.getElbowAngle = function() {\n\
   var cx = this.fromVector.x - this.toVector.x;\n\
   var cy = this.fromVector.y - this.toVector.y;\n\
 \n\
-  var c = Math.sqrt(cx*cx + cy*cy) / 2;\n\
-  \n\
+  var c = Math.sqrt(cx * cx + cy * cy) / 2;\n\
+\n\
   var theta = Math.asin(c);\n\
 \n\
   return theta * 2;\n\
-  //var deg = theta * (180/Math.PI);\n\
-  //return deg * 2;\n\
 };\n\
-\n\
 \n\
 Edge.prototype.coordAlongEdge = function(t, coords, display) {\n\
 \n\
-  if(!this.baseCoords) {\n\
-    this.baseCoords = this.getRenderCoords(0, 0, display);\n\
+  if (!this.baseRenderCoords) this.calculateBaseRenderCoords(display);\n\
+\n\
+  if (coords.length === 2 && this.baseRenderCoords.length === 4) {\n\
+    return {\n\
+      x: coords[0].x + t * (coords[1].x - coords[0].x),\n\
+      y: coords[0].y + t * (coords[1].y - coords[0].y)\n\
+    };\n\
   }\n\
 \n\
   var len = 0;\n\
-  for(var i = 1; i < this.baseCoords.length; i++) {\n\
-    len += this.baseCoords[i].len;\n\
+  for (var i = 1; i < this.baseRenderCoords.length; i++) {\n\
+    len += this.baseRenderCoords[i].len;\n\
   }\n\
 \n\
   var loc = t * len;\n\
   var cur = 0;\n\
-  for(i = 1; i < this.baseCoords.length; i++) {\n\
-    if(loc < cur + this.baseCoords[i].len) {\n\
-      var t2 = (loc - cur) / this.baseCoords[i].len;\n\
+  for (i = 1; i < this.baseRenderCoords.length; i++) {\n\
+    if (loc < cur + this.baseRenderCoords[i].len) {\n\
+      var t2 = (loc - cur) / this.baseRenderCoords[i].len;\n\
 \n\
-      if(coords[i].arc) {\n\
+      if (coords[i].arc) {\n\
 \n\
-        // vector from the elbow point to the arc center\n\
-        var vx = this.toVector.x - this.fromVector.x;\n\
-        var vy = -this.toVector.y + this.fromVector.y;\n\
+        var ccw = Util.ccw(coords[0].x, coords[0].y, coords[1].x, coords[1].y,\n\
+          coords[2].x, coords[2].y);\n\
+        ccw = Math.abs(ccw) / ccw; // convert to 1 or -1\n\
 \n\
-        // normalize the vector \n\
-        var d = Math.sqrt(vx * vx + vy * vy);\n\
-        vx = vx / d;\n\
-        vy = vy / d;        \n\
-\n\
+        var vectToCenter = Util.normalizeVector(Util.rotateVector({\n\
+          x: coords[1].x - coords[0].x,\n\
+          y: coords[1].y - coords[0].y\n\
+        }, ccw * Math.PI / 2));\n\
+        var r = coords[i].radius;\n\
         var theta = Math.PI * coords[i].arc / 180;\n\
-        var chordLen = Util.distance(coords[i].x, coords[i].y, coords[i -1].x, coords[i -1].y);\n\
-        var r = Util.getRadiusFromAngleChord(theta, chordLen);\n\
 \n\
-        var mx = (coords[i].x + coords[i -1].x) / 2;\n\
-        var my = (coords[i].y + coords[i -1].y) / 2;\n\
-        var h = r * Math.cos(theta/2);\n\
+        // calculate the center of the arc circle\n\
+        var cx = coords[1].x + r * vectToCenter.x;\n\
+        var cy = coords[1].y + r * vectToCenter.y;\n\
 \n\
-        var cx = mx + vx * h;\n\
-        var cy = my + vy * h;\n\
-\n\
-        /*console.log(coords);\n\
-        console.log(this.fromVector);\n\
-        console.log(this.toVector);\n\
-        console.log('v: ' + vx + ', ' + vy);\n\
-        console.log('theta=' + theta + ', cl='+chordLen);\n\
-        console.log('h= ' + h + ', r=' + r);\n\
-        console.log('mxy: ' + mx + ', ' + my);\n\
-        console.log('center: ' + cx + ', ' + cy);*/\n\
-        var th1 = Util.getVectorAngle(coords[i -1].x - cx, coords[i -1].y - cy);\n\
-        var th2 = Util.getVectorAngle(coords[i].x - cx, coords[i].y - cy);\n\
-\n\
-        if(th1 <= -Math.PI + 0.000001) th1 += 2*Math.PI;\n\
-        if(th2 >= Math.PI - 0.000001) th2 -= 2*Math.PI;\n\
-        var th = th1 + (th2 - th1) * t2;\n\
-\n\
-\n\
-        //console.log('th range: ' + th1 + ' to ' + th2);\n\
-        //console.log('t2=' + t2 + ', th=' + th);\n\
+        var vectFromCenter = Util.negateVector(vectToCenter);\n\
+        var rot = Math.abs(theta) * t2 * ccw;\n\
+        vectFromCenter = Util.normalizeVector(Util.rotateVector(vectFromCenter,\n\
+          rot));\n\
 \n\
         return {\n\
-          x : cx + r * Math.cos(th),\n\
-          y : cy + r * Math.sin(th)\n\
+          x: cx + r * vectFromCenter.x,\n\
+          y: cy + r * vectFromCenter.y\n\
         };\n\
 \n\
-      }\n\
-      else {\n\
-        var dx = coords[i].x - coords[i-1].x;\n\
-        var dy = coords[i].y - coords[i-1].y;\n\
+      } else {\n\
+        var dx = coords[i].x - coords[i - 1].x;\n\
+        var dy = coords[i].y - coords[i - 1].y;\n\
 \n\
         return {\n\
-          x : coords[i-1].x + dx * t2,\n\
-          y : coords[i-1].y + dy * t2\n\
+          x: coords[i - 1].x + dx * t2,\n\
+          y: coords[i - 1].y + dy * t2\n\
         };\n\
       }\n\
     }\n\
-    cur += this.baseCoords[i].len;\n\
+    cur += this.baseRenderCoords[i].len;\n\
   }\n\
 \n\
 };\n\
-\n\
 \n\
 Edge.prototype.clearRenderData = function() {\n\
-  this.baseCoords = null;\n\
+  this.baseRenderCoords = null;\n\
 };\n\
-\n\
-\n\
-\n\
-\n\
-\n\
-Edge.prototype.getCurvaturePoints = function(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY) {\n\
-\n\
-  var offsetPoints = [];\n\
-\n\
-  var offsets = this.getCurveOffsets(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-\n\
-  offsetPoints.push({\n\
-    x: this.curvaturePoints[0].x,\n\
-    y: this.curvaturePoints[0].y,\n\
-    offsetX: fromOffsetX + toOffsetX, //offsets.x,\n\
-    offsetY: fromOffsetY + toOffsetY //offsets.y\n\
-  });\n\
-\n\
-  offsetPoints.push({\n\
-    x: this.curvaturePoints[1].x,\n\
-    y: this.curvaturePoints[1].y,\n\
-    arc: this.curvaturePoints[1].arc,\n\
-    offsetX: fromOffsetX + toOffsetX, //offsets.x,\n\
-    offsetY: fromOffsetY + toOffsetY //offsets.y\n\
-  });\n\
-\n\
-  return offsetPoints;\n\
-};\n\
-\n\
-Edge.prototype.renderInternalPoints = function(segment, fromOffsetX, fromOffsetY, toOffsetX, toOffsetY) {\n\
-\n\
-  var pointInfo, pointIndex = 1;\n\
-\n\
-  this.pointArray.forEach(function (point, i) {\n\
-    var t = (i + 1) / (this.pointArray.length + 1);\n\
-    //console.log(point);\n\
-    if(this.curvaturePoints.length > 0) {\n\
-      pointInfo = this.pointAlongEdgeCurve(t, fromOffsetX, fromOffsetY, toOffsetX, toOffsetY, point.getId() === '8040');\n\
-    }\n\
-    else {\n\
-      pointInfo = this.pointAlongEdge(t);\n\
-      pointInfo.offsetX = fromOffsetX;\n\
-      pointInfo.offsetY = fromOffsetY;\n\
-    }\n\
-    pointInfo.segment = segment;\n\
-    pointInfo.path = this.paths[0];\n\
-    pointInfo.point = point;\n\
-    pointInfo.inEdge = pointInfo.outEdge = this;\n\
-    pointInfo.index = pointIndex++;\n\
-\n\
-    point.addRenderData(pointInfo);\n\
-  }, this);\n\
-};\n\
-\n\
-\n\
-/**\n\
- *\n\
- */\n\
-\n\
-Edge.prototype.pointAlongEdge = function(t) {\n\
-  var x = this.fromVertex.x + t * (this.toVertex.x - this.fromVertex.x);\n\
-  var y = this.fromVertex.y + t * (this.toVertex.y - this.fromVertex.y);\n\
-  return {\n\
-    x: x,\n\
-    y: y\n\
-  };\n\
-};\n\
-\n\
-\n\
-Edge.prototype.pointAlongEdgeCurve = function(t, fromOffsetX, fromOffsetY, toOffsetX, toOffsetY, debug) {\n\
-  var fx = this.fromVertex.x, fy = this.fromVertex.y;\n\
-  var tx = this.toVertex.x, ty = this.toVertex.y;\n\
-  var dx = tx - fx, dy = ty - fy;\n\
-  var c0x = this.curvaturePoints[0].x, c0y = this.curvaturePoints[0].y;\n\
-  var c1x = this.curvaturePoints[1].x, c1y = this.curvaturePoints[1].y;\n\
-  var elbow = this.getCurveElbow();\n\
-  var leg0len = Math.sqrt((c0x - fx) * (c0x - fx) + (c0y - fy) * (c0y - fy));\n\
-  var leg1len = Math.sqrt((tx - c1x) * (tx - c1x) + (ty - c1y) * (ty - c1y));\n\
-\n\
-  var r = this.radius;\n\
-\n\
-  var curvelen = Math.PI * r / 2;\n\
-  var len = leg0len + leg1len + curvelen;\n\
-\n\
-  var pos = t * len;\n\
-\n\
-  if(pos <= leg0len) {\n\
-    return {\n\
-      x: fx + (c0x - fx) * (pos / leg0len),\n\
-      y: fy + (c0y - fy) * (pos / leg0len),\n\
-      offsetX: fromOffsetX,\n\
-      offsetY: fromOffsetY\n\
-    };\n\
-  }\n\
-\n\
-  if(pos >= len - leg1len) {\n\
-    return {\n\
-      x: c1x + (tx - c1x) * ((pos - leg0len - curvelen) / leg1len),\n\
-      y: c1y + (ty - c1y) * ((pos - leg0len - curvelen) / leg1len),\n\
-      offsetX: toOffsetX,\n\
-      offsetY: toOffsetY\n\
-    };\n\
-  }\n\
-\n\
-  var ct = (pos - leg0len) / curvelen;\n\
-\n\
-  var cx = (this.fromVector.x !== 0) ? c0x : c1x;\n\
-  var cy = (this.fromVector.x !== 0) ? c1y : c0y;\n\
-\n\
-  var theta = this.getCurveTheta(ct);\n\
-\n\
-  var offsets = this.getCurveOffsets(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-\n\
-  var p = {\n\
-    x: cx + r * Math.cos(theta),\n\
-    y: cy + r * Math.sin(theta),\n\
-    offsetX: offsets.x,\n\
-    offsetY: offsets.y\n\
-  };\n\
-\n\
-  return p;\n\
-};\n\
-\n\
-\n\
-Edge.prototype.getCurveTheta = function(ct) {\n\
-  if(this.fromVector.x > 0 && this.curveAngle < 0) return (1 - ct) * Math.PI/2;\n\
-  if(this.fromVector.x > 0 && this.curveAngle > 0) return (3 + ct) * Math.PI/2;\n\
-\n\
-  if(this.fromVector.y > 0 && this.curveAngle < 0) return (2 - ct) * Math.PI/2;\n\
-  if(this.fromVector.y > 0 && this.curveAngle > 0) return ct * Math.PI/2;\n\
-\n\
-  if(this.fromVector.x < 0 && this.curveAngle < 0) return (3 - ct) * Math.PI/2;\n\
-  if(this.fromVector.x < 0 && this.curveAngle > 0) return (1 + ct) * Math.PI/2;\n\
-\n\
-  if(this.fromVector.y < 0 && this.curveAngle < 0) return (4 - ct) * Math.PI/2;\n\
-  if(this.fromVector.y < 0 && this.curveAngle > 0) return (2 + ct) * Math.PI/2;\n\
-};\n\
-\n\
-Edge.prototype.getCurveOffsets = function(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY) {\n\
-  var elbow = this.getCurveElbow();\n\
-  var xOffset = 0, yOffset = 0;\n\
-\n\
-  if(elbow && elbow.y === this.fromVertex.y) {\n\
-    yOffset = fromOffsetY;\n\
-    xOffset = toOffsetX;\n\
-  }\n\
-  else if(elbow && elbow.x === this.fromVertex.x) {\n\
-    yOffset = toOffsetY;\n\
-    xOffset = fromOffsetX;\n\
-  }\n\
-\n\
-  return {\n\
-    x: xOffset,\n\
-    y: yOffset\n\
-  };\n\
-};\n\
-\n\
-\n\
-Edge.prototype.pointAlongEdgeCurveX = function(t, r) {\n\
-  var dx = this.toVertex.x - this.fromVertex.x;\n\
-  var dy = this.toVertex.y - this.fromVertex.y;\n\
-  var len = Math.abs(dx) + Math.abs(dy) - 2 * r + Math.PI * r / 2;\n\
-\n\
-  var pos = t * len;\n\
-  var curveStartPos = Math.abs(dx) - r, curveEndPos = len - (Math.abs(dy) - r);\n\
-  if(pos <= curveStartPos) {\n\
-    return {\n\
-      x: this.fromVertex.x + (dx / Math.abs(dx)) * pos,\n\
-      y: this.fromVertex.y\n\
-    };\n\
-  }\n\
-  if(pos >= curveEndPos) {\n\
-    return {\n\
-      x: this.toVertex.x,\n\
-      y: this.toVertex.y - (dy / Math.abs(dy)) * (len - pos)\n\
-    };\n\
-  }\n\
-\n\
-  var ct = (pos - curveStartPos) / (curveEndPos - curveStartPos);\n\
-\n\
-  var cx = this.toVertex.x - r * (dx / Math.abs(dx));\n\
-  var cy = this.fromVertex.y + r * (dy / Math.abs(dy));\n\
-  var theta = 0;\n\
-\n\
-  if(dx > 0 && dy > 0) theta = (3 + ct) * (Math.PI / 2);\n\
-  if(dx > 0 && dy < 0) theta = (1 - ct) * (Math.PI / 2);\n\
-  if(dx < 0 && dy > 0) theta = (3 - ct) * (Math.PI / 2);\n\
-  if(dx < 0 && dy < 0) theta = (1 + ct) * (Math.PI / 2);\n\
-\n\
-  return {\n\
-    x: cx + r * Math.cos(theta),\n\
-    y: cy + r * Math.sin(theta)\n\
-  };\n\
-\n\
-};\n\
-\n\
 \n\
 Edge.prototype.getVector = function(vertex) {\n\
-  if(vertex === this.fromVertex) return this.fromVector;\n\
-  if(vertex === this.toVertex) return this.toVector;\n\
+  if (vertex === this.fromVertex) return this.fromVector;\n\
+  if (vertex === this.toVertex) return this.toVector;\n\
 };\n\
-\n\
 \n\
 /**\n\
  *  Gets the vertex opposite another vertex on an edge\n\
@@ -15873,6 +15331,14 @@ Edge.prototype.getVector = function(vertex) {\n\
 Edge.prototype.oppositeVertex = function(vertex) {\n\
   if (vertex === this.toVertex) return this.fromVertex;\n\
   if (vertex === this.fromVertex) return this.toVertex;\n\
+  return null;\n\
+};\n\
+\n\
+Edge.prototype.commonVertex = function(edge) {\n\
+  if (this.fromVertex === edge.fromVertex || this.fromVertex === edge.toVertex)\n\
+    return this.fromVertex;\n\
+  if (this.toVertex === edge.fromVertex || this.toVertex === edge.toVertex)\n\
+    return this.toVertex;\n\
   return null;\n\
 };\n\
 \n\
@@ -15894,13 +15360,13 @@ Edge.prototype.setPointLabelPosition = function(pos, skip) {\n\
  */\n\
 \n\
 Edge.prototype.toString = function() {\n\
-  return this.fromVertex.point.getName() + '_' + this.toVertex.point.getName();\n\
+  return 'Edge ' + this.getId() + ' (' + this.fromVertex.toString() + ' to ' +\n\
+    this.toVertex.toString() + ')';\n\
 };\n\
 //@ sourceURL=transitive/lib/graph/edge.js"
 ));
 require.register("transitive/lib/graph/vertex.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Expose `Vertex`\n\
  */\n\
 \n\
@@ -15914,7 +15380,10 @@ module.exports = Vertex;\n\
  * @param {Number}\n\
  */\n\
 \n\
+var edgeId = 0;\n\
+\n\
 function Vertex(point, x, y) {\n\
+  this.id = edgeId++;\n\
   this.point = point;\n\
   this.point.graphVertex = this;\n\
   this.x = this.origX = x;\n\
@@ -15922,7 +15391,9 @@ function Vertex(point, x, y) {\n\
   this.edges = [];\n\
 }\n\
 \n\
-\n\
+Vertex.prototype.getId = function() {\n\
+  return this.id;\n\
+};\n\
 \n\
 /**\n\
  * Move to new coordinate\n\
@@ -15939,7 +15410,6 @@ Vertex.prototype.moveTo = function(x, y) {\n\
   });*/\n\
 };\n\
 \n\
-\n\
 /**\n\
  * Get array of edges incident to vertex. Allows specification of \"incoming\" edge that will not be included in results\n\
  *\n\
@@ -15947,13 +15417,12 @@ Vertex.prototype.moveTo = function(x, y) {\n\
  */\n\
 \n\
 Vertex.prototype.incidentEdges = function(inEdge) {\n\
-\tvar results = [];\n\
-\tthis.edges.forEach(function(edge) {\n\
-\t\tif(edge !== inEdge) results.push(edge);\n\
-\t});\n\
-\treturn results;\n\
+  var results = [];\n\
+  this.edges.forEach(function(edge) {\n\
+    if (edge !== inEdge) results.push(edge);\n\
+  });\n\
+  return results;\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Add an edge to the vertex's edge list\n\
@@ -15963,7 +15432,7 @@ Vertex.prototype.incidentEdges = function(inEdge) {\n\
 \n\
 Vertex.prototype.addEdge = function(edge) {\n\
   var index = this.edges.indexOf(edge);\n\
-  if(index === -1) this.edges.push(edge);\n\
+  if (index === -1) this.edges.push(edge);\n\
 };\n\
 \n\
 /**\n\
@@ -15974,36 +15443,39 @@ Vertex.prototype.addEdge = function(edge) {\n\
 \n\
 Vertex.prototype.removeEdge = function(edge) {\n\
   var index = this.edges.indexOf(edge);\n\
-  if(index !== -1) this.edges.splice(index, 1);\n\
-};//@ sourceURL=transitive/lib/graph/vertex.js"
+  if (index !== -1) this.edges.splice(index, 1);\n\
+};\n\
+\n\
+Vertex.prototype.toString = function() {\n\
+  return 'Vertex ' + this.getId() + ' (' + (this.point ? this.point.toString() :\n\
+    'no point assigned') + ')';\n\
+};\n\
+//@ sourceURL=transitive/lib/graph/vertex.js"
 ));
 require.register("transitive/lib/styler/index.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
-\n\
+"var clone = require('clone');\n\
 var each = require('each');\n\
-var merge = require('merge-util');\n\
-var styles = require('./styles');\n\
 var svgAttributes = require('svg-attributes');\n\
+\n\
+var styles = require('./styles');\n\
 \n\
 /**\n\
  * Element Types\n\
  */\n\
 \n\
-var types = [ 'labels',\n\
-              'segments',\n\
-              'segments_front',\n\
-              'segment_labels',\n\
-              'segment_label_containers',\n\
-              'stops_merged',\n\
-              'stops_pattern',\n\
-              'places',\n\
-              'places_icon',\n\
-              'multipoints_merged',\n\
-              'multipoints_pattern'\n\
-            ];\n\
+var types = [\n\
+  'labels',\n\
+  'segments',\n\
+  'segments_front',\n\
+  'segment_labels',\n\
+  'segment_label_containers',\n\
+  'stops_merged',\n\
+  'stops_pattern',\n\
+  'places',\n\
+  'places_icon',\n\
+  'multipoints_merged',\n\
+  'multipoints_pattern'\n\
+];\n\
 \n\
 /**\n\
  * Add transform\n\
@@ -16035,20 +15507,21 @@ function Styler(styles) {\n\
  * Clear all current styles\n\
  */\n\
 \n\
-Styler.prototype.clear = function () {\n\
-  types.forEach(function (type) {\n\
-    this[type] = {};\n\
-  }, this);\n\
+Styler.prototype.clear = function() {\n\
+  for (var i in types) {\n\
+    this[types[i]] = {};\n\
+  }\n\
 };\n\
 \n\
 /**\n\
  * Reset to the predefined styles\n\
  */\n\
 \n\
-Styler.prototype.reset = function () {\n\
-  types.forEach(function (type) {\n\
-    this[type] = merge({}, styles[type]);\n\
-  }, this);\n\
+Styler.prototype.reset = function() {\n\
+  for (var i in types) {\n\
+    var type = types[i];\n\
+    this[type] = clone(styles[type]);\n\
+  }\n\
 };\n\
 \n\
 /**\n\
@@ -16059,13 +15532,14 @@ Styler.prototype.reset = function () {\n\
 \n\
 Styler.prototype.load = function(styles) {\n\
   var self = this;\n\
-  each(types, function(type) {\n\
+  for (var i in types) {\n\
+    var type = types[i];\n\
     if (styles[type]) {\n\
-      each(styles[type], function (key, val) {\n\
-        self[type][key] = (self[type][key] || []).concat(val);\n\
-      });\n\
+      for (var key in styles[type]) {\n\
+        this[type][key] = (this[type][key] || []).concat(styles[type][key]);\n\
+      }\n\
     }\n\
-  });\n\
+  }\n\
 };\n\
 \n\
 /**\n\
@@ -16088,8 +15562,6 @@ Styler.prototype.renderSegment = function(display, segment) {\n\
   );\n\
 };\n\
 \n\
-\n\
-\n\
 /**\n\
  * Render elements against these rules\n\
  *\n\
@@ -16098,11 +15570,10 @@ Styler.prototype.renderSegment = function(display, segment) {\n\
  */\n\
 \n\
 Styler.prototype.renderPoint = function(display, point) {\n\
-  if(point.getType() === 'STOP') this.renderStop(display, point);\n\
-  if(point.getType() === 'PLACE') this.renderPlace(display, point);\n\
-  if(point.getType() === 'MULTI') this.renderMultiPoint(display, point);\n\
+  if (point.getType() === 'STOP') this.renderStop(display, point);\n\
+  if (point.getType() === 'PLACE') this.renderPlace(display, point);\n\
+  if (point.getType() === 'MULTI') this.renderMultiPoint(display, point);\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
@@ -16112,16 +15583,15 @@ Styler.prototype.renderPoint = function(display, point) {\n\
  */\n\
 \n\
 Styler.prototype.renderStop = function(display, stop) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
-    stop.patternMarkers,//stop.svgGroup.selectAll('.transitive-stop-marker-pattern'),\n\
+    stop.patternMarkers, //stop.svgGroup.selectAll('.transitive-stop-marker-pattern'),\n\
     this.stops_pattern\n\
   );\n\
 \n\
   this.applyAttrAndStyle(\n\
     display,\n\
-    stop.mergedMarker,//svgGroup.selectAll('.transitive-stop-marker-merged'),\n\
+    stop.mergedMarker, //svgGroup.selectAll('.transitive-stop-marker-merged'),\n\
     this.stops_merged\n\
   );\n\
 \n\
@@ -16131,7 +15601,6 @@ Styler.prototype.renderStop = function(display, stop) {\n\
     this.labels\n\
   );\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
@@ -16160,7 +15629,6 @@ Styler.prototype.renderPlace = function(display, place) {\n\
   );\n\
 };\n\
 \n\
-\n\
 /**\n\
  * Render elements against these rules\n\
  *\n\
@@ -16169,7 +15637,6 @@ Styler.prototype.renderPlace = function(display, place) {\n\
  */\n\
 \n\
 Styler.prototype.renderMultiPoint = function(display, multipoint) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
     multipoint.svgGroup.selectAll('.transitive-multipoint-marker-pattern'),\n\
@@ -16189,7 +15656,6 @@ Styler.prototype.renderMultiPoint = function(display, multipoint) {\n\
   );\n\
 };\n\
 \n\
-\n\
 /**\n\
  * Render elements against these rules\n\
  *\n\
@@ -16198,11 +15664,10 @@ Styler.prototype.renderMultiPoint = function(display, multipoint) {\n\
  */\n\
 \n\
 Styler.prototype.renderPointLabel = function(display, point) {\n\
-  if(point.getType() === 'STOP') this.renderStopLabel(display, point);\n\
-  if(point.getType() === 'PLACE') this.renderPlaceLabel(display, point);\n\
-  if(point.getType() === 'MULTI') this.renderMultiPointLabel(display, point);\n\
+  if (point.getType() === 'STOP') this.renderStopLabel(display, point);\n\
+  if (point.getType() === 'PLACE') this.renderPlaceLabel(display, point);\n\
+  if (point.getType() === 'MULTI') this.renderMultiPointLabel(display, point);\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
@@ -16212,14 +15677,12 @@ Styler.prototype.renderPointLabel = function(display, point) {\n\
  */\n\
 \n\
 Styler.prototype.renderStopLabel = function(display, stop) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
     stop.svgGroup.selectAll('.transitive-stop-label'),\n\
     this.labels\n\
   );\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
@@ -16229,14 +15692,12 @@ Styler.prototype.renderStopLabel = function(display, stop) {\n\
  */\n\
 \n\
 Styler.prototype.renderPlaceLabel = function(display, place) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
     place.svgGroup.selectAll('.transitive-place-label'),\n\
     this.labels\n\
   );\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render elements against these rules\n\
@@ -16246,7 +15707,6 @@ Styler.prototype.renderPlaceLabel = function(display, place) {\n\
  */\n\
 \n\
 Styler.prototype.renderMultiPointLabel = function(display, multipoint) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
     multipoint.svgGroup.selectAll('.transitive-multi-label'),\n\
@@ -16254,9 +15714,7 @@ Styler.prototype.renderMultiPointLabel = function(display, multipoint) {\n\
   );\n\
 };\n\
 \n\
-\n\
 Styler.prototype.renderSegmentLabel = function(display, segment) {\n\
-\n\
   this.applyAttrAndStyle(\n\
     display,\n\
     segment.label.svgGroup.selectAll('.transitive-segment-label-container'),\n\
@@ -16269,7 +15727,6 @@ Styler.prototype.renderSegmentLabel = function(display, segment) {\n\
   );\n\
 };\n\
 \n\
-\n\
 /**\n\
  * Check if it's an attribute or a style and apply accordingly\n\
  *\n\
@@ -16279,15 +15736,28 @@ Styler.prototype.renderSegmentLabel = function(display, segment) {\n\
  */\n\
 \n\
 Styler.prototype.applyAttrAndStyle = function(display, elements, attributes) {\n\
-  var self = this;\n\
-  each(attributes, function(name, rules) {\n\
-    var fn = svgAttributes.indexOf(name) === -1\n\
-      ? 'style'\n\
-      : 'attr';\n\
+  for (var name in attributes) {\n\
+    var rules = attributes[name];\n\
+    var fn = svgAttributes.indexOf(name) === -1 ? 'style' : 'attr';\n\
 \n\
-    elements[fn](name, function(data, index) {\n\
-      return self.compute(rules, display, data, index);\n\
-    });\n\
+    this.applyRules(display, elements, name, rules, fn);\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Apply style/attribute rules to a list of elements\n\
+ *\n\
+ * @param {Display} display object\n\
+ * @param {Object} elements\n\
+ * @param {String} rule name\n\
+ * @param {Array} rules\n\
+ * @param {String} style/attr\n\
+ */\n\
+\n\
+Styler.prototype.applyRules = function(display, elements, name, rules, fn) {\n\
+  var self = this;\n\
+  elements[fn](name, function(data, index) {\n\
+    return self.compute(rules, display, data, index);\n\
   });\n\
 };\n\
 \n\
@@ -16302,12 +15772,12 @@ Styler.prototype.applyAttrAndStyle = function(display, elements, attributes) {\n
 \n\
 Styler.prototype.compute = function(rules, display, data, index) {\n\
   var computed, self = this;\n\
-  each(rules, function(rule) {\n\
-    var val = isFunction(rule)\n\
-      ? rule.call(self, display, data, index, styles.utils)\n\
-      : rule;\n\
+  for (var i in rules) {\n\
+    var rule = rules[i];\n\
+    var val = isFunction(rule) ? rule.call(self, display, data, index, styles.utils) :\n\
+      rule;\n\
     if (val !== undefined && val !== null) computed = val;\n\
-  });\n\
+  }\n\
   return computed;\n\
 };\n\
 \n\
@@ -16321,22 +15791,20 @@ function isFunction(val) {\n\
 //@ sourceURL=transitive/lib/styler/index.js"
 ));
 require.register("transitive/lib/styler/styles.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var d3 = require('d3');\n\
 var clone = require('clone');\n\
 \n\
-\n\
 /**\n\
  * Scales for utility functions to use\n\
  */\n\
 \n\
-var zoomScale = d3.scale.linear().domain([ 0.25, 1, 4 ]);\n\
-var strokeScale = d3.scale.linear().domain([ 0.25, 1, 4 ]).range([ 5, 12, 19 ]);\n\
-var fontScale = d3.scale.linear().domain([ 0.25, 1, 4 ]).range([ 10, 14, 18 ]);\n\
+var zoomScale = d3.scale.linear().domain([0.25, 1, 4]);\n\
+var strokeScale = d3.scale.linear().domain([0.25, 1, 4]).range([5, 12, 19]);\n\
+var fontScale = d3.scale.linear().domain([0.25, 1, 4]).range([10, 14, 18]);\n\
 \n\
 /**\n\
  * Scales for utility functions to use\n\
@@ -16350,7 +15818,7 @@ var notFocusedColor = '#e0e0e0';\n\
 \n\
 exports.utils = {\n\
   pixels: function(zoom, min, normal, max) {\n\
-    return zoomScale.range([ min, normal, max ])(zoom);\n\
+    return zoomScale.range([min, normal, max])(zoom);\n\
   },\n\
   strokeWidth: function(display) {\n\
     return strokeScale(display.zoom.scale());\n\
@@ -16365,44 +15833,47 @@ exports.utils = {\n\
  */\n\
 \n\
 var stops_merged = {\n\
-  \n\
+\n\
   fill: [\n\
     '#fff',\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var point = data.owner;\n\
-      if(point.containsBoardPoint() || point.containsAlightPoint()) return point.focused ? '#000' : notFocusedColor;\n\
+      if (point.containsBoardPoint() || point.containsAlightPoint())\n\
+        return point.focused ? '#000' : notFocusedColor;\n\
     }\n\
   ],\n\
-  \n\
+\n\
   stroke: [\n\
     '#000',\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var point = data.owner;\n\
-      if(point.containsBoardPoint() || point.containsAlightPoint()) return '#fff';\n\
-      if(!point.isFocused()) return notFocusedColor;\n\
-      if(point.containsTransferPoint()) return '#008';\n\
+      if (point.containsBoardPoint() || point.containsAlightPoint())\n\
+        return '#fff';\n\
+      if (!point.isFocused()) return notFocusedColor;\n\
+      if (point.containsTransferPoint()) return '#008';\n\
     }\n\
   ],\n\
 \n\
   'stroke-width': [\n\
     2,\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var point = data.owner;\n\
-      if(point.containsTransferPoint()) return 3;\n\
+      if (point.containsTransferPoint()) return 3;\n\
     }\n\
   ],\n\
 \n\
   /**\n\
    *  Transitive-specific attribute specifying the shape of the main stop marker.\n\
    *  Can be 'roundedrect', 'rectangle' or 'circle'\n\
-   */ \n\
+   */\n\
   'marker-type': [\n\
     'roundedrect',\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var point = data.owner;\n\
-      if((point.containsBoardPoint() || point.containsAlightPoint()) && !point.containsTransferPoint()) return 'circle';\n\
+      if ((point.containsBoardPoint() || point.containsAlightPoint()) && !\n\
+        point.containsTransferPoint()) return 'circle';\n\
     }\n\
-  ],  \n\
+  ],\n\
 \n\
   /**\n\
    *  Transitive-specific attribute specifying any additional padding, in pixels,\n\
@@ -16410,19 +15881,21 @@ var stops_merged = {\n\
    *  marker is flush to the edges of the pattern segment(s) the point is set against.\n\
    *  A value greater than zero creates a marker that is larger than the width of\n\
    *  the segments(s).\n\
-   */ \n\
+   */\n\
   'marker-padding': [\n\
     3\n\
   ],\n\
 \n\
-  visibility: [ function(display, data) {\n\
-    if(!data.owner.containsSegmentEndPoint()) return 'hidden';\n\
-  }]\n\
+  visibility: [\n\
+\n\
+    function(display, data) {\n\
+      if (!data.owner.containsSegmentEndPoint()) return 'hidden';\n\
+    }\n\
+  ]\n\
 \n\
 };\n\
 \n\
 exports.stops_merged = stops_merged;\n\
-\n\
 \n\
 exports.stops_pattern = {\n\
   cx: [\n\
@@ -16436,16 +15909,16 @@ exports.stops_pattern = {\n\
   ],\n\
   r: [\n\
     4,\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       return utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
     },\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var point = data.owner;\n\
       var busOnly = true;\n\
       point.getPatterns().forEach(function(pattern) {\n\
-        if(pattern.route && pattern.route.route_type !== 3) busOnly = false;\n\
+        if (pattern.route && pattern.route.route_type !== 3) busOnly = false;\n\
       });\n\
-      if(busOnly && !point.containsSegmentEndPoint()) {\n\
+      if (busOnly && !point.containsSegmentEndPoint()) {\n\
         return 0.5 * utils.pixels(display.zoom.scale(), 2, 4, 6.5);\n\
       }\n\
     }\n\
@@ -16458,16 +15931,17 @@ exports.stops_pattern = {\n\
   ],\n\
   'stroke-width': [\n\
     1,\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       return utils.pixels(display.zoom.scale(), 0.5, 1, 1.5) + 'px';\n\
     }\n\
   ],\n\
-  visibility: [ function(display, data) {\n\
-    if(data.owner.containsSegmentEndPoint()) return 'hidden';\n\
-  }]\n\
+  visibility: [\n\
+\n\
+    function(display, data) {\n\
+      if (data.owner.containsSegmentEndPoint()) return 'hidden';\n\
+    }\n\
+  ]\n\
 };\n\
-\n\
-\n\
 \n\
 /**\n\
  * Default place rules\n\
@@ -16492,19 +15966,21 @@ exports.places = {\n\
   'stroke-width': [\n\
     3\n\
   ],\n\
-  visibility: [ function(display, data) {\n\
-    return true;\n\
-  }]\n\
+  visibility: [\n\
+\n\
+    function(display, data) {\n\
+      return true;\n\
+    }\n\
+  ]\n\
 };\n\
 \n\
 /** icons typically defined in implementation-specific styles (see test2d for example) **/\n\
 \n\
 exports.places_icon = {\n\
-  visibility: [ \n\
+  visibility: [\n\
     'hidden'\n\
   ]\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Default MultiPoint rules -- based on Stop rules\n\
@@ -16518,11 +15994,7 @@ multipoints_merged.visibility = [\n\
 \n\
 exports.multipoints_merged = multipoints_merged;\n\
 \n\
-\n\
-\n\
-exports.multipoints_pattern = exports.stops_pattern; \n\
-\n\
-\n\
+exports.multipoints_pattern = exports.stops_pattern;\n\
 \n\
 /**\n\
  * Default label rules\n\
@@ -16542,9 +16014,11 @@ exports.labels = {\n\
     }\n\
   ],\n\
   'font-weight': [\n\
+\n\
     function(display, data, index, utils) {\n\
       var point = data.owner.parent;\n\
-      if(point.containsBoardPoint() || point.containsAlightPoint()) return 'bold';\n\
+      if (point.containsBoardPoint() || point.containsAlightPoint())\n\
+        return 'bold';\n\
     }\n\
   ],\n\
 \n\
@@ -16558,23 +16032,23 @@ exports.labels = {\n\
 exports.segments = {\n\
   stroke: [\n\
     '#008',\n\
-    function (display, data) {\n\
+    function(display, data) {\n\
       var segment = data;\n\
-      if(!segment.focused) return notFocusedColor;\n\
-      if(segment.type === 'TRANSIT') {\n\
-        if(segment.pattern && segment.pattern.route) {\n\
-          if(segment.pattern.route.route_short_name.toLowerCase().substring(0, 2) === 'dc') return '#f00';\n\
+      if (!segment.focused) return notFocusedColor;\n\
+      if (segment.type === 'TRANSIT') {\n\
+        if (segment.pattern && segment.pattern.route) {\n\
+          if (segment.pattern.route.route_short_name.toLowerCase().substring(0,\n\
+            2) === 'dc') return '#f00';\n\
           return segment.pattern.route.getColor();\n\
         }\n\
-      }\n\
-      else if(segment.type === 'WALK') {\n\
+      } else if (segment.type === 'WALK') {\n\
         return 'none';\n\
       }\n\
     }\n\
   ],\n\
   'stroke-dasharray': [\n\
     false,\n\
-    function (display, data) {\n\
+    function(display, data) {\n\
       var segment = data;\n\
       if (segment.frequency && segment.frequency.average < 12) {\n\
         if (segment.frequency.average > 6) return '12px, 12px';\n\
@@ -16584,19 +16058,21 @@ exports.segments = {\n\
   ],\n\
   'stroke-width': [\n\
     '12px',\n\
-    function (display, data, index, utils) {\n\
+    function(display, data, index, utils) {\n\
       var segment = data;\n\
       if (segment.type !== 'TRANSIT') {\n\
         return '1px';\n\
       }\n\
-      if(segment.pattern && segment.pattern.route && segment.pattern.route.route_type === 3) {\n\
+      if (segment.pattern && segment.pattern.route && segment.pattern.route.route_type ===\n\
+        3) {\n\
         return utils.pixels(display.zoom.scale(), 3, 6, 10) + 'px';\n\
       }\n\
       return utils.pixels(display.zoom.scale(), 5, 12, 19) + 'px';\n\
     }\n\
   ],\n\
   'marker-mid': [\n\
-    function (display, data) {\n\
+\n\
+    function(display, data) {\n\
       var segment = data;\n\
       if (segment.type !== 'TRANSIT') {\n\
         var r = 3;\n\
@@ -16607,24 +16083,26 @@ exports.segments = {\n\
           .attr('markerWidth', r * 2)\n\
           .attr('markerHeight', r * 2)\n\
           .attr('markerUnits', 'userSpaceOnUse')\n\
-            .append('svg:circle')\n\
-              .attr('cx', r)\n\
-              .attr('cy', r)\n\
-              .attr('r', r)\n\
-              .attr('fill', segment.focused ? '#5ae3f9' : notFocusedColor);\n\
+          .append('svg:circle')\n\
+          .attr('cx', r)\n\
+          .attr('cy', r)\n\
+          .attr('r', r)\n\
+          .attr('fill', segment.focused ? '#5ae3f9' : notFocusedColor);\n\
 \n\
         return 'url(#WalkCircleMarker-' + segment.getId() + ')';\n\
       }\n\
-    }  \n\
+    }\n\
   ],\n\
-  fill: [ 'none' ],\n\
+  fill: ['none'],\n\
   envelope: [\n\
-    function (display, data, index, utils) {\n\
+\n\
+    function(display, data, index, utils) {\n\
       var segment = data;\n\
       if (segment.type !== 'TRANSIT') {\n\
         return '5px';\n\
       }\n\
-      if(segment.pattern && segment.pattern.route && segment.pattern.route.route_type === 3) {\n\
+      if (segment.pattern && segment.pattern.route && segment.pattern.route.route_type ===\n\
+        3) {\n\
         return utils.pixels(display.zoom.scale(), 9, 18, 30) + 'px';\n\
       }\n\
       return utils.pixels(display.zoom.scale(), 7, 14, 21) + 'px';\n\
@@ -16632,42 +16110,45 @@ exports.segments = {\n\
   ]\n\
 };\n\
 \n\
-\n\
 exports.segments_front = {\n\
   stroke: [\n\
     '#008'\n\
   ],\n\
   'stroke-width': [\n\
+\n\
     function(display, data, index, utils) {\n\
-      return utils.pixels(display.zoom.scale(), 3, 6, 10)/2 + 'px';\n\
+      return utils.pixels(display.zoom.scale(), 3, 6, 10) / 2 + 'px';\n\
     }\n\
   ],\n\
-  fill: [ 'none' ],\n\
-  display : [\n\
+  fill: ['none'],\n\
+  display: [\n\
     'none',\n\
     function(display, data, index, utils) {\n\
-      if(data.pattern && data.pattern.route && data.pattern.route.route_type === 3 &&\n\
-         data.pattern.route.route_short_name.toLowerCase().substring(0, 2) === 'dc') {\n\
+      if (data.pattern && data.pattern.route && data.pattern.route.route_type ===\n\
+        3 &&\n\
+        data.pattern.route.route_short_name.toLowerCase().substring(0, 2) ===\n\
+        'dc') {\n\
         return 'inline';\n\
       }\n\
     }\n\
   ]\n\
 };\n\
 \n\
-\n\
 exports.segment_label_containers = {\n\
   fill: [\n\
     '#008',\n\
-    function (display, data) {\n\
-      if(!data.isFocused()) return notFocusedColor;\n\
+    function(display, data) {\n\
+      if (!data.isFocused()) return notFocusedColor;\n\
     }\n\
   ],\n\
   stroke: [\n\
     '#f00'\n\
   ],\n\
   'stroke-width': [\n\
-    function (display, data) {\n\
-      if(data.parent.pattern && data.parent.pattern.route.route_short_name.toLowerCase().substring(0, 2) === 'dc') return 1;\n\
+\n\
+    function(display, data) {\n\
+      if (data.parent.pattern && data.parent.pattern.route.route_short_name.toLowerCase()\n\
+        .substring(0, 2) === 'dc') return 1;\n\
       return 0;\n\
     }\n\
   ],\n\
@@ -16678,7 +16159,6 @@ exports.segment_label_containers = {\n\
     3\n\
   ]\n\
 };\n\
-\n\
 \n\
 exports.segment_labels = {\n\
   fill: [\n\
@@ -16706,8 +16186,7 @@ var each = require('each');\n\
 \n\
 var PointLabel = require('../labeler/pointlabel');\n\
 \n\
-\n\
-var Point = augment(Object, function () {\n\
+var Point = augment(Object, function() {\n\
 \n\
   this.constructor = function(data) {\n\
     for (var key in data) {\n\
@@ -16724,24 +16203,21 @@ var Point = augment(Object, function () {\n\
     this.sortableType = 'POINT';\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get unique ID for point -- must be defined by subclass\n\
    */\n\
 \n\
-  this.getId = function() { };\n\
+  this.getId = function() {};\n\
 \n\
   this.getElementId = function() {\n\
     return this.getType().toLowerCase() + '-' + this.getId();\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get Point type -- must be defined by subclass\n\
    */\n\
 \n\
-  this.getType = function() { };\n\
-\n\
+  this.getType = function() {};\n\
 \n\
   /**\n\
    * Get Point name\n\
@@ -16751,7 +16227,6 @@ var Point = augment(Object, function () {\n\
     return this.getType() + ' point (ID=' + this.getId() + ')';\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get latitude\n\
    */\n\
@@ -16759,7 +16234,6 @@ var Point = augment(Object, function () {\n\
   this.getLat = function() {\n\
     return 0;\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Get longitude\n\
@@ -16769,31 +16243,25 @@ var Point = augment(Object, function () {\n\
     return 0;\n\
   };\n\
 \n\
-\n\
   this.containsSegmentEndPoint = function() {\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsBoardPoint = function() {\n\
     return false;\n\
   };\n\
 \n\
-\n\
   this.containsAlightPoint = function() {\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsTransferPoint = function() {\n\
     return false;\n\
   };\n\
 \n\
-\n\
   this.getPatterns = function() {\n\
     return [];\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Draw the point\n\
@@ -16805,16 +16273,15 @@ var Point = augment(Object, function () {\n\
     this.label.svgGroup = null;\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Refresh a previously drawn point\n\
    *\n\
    * @param {Display} display\n\
    */\n\
 \n\
-  this.refresh = function(display) { };\n\
+  this.refresh = function(display) {};\n\
 \n\
-  this.clearRenderData = function() { };\n\
+  this.clearRenderData = function() {};\n\
 \n\
   this.containsFromPoint = function() {\n\
     return false;\n\
@@ -16827,9 +16294,10 @@ var Point = augment(Object, function () {\n\
   this.initSvg = function(display) {\n\
     // set up the main svg group for this stop\n\
     this.svgGroup = display.svg.append('g')\n\
-      .attr('id', 'transitive-' + this.getType().toLowerCase() + '-' + this.getId())\n\
-      //.attr('class', 'transitive-sortable')\n\
-      .datum(this);\n\
+      .attr('id', 'transitive-' + this.getType().toLowerCase() + '-' + this\n\
+        .getId())\n\
+    //.attr('class', 'transitive-sortable')\n\
+    .datum(this);\n\
 \n\
     this.markerSvg = this.svgGroup.append('g');\n\
     this.labelSvg = this.svgGroup.append('g');\n\
@@ -16839,40 +16307,51 @@ var Point = augment(Object, function () {\n\
 \n\
   this.constructMergedMarker = function(display, patternStylerKey) {\n\
 \n\
-\n\
-    var markerType = display.styler.compute(display.styler.stops_merged['marker-type'], display, { owner : this });\n\
-    var markerPadding = display.styler.compute(display.styler.stops_merged['marker-padding'], display, { owner : this }) || 0;\n\
+    var markerType = display.styler.compute(display.styler.stops_merged[\n\
+      'marker-type'], display, {\n\
+      owner: this\n\
+    });\n\
+    var markerPadding = display.styler.compute(display.styler.stops_merged[\n\
+      'marker-padding'], display, {\n\
+      owner: this\n\
+    }) || 0;\n\
 \n\
     var dataArray = this.getRenderDataArray();\n\
 \n\
-    var xValues = [], yValues = [];\n\
+    var xValues = [],\n\
+      yValues = [];\n\
     dataArray.forEach(function(data) {\n\
       var x = data.x; //display.xScale(data.x) + data.offsetX;\n\
       var y = data.y; //display.yScale(data.y) - data.offsetY;\n\
       xValues.push(x);\n\
       yValues.push(y);\n\
     });\n\
-    var minX = Math.min.apply(Math, xValues), minY = Math.min.apply(Math, yValues);\n\
-    var maxX = Math.max.apply(Math, xValues), maxY = Math.max.apply(Math, yValues);\n\
-    var dx = maxX - minX, dy = maxY - minY;\n\
+    var minX = Math.min.apply(Math, xValues),\n\
+      minY = Math.min.apply(Math, yValues);\n\
+    var maxX = Math.max.apply(Math, xValues),\n\
+      maxY = Math.max.apply(Math, yValues);\n\
+    var dx = maxX - minX,\n\
+      dy = maxY - minY;\n\
 \n\
     var width, height;\n\
-    var patternRadius = display.styler.compute(display.styler[patternStylerKey].r, display, { owner: this });\n\
+    var patternRadius = display.styler.compute(display.styler[\n\
+      patternStylerKey].r, display, {\n\
+      owner: this\n\
+    });\n\
     var r = parseFloat(patternRadius) + markerPadding;\n\
-    \n\
-    if(markerType === 'circle') {\n\
+\n\
+    if (markerType === 'circle') {\n\
       width = height = Math.max(dx, dy) + 2 * r;\n\
-      r = width/2;\n\
-    }\n\
-    else {\n\
+      r = width / 2;\n\
+    } else {\n\
       width = dx + 2 * r;\n\
       height = dy + 2 * r;\n\
-      if(markerType === 'rectangle') r = 0;\n\
+      if (markerType === 'rectangle') r = 0;\n\
     }\n\
 \n\
     return {\n\
-      x: (minX+maxX)/2 - width/2,\n\
-      y: (minY+maxY)/2 - height/2,\n\
+      x: (minX + maxX) / 2 - width / 2,\n\
+      y: (minY + maxY) / 2 - height / 2,\n\
       width: width,\n\
       height: height,\n\
       rx: r,\n\
@@ -16881,38 +16360,33 @@ var Point = augment(Object, function () {\n\
 \n\
   };\n\
 \n\
-\n\
   this.refreshLabel = function(display) {\n\
-    if(!this.renderLabel) return;\n\
+    if (!this.renderLabel) return;\n\
     this.label.refresh(display);\n\
   };\n\
-\n\
 \n\
   this.getMarkerBBox = function() {\n\
     //console.log(this.markerSvg.node());\n\
     return this.markerSvg.node().getBBox();\n\
   };\n\
 \n\
-\n\
   this.setFocused = function(focused) {\n\
     this.focused = focused;\n\
   };\n\
-\n\
 \n\
   this.isFocused = function() {\n\
     return (this.focused === true);\n\
   };\n\
 \n\
-\n\
   this.getZIndex = function() {\n\
     return 10000;\n\
   };\n\
 \n\
-\n\
   this.getAverageCoord = function() {\n\
     var dataArray = this.getRenderDataArray();\n\
 \n\
-    var xTotal = 0, yTotal = 0;\n\
+    var xTotal = 0,\n\
+      yTotal = 0;\n\
     each(dataArray, function(data) {\n\
       xTotal += data.x;\n\
       yTotal += data.y;\n\
@@ -16924,30 +16398,33 @@ var Point = augment(Object, function () {\n\
     };\n\
   };\n\
 \n\
- \n\
   this.hasRenderData = function() {\n\
     var dataArray = this.getRenderDataArray();\n\
     return (dataArray && dataArray.length > 0);\n\
   };\n\
 \n\
-});\n\
+  this.toString = function() {\n\
+    return this.getType() + ' point: ' + this.getName();\n\
+  };\n\
 \n\
+});\n\
 \n\
 /**\n\
  * Expose `Point`\n\
  */\n\
 \n\
-module.exports = Point;//@ sourceURL=transitive/lib/point/index.js"
+module.exports = Point;\n\
+//@ sourceURL=transitive/lib/point/index.js"
 ));
 require.register("transitive/lib/point/stop.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var augment = require('augment');\n\
 \n\
 var Point = require('./index');\n\
+var Util = require('../util');\n\
 \n\
 /**\n\
  *  Place: a Point subclass representing a 'place' that can be rendered on the\n\
@@ -16957,8 +16434,14 @@ var Point = require('./index');\n\
 \n\
 var Stop = augment(Point, function(base) {\n\
 \n\
-  this.constructor =  function(data) {\n\
+  this.constructor = function(data) {\n\
     base.constructor.call(this, data);\n\
+\n\
+    if (data && data.stop_lat && data.stop_lon) {\n\
+      var xy = Util.latLonToSphericalMercator(data.stop_lat, data.stop_lon);\n\
+      this.worldX = xy[0];\n\
+      this.worldY = xy[1];\n\
+    }\n\
 \n\
     this.patterns = [];\n\
 \n\
@@ -16983,15 +16466,14 @@ var Stop = augment(Point, function(base) {\n\
     return 'STOP';\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get name\n\
    */\n\
 \n\
   this.getName = function() {\n\
+    if (!this.stop_name) return ('Unnamed Stop (ID=' + this.getId() + ')');\n\
     return this.stop_name.replace('METRO STATION', '');\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Get lat\n\
@@ -17001,7 +16483,6 @@ var Stop = augment(Point, function(base) {\n\
     return this.stop_lat;\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get lon\n\
    */\n\
@@ -17010,34 +16491,28 @@ var Stop = augment(Point, function(base) {\n\
     return this.stop_lon;\n\
   };\n\
 \n\
-\n\
   this.containsSegmentEndPoint = function() {\n\
     return this.isSegmentEndPoint;\n\
   };\n\
-\n\
 \n\
   this.containsBoardPoint = function() {\n\
     return this.isBoardPoint;\n\
   };\n\
 \n\
-\n\
   this.containsAlightPoint = function() {\n\
     return this.isAlightPoint;\n\
   };\n\
-\n\
 \n\
   this.containsTransferPoint = function() {\n\
     return this.isTransferPoint;\n\
   };\n\
 \n\
-\n\
   this.getPatterns = function() {\n\
     return this.patterns;\n\
   };\n\
 \n\
-\n\
   this.addPattern = function(pattern) {\n\
-    if(this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);\n\
+    if (this.patterns.indexOf(pattern) === -1) this.patterns.push(pattern);\n\
   };\n\
 \n\
   /**\n\
@@ -17047,21 +16522,22 @@ var Stop = augment(Point, function(base) {\n\
    */\n\
 \n\
   this.addRenderData = function(stopInfo) {\n\
-    if(stopInfo.segment.getType() === 'TRANSIT') {\n\
+    if (stopInfo.segment.getType() === 'TRANSIT') {\n\
 \n\
       var s = {\n\
-        sortableType : 'POINT_STOP_PATTERN',\n\
-        owner : this,\n\
-        getZIndex : function() {\n\
+        sortableType: 'POINT_STOP_PATTERN',\n\
+        owner: this,\n\
+        getZIndex: function() {\n\
           return this.segment.getZIndex() + 1;\n\
         }\n\
       };\n\
 \n\
-      for(var key in stopInfo)\n\
+      for (var key in stopInfo)\n\
         s[key] = stopInfo[key];\n\
 \n\
       var patternId = stopInfo.segment.pattern.pattern_id;\n\
-      if(!(patternId in this.patternRenderData)) this.patternRenderData[patternId] = {};\n\
+      if (!(patternId in this.patternRenderData)) this.patternRenderData[\n\
+        patternId] = {};\n\
       this.patternRenderData[patternId][stopInfo.segment.getId()] = s; //.push(s);\n\
       this.addPattern(stopInfo.segment.pattern);\n\
       //console.log('added to '+ this.getName());\n\
@@ -17070,23 +16546,20 @@ var Stop = augment(Point, function(base) {\n\
     this.patternCount = Object.keys(this.patternRenderData).length;\n\
   };\n\
 \n\
-\n\
   this.isPatternFocused = function(patternId) {\n\
-    if(!(patternId in this.patternFocused)) return true;\n\
-    return(this.patternFocused[patternId]);\n\
+    if (!(patternId in this.patternFocused)) return true;\n\
+    return (this.patternFocused[patternId]);\n\
   };\n\
 \n\
   this.setPatternFocused = function(patternId, focused) {\n\
     this.patternFocused[patternId] = focused;\n\
   };\n\
 \n\
-\n\
   this.setAllPatternsFocused = function(focused) {\n\
-    for(var key in this.patternRenderData) {\n\
+    for (var key in this.patternRenderData) {\n\
       this.patternFocused[key] = focused;\n\
     }\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Draw a stop\n\
@@ -17096,7 +16569,7 @@ var Stop = augment(Point, function(base) {\n\
 \n\
   this.render = function(display) {\n\
     base.render.call(this, display);\n\
-    if(Object.keys(this.patternRenderData).length === 0) return;\n\
+    if (Object.keys(this.patternRenderData).length === 0) return;\n\
     //if (this.renderData.length === 0) return;\n\
 \n\
     var renderDataArray = this.getRenderDataArray();\n\
@@ -17125,21 +16598,21 @@ var Stop = augment(Point, function(base) {\n\
 \n\
   this.refresh = function(display) {\n\
 \n\
-    if(this.patternCount === 0) return;\n\
+    if (this.patternCount === 0) return;\n\
 \n\
     // refresh the pattern-level markers\n\
     this.patternMarkers.data(this.getRenderDataArray());\n\
-    this.patternMarkers.attr('transform', function (d, i) {\n\
+    this.patternMarkers.attr('transform', function(d, i) {\n\
       var x = d.x; //display.xScale(d.x) + d.offsetX;\n\
       var y = d.y; //display.yScale(d.y) - d.offsetY;\n\
-      return 'translate(' + x +', ' + y +')';\n\
+      return 'translate(' + x + ', ' + y + ')';\n\
     });\n\
 \n\
     // refresh the merged marker\n\
-    if(this.mergedMarker) {\n\
+    if (this.mergedMarker) {\n\
       var a = this.constructMergedMarker(display, 'stops_pattern');\n\
       this.mergedMarker.datum(this.getMergedRenderData());\n\
-      this.mergedMarker.attr(a);\n\
+      if (!isNaN(a.x) && !isNaN(a.y)) this.mergedMarker.attr(a);\n\
     }\n\
 \n\
   };\n\
@@ -17147,15 +16620,15 @@ var Stop = augment(Point, function(base) {\n\
   this.getMergedRenderData = function() {\n\
     return {\n\
       owner: this,\n\
-      sortableType : 'POINT_STOP_MERGED'\n\
+      sortableType: 'POINT_STOP_MERGED'\n\
     };\n\
   };\n\
 \n\
   this.getRenderDataArray = function() {\n\
     var dataArray = [];\n\
-    for(var patternId in this.patternRenderData) {\n\
+    for (var patternId in this.patternRenderData) {\n\
       var segmentData = this.patternRenderData[patternId];\n\
-      for(var segmentId in segmentData) {\n\
+      for (var segmentId in segmentData) {\n\
         dataArray.push(segmentData[segmentId]);\n\
       }\n\
     }\n\
@@ -17165,16 +16638,17 @@ var Stop = augment(Point, function(base) {\n\
   this.getMarkerBBox = function() {\n\
     //console.log('gMBB ' + this.getName());\n\
     //console.log(this);\n\
-    if(this.mergedMarker) return this.mergedMarker.node().getBBox();\n\
-    console.log(this.patternMarkers[0]);\n\
+    if (this.mergedMarker) return this.mergedMarker.node().getBBox();\n\
+    //console.log(this.patternMarkers[0]);\n\
     return this.patternMarkers.node().getBBox();\n\
   };\n\
 \n\
   this.isFocused = function() {\n\
-    if(this.mergedMarker || !this.patternRenderData) return (this.focused === true);\n\
+    if (this.mergedMarker || !this.patternRenderData) return (this.focused ===\n\
+      true);\n\
 \n\
     var focused = true;\n\
-    for(var patternId in this.patternRenderData) {\n\
+    for (var patternId in this.patternRenderData) {\n\
       focused = this && this.isPatternFocused(patternId);\n\
     }\n\
     return focused;\n\
@@ -17184,9 +16658,7 @@ var Stop = augment(Point, function(base) {\n\
     this.patternRenderData = {};\n\
   };\n\
 \n\
-\n\
 });\n\
-\n\
 \n\
 /**\n\
  * Expose `Stop`\n\
@@ -17196,8 +16668,7 @@ module.exports = Stop;\n\
 //@ sourceURL=transitive/lib/point/stop.js"
 ));
 require.register("transitive/lib/point/place.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
@@ -17205,6 +16676,7 @@ var augment = require('augment');\n\
 var d3 = require('d3');\n\
 \n\
 var Point = require('./index');\n\
+var Util = require('../util');\n\
 \n\
 /**\n\
  *  Place: a Point subclass representing a 'place' that can be rendered on the\n\
@@ -17220,8 +16692,14 @@ var Place = augment(Point, function(base) {\n\
 \n\
   this.constructor = function(data) {\n\
     base.constructor.call(this, data);\n\
-  };\n\
 \n\
+    if (data && data.place_lat && data.place_lon) {\n\
+      var xy = Util.latLonToSphericalMercator(data.place_lat, data.place_lon);\n\
+      this.worldX = xy[0];\n\
+      this.worldY = xy[1];\n\
+    }\n\
+\n\
+  };\n\
 \n\
   /**\n\
    * Get Type\n\
@@ -17231,7 +16709,6 @@ var Place = augment(Point, function(base) {\n\
     return 'PLACE';\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get ID\n\
    */\n\
@@ -17239,7 +16716,6 @@ var Place = augment(Point, function(base) {\n\
   this.getId = function() {\n\
     return this.place_id;\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Get Name\n\
@@ -17257,7 +16733,6 @@ var Place = augment(Point, function(base) {\n\
     return this.place_lat;\n\
   };\n\
 \n\
-\n\
   /**\n\
    * Get lon\n\
    */\n\
@@ -17266,36 +16741,29 @@ var Place = augment(Point, function(base) {\n\
     return this.place_lon;\n\
   };\n\
 \n\
-\n\
   this.containsSegmentEndPoint = function() {\n\
     return true;\n\
   };\n\
-\n\
 \n\
   this.containsFromPoint = function() {\n\
     return (this.getId() === 'from');\n\
   };\n\
 \n\
-\n\
   this.containsToPoint = function() {\n\
     return (this.getId() === 'to');\n\
   };\n\
 \n\
-\n\
   this.addRenderData = function(pointInfo) {\n\
-    this.renderData = [ pointInfo ];\n\
+    this.renderData = [pointInfo];\n\
   };\n\
 \n\
-  \n\
   this.getRenderDataArray = function() {\n\
     return this.renderData;\n\
   };\n\
 \n\
-\n\
   this.clearRenderData = function() {\n\
     this.renderData = [];\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Draw a place\n\
@@ -17317,18 +16785,24 @@ var Place = augment(Point, function(base) {\n\
 \n\
     // set up the markers\n\
     this.marker = this.markerSvg.append('circle')\n\
-      .datum({ owner: this })\n\
+      .datum({\n\
+        owner: this\n\
+      })\n\
       .attr('class', 'transitive-place-circle');\n\
 \n\
-    var iconUrl = display.styler.compute(display.styler.places_icon['xlink:href'], display, { owner : this });\n\
-    if(iconUrl) {\n\
+    var iconUrl = display.styler.compute(display.styler.places_icon[\n\
+      'xlink:href'], display, {\n\
+      owner: this\n\
+    });\n\
+    if (iconUrl) {\n\
       this.icon = this.markerSvg.append('image')\n\
-        .datum({ owner: this })\n\
+        .datum({\n\
+          owner: this\n\
+        })\n\
         .attr('class', 'transitive-place-icon')\n\
         .attr('xlink:href', iconUrl);\n\
     }\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Refresh the place\n\
@@ -17343,29 +16817,27 @@ var Place = augment(Point, function(base) {\n\
     var data = this.renderData[0];\n\
     var x = data.x; //display.xScale(data.x) + data.offsetX;\n\
     var y = data.y; //display.yScale(data.y) - data.offsetY;\n\
-    var translate = 'translate(' + x +', ' + y +')';\n\
+    var translate = 'translate(' + x + ', ' + y + ')';\n\
     this.marker.attr('transform', translate);\n\
-    if(this.icon) this.icon.attr('transform', translate);\n\
+    if (this.icon) this.icon.attr('transform', translate);\n\
 \n\
   };\n\
 });\n\
-\n\
 \n\
 /**\n\
  * Expose `Place`\n\
  */\n\
 \n\
 module.exports = Place;\n\
-\n\
 //@ sourceURL=transitive/lib/point/place.js"
 ));
 require.register("transitive/lib/point/multipoint.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var augment = require('augment');\n\
+var each = require('each');\n\
 \n\
 var Point = require('./index');\n\
 \n\
@@ -17379,7 +16851,7 @@ var MultiPoint = augment(Point, function(base) {\n\
   this.constructor = function(pointArray) {\n\
     base.constructor.call(this);\n\
     this.points = [];\n\
-    if(pointArray) {\n\
+    if (pointArray) {\n\
       pointArray.forEach(function(point) {\n\
         this.addPoint(point);\n\
       }, this);\n\
@@ -17405,59 +16877,52 @@ var MultiPoint = augment(Point, function(base) {\n\
     return 'MULTI';\n\
   };\n\
 \n\
-\n\
   this.getName = function() {\n\
-    if(this.fromPoint) return this.fromPoint.getName();\n\
-    if(this.toPoint) return this.toPoint.getName();\n\
+    if (this.fromPoint) return this.fromPoint.getName();\n\
+    if (this.toPoint) return this.toPoint.getName();\n\
     var shortest = null;\n\
     this.points.forEach(function(point) {\n\
-      if(!shortest || point.getName().length < shortest.length) shortest = point.getName();\n\
+      if (!shortest || point.getName().length < shortest.length) shortest =\n\
+        point.getName();\n\
     });\n\
     return shortest + ' AREA';\n\
   };\n\
 \n\
-\n\
   this.containsSegmentEndPoint = function() {\n\
-    for(var i = 0; i < this.points.length; i++) {\n\
-      if(this.points[i].containsSegmentEndPoint()) return true;\n\
+    for (var i = 0; i < this.points.length; i++) {\n\
+      if (this.points[i].containsSegmentEndPoint()) return true;\n\
     }\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsBoardPoint = function() {\n\
-    for(var i = 0; i < this.points.length; i++) {\n\
-      if(this.points[i].containsBoardPoint()) return true;\n\
+    for (var i = 0; i < this.points.length; i++) {\n\
+      if (this.points[i].containsBoardPoint()) return true;\n\
     }\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsAlightPoint = function() {\n\
-    for(var i = 0; i < this.points.length; i++) {\n\
-      if(this.points[i].containsAlightPoint()) return true;\n\
+    for (var i = 0; i < this.points.length; i++) {\n\
+      if (this.points[i].containsAlightPoint()) return true;\n\
     }\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsTransferPoint = function() {\n\
-    for(var i = 0; i < this.points.length; i++) {\n\
-      if(this.points[i].containsTransferPoint()) return true;\n\
+    for (var i = 0; i < this.points.length; i++) {\n\
+      if (this.points[i].containsTransferPoint()) return true;\n\
     }\n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.containsFromPoint = function() {\n\
     return (this.fromPoint !== null);\n\
   };\n\
 \n\
-\n\
   this.containsToPoint = function() {\n\
     return (this.toPoint !== null);\n\
   };\n\
-\n\
 \n\
   this.getPatterns = function() {\n\
     var patterns = [];\n\
@@ -17465,26 +16930,37 @@ var MultiPoint = augment(Point, function(base) {\n\
     this.points.forEach(function(point) {\n\
       if (!point.patterns) return;\n\
       point.patterns.forEach(function(pattern) {\n\
-        if(patterns.indexOf(pattern) === -1) patterns.push(pattern);\n\
+        if (patterns.indexOf(pattern) === -1) patterns.push(pattern);\n\
       });\n\
     });\n\
 \n\
     return patterns;\n\
   };\n\
 \n\
-\n\
   this.addPoint = function(point) {\n\
-    if(this.points.indexOf(point) !== -1) return;\n\
+    if (this.points.indexOf(point) !== -1) return;\n\
     this.points.push(point);\n\
     this.id += '-' + point.getId();\n\
-    if(point.containsFromPoint()) { // getType() === 'PLACE' && point.getId() === 'from') {\n\
+    if (point.containsFromPoint()) { // getType() === 'PLACE' && point.getId() === 'from') {\n\
       this.fromPoint = point;\n\
     }\n\
-    if(point.containsToPoint()) { // getType() === 'PLACE' && point.getId() === 'to') {\n\
+    if (point.containsToPoint()) { // getType() === 'PLACE' && point.getId() === 'to') {\n\
       this.toPoint = point;\n\
     }\n\
+    this.calcWorldCoords();\n\
   };\n\
 \n\
+  this.calcWorldCoords = function() {\n\
+    var tx = 0,\n\
+      ty = 0;\n\
+    each(this.points, function(point) {\n\
+      tx += point.worldX;\n\
+      ty += point.worldY;\n\
+    });\n\
+\n\
+    this.worldX = tx / this.points.length;\n\
+    this.worldY = ty / this.points.length;\n\
+  };\n\
 \n\
   /**\n\
    * Add render data\n\
@@ -17493,16 +16969,15 @@ var MultiPoint = augment(Point, function(base) {\n\
    */\n\
 \n\
   this.addRenderData = function(pointInfo) {\n\
-    if(pointInfo.offsetX !== 0 || pointInfo.offsetY !==0) this.hasOffsetPoints = true;\n\
+    if (pointInfo.offsetX !== 0 || pointInfo.offsetY !== 0) this.hasOffsetPoints =\n\
+      true;\n\
     this.renderData.push(pointInfo);\n\
   };\n\
-\n\
 \n\
   this.clearRenderData = function() {\n\
     this.hasOffsetPoints = false;\n\
     this.renderData = [];\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Draw a multipoint\n\
@@ -17534,22 +17009,23 @@ var MultiPoint = augment(Point, function(base) {\n\
       .attr('class', 'transitive-multipoint-marker-pattern');*/\n\
   };\n\
 \n\
-\n\
   this.initMergedMarker = function(display) {\n\
     // set up the merged marker\n\
-    if(this.fromPoint || this.toPoint) {\n\
+    if (this.fromPoint || this.toPoint) {\n\
       this.mergedMarker = this.markerSvg.append('g').append('circle')\n\
-        .datum({ owner : this })\n\
+        .datum({\n\
+          owner: this\n\
+        })\n\
         .attr('class', 'transitive-multipoint-marker-merged');\n\
-    }\n\
-    else if(this.hasOffsetPoints || this.renderData.length > 1) {\n\
+    } else if (this.hasOffsetPoints || this.renderData.length > 1) {\n\
 \n\
       this.mergedMarker = this.markerSvg.append('g').append('rect')\n\
-        .datum({ owner : this })\n\
+        .datum({\n\
+          owner: this\n\
+        })\n\
         .attr('class', 'transitive-multipoint-marker-merged');\n\
     }\n\
   };\n\
-\n\
 \n\
   /**\n\
    * Refresh the point\n\
@@ -17561,11 +17037,13 @@ var MultiPoint = augment(Point, function(base) {\n\
     if (!this.renderData) return;\n\
 \n\
     // refresh the merged marker\n\
-    if(this.mergedMarker) {\n\
-      this.mergedMarker.datum({ owner : this });\n\
-      this.mergedMarker.attr(this.constructMergedMarker(display, 'multipoints_pattern'));\n\
+    if (this.mergedMarker) {\n\
+      this.mergedMarker.datum({\n\
+        owner: this\n\
+      });\n\
+      this.mergedMarker.attr(this.constructMergedMarker(display,\n\
+        'multipoints_pattern'));\n\
     }\n\
-\n\
 \n\
     /*var cx, cy;\n\
     // refresh the pattern-level markers\n\
@@ -17589,11 +17067,11 @@ var MultiPoint = augment(Point, function(base) {\n\
  * Expose `MultiPoint`\n\
  */\n\
 \n\
-module.exports = MultiPoint;//@ sourceURL=transitive/lib/point/multipoint.js"
+module.exports = MultiPoint;\n\
+//@ sourceURL=transitive/lib/point/multipoint.js"
 ));
 require.register("transitive/lib/labeler/index.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
@@ -17602,12 +17080,11 @@ var d3 = require('d3');\n\
 \n\
 var Util = require('../util');\n\
 \n\
-\n\
 /**\n\
  * Labeler object\n\
  */\n\
 \n\
-var Labeler = augment(Object, function () {\n\
+var Labeler = augment(Object, function() {\n\
 \n\
   this.constructor = function(transitive) {\n\
 \n\
@@ -17616,14 +17093,14 @@ var Labeler = augment(Object, function () {\n\
 \n\
   };\n\
 \n\
-\n\
   this.updateLabelList = function() {\n\
 \n\
     this.points = [];\n\
     this.transitive.graph.vertices.forEach(function(vertex) {\n\
       //console.log('- ' + vertex.point.getName());\n\
       var point = vertex.point;\n\
-      if(point.getType() === 'PLACE' || point.getType() === 'MULTI' || (point.getType() === 'STOP' && point.isSegmentEndPoint)) {\n\
+      if (point.getType() === 'PLACE' || point.getType() === 'MULTI' || (\n\
+        point.getType() === 'STOP' && point.isSegmentEndPoint)) {\n\
         this.points.push(point);\n\
       }\n\
     }, this);\n\
@@ -17635,10 +17112,12 @@ var Labeler = augment(Object, function () {\n\
     });\n\
   };\n\
 \n\
-\n\
   this.updateQuadtree = function() {\n\
 \n\
-    this.quadtree = d3.geom.quadtree().extent([[-this.width, -this.height], [this.width*2, this.height*2]])([]);\n\
+    this.quadtree = d3.geom.quadtree().extent([\n\
+      [-this.width, -this.height],\n\
+      [this.width * 2, this.height * 2]\n\
+    ])([]);\n\
 \n\
     this.points.forEach(function(point) {\n\
       this.addBBoxToQuadtree(point.getMarkerBBox());\n\
@@ -17647,47 +17126,47 @@ var Labeler = augment(Object, function () {\n\
     var disp = this.transitive.display;\n\
     this.transitive.renderSegments.forEach(function(segment) {\n\
 \n\
-      if(segment.getType() !== 'TRANSIT') return;\n\
+      if (segment.getType() !== 'TRANSIT') return;\n\
 \n\
-      var lw = this.transitive.style.compute(this.transitive.style.segments['stroke-width'], this.transitive.display, segment);\n\
+      var lw = this.transitive.style.compute(this.transitive.style.segments[\n\
+        'stroke-width'], this.transitive.display, segment);\n\
       lw = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
 \n\
       var x, x1, x2, y, y1, y2;\n\
-      if(segment.renderData.length === 2) { // basic straight segment\n\
-        if(segment.renderData[0].x === segment.renderData[1].x) { // vertical\n\
-          x = segment.renderData[0].x - lw/2;\n\
+      if (segment.renderData.length === 2) { // basic straight segment\n\
+        if (segment.renderData[0].x === segment.renderData[1].x) { // vertical\n\
+          x = segment.renderData[0].x - lw / 2;\n\
           y1 = segment.renderData[0].y;\n\
           y2 = segment.renderData[1].y;\n\
           this.addBBoxToQuadtree({\n\
-            x : x,\n\
-            y : Math.min(y1, y2),\n\
-            width : lw,\n\
+            x: x,\n\
+            y: Math.min(y1, y2),\n\
+            width: lw,\n\
             height: Math.abs(y1 - y2)\n\
           });\n\
-        }\n\
-        else if(segment.renderData[0].y === segment.renderData[1].y) { // horizontal\n\
+        } else if (segment.renderData[0].y === segment.renderData[1].y) { // horizontal\n\
           x1 = segment.renderData[0].x;\n\
           x2 = segment.renderData[1].x;\n\
-          y = segment.renderData[0].y - lw/2;\n\
+          y = segment.renderData[0].y - lw / 2;\n\
           this.addBBoxToQuadtree({\n\
-            x : Math.min(x1, x2),\n\
-            y : y,\n\
-            width : Math.abs(x1 - x2),\n\
+            x: Math.min(x1, x2),\n\
+            y: y,\n\
+            width: Math.abs(x1 - x2),\n\
             height: lw\n\
           });\n\
         }\n\
       }\n\
 \n\
-      if(segment.renderData.length === 4) { // basic curved segment\n\
+      if (segment.renderData.length === 4) { // basic curved segment\n\
 \n\
-        if(segment.renderData[0].x === segment.renderData[1].x) { // vertical first\n\
+        if (segment.renderData[0].x === segment.renderData[1].x) { // vertical first\n\
           x = segment.renderData[0].x - lw / 2;\n\
           y1 = segment.renderData[0].y;\n\
           y2 = segment.renderData[3].y;\n\
           this.addBBoxToQuadtree({\n\
-            x : x,\n\
-            y : Math.min(y1, y2),\n\
-            width : lw,\n\
+            x: x,\n\
+            y: Math.min(y1, y2),\n\
+            width: lw,\n\
             height: Math.abs(y1 - y2)\n\
           });\n\
 \n\
@@ -17695,21 +17174,20 @@ var Labeler = augment(Object, function () {\n\
           x2 = segment.renderData[3].x;\n\
           y = segment.renderData[3].y - lw / 2;\n\
           this.addBBoxToQuadtree({\n\
-            x : Math.min(x1, x2),\n\
-            y : y,\n\
-            width : Math.abs(x1 - x2),\n\
+            x: Math.min(x1, x2),\n\
+            y: y,\n\
+            width: Math.abs(x1 - x2),\n\
             height: lw\n\
           });\n\
 \n\
-        }\n\
-        else if(segment.renderData[0].y === segment.renderData[1].y) { // horiz first\n\
+        } else if (segment.renderData[0].y === segment.renderData[1].y) { // horiz first\n\
           x1 = segment.renderData[0].x;\n\
           x2 = segment.renderData[3].x;\n\
           y = segment.renderData[0].y - lw / 2;\n\
           this.addBBoxToQuadtree({\n\
-            x : Math.min(x1, x2),\n\
-            y : y,\n\
-            width : Math.abs(x1 - x2),\n\
+            x: Math.min(x1, x2),\n\
+            y: y,\n\
+            width: Math.abs(x1 - x2),\n\
             height: lw\n\
           });\n\
 \n\
@@ -17717,9 +17195,9 @@ var Labeler = augment(Object, function () {\n\
           y1 = segment.renderData[0].y;\n\
           y2 = segment.renderData[3].y;\n\
           this.addBBoxToQuadtree({\n\
-            x : x,\n\
-            y : Math.min(y1, y2),\n\
-            width : lw,\n\
+            x: x,\n\
+            y: Math.min(y1, y2),\n\
+            width: lw,\n\
             height: Math.abs(y1 - y2)\n\
           });\n\
         }\n\
@@ -17729,12 +17207,13 @@ var Labeler = augment(Object, function () {\n\
   };\n\
 \n\
   this.addBBoxToQuadtree = function(bbox) {\n\
-    this.quadtree.add([bbox.x + bbox.width/2, bbox.y + bbox.height/2, bbox]);\n\
+    this.quadtree.add([bbox.x + bbox.width / 2, bbox.y + bbox.height / 2,\n\
+      bbox\n\
+    ]);\n\
 \n\
     this.maxBBoxWidth = Math.max(this.maxBBoxWidth, bbox.width);\n\
     this.maxBBoxHeight = Math.max(this.maxBBoxHeight, bbox.height);\n\
   };\n\
-\n\
 \n\
   this.doLayout = function() {\n\
 \n\
@@ -17748,13 +17227,12 @@ var Labeler = augment(Object, function () {\n\
 \n\
     var labeledSegments = this.placeSegmentLabels();\n\
     var labeledPoints = this.placePointLabels();\n\
-    \n\
+\n\
     return {\n\
       segments: labeledSegments,\n\
       points: labeledPoints\n\
     };\n\
   };\n\
-\n\
 \n\
   this.placeSegmentLabels = function() {\n\
 \n\
@@ -17763,33 +17241,42 @@ var Labeler = augment(Object, function () {\n\
     var labeledSegments = [];\n\
 \n\
     this.transitive.renderSegments.forEach(function(segment) {\n\
-      if(segment.getType() === 'TRANSIT' && segment.pattern.route.route_type === 3) {\n\
-  \n\
+      if (segment.getType() === 'TRANSIT' && segment.pattern.route &&\n\
+        segment.pattern.route.route_type === 3) {\n\
+\n\
         var labelText = segment.label.getText();\n\
-        var fontFamily = styler.compute(styler.segment_labels['font-family'], this.transitive.display, {segment: segment});\n\
-        var fontSize = styler.compute(styler.segment_labels['font-size'], this.transitive.display, {segment: segment});\n\
+        var fontFamily = styler.compute(styler.segment_labels[\n\
+          'font-family'], this.transitive.display, {\n\
+          segment: segment\n\
+        });\n\
+        var fontSize = styler.compute(styler.segment_labels['font-size'],\n\
+          this.transitive.display, {\n\
+            segment: segment\n\
+          });\n\
         var textBBox = Util.getTextBBox(labelText, {\n\
-          'font-size' : fontSize,\n\
-          'font-family' : fontFamily,\n\
+          'font-size': fontSize,\n\
+          'font-family': fontFamily,\n\
         });\n\
         segment.label.textWidth = textBBox.width;\n\
         segment.label.textHeight = textBBox.height;\n\
         var labelAnchors = segment.getLabelAnchors(this.transitive.display);\n\
-        segment.label.labelAnchor = labelAnchors[0]; /*{\n\
+        segment.label.labelAnchor = labelAnchors[0];\n\
+        /*{\n\
           x : this.transitive.display.xScale(segment.renderData[0].x) + segment.renderData[0].offsetX,\n\
           y : this.transitive.display.yScale(segment.renderData[0].y) - segment.renderData[0].offsetY\n\
         };*/\n\
 \n\
         labeledSegments.push(segment);\n\
 \n\
-        this.quadtree.add([segment.label.labelAnchor.x, segment.label.labelAnchor.y, segment.label]);\n\
+        this.quadtree.add([segment.label.labelAnchor.x, segment.label.labelAnchor\n\
+          .y, segment.label\n\
+        ]);\n\
 \n\
       }\n\
     }, this);\n\
 \n\
     return labeledSegments;\n\
   };\n\
-\n\
 \n\
   this.placePointLabels = function() {\n\
 \n\
@@ -17800,11 +17287,17 @@ var Labeler = augment(Object, function () {\n\
     this.points.forEach(function(point) {\n\
 \n\
       var labelText = point.label.getText();\n\
-      var fontFamily = styler.compute(styler.labels['font-family'], this.transitive.display, {point: point});\n\
-      var fontSize = styler.compute(styler.labels['font-size'], this.transitive.display, {point: point});\n\
+      var fontFamily = styler.compute(styler.labels['font-family'], this.transitive\n\
+        .display, {\n\
+          point: point\n\
+        });\n\
+      var fontSize = styler.compute(styler.labels['font-size'], this.transitive\n\
+        .display, {\n\
+          point: point\n\
+        });\n\
       var textBBox = Util.getTextBBox(labelText, {\n\
-        'font-size' : fontSize,\n\
-        'font-family' : fontFamily,\n\
+        'font-size': fontSize,\n\
+        'font-family': fontFamily,\n\
       });\n\
       point.label.textWidth = textBBox.width;\n\
       point.label.textHeight = textBBox.height;\n\
@@ -17812,32 +17305,35 @@ var Labeler = augment(Object, function () {\n\
       var orientations = ['E', 'W', 'NE', 'SE', 'NW', 'SW', 'N', 'S'];\n\
 \n\
       var placedLabel = false;\n\
-      for(var i = 0; i < orientations.length; i++) {\n\
-        \n\
-        point.label.setOrientation(orientations[i]);\n\
-        if(!point.focused) continue;\n\
-        \n\
-        if(!point.label.labelAnchor) continue;\n\
+      for (var i = 0; i < orientations.length; i++) {\n\
 \n\
-        var lx = point.label.labelAnchor.x, ly = point.label.labelAnchor.y;\n\
+        point.label.setOrientation(orientations[i]);\n\
+        if (!point.focused) continue;\n\
+\n\
+        if (!point.label.labelAnchor) continue;\n\
+\n\
+        var lx = point.label.labelAnchor.x,\n\
+          ly = point.label.labelAnchor.y;\n\
 \n\
         // do not place label if out of range\n\
-        if(lx <= 0 || ly <= 0 || lx >= this.width || ly > this.height) continue;\n\
-        \n\
+        if (lx <= 0 || ly <= 0 || lx >= this.width || ly > this.height)\n\
+          continue;\n\
 \n\
         var labelBBox = point.label.getBBox();\n\
 \n\
         var overlaps = this.findOverlaps(point.label, labelBBox);\n\
 \n\
         // do not place label if it overlaps with others\n\
-        if(overlaps.length > 0) continue;\n\
+        if (overlaps.length > 0) continue;\n\
 \n\
         // if we reach this point, the label is good to place\n\
 \n\
         point.label.setVisibility(true);\n\
         labeledPoints.push(point);\n\
 \n\
-        this.quadtree.add([labelBBox.x + labelBBox.width/2, labelBBox.y + labelBBox.height/2, point.label]);\n\
+        this.quadtree.add([labelBBox.x + labelBBox.width / 2, labelBBox.y +\n\
+          labelBBox.height / 2, point.label\n\
+        ]);\n\
 \n\
         this.maxBBoxWidth = Math.max(this.maxBBoxWidth, labelBBox.width);\n\
         this.maxBBoxHeight = Math.max(this.maxBBoxHeight, labelBBox.height);\n\
@@ -17848,7 +17344,7 @@ var Labeler = augment(Object, function () {\n\
       } // end of orientation loop\n\
 \n\
       // if label not placed at all, hide the element\n\
-      if(!placedLabel) {\n\
+      if (!placedLabel) {\n\
         point.label.setVisibility(false);\n\
       }\n\
 \n\
@@ -17857,15 +17353,16 @@ var Labeler = augment(Object, function () {\n\
   };\n\
 \n\
   this.findOverlaps = function(label, labelBBox) {\n\
-    var minX = labelBBox.x - this.maxBBoxWidth/2;\n\
-    var minY = labelBBox.y - this.maxBBoxHeight/2;\n\
-    var maxX = labelBBox.x + labelBBox.width + this.maxBBoxWidth/2;\n\
-    var maxY = labelBBox.y + labelBBox.height + this.maxBBoxHeight/2;\n\
+    var minX = labelBBox.x - this.maxBBoxWidth / 2;\n\
+    var minY = labelBBox.y - this.maxBBoxHeight / 2;\n\
+    var maxX = labelBBox.x + labelBBox.width + this.maxBBoxWidth / 2;\n\
+    var maxY = labelBBox.y + labelBBox.height + this.maxBBoxHeight / 2;\n\
 \n\
     var matchItems = [];\n\
     this.quadtree.visit(function(node, x1, y1, x2, y2) {\n\
       var p = node.point;\n\
-      if((p) && (p[0] >= minX) && (p[0] < maxX) && (p[1] >= minY) && (p[1] < maxY) && label.intersects(p[2])) {\n\
+      if ((p) && (p[0] >= minX) && (p[0] < maxX) && (p[1] >= minY) && (p[\n\
+        1] < maxY) && label.intersects(p[2])) {\n\
         matchItems.push(p[2]);\n\
       }\n\
       return x1 > maxX || y1 > maxY || x2 < minX || y2 < minY;\n\
@@ -17875,82 +17372,69 @@ var Labeler = augment(Object, function () {\n\
 \n\
 });\n\
 \n\
-\n\
 /**\n\
  * Expose `Labeler`\n\
  */\n\
 \n\
-module.exports = Labeler;//@ sourceURL=transitive/lib/labeler/index.js"
+module.exports = Labeler;\n\
+//@ sourceURL=transitive/lib/labeler/index.js"
 ));
 require.register("transitive/lib/labeler/label.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var augment = require('augment');\n\
 \n\
-\n\
 /**\n\
  * Label object\n\
  */\n\
 \n\
-var Label = augment(Object, function () {\n\
+var Label = augment(Object, function() {\n\
 \n\
   this.constructor = function(parent) {\n\
     this.parent = parent;\n\
     this.sortableType = 'LABEL';\n\
   };\n\
 \n\
-\n\
   this.getText = function() {\n\
-    if(!this.labelText) this.labelText = this.initText();\n\
+    if (!this.labelText) this.labelText = this.initText();\n\
     return this.labelText;\n\
   };\n\
-\n\
 \n\
   this.initText = function() {\n\
     return this.parent.getName();\n\
   };\n\
 \n\
+  this.render = function() {};\n\
 \n\
-  this.render = function() {\n\
-  };\n\
-\n\
-\n\
-  this.refresh = function() {\n\
-  };\n\
-\n\
+  this.refresh = function() {};\n\
 \n\
   this.setVisibility = function(visibility) {\n\
-    if(this.svgGroup) this.svgGroup.attr('visibility', visibility ? 'visible' : 'hidden');\n\
+    if (this.svgGroup) this.svgGroup.attr('visibility', visibility ?\n\
+      'visible' : 'hidden');\n\
   };\n\
-\n\
 \n\
   this.getBBox = function() {\n\
     return null;\n\
   };\n\
 \n\
-\n\
   this.intersects = function(obj) {\n\
     return null;\n\
   };\n\
 \n\
-\n\
   this.intersectsBBox = function(bbox) {\n\
     var thisBBox = this.getBBox(this.orientation);\n\
     var r = (thisBBox.x <= bbox.x + bbox.width &&\n\
-            bbox.x <= thisBBox.x + thisBBox.width &&\n\
-            thisBBox.y <= bbox.y + bbox.height &&\n\
-            bbox.y <= thisBBox.y + thisBBox.height);\n\
+      bbox.x <= thisBBox.x + thisBBox.width &&\n\
+      thisBBox.y <= bbox.y + bbox.height &&\n\
+      bbox.y <= thisBBox.y + thisBBox.height);\n\
     return r;\n\
   };\n\
-\n\
 \n\
   this.isFocused = function() {\n\
     return this.parent.isFocused();\n\
   };\n\
-\n\
 \n\
   this.getZIndex = function() {\n\
     return 20000;\n\
@@ -17958,23 +17442,21 @@ var Label = augment(Object, function () {\n\
 \n\
 });\n\
 \n\
-\n\
 /**\n\
  * Expose `Label`\n\
  */\n\
 \n\
-module.exports = Label;//@ sourceURL=transitive/lib/labeler/label.js"
+module.exports = Label;\n\
+//@ sourceURL=transitive/lib/labeler/label.js"
 ));
 require.register("transitive/lib/labeler/pointlabel.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var augment = require('augment');\n\
 \n\
 var Label = require('./label');\n\
-\n\
 \n\
 /**\n\
  * Label object\n\
@@ -17990,202 +17472,186 @@ var PointLabel = augment(Label, function(base) {\n\
     this.labelPosition = 1;\n\
   };\n\
 \n\
-\n\
   this.initText = function() {\n\
     return this.transformText(this.parent.getName());\n\
   };\n\
-\n\
 \n\
   this.render = function() {\n\
     this.svgGroup = this.parent.labelSvg.append('g');\n\
 \n\
     var typeStr = this.parent.getType().toLowerCase();\n\
     this.mainLabel = this.svgGroup.append('text')\n\
-      .datum({ owner: this })\n\
+      .datum({\n\
+        owner: this\n\
+      })\n\
       .attr('id', 'transitive-' + typeStr + '-label-' + this.parent.getId())\n\
       .text(this.getText())\n\
       .attr('class', 'transitive-' + typeStr + '-label');\n\
   };\n\
 \n\
-\n\
   this.refresh = function() {\n\
-    if(!this.labelAnchor) return;\n\
+    if (!this.labelAnchor) return;\n\
 \n\
-    if(!this.svgGroup) this.render();\n\
+    if (!this.svgGroup) this.render();\n\
 \n\
     this.svgGroup\n\
       .attr('text-anchor', this.labelPosition > 0 ? 'start' : 'end')\n\
-      .attr('transform', (function (d, i) {\n\
-        return 'translate(' + this.labelAnchor.x +',' + this.labelAnchor.y +')';\n\
+      .attr('transform', (function(d, i) {\n\
+        return 'translate(' + this.labelAnchor.x + ',' + this.labelAnchor\n\
+          .y + ')';\n\
       }).bind(this));\n\
 \n\
     this.mainLabel\n\
-      .attr('transform', (function (d, i) {\n\
+      .attr('transform', (function(d, i) {\n\
         return 'rotate(' + this.labelAngle + ', 0, 0)';\n\
       }).bind(this));\n\
   };\n\
-\n\
 \n\
   this.setOrientation = function(orientation) {\n\
     this.orientation = orientation;\n\
 \n\
     var markerBBox = this.parent.getMarkerBBox();\n\
-    if(!markerBBox) return;\n\
+    if (!markerBBox) return;\n\
 \n\
     var x, y;\n\
     var offset = 5;\n\
 \n\
-    if(orientation === 'E') {\n\
+    if (orientation === 'E') {\n\
       x = markerBBox.x + markerBBox.width + offset;\n\
       y = markerBBox.y + markerBBox.height / 2;\n\
       this.labelPosition = 1;\n\
       this.labelAngle = 0;\n\
-    }\n\
-\n\
-    else if(orientation === 'W') {\n\
+    } else if (orientation === 'W') {\n\
       x = markerBBox.x - offset;\n\
       y = markerBBox.y + markerBBox.height / 2;\n\
       this.labelPosition = -1;\n\
       this.labelAngle = 0;\n\
-    }\n\
-\n\
-    else if(orientation === 'NE') {\n\
+    } else if (orientation === 'NE') {\n\
       x = markerBBox.x + markerBBox.width + offset;\n\
       y = markerBBox.y - offset;\n\
       this.labelPosition = 1;\n\
       this.labelAngle = -45;\n\
-    }\n\
-\n\
-    else if(orientation === 'SE') {\n\
+    } else if (orientation === 'SE') {\n\
       x = markerBBox.x + markerBBox.width + offset;\n\
       y = markerBBox.y + markerBBox.height + offset;\n\
       this.labelPosition = 1;\n\
       this.labelAngle = 45;\n\
-    }\n\
-\n\
-    else if(orientation === 'NW') {\n\
+    } else if (orientation === 'NW') {\n\
       x = markerBBox.x - offset;\n\
       y = markerBBox.y - offset;\n\
       this.labelPosition = -1;\n\
       this.labelAngle = 45;\n\
-    }\n\
-\n\
-    else if(orientation === 'SW') {\n\
+    } else if (orientation === 'SW') {\n\
       x = markerBBox.x - offset;\n\
       y = markerBBox.y + markerBBox.height + offset;\n\
       this.labelPosition = -1;\n\
       this.labelAngle = -45;\n\
-    }\n\
-\n\
-    else if(orientation === 'N') {\n\
+    } else if (orientation === 'N') {\n\
       x = markerBBox.x + markerBBox.width / 2;\n\
       y = markerBBox.y - offset;\n\
       this.labelPosition = 1;\n\
       this.labelAngle = -90;\n\
-    }\n\
-\n\
-    else if(orientation === 'S') {\n\
+    } else if (orientation === 'S') {\n\
       x = markerBBox.x + markerBBox.width / 2;\n\
       y = markerBBox.y + markerBBox.height + offset;\n\
       this.labelPosition = -1;\n\
       this.labelAngle = -90;\n\
     }\n\
 \n\
-    this.labelAnchor = { x : x, y : y };\n\
+    this.labelAnchor = {\n\
+      x: x,\n\
+      y: y\n\
+    };\n\
   };\n\
-\n\
 \n\
   this.getBBox = function() {\n\
 \n\
-    if(this.orientation === 'E') {\n\
+    if (this.orientation === 'E') {\n\
       return {\n\
-        x : this.labelAnchor.x,\n\
-        y : this.labelAnchor.y - this.textHeight,\n\
-        width : this.textWidth,\n\
-        height : this.textHeight\n\
+        x: this.labelAnchor.x,\n\
+        y: this.labelAnchor.y - this.textHeight,\n\
+        width: this.textWidth,\n\
+        height: this.textHeight\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'W') {\n\
+    if (this.orientation === 'W') {\n\
       return {\n\
-        x : this.labelAnchor.x - this.textWidth,\n\
-        y : this.labelAnchor.y - this.textHeight,\n\
-        width : this.textWidth,\n\
-        height : this.textHeight\n\
+        x: this.labelAnchor.x - this.textWidth,\n\
+        y: this.labelAnchor.y - this.textHeight,\n\
+        width: this.textWidth,\n\
+        height: this.textHeight\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'N') {\n\
+    if (this.orientation === 'N') {\n\
       return {\n\
-        x : this.labelAnchor.x - this.textHeight,\n\
-        y : this.labelAnchor.y - this.textWidth,\n\
-        width : this.textHeight,\n\
-        height : this.textWidth\n\
+        x: this.labelAnchor.x - this.textHeight,\n\
+        y: this.labelAnchor.y - this.textWidth,\n\
+        width: this.textHeight,\n\
+        height: this.textWidth\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'S') {\n\
+    if (this.orientation === 'S') {\n\
       return {\n\
-        x : this.labelAnchor.x - this.textHeight,\n\
-        y : this.labelAnchor.y,\n\
-        width : this.textHeight,\n\
-        height : this.textWidth\n\
+        x: this.labelAnchor.x - this.textHeight,\n\
+        y: this.labelAnchor.y,\n\
+        width: this.textHeight,\n\
+        height: this.textWidth\n\
       };\n\
     }\n\
 \n\
-    var bboxSide = this.textWidth * Math.sqrt(2)/2;\n\
-    \n\
-    if(this.orientation === 'NE') {\n\
+    var bboxSide = this.textWidth * Math.sqrt(2) / 2;\n\
+\n\
+    if (this.orientation === 'NE') {\n\
       return {\n\
-        x : this.labelAnchor.x,\n\
-        y : this.labelAnchor.y - bboxSide,\n\
-        width : bboxSide,\n\
-        height : bboxSide\n\
+        x: this.labelAnchor.x,\n\
+        y: this.labelAnchor.y - bboxSide,\n\
+        width: bboxSide,\n\
+        height: bboxSide\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'SE') {\n\
+    if (this.orientation === 'SE') {\n\
       return {\n\
-        x : this.labelAnchor.x,\n\
-        y : this.labelAnchor.y,\n\
-        width : bboxSide,\n\
-        height : bboxSide\n\
+        x: this.labelAnchor.x,\n\
+        y: this.labelAnchor.y,\n\
+        width: bboxSide,\n\
+        height: bboxSide\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'NW') {\n\
+    if (this.orientation === 'NW') {\n\
       return {\n\
-        x : this.labelAnchor.x - bboxSide,\n\
-        y : this.labelAnchor.y - bboxSide,\n\
-        width : bboxSide,\n\
-        height : bboxSide\n\
+        x: this.labelAnchor.x - bboxSide,\n\
+        y: this.labelAnchor.y - bboxSide,\n\
+        width: bboxSide,\n\
+        height: bboxSide\n\
       };\n\
     }\n\
 \n\
-    if(this.orientation === 'SW') {\n\
+    if (this.orientation === 'SW') {\n\
       return {\n\
-        x : this.labelAnchor.x - bboxSide,\n\
-        y : this.labelAnchor.y,\n\
-        width : bboxSide,\n\
-        height : bboxSide\n\
+        x: this.labelAnchor.x - bboxSide,\n\
+        y: this.labelAnchor.y,\n\
+        width: bboxSide,\n\
+        height: bboxSide\n\
       };\n\
     }\n\
 \n\
   };\n\
 \n\
-\n\
   this.intersects = function(obj) {\n\
-    if(obj instanceof Label) {\n\
+    if (obj instanceof Label) {\n\
       // todo: handle label-label intersection for diagonally placed labels separately\n\
       return this.intersectsBBox(obj.getBBox());\n\
-    }\n\
-    else if(obj.x && obj.y && obj.width && obj.height) {\n\
+    } else if (obj.x && obj.y && obj.width && obj.height) {\n\
       return this.intersectsBBox(obj);\n\
     }\n\
 \n\
     return false;\n\
   };\n\
-\n\
 \n\
   this.transformText = function(str) {\n\
     // basic 'title case' for now\n\
@@ -18196,23 +17662,21 @@ var PointLabel = augment(Label, function(base) {\n\
 \n\
 });\n\
 \n\
-\n\
 /**\n\
  * Expose `PointLabel`\n\
  */\n\
 \n\
-module.exports = PointLabel;//@ sourceURL=transitive/lib/labeler/pointlabel.js"
+module.exports = PointLabel;\n\
+//@ sourceURL=transitive/lib/labeler/pointlabel.js"
 ));
 require.register("transitive/lib/labeler/segmentlabel.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Dependencies\n\
  */\n\
 \n\
 var augment = require('augment');\n\
 \n\
 var Label = require('./label');\n\
-\n\
 \n\
 /**\n\
  * SegmentLabel object\n\
@@ -18226,11 +17690,9 @@ var SegmentLabel = augment(Label, function(base) {\n\
 \n\
   };\n\
 \n\
-\n\
   this.initText = function() {\n\
     return this.parent.pattern.route.route_short_name;\n\
   };\n\
-\n\
 \n\
   this.render = function() {\n\
     this.svgGroup = this.parent.labelSvg.append('g')\n\
@@ -18249,80 +17711,135 @@ var SegmentLabel = augment(Label, function(base) {\n\
 \n\
     this.containerSvg = this.svgGroup.append('rect')\n\
       .datum(this) //{ segment: this.parent })\n\
-      .attr({\n\
-        width: this.containerWidth,\n\
-        height: this.containerHeight\n\
-      })\n\
+    .attr({\n\
+      width: this.containerWidth,\n\
+      height: this.containerHeight\n\
+    })\n\
       .attr('id', 'transitive-segment-label-container-' + this.parent.getId())\n\
       .text(this.getText())\n\
       .attr('class', 'transitive-segment-label-container');\n\
 \n\
-\n\
     this.textSvg = this.svgGroup.append('text')\n\
       .datum(this) //{ segment: this.parent })\n\
-      .attr('id', 'transitive-segment-label-' + this.parent.getId())\n\
+    .attr('id', 'transitive-segment-label-' + this.parent.getId())\n\
       .text(this.getText())\n\
       .attr('class', 'transitive-segment-label')\n\
-      .attr('transform', (function (d, i) {\n\
-        return 'translate(' + padding + ', ' + (this.textHeight - padding * 2) + ')';\n\
+      .attr('transform', (function(d, i) {\n\
+        return 'translate(' + padding + ', ' + (this.textHeight -\n\
+          padding * 2) + ')';\n\
       }).bind(this));\n\
 \n\
   };\n\
 \n\
-\n\
   this.refresh = function() {\n\
-    if(!this.labelAnchor) return;\n\
+    if (!this.labelAnchor) return;\n\
 \n\
-    if(!this.svgGroup) this.render();\n\
+    if (!this.svgGroup) this.render();\n\
 \n\
     this.svgGroup\n\
-      .attr('transform', (function (d, i) {\n\
+      .attr('transform', (function(d, i) {\n\
         var tx = (this.labelAnchor.x - this.containerWidth / 2);\n\
         var ty = (this.labelAnchor.y - this.containerHeight / 2);\n\
         return 'translate(' + tx + ',' + ty + ')';\n\
       }).bind(this));\n\
   };\n\
 \n\
-\n\
   this.getBBox = function() {\n\
     return {\n\
-      x : this.labelAnchor.x - this.containerWidth / 2,\n\
-      y : this.labelAnchor.y - this.containerHeight / 2,\n\
-      width : this.containerWidth,\n\
-      height : this.containerHeight\n\
+      x: this.labelAnchor.x - this.containerWidth / 2,\n\
+      y: this.labelAnchor.y - this.containerHeight / 2,\n\
+      width: this.containerWidth,\n\
+      height: this.containerHeight\n\
     };\n\
   };\n\
 \n\
-\n\
   this.intersects = function(obj) {\n\
-    if(obj instanceof Label) {\n\
+    if (obj instanceof Label) {\n\
       // todo: handle label-label intersection for diagonally placed labels separately\n\
       return this.intersectsBBox(obj.getBBox());\n\
-    }\n\
-    else if(obj.x && obj.y && obj.width && obj.height) {\n\
+    } else if (obj.x && obj.y && obj.width && obj.height) {\n\
       return this.intersectsBBox(obj);\n\
     }\n\
 \n\
     return false;\n\
   };\n\
 \n\
-\n\
 });\n\
-\n\
 \n\
 /**\n\
  * Expose `SegmentLabel`\n\
  */\n\
 \n\
-module.exports = SegmentLabel;//@ sourceURL=transitive/lib/labeler/segmentlabel.js"
+module.exports = SegmentLabel;\n\
+//@ sourceURL=transitive/lib/labeler/segmentlabel.js"
+));
+require.register("transitive/lib/d3.geo.tile.js", Function("exports, require, module",
+"var d3 = require('d3');\n\
+\n\
+module.exports = function() {\n\
+  var size = [960, 500],\n\
+    scale = 256,\n\
+    translate = [size[0] / 2, size[1] / 2],\n\
+    zoomDelta = 0;\n\
+\n\
+  function tile() {\n\
+    var z = Math.max(Math.log(scale) / Math.LN2 - 8, 0),\n\
+      z0 = Math.round(z + zoomDelta),\n\
+      k = Math.pow(2, z - z0 + 8),\n\
+      origin = [(translate[0] - scale / 2) / k, (translate[1] - scale / 2) / k],\n\
+      tiles = [],\n\
+      cols = d3.range(Math.max(0, Math.floor(-origin[0])), Math.max(0, Math.ceil(\n\
+        size[0] / k - origin[0]))),\n\
+      rows = d3.range(Math.max(0, Math.floor(-origin[1])), Math.max(0, Math.ceil(\n\
+        size[1] / k - origin[1])));\n\
+\n\
+    rows.forEach(function(y) {\n\
+      cols.forEach(function(x) {\n\
+        tiles.push([x, y, z0]);\n\
+      });\n\
+    });\n\
+\n\
+    tiles.translate = origin;\n\
+    tiles.scale = k;\n\
+\n\
+    return tiles;\n\
+  }\n\
+\n\
+  tile.size = function(_) {\n\
+    if (!arguments.length) return size;\n\
+    size = _;\n\
+    return tile;\n\
+  };\n\
+\n\
+  tile.scale = function(_) {\n\
+    if (!arguments.length) return scale;\n\
+    scale = _;\n\
+    return tile;\n\
+  };\n\
+\n\
+  tile.translate = function(_) {\n\
+    if (!arguments.length) return translate;\n\
+    translate = _;\n\
+    return tile;\n\
+  };\n\
+\n\
+  tile.zoomDelta = function(_) {\n\
+    if (!arguments.length) return zoomDelta;\n\
+    zoomDelta = +_;\n\
+    return tile;\n\
+  };\n\
+\n\
+  return tile;\n\
+};\n\
+//@ sourceURL=transitive/lib/d3.geo.tile.js"
 ));
 require.register("transitive/lib/display.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
+"var d3 = require('d3');\n\
+var debug = require('debug')('transitive:display');\n\
 \n\
-var d3 = require('d3');\n\
+var SphericalMercator = require('./spherical-mercator');\n\
+\n\
+var sm = new SphericalMercator();\n\
 \n\
 /**\n\
  * Expose `Display`\n\
@@ -18331,30 +17848,28 @@ var d3 = require('d3');\n\
 module.exports = Display;\n\
 \n\
 /**\n\
- *  The D3-based SVG display.\n\
+ * The D3-based SVG display.\n\
+ *\n\
+ * @param {Object} options\n\
  */\n\
 \n\
-function Display(el, zoom) {\n\
-  // set up the pan/zoom behavior\n\
-  this.zoom = zoom || d3.behavior.zoom()\n\
-    .scaleExtent([ 0.25, 4 ]);\n\
+function Display(opts) {\n\
+  var el = opts.el;\n\
+  var width = el.clientWidth;\n\
+  var height = el.clientHeight;\n\
+\n\
+  // Set up the pan/zoom behavior\n\
+  var zoom = this.zoom = d3.behavior.zoom()\n\
+    .scaleExtent([0.25, 4]);\n\
 \n\
   // set up the svg display\n\
-  this.svg = d3.select(el)\n\
+  var div = d3.select(el)\n\
+    .attr('class', 'Transitive')\n\
+    .call(zoom);\n\
+\n\
+  this.svg = div\n\
     .append('svg')\n\
-    .append('g');\n\
-\n\
-  this.grid = this.svg.append('g')\n\
-    .attr('class', 'doNotEmpty');\n\
-\n\
-  // call the zoom behavior\n\
-  this.svg.call(this.zoom);\n\
-\n\
-  // append an overlay to capture pan/zoom events on entire viewport\n\
-  this.svg.append('rect')\n\
-    .style('fill', 'none')\n\
-    .style('pointer-events', 'all')\n\
-    .attr('class', 'doNotEmpty');\n\
+    .attr('class', 'schematic-map');\n\
 }\n\
 \n\
 /**\n\
@@ -18362,97 +17877,152 @@ function Display(el, zoom) {\n\
  */\n\
 \n\
 Display.prototype.empty = function() {\n\
-  this.svg.selectAll(':not(.doNotEmpty)').remove();\n\
+  debug('emptying svg');\n\
+  this.svg.selectAll('*').remove();\n\
 };\n\
 \n\
 /**\n\
  * Set the scale\n\
  */\n\
 \n\
-Display.prototype.setScale = function(height, width, graph) {\n\
-  setScales(this, height, width, graph);\n\
+Display.prototype.setScale = function(height, width, bounds) {\n\
+  setScales(this, height, width, bounds);\n\
 \n\
-  this.xScale.range([ 0, width ]);\n\
-  this.yScale.range([ height, 0 ]);\n\
+  this.xScale.range([0, width]);\n\
+  this.yScale.range([height, 0]);\n\
+\n\
+  debug('x scale %j -> %j', this.xScale.domain(), this.xScale.range());\n\
+  debug('y scale %j -> %j', this.yScale.domain(), this.yScale.range());\n\
 \n\
   this.zoom\n\
     .x(this.xScale)\n\
     .y(this.yScale);\n\
-\n\
-  this.svg\n\
-    .attr('width', width)\n\
-    .attr('height', height);\n\
-\n\
-  this.svg.select('rect')\n\
-    .attr('width', width)\n\
-    .attr('height', height);\n\
 };\n\
 \n\
-\n\
 /**\n\
- * draw the underlying grid used for snapping\n\
+ * Lat/lon bounds\n\
  */\n\
 \n\
-Display.prototype.drawGrid = function(cellSize) {\n\
+Display.prototype.llBounds = function() {\n\
+  var x = this.xScale.domain();\n\
+  var y = this.yScale.domain();\n\
+  return [\n\
+    sm.inverse([x[0], y[1]]),\n\
+    sm.inverse([x[1], y[0]])\n\
+  ];\n\
+};\n\
 \n\
-  d3.selectAll('.gridline').remove();\n\
+/**\n\
+ * Initialize the x/y coordinate space domain to fit the graph.\n\
+ */\n\
 \n\
-  var xRange = this.xScale.range(), yRange = this.yScale.range();\n\
-  //console.log(yRange);\n\
+function setScales(display, height, width, bounds) {\n\
+  var xRange = bounds.x.max - bounds.x.min;\n\
+  var yRange = bounds.y.max - bounds.y.min;\n\
 \n\
-  var xDomain = this.xScale.domain(), yDomain = this.yScale.domain();\n\
+  var displayAspect = width / height;\n\
+  var graphAspect = xRange / (yRange === 0 ? -Infinity : yRange);\n\
+\n\
+  var paddingFactor = 0.5,\n\
+    padding;\n\
+  var dispX1, dispX2, dispY1, dispY2;\n\
+\n\
+  if (displayAspect > graphAspect) { // y-axis is dominant\n\
+    padding = paddingFactor * yRange;\n\
+    dispY1 = bounds.y.min - padding;\n\
+    dispY2 = bounds.y.max + padding;\n\
+    var dispXRange = (yRange + 2 * padding) * displayAspect;\n\
+    var xMidpoint = (bounds.x.max + bounds.x.min) / 2;\n\
+    dispX1 = xMidpoint - dispXRange / 2;\n\
+    dispX2 = xMidpoint + dispXRange / 2;\n\
+  } else { // x-axis dominant\n\
+    padding = paddingFactor * xRange;\n\
+    dispX1 = bounds.x.min - padding;\n\
+    dispX2 = bounds.x.max + padding;\n\
+    var dispYRange = (xRange + 2 * padding) / displayAspect;\n\
+    var yMidpoint = (bounds.y.max + bounds.y.min) / 2;\n\
+    dispY1 = yMidpoint - dispYRange / 2;\n\
+    dispY2 = yMidpoint + dispYRange / 2;\n\
+  }\n\
+\n\
+  // set up the scales\n\
+  display.xScale = d3.scale.linear()\n\
+    .domain([dispX1, dispX2]);\n\
+\n\
+  display.yScale = d3.scale.linear()\n\
+    .domain([dispY1, dispY2]);\n\
+}\n\
+//@ sourceURL=transitive/lib/display.js"
+));
+require.register("transitive/lib/draw-grid.js", Function("exports, require, module",
+"var d3 = require('d3');\n\
+\n\
+/**\n\
+ * Draw the snapping grid\n\
+ *\n\
+ * @param {Display} display object\n\
+ * @param {Number} cell size\n\
+ */\n\
+\n\
+module.exports = function drawGrid(display, cellSize) {\n\
+  var svg = display.svg;\n\
+  var xScale = display.xScale;\n\
+  var yScale = display.yScale;\n\
+\n\
+  // Remove all current gridlines\n\
+  svg.selectAll('.gridline').remove();\n\
+\n\
+  // Add a grid group \"behind\" everything else\n\
+  var grid = svg.insert('g', ':first-child');\n\
+\n\
+  var xRange = xScale.range();\n\
+  var yRange = yScale.range();\n\
+  var xDomain = xScale.domain();\n\
+  var yDomain = yScale.domain();\n\
 \n\
   var xMin = Math.round(xDomain[0] / cellSize) * cellSize;\n\
   var xMax = Math.round(xDomain[1] / cellSize) * cellSize;\n\
-  for(var x = xMin; x <= xMax; x += cellSize) {\n\
-    this.grid.append('line')\n\
-      .attr({\n\
-        'class': 'gridline',\n\
-        'x1' : this.xScale(x),\n\
-        'x2' : this.xScale(x),\n\
-        'y1' : yRange[0],\n\
-        'y2' : yRange[1],\n\
-        'fill' : 'none',\n\
-        'stroke' : '#ccc',\n\
-        'stroke-width' : '1px'\n\
-      });\n\
-  }\n\
+  for (var x = xMin; x <= xMax; x += cellSize)\n\
+    appendLine(xScale(x), xScale(x), yRange[0], yRange[1]);\n\
 \n\
   var yMin = Math.round(yDomain[0] / cellSize) * cellSize;\n\
   var yMax = Math.round(yDomain[1] / cellSize) * cellSize;\n\
-  for(var y = yMin; y <= yMax; y += cellSize) {\n\
-    this.grid.append('line')\n\
+  for (var y = yMin; y <= yMax; y += cellSize)\n\
+    appendLine(xRange[0], xRange[1], yScale(y), yScale(y));\n\
+\n\
+  function appendLine(x1, x2, y1, y2) {\n\
+    grid.append('line')\n\
       .attr({\n\
         'class': 'gridline',\n\
-        'x1' : xRange[0],\n\
-        'x2' : xRange[1],\n\
-        'y1' : this.yScale(y),\n\
-        'y2' : this.yScale(y),\n\
-        'fill' : 'none',\n\
-        'stroke' : '#ccc',\n\
-        'stroke-width' : '1px'\n\
+        'x1': x1,\n\
+        'x2': x2,\n\
+        'y1': y1,\n\
+        'y2': y2\n\
       });\n\
   }\n\
-\n\
 };\n\
+//@ sourceURL=transitive/lib/draw-grid.js"
+));
+require.register("transitive/lib/interpolate-line.js", Function("exports, require, module",
+"/**\n\
+ * Line interpolation utility function\n\
+ *\n\
+ * @param {Array} points\n\
+ */\n\
 \n\
-\n\
-\n\
-Display.prototype.lineInterpolator = function(points) {\n\
-\n\
+module.exports = function(points) {\n\
   var dx, dy;\n\
 \n\
-  if(points.length === 2) { // a simple straight line\n\
+  if (points.length === 2) { // a simple straight line\n\
+    if (this.getType() === 'WALK') { // resample walk segments for marker placement\n\
 \n\
-    if(this.getType() === 'WALK') { // resample walk segments for marker placement\n\
-\n\
-      var newPoints = [ points[0] ];\n\
-      dx  = points[1][0] - points[0][0];\n\
-      dy  = points[1][1] - points[0][1];\n\
+      var newPoints = [points[0]];\n\
+      dx = points[1][0] - points[0][0];\n\
+      dy = points[1][1] - points[0][1];\n\
       var len = Math.sqrt(dx * dx + dy * dy);\n\
       var spacing = 10;\n\
 \n\
-      for(var l = spacing; l < len; l += spacing) {\n\
+      for (var l = spacing; l < len; l += spacing) {\n\
         var t = l / len;\n\
         newPoints.push([points[0][0] + t * dx, points[0][1] + t * dy]);\n\
       }\n\
@@ -18465,80 +18035,23 @@ Display.prototype.lineInterpolator = function(points) {\n\
   }\n\
 \n\
   var str = points[0];\n\
-  for(var i = 1; i < points.length; i++) {\n\
-    if(this.renderData[i].arc) {\n\
-      dx  = points[i][0] - points[i-1][0];\n\
-      dy  = points[i][1] - points[i-1][1];\n\
+  for (var i = 1; i < points.length; i++) {\n\
+    if (this.renderData[i].arc) {\n\
+      var r = this.renderData[i].radius;\n\
       var sweep = (this.renderData[i].arc > 0) ? 0 : 1;\n\
-      str += 'A ' + Math.abs(dx) + ',' + Math.abs(dy) + ' 0 0 ' + sweep + ' ' + points[i];\n\
-    }\n\
-    else {\n\
+      str += 'A ' + r + ',' + r + ' 0 0 ' + sweep + ' ' + points[i];\n\
+    } else {\n\
       str += 'L' + points[i];\n\
     }\n\
   }\n\
   return str;\n\
 };\n\
-\n\
-\n\
-\n\
-/**\n\
- * Initialize the x/y coordinate space domain to fit the graph.\n\
- */\n\
-\n\
-function setScales(display, height, width, graph) {\n\
-  var minX = Number.MAX_VALUE, maxX = -Number.MAX_VALUE;\n\
-  var minY = Number.MAX_VALUE, maxY = -Number.MAX_VALUE;\n\
-\n\
-  graph.vertices.forEach(function(vertex) {\n\
-    minX = Math.min(minX, vertex.x);\n\
-    maxX = Math.max(maxX, vertex.x);\n\
-    minY = Math.min(minY, vertex.y);\n\
-    maxY = Math.max(maxY, vertex.y);\n\
-  });\n\
-\n\
-  var xRange = maxX - minX, yRange = maxY - minY;\n\
-  var displayAspect = width / height;\n\
-  var graphAspect = xRange / (yRange === 0 ? Number.MIN_VALUE : yRange);\n\
-\n\
-  var paddingFactor = 0.5, padding;\n\
-  var dispX1, dispX2, dispY1, dispY2;\n\
-\n\
-  if (displayAspect > graphAspect) { // y-axis is dominant\n\
-    padding = paddingFactor * yRange;\n\
-    dispY1 = minY - padding;\n\
-    dispY2 = maxY + padding;\n\
-    var dispXRange = (yRange + 2 * padding) * displayAspect;\n\
-    var xMidpoint = (maxX + minX) / 2;\n\
-    dispX1 = xMidpoint - dispXRange / 2;\n\
-    dispX2 = xMidpoint + dispXRange / 2;\n\
-  } else { // x-axis dominant\n\
-    padding = paddingFactor * xRange;\n\
-    dispX1 = minX - padding;\n\
-    dispX2 = maxX + padding;\n\
-    var dispYRange = (xRange + 2 * padding) / displayAspect;\n\
-    var yMidpoint = (maxY + minY) / 2;\n\
-    dispY1 = yMidpoint - dispYRange / 2;\n\
-    dispY2 = yMidpoint + dispYRange / 2;\n\
-  }\n\
-\n\
-  // set up the scales\n\
-  display.xScale = d3.scale.linear()\n\
-    .domain([ dispX1, dispX2 ]);\n\
-\n\
-  display.yScale = d3.scale.linear()\n\
-    .domain([ dispY1, dispY2 ]);\n\
-}\n\
-\n\
-\n\
-//@ sourceURL=transitive/lib/display.js"
+//@ sourceURL=transitive/lib/interpolate-line.js"
 ));
 require.register("transitive/lib/path.js", Function("exports, require, module",
-"\n\
-/**\n\
- * Dependencies\n\
- */\n\
+"var d3 = require('d3');\n\
 \n\
-var d3 = require('d3');\n\
+var interpolateLine = require('./interpolate-line');\n\
 \n\
 /**\n\
  * Expose `NetworkPath`\n\
@@ -18547,39 +18060,23 @@ var d3 = require('d3');\n\
 module.exports = NetworkPath;\n\
 \n\
 /**\n\
- * A Route NetworkPath -- a unique sequence of network points (Stops or Places)\n\
+ * NetworkPath -- a path through the network graph. Composed of PathSegments (which\n\
+ * are in turn composed of a sequence of graph edges)\n\
  *\n\
  * @param {Object} the parent onject (a RoutePattern or Journey)\n\
  */\n\
 \n\
-function NetworkPath(parent) { //id, data) {\n\
-  /*this.id = id;\n\
-  for (var key in data) {\n\
-    if (key === 'stops') continue;\n\
-    this[key] = data[key];\n\
-  }\n\
-\n\
-  this.stops = [];*/\n\
+function NetworkPath(parent) {\n\
   this.parent = parent;\n\
-\n\
-  this.graphEdges = [];\n\
-\n\
   this.segments = [];\n\
-  this.transferPoints = [];\n\
-\n\
-  // temporarily hardcoding the line width; need to get this from the styler\n\
-  this.lineWidth = 10;\n\
 }\n\
-\n\
 \n\
 NetworkPath.prototype.clearGraphData = function(segment) {\n\
   this.graphEdges = [];\n\
   this.segments.forEach(function(segment) {\n\
     segment.clearGraphData();\n\
   });\n\
-  //this.transferPoints = [];\n\
 };\n\
-\n\
 \n\
 /**\n\
  * addSegment: add a new segment to the end of this NetworkPath\n\
@@ -18590,120 +18087,31 @@ NetworkPath.prototype.addSegment = function(segment) {\n\
   segment.points.forEach(function(point) {\n\
     point.paths.push(this);\n\
   }, this);\n\
-  this.addTransferPoint(segment.points[0]);\n\
-  this.addTransferPoint(segment.points[segment.points.length-1]);\n\
 };\n\
-\n\
-\n\
-NetworkPath.prototype.addTransferPoint = function(point) {\n\
-  if(this.transferPoints.indexOf(point) !== -1) return;\n\
-  this.transferPoints.push(point);\n\
-};\n\
-\n\
-\n\
-NetworkPath.prototype.isTransferPoint = function(point) {\n\
-  return this.transferPoints.indexOf(point) !== -1;\n\
-};\n\
-\n\
-/**\n\
- * addEdge: add a new edge to the end of this NetworkPath's edge list\n\
- */\n\
-\n\
-NetworkPath.prototype.addEdge = function(edge) {\n\
-  this.graphEdges.push({\n\
-    edge: edge,\n\
-    offset: null\n\
-  });\n\
-};\n\
-\n\
-/**\n\
- * insertEdge: insert an edge into this NetworkPaths edge list at a specified index\n\
- */\n\
-\n\
-NetworkPath.prototype.insertEdge = function(index, edge) {\n\
-  this.graphEdges.splice(index, 0, {\n\
-    edge: edge,\n\
-    offset: null\n\
-  });\n\
-};\n\
-\n\
-/**\n\
- * clearOffsets\n\
- */\n\
-\n\
-NetworkPath.prototype.clearOffsets = function() {\n\
-  this.graphEdges.forEach(function(edgeInfo, i) {\n\
-    edgeInfo.offset = null;\n\
-    edgeInfo.bundleIndex = null;\n\
-  }, this);\n\
-};\n\
-\n\
-\n\
-/**\n\
- * setEdgeOffset: applies a specified offset to a specified edge in the NetworkPath\n\
- */\n\
-\n\
-/*NetworkPath.prototype.setEdgeOffset = function(edge, offset, bundleIndex, extend) {\n\
-  this.graphEdges.forEach(function(edgeInfo, i) {\n\
-    if(edgeInfo.edge === edge && edgeInfo.offset === null) {\n\
-      edgeInfo.offset = offset;\n\
-      edgeInfo.bundleIndex = bundleIndex;\n\
-      if(extend) this.extend1DEdgeOffset(i);\n\
-    }\n\
-  }, this);\n\
-};*/\n\
-\n\
-/**\n\
- * extend1DEdgeOffset\n\
- */\n\
-\n\
-/*NetworkPath.prototype.extend1DEdgeOffset = function(edgeIndex) {\n\
-  var offset = this.graphEdges[edgeIndex].offset;\n\
-  var bundleIndex = this.graphEdges[edgeIndex].bundleIndex;\n\
-  var edgeInfo;\n\
-  for(var i = edgeIndex; i < this.graphEdges.length; i++) {\n\
-    edgeInfo = this.graphEdges[i];\n\
-    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;\n\
-    if(edgeInfo.offset === null) {\n\
-      edgeInfo.offset = offset;\n\
-      edgeInfo.bundleIndex = bundleIndex;\n\
-    }\n\
-  }\n\
-  for(i = edgeIndex; i >= 0; i--) {\n\
-    edgeInfo = this.graphEdges[i];\n\
-    if(edgeInfo.edge.fromVertex.y !== edgeInfo.edge.toVertex.y) break;\n\
-    if(edgeInfo.offset === null) {\n\
-      edgeInfo.offset = offset;\n\
-      edgeInfo.bundleIndex = bundleIndex;\n\
-    }\n\
-  }\n\
-};*/\n\
-\n\
 \n\
 /** highlight **/\n\
 \n\
 NetworkPath.prototype.drawHighlight = function(display, capExtension) {\n\
 \n\
   this.line = d3.svg.line() // the line translation function\n\
-    .x(function (pointInfo, i) {\n\
-      return display.xScale(pointInfo.x) + (pointInfo.offsetX || 0);\n\
-    })\n\
-    .y(function (pointInfo, i) {\n\
+  .x(function(pointInfo, i) {\n\
+    return display.xScale(pointInfo.x) + (pointInfo.offsetX || 0);\n\
+  })\n\
+    .y(function(pointInfo, i) {\n\
       return display.yScale(pointInfo.y) - (pointInfo.offsetY || 0);\n\
     })\n\
-    .interpolate(display.lineInterpolator.bind(this));\n\
+    .interpolate(interpolateLine.bind(this));\n\
 \n\
   this.lineGraph = display.svg.append('path')\n\
-    .attr('id', 'transitive-path-highlight-' +this.parent.getElementId())\n\
+    .attr('id', 'transitive-path-highlight-' + this.parent.getElementId())\n\
     .attr('class', 'transitive-path-highlight')\n\
     .style('stroke-width', 24).style('stroke', '#ff4')\n\
     .style('fill', 'none')\n\
     .style('visibility', 'hidden')\n\
-    .data([ this ]);\n\
+    .data([this]);\n\
 };\n\
 \n\
-\n\
-NetworkPath.prototype.refreshHighlight = function(display, capExtension) {\n\
+/*NetworkPath.prototype.refreshHighlight = function(display, capExtension) {\n\
   this.renderData = [];\n\
   var renderSegments = this.getRenderSegments();\n\
   for(var i = 0; i < renderSegments.length; i++) {\n\
@@ -18712,8 +18120,7 @@ NetworkPath.prototype.refreshHighlight = function(display, capExtension) {\n\
     this.renderData = this.renderData.concat(segment.renderData);\n\
   }\n\
   this.lineGraph.attr('d', this.line(this.renderData));\n\
-};\n\
-\n\
+};*/\n\
 \n\
 NetworkPath.prototype.getRenderSegments = function() {\n\
   var renderSegments = [];\n\
@@ -18723,211 +18130,128 @@ NetworkPath.prototype.getRenderSegments = function() {\n\
   return renderSegments;\n\
 };\n\
 \n\
-\n\
 /**\n\
  * getPointArray\n\
  */\n\
 \n\
 NetworkPath.prototype.getPointArray = function() {\n\
   var points = [];\n\
-  for(var i = 0; i < this.segments.length; i++) {\n\
+  for (var i = 0; i < this.segments.length; i++) {\n\
     var segment = this.segments[i];\n\
-    if(i > 0 && segment.points[0] === this.segments[i-1].points[this.segments[i-1].points.length-1]) {\n\
+    if (i > 0 && segment.points[0] === this.segments[i - 1].points[this.segments[\n\
+      i - 1].points.length - 1]) {\n\
       points.concat(segment.points.slice(1));\n\
-    }\n\
-    else {\n\
+    } else {\n\
       points.concat(segment.points);\n\
     }\n\
   }\n\
   return points;\n\
 };\n\
-\n\
-\n\
-/**\n\
- * Returns an array of \"point info\" objects, each consisting of the point x/y\n\
- * coordinates in the Display coordinate space, and a reference to the original\n\
- * Stop/Place instance\n\
+//@ sourceURL=transitive/lib/path.js"
+));
+require.register("transitive/lib/pathsegment.js", Function("exports, require, module",
+"/**\n\
+ * Dependencies\n\
  */\n\
 \n\
-NetworkPath.prototype.refreshRenderData = function() {\n\
-  this.renderData = [];\n\
-  var pointIndex = 0, edgeIndex = 0;\n\
+//var d3 = require('d3');\n\
 \n\
-  this.segments.forEach(function (segment, i) {\n\
+//var SegmentLabel = require('./labeler/segmentlabel');\n\
 \n\
-    if(segment.graphEdges.length > 1) {\n\
-      console.log('skipping multi-edge segment');\n\
-      return;\n\
-    }\n\
-    var edge = segment.graphEdges[0]; // edgeInfo.edge;\n\
+var segmentId = 0;\n\
 \n\
-    var edgeRenderData = [];\n\
+/**\n\
+ * Expose `PathSegment`\n\
+ */\n\
 \n\
-    var nextEdgeInfo = i < this.graphEdges.length - 1\n\
-      ? this.graphEdges[i + 1]\n\
-      : null;\n\
+module.exports = PathSegment;\n\
 \n\
-    var pointInfo;\n\
+/**\n\
+ *\n\
+ */\n\
 \n\
-    // the \"from\" vertex point for this edge (first edge only)\n\
-    //if (i === 0) {\n\
-    pointInfo = {\n\
-      path: this,\n\
-      x: edge.fromVertex.x,\n\
-      y: edge.fromVertex.y,\n\
-      point: edge.fromVertex.point,\n\
-      inEdge: null,\n\
-      outEdge: edge,\n\
-      index: pointIndex++\n\
-    };\n\
+function PathSegment(type) {\n\
+  this.id = segmentId++;\n\
+  this.type = type;\n\
+  this.points = [];\n\
+  this.graphEdges = [];\n\
+}\n\
 \n\
-    /*pointInfo.offsetX = edgeInfo.offset\n\
-      ? edge.rightVector.x * this.lineWidth * edgeInfo.offset\n\
-      : 0;\n\
-\n\
-    pointInfo.offsetY = edgeInfo.offset\n\
-      ? edge.rightVector.y * this.lineWidth * edgeInfo.offset\n\
-      : 0;*/\n\
-    pointInfo.offsetX = pointInfo.offsetY = 0;\n\
-\n\
-    edgeRenderData.push(pointInfo);\n\
-    edge.fromVertex.point.addRenderData(pointInfo);\n\
-\n\
-    // construct the \n\
-    var x1 = edge.fromVertex.x, y1 = edge.fromVertex.y;\n\
-    var x2 = edge.toVertex.x, y2 = edge.toVertex.y;\n\
-    var tol = 0.001;\n\
-    var dx = x2 - x1, dy = y2 - y1;\n\
-    var r = null;\n\
-    if(Math.abs(dx) > tol && Math.abs(dy) > tol && Math.abs(dx) - Math.abs(dy) > tol) {\n\
-      r = 0.005;\n\
-      // horiz first\n\
-      var e = {\n\
-        x: x2,\n\
-        y: y1\n\
-      };\n\
-\n\
-      edgeRenderData.push({\n\
-        x : x2 - r * (dx/Math.abs(dx)),\n\
-        y : y1\n\
-      });\n\
-      edgeRenderData.push({\n\
-        x : x2,\n\
-        y : y1 + r * (dy/Math.abs(dy))\n\
-      });\n\
-    }\n\
-\n\
-\n\
-    // the internal points for this edge\n\
-    edge.pointArray.forEach(function (point, i) {\n\
-      var t = (i + 1) / (edge.pointArray.length + 1);\n\
-      if(r) pointInfo = edge.pointAlongEdgeCurveX(t, r);\n\
-      else pointInfo = edge.pointAlongEdge(t);\n\
-      pointInfo.path = this;\n\
-      pointInfo.point = point;\n\
-      pointInfo.inEdge = pointInfo.outEdge = edge;\n\
-      /*if (edgeInfo.offset) {\n\
-        pointInfo.offsetX = edge.rightVector.x * this.lineWidth * edgeInfo.offset;\n\
-        pointInfo.offsetY = edge.rightVector.y * this.lineWidth * edgeInfo.offset;\n\
-      } else {\n\
-        pointInfo.offsetX = pointInfo.offsetY = 0;\n\
-      }\n\
-      if (edgeInfo.bundleIndex === 0) pointInfo.showLabel = true;*/\n\
-      pointInfo.offsetX = pointInfo.offsetY = 0;\n\
-      pointInfo.index = pointIndex++;\n\
-\n\
-      //edgeRenderData.push(pointInfo);\n\
-      point.addRenderData(pointInfo);\n\
-    }, this);\n\
-\n\
-\n\
-    // the \"to\" vertex point for this edge. handles the 'corner' case between adjacent edges\n\
-    //pointInfo = this.constructCornerPointInfo(edgeInfo, edge.toVertex, nextEdgeInfo);\n\
-    //pointInfo.index = pointIndex;\n\
-  \n\
-    // temp: disregard offsetting\n\
-    pointInfo = {\n\
-      path: this,\n\
-      x: edge.toVertex.x,\n\
-      y: edge.toVertex.y,\n\
-      point: edge.toVertex.point,\n\
-      index: pointIndex,\n\
-      offsetX: 0,\n\
-      offsetY: 0\n\
-    };\n\
-\n\
-    edgeRenderData.push(pointInfo);\n\
-\n\
-    edge.toVertex.point.addRenderData(pointInfo);\n\
-\n\
-    segment.renderData = edgeRenderData;\n\
-    //console.log('set rrd:');\n\
-    //console.log(segment);\n\
-    edgeIndex++;\n\
-\n\
-  }, this);\n\
+PathSegment.prototype.clearGraphData = function() {\n\
+  this.graphEdges = [];\n\
+  this.points.forEach(function(point) {\n\
+    point.graphVertex = null;\n\
+  });\n\
 };\n\
 \n\
-\n\
-NetworkPath.prototype.constructCornerPointInfo = function(edgeInfo1, vertex, edgeInfo2) {\n\
-  var edge1 = edgeInfo1 ? edgeInfo1.edge : null;\n\
-  var edge2 = edgeInfo2 ? edgeInfo2.edge : null;\n\
-\n\
-  var pointInfo = {\n\
-    path: this,\n\
-    x: vertex.x,\n\
-    y: vertex.y,\n\
-    point: vertex.point,\n\
-    inEdge: edge1,\n\
-    outEdge: edge2\n\
-  };\n\
-\n\
-  var offset = null;\n\
-  if(edgeInfo1 && edgeInfo1.offset) offset = edgeInfo1.offset;\n\
-  if(edgeInfo2 && edgeInfo2.offset) offset = edgeInfo2.offset;\n\
-\n\
-  if(offset === null) {\n\
-    pointInfo.offsetX = pointInfo.offsetY = 0;\n\
-    return pointInfo;\n\
-  }\n\
-\n\
-  if (edge2\n\
-    && edge2.rightVector.x !== edge1.rightVector.x\n\
-    && edge2.rightVector.y !== edge1.rightVector.y) {\n\
-\n\
-    var added = {\n\
-      x: edge2.rightVector.x + edge1.rightVector.x,\n\
-      y: edge2.rightVector.y + edge1.rightVector.y,\n\
-    };\n\
-\n\
-    var len = Math.sqrt(added.x * added.x + added.y * added.y);\n\
-    var normalized = { x : added.x / len, y : added.y / len };\n\
-\n\
-    var opp = Math.sqrt(\n\
-      Math.pow(edge2.rightVector.x - edge1.rightVector.x, 2)\n\
-      + Math.pow(edge2.rightVector.y - edge1.rightVector.y, 2)\n\
-      ) / 2;\n\
-\n\
-    var l = 1 / Math.sqrt(1 - opp * opp); // sqrt(1-x*x) = sin(acos(x))\n\
-\n\
-    pointInfo.offsetX = normalized.x * this.lineWidth * offset * l;\n\
-    pointInfo.offsetY = normalized.y * this.lineWidth * offset * l;\n\
-  } else {\n\
-    pointInfo.offsetX = edge1.rightVector.x * this.lineWidth * offset;\n\
-    pointInfo.offsetY = edge1.rightVector.y * this.lineWidth * offset;\n\
-  }\n\
-\n\
-  return pointInfo;\n\
+PathSegment.prototype.getId = function() {\n\
+  return this.id;\n\
 };\n\
 \n\
+PathSegment.prototype.getType = function() {\n\
+  return this.type;\n\
+};\n\
+\n\
+PathSegment.prototype.addEdge = function(edge) {\n\
+  this.graphEdges.push(edge);\n\
+};\n\
+\n\
+PathSegment.prototype.removeEdge = function(edge) {\n\
+  while (this.graphEdges.indexOf(edge) !== -1) {\n\
+    this.graphEdges.splice(this.graphEdges.indexOf(edge), 1);\n\
+  }\n\
+};\n\
+\n\
+PathSegment.prototype.replaceEdge = function(edge, newEdges) {\n\
+\n\
+  var i = this.graphEdges.indexOf(edge);\n\
+  if (i === -1) return;\n\
+\n\
+  // remove the old edge\n\
+  this.graphEdges.splice(i, 1);\n\
+\n\
+  // insert the new edges\n\
+  this.graphEdges.splice.apply(this.graphEdges, [i, 0].concat(newEdges));\n\
+\n\
+};\n\
+\n\
+PathSegment.prototype.getEdgeIndex = function(edge) {\n\
+  for (var i = 0; i < this.graphEdges.length; i++) {\n\
+    if (this.graphEdges[i].edge === edge) return i;\n\
+  }\n\
+  return -1;\n\
+};\n\
+\n\
+PathSegment.prototype.getAdjacentEdge = function(edge, vertex) {\n\
+\n\
+  // ensure that edge/vertex pair is valid\n\
+  if (edge.toVertex !== vertex && edge.fromVertex !== vertex) return null;\n\
+\n\
+  var index = this.getEdgeIndex(edge);\n\
+  if (index === -1) return null;\n\
+\n\
+  // check previous edge\n\
+  if (index > 0) {\n\
+    var prevEdge = this.graphEdges[index - 1].edge;\n\
+    if (prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;\n\
+  }\n\
+\n\
+  // check next edge\n\
+  if (index < this.graphEdges.length - 1) {\n\
+    var nextEdge = this.graphEdges[index + 1].edge;\n\
+    if (nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;\n\
+  }\n\
+\n\
+  return null;\n\
+};\n\
 \n\
 /**\n\
  * Get graph vertices\n\
  */\n\
 \n\
-NetworkPath.prototype.getGraphVertices = function() {\n\
+PathSegment.prototype.getGraphVertices = function() {\n\
   var vertices = [];\n\
-  this.graphEdges.forEach(function (edge, i) {\n\
+  this.graphEdges.forEach(function(edge, i) {\n\
     if (i === 0) {\n\
       vertices.push(edge.fromVertex);\n\
     }\n\
@@ -18936,41 +18260,17 @@ NetworkPath.prototype.getGraphVertices = function() {\n\
   return vertices;\n\
 };\n\
 \n\
-NetworkPath.prototype.getEdgeIndex = function(edge) {\n\
-  for(var i = 0; i < this.graphEdges.length; i++) {\n\
-    if(this.graphEdges[i].edge === edge) return i;\n\
+PathSegment.prototype.getEdgeIndex = function(edge) {\n\
+  for (var i = 0; i < this.graphEdges.length; i++) {\n\
+    if (this.graphEdges[i].edge === edge) return i;\n\
   }\n\
   return -1;\n\
 };\n\
 \n\
-NetworkPath.prototype.getAdjacentEdge = function(edge, vertex) {\n\
-\n\
-  // ensure that edge/vertex pair is valid\n\
-  if(edge.toVertex !== vertex && edge.fromVertex !== vertex) return null;\n\
-\n\
-  var index = this.getEdgeIndex(edge);\n\
-  if(index === -1) return null;\n\
-\n\
-  // check previous edge\n\
-  if(index > 0) {\n\
-    var prevEdge = this.graphEdges[index-1].edge;\n\
-    if(prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;\n\
-  }\n\
-\n\
-  // check next edge\n\
-  if(index < this.graphEdges.length-1) {\n\
-    var nextEdge = this.graphEdges[index+1].edge;\n\
-    if(nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;\n\
-  }\n\
-\n\
-  return null;\n\
-};\n\
-\n\
-\n\
-NetworkPath.prototype.vertexArray = function() {\n\
+PathSegment.prototype.vertexArray = function() {\n\
 \n\
   var vertex = this.startVertex();\n\
-  var array = [ vertex ];\n\
+  var array = [vertex];\n\
 \n\
   this.graphEdges.forEach(function(edgeInfo) {\n\
     vertex = edgeInfo.edge.oppositeVertex(vertex);\n\
@@ -18980,27 +18280,34 @@ NetworkPath.prototype.vertexArray = function() {\n\
   return array;\n\
 };\n\
 \n\
-NetworkPath.prototype.startVertex = function() {\n\
-  if(!this.graphEdges || this.graphEdges.length === 0) return null;\n\
-  if(this.graphEdges.length === 1) return this.graphEdges[0].fromVertex;\n\
-  var first = this.graphEdges[0].edge, next = this.graphEdges[1].edge;\n\
-  if(first.toVertex == next.toVertex || first.toVertex == next.fromVertex) return first.fromVertex;\n\
-  if(first.fromVertex == next.toVertex || first.fromVertex == next.fromVertex) return first.toVertex;\n\
+PathSegment.prototype.startVertex = function() {\n\
+  if (!this.graphEdges || this.graphEdges.length === 0) return null;\n\
+  if (this.graphEdges.length === 1) return this.graphEdges[0].fromVertex;\n\
+  var first = this.graphEdges[0].edge,\n\
+    next = this.graphEdges[1].edge;\n\
+  if (first.toVertex == next.toVertex || first.toVertex == next.fromVertex)\n\
+    return first.fromVertex;\n\
+  if (first.fromVertex == next.toVertex || first.fromVertex == next.fromVertex)\n\
+    return first.toVertex;\n\
   return null;\n\
 };\n\
 \n\
-NetworkPath.prototype.endVertex = function() {\n\
-  if(!this.graphEdges || this.graphEdges.length === 0) return null;\n\
-  if(this.graphEdges.length === 1) return this.graphEdges[0].toVertex;\n\
-  var last = this.graphEdges[this.graphEdges.length-1].edge, prev = this.graphEdges[this.graphEdges.length-2].edge;\n\
-  if(last.toVertex == prev.toVertex || last.toVertex == prev.fromVertex) return last.fromVertex;\n\
-  if(last.fromVertex == prev.toVertex || last.fromVertex == prev.fromVertex) return last.toVertex;\n\
+PathSegment.prototype.endVertex = function() {\n\
+  if (!this.graphEdges || this.graphEdges.length === 0) return null;\n\
+  if (this.graphEdges.length === 1) return this.graphEdges[0].toVertex;\n\
+  var last = this.graphEdges[this.graphEdges.length - 1].edge,\n\
+    prev = this.graphEdges[this.graphEdges.length - 2].edge;\n\
+  if (last.toVertex == prev.toVertex || last.toVertex == prev.fromVertex)\n\
+    return last.fromVertex;\n\
+  if (last.fromVertex == prev.toVertex || last.fromVertex == prev.fromVertex)\n\
+    return last.toVertex;\n\
   return null;\n\
 };\n\
 \n\
-NetworkPath.prototype.toString = function() {\n\
+PathSegment.prototype.toString = function() {\n\
   return this.startVertex().stop.stop_name + ' to ' + this.endVertex().stop.stop_name;\n\
-};//@ sourceURL=transitive/lib/path.js"
+};\n\
+//@ sourceURL=transitive/lib/pathsegment.js"
 ));
 require.register("transitive/lib/pattern.js", Function("exports, require, module",
 "var d3 = require('d3');\n\
@@ -19025,33 +18332,29 @@ function RoutePattern(data, transitive) {\n\
   }\n\
 \n\
   this.stops = [];\n\
-  for(var i = 0; i < data.stops.length; i++) {\n\
+  for (var i = 0; i < data.stops.length; i++) {\n\
     this.stops.push(transitive.stops[data.stops[i].stop_id]);\n\
   }\n\
 \n\
   this.renderSegments = [];\n\
 }\n\
 \n\
-\n\
 RoutePattern.prototype.getId = function() {\n\
   return this.pattern_id;\n\
 };\n\
-\n\
 \n\
 RoutePattern.prototype.getElementId = function() {\n\
   return 'pattern-' + this.pattern_id;\n\
 };\n\
 \n\
-\n\
 RoutePattern.prototype.getName = function() {\n\
   return this.pattern_name;\n\
 };\n\
 \n\
-\n\
 RoutePattern.prototype.addRenderSegment = function(segment) {\n\
-  if(this.renderSegments.indexOf(segment) === -1) this.renderSegments.push(segment);\n\
+  if (this.renderSegments.indexOf(segment) === -1) this.renderSegments.push(\n\
+    segment);\n\
 };\n\
-\n\
 \n\
 RoutePattern.prototype.offsetAlignment = function(alignmentId, offset) {\n\
   each(this.renderSegments, function(segment) {\n\
@@ -19059,20 +18362,20 @@ RoutePattern.prototype.offsetAlignment = function(alignmentId, offset) {\n\
   });\n\
 };\n\
 \n\
-\n\
-\n\
 RoutePattern.prototype.getAlignmentVector = function(alignmentId) {\n\
-  for(var i = 0; i < this.renderSegments.length; i++) {\n\
+  for (var i = 0; i < this.renderSegments.length; i++) {\n\
     var segment = this.renderSegments[i];\n\
-    if(segment.graphEdge.getFromAlignmentId() === alignmentId) return segment.graphEdge.fromVector;\n\
-    if(segment.graphEdge.getToAlignmentId() === alignmentId) return segment.graphEdge.toVector;\n\
+    if (segment.graphEdge.getFromAlignmentId() === alignmentId) return segment.graphEdge\n\
+      .fromVector;\n\
+    if (segment.graphEdge.getToAlignmentId() === alignmentId) return segment.graphEdge\n\
+      .toVector;\n\
   }\n\
   return null;\n\
-};//@ sourceURL=transitive/lib/pattern.js"
+};\n\
+//@ sourceURL=transitive/lib/pattern.js"
 ));
 require.register("transitive/lib/route.js", Function("exports, require, module",
-"\n\
-/**\n\
+"/**\n\
  * Expose `Route`\n\
  */\n\
 \n\
@@ -19105,10 +18408,9 @@ Route.prototype.addPattern = function(pattern) {\n\
   pattern.route = this;\n\
 };\n\
 \n\
-\n\
 Route.prototype.getColor = function() {\n\
-  if(this.route_color) {\n\
-    if(this.route_color.charAt(0) === '#') return this.route_color;\n\
+  if (this.route_color) {\n\
+    if (this.route_color.charAt(0) === '#') return this.route_color;\n\
     return '#' + this.route_color;\n\
   }\n\
 \n\
@@ -19124,7 +18426,7 @@ Route.prototype.getColor = function() {\n\
 //@ sourceURL=transitive/lib/route.js"
 ));
 require.register("transitive/lib/journey.js", Function("exports, require, module",
-"var Segment = require('./segment');\n\
+"var PathSegment = require('./pathsegment');\n\
 var NetworkPath = require('./path');\n\
 \n\
 /**\n\
@@ -19134,39 +18436,42 @@ var NetworkPath = require('./path');\n\
 module.exports = Journey;\n\
 \n\
 /**\n\
- * \n\
+ *\n\
  */\n\
 \n\
 function Journey(data, transitive) {\n\
 \n\
   this.transitive = transitive;\n\
 \n\
-  for(var key in data) {\n\
+  for (var key in data) {\n\
     //if(key === 'segments') continue;\n\
     this[key] = data[key];\n\
   }\n\
-  \n\
+\n\
   this.path = new NetworkPath(this);\n\
 \n\
-  for(var i = 0; i < this.segments.length; i++) {\n\
+  for (var i = 0; i < this.segments.length; i++) {\n\
     var segmentInfo = this.segments[i];\n\
 \n\
-    var pathSegment = new Segment(segmentInfo.type);\n\
+    var pathSegment = new PathSegment(segmentInfo.type);\n\
     pathSegment.journeySegment = segmentInfo;\n\
 \n\
-    if(segmentInfo.type === 'TRANSIT') {\n\
+    if (segmentInfo.type === 'TRANSIT') {\n\
       var pattern = transitive.patterns[segmentInfo.pattern_id];\n\
-      for(var s = segmentInfo.from_stop_index; s <= segmentInfo.to_stop_index; s++) {\n\
+      for (var s = segmentInfo.from_stop_index; s <= segmentInfo.to_stop_index; s++) {\n\
         pathSegment.points.push(pattern.stops[s]);\n\
       }\n\
       pathSegment.pattern = pattern;\n\
-    }\n\
-    else if(segmentInfo.type === 'WALK') {\n\
-      if(segmentInfo.from.type === 'PLACE') pathSegment.points.push(transitive.places[segmentInfo.from.place_id]);\n\
-      else if(segmentInfo.from.type === 'STOP') pathSegment.points.push(transitive.stops[segmentInfo.from.stop_id]);\n\
+    } else if (segmentInfo.type === 'WALK') {\n\
+      if (segmentInfo.from.type === 'PLACE') pathSegment.points.push(transitive\n\
+        .places[segmentInfo.from.place_id]);\n\
+      else if (segmentInfo.from.type === 'STOP') pathSegment.points.push(\n\
+        transitive.stops[segmentInfo.from.stop_id]);\n\
 \n\
-      if(segmentInfo.to.type === 'PLACE') pathSegment.points.push(transitive.places[segmentInfo.to.place_id]);\n\
-      else if(segmentInfo.to.type === 'STOP') pathSegment.points.push(transitive.stops[segmentInfo.to.stop_id]);\n\
+      if (segmentInfo.to.type === 'PLACE') pathSegment.points.push(transitive.places[\n\
+        segmentInfo.to.place_id]);\n\
+      else if (segmentInfo.to.type === 'STOP') pathSegment.points.push(\n\
+        transitive.stops[segmentInfo.to.stop_id]);\n\
     }\n\
 \n\
     this.path.addSegment(pathSegment);\n\
@@ -19189,11 +18494,10 @@ require.register("transitive/lib/transitive.js", Function("exports, require, mod
 "var d3 = require('d3');\n\
 var debug = require('debug')('transitive');\n\
 var Emitter = require('emitter');\n\
-var toFunction = require('to-function');\n\
 var each = require('each');\n\
-var clone = require('clone');\n\
 \n\
 var Display = require('./display');\n\
+var drawGrid = require('./draw-grid');\n\
 var Graph = require('./graph');\n\
 var NetworkPath = require('./path');\n\
 var Route = require('./route');\n\
@@ -19202,11 +18506,11 @@ var Journey = require('./journey');\n\
 var Stop = require('./point/stop');\n\
 var Place = require('./point/place');\n\
 var Styler = require('./styler');\n\
-var Segment = require('./segment');\n\
 var RenderSegment = require('./rendersegment');\n\
 var Labeler = require('./labeler');\n\
 var Label = require('./labeler/label');\n\
 var Legend = require('./legend');\n\
+var createTileLayer = require('./tile-layer');\n\
 \n\
 /**\n\
  * Expose `Transitive`\n\
@@ -19215,16 +18519,10 @@ var Legend = require('./legend');\n\
 module.exports = Transitive;\n\
 \n\
 /**\n\
- * Expose `d3`\n\
- */\n\
-\n\
-module.exports.d3 = Transitive.prototype.d3 = d3;\n\
-\n\
-/**\n\
  * Expose `version`\n\
  */\n\
 \n\
-module.exports.version = '0.2.0';\n\
+module.exports.version = '0.3.0';\n\
 \n\
 /**\n\
  * Create a new instance of `Transitive`\n\
@@ -19242,14 +18540,14 @@ function Transitive(options) {\n\
   if (!(this instanceof Transitive)) return new Transitive(options);\n\
 \n\
   this.options = options;\n\
-  if(this.options.useDynamicRendering === undefined) this.options.useDynamicRendering = true;\n\
+  if (this.options.useDynamicRendering === undefined) this.options.useDynamicRendering =\n\
+    true;\n\
 \n\
   if (options.el) this.setElement(options.el);\n\
 \n\
-  this.clearFilters();\n\
   this.data = options.data;\n\
   this.baseGridCellSize = this.gridCellSize = options.gridCellSize || 500;\n\
-  this.labeler = new Labeler(this);  \n\
+  this.labeler = new Labeler(this);\n\
 \n\
   this.paths = [];\n\
   this.style = new Styler(options.styles);\n\
@@ -19263,42 +18561,6 @@ function Transitive(options) {\n\
 Emitter(Transitive.prototype);\n\
 \n\
 /**\n\
- * Add a data filter\n\
- *\n\
- * @param {String} type\n\
- * @param {String|Object|Function} filter, gets passed to `to-function`\n\
- */\n\
-\n\
-Transitive.prototype.addFilter =\n\
-Transitive.prototype.filter = function(type, filter) {\n\
-  if (!this._filter[type]) this._filter[type] = [];\n\
-  this._filter[type].push(toFunction(filter));\n\
-\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
- * Clear all data filters\n\
- *\n\
- * @param {String} filter type\n\
- */\n\
-\n\
-Transitive.prototype.clearFilters = function(type) {\n\
-  if (type) {\n\
-    this._filter[type] = [];\n\
-  } else {\n\
-    this._filter = {\n\
-      patterns: [],\n\
-      routes: [],\n\
-      stops: []\n\
-    };\n\
-  }\n\
-\n\
-  this.emit('clear filters', this);\n\
-  return this;\n\
-};\n\
-\n\
-/**\n\
  * Load\n\
  *\n\
  * @param {Object} data\n\
@@ -19310,66 +18572,53 @@ Transitive.prototype.load = function(data) {\n\
   // Store data\n\
   this.data = data;\n\
 \n\
-  // A list of points (stops & places) that will become vertices in the network graph. This\n\
-  // includes all stops that serve as a pattern endpoint and/or a\n\
-  // convergence/divergence point between patterns\n\
-  this.vertexPoints = [];\n\
+  // A list of points (stops & places) that will always become vertices in the network\n\
+  // graph (regardless of zoom scale). This includes all points that serve as a segment\n\
+  // endpoint and/or a convergence/divergence point between segments\n\
+  this.baseVertexPoints = [];\n\
 \n\
   // object maps stop ids to arrays of unique stop_ids reachable from that stop\n\
   this.adjacentStops = {};\n\
 \n\
   // Generate the route objects\n\
   this.routes = {};\n\
-  applyFilters(data.routes, this._filter.routes).forEach(function (data) {\n\
+  each(data.routes, function(data) {\n\
     this.routes[data.route_id] = new Route(data);\n\
   }, this);\n\
 \n\
   // Generate the stop objects\n\
   this.stops = {};\n\
-  applyFilters(data.stops, this._filter.stops).forEach(function (data) {\n\
+  each(data.stops, function(data) {\n\
     this.stops[data.stop_id] = new Stop(data);\n\
   }, this);\n\
 \n\
   // Generate the pattern objects\n\
   this.patterns = {};\n\
-  applyFilters(data.patterns, this._filter.patterns).forEach(function (data) {\n\
+  each(data.patterns, function(data) {\n\
     var pattern = new RoutePattern(data, this);\n\
     this.patterns[data.pattern_id] = pattern;\n\
     var route = this.routes[data.route_id];\n\
-    route.addPattern(pattern);\n\
-    pattern.route = route;\n\
+    if (route) {\n\
+      route.addPattern(pattern);\n\
+      pattern.route = route;\n\
+    } else {\n\
+      console.log('Error: pattern ' + data.pattern_id +\n\
+        ' refers to route that was not found: ' + data.route_id);\n\
+    }\n\
   }, this);\n\
 \n\
   // Generate the place objects\n\
   this.places = {};\n\
-  data.places.forEach(function (data) {\n\
+  data.places.forEach(function(data) {\n\
     var place = this.places[data.place_id] = new Place(data, this);\n\
     this.addVertexPoint(place);\n\
   }, this);\n\
 \n\
-  // Generate the routes & patterns\n\
-  /*this.routes = {};\n\
-  this.patterns = {};\n\
-\n\
-  if(data.routes) {\n\
-    applyFilters(data.routes, this._filter.routes).forEach(function (routeData) {\n\
-      var route = this.routes[routeData.route_id] = new Route(routeData);\n\
-      // iterate through the Route's constituent Patterns\n\
-      applyFilters(routeData.patterns, this._filter.patterns).forEach(function (patternData, i) {\n\
-        var pattern = this.processStopSequence(patternData, patternData.pattern_id, vertexStops, adjacentStops);\n\
-        pattern.route = route;\n\
-      }, this);\n\
-    }, this);\n\
-  }*/\n\
-\n\
   // Generate the internal Journey objects\n\
   this.journeys = {};\n\
-  if(data.journeys) {\n\
+  if (data.journeys) {\n\
     data.journeys.forEach((function(journeyData) {\n\
       var journey = new Journey(journeyData, this);\n\
-      //var pattern = this.processStopSequence(journeyData, journeyData.journey_id, vertexStops, adjacentStops);\n\
-      //journey.addPattern(pattern);\n\
-      //journey.combinedPattern = pattern;\n\
       this.journeys[journeyData.journey_id] = journey;\n\
       this.paths.push(journey.path);\n\
 \n\
@@ -19377,13 +18626,12 @@ Transitive.prototype.load = function(data) {\n\
   }\n\
 \n\
   // process the path segments\n\
-  for(var p = 0; p < this.paths.length; p++) {\n\
+  for (var p = 0; p < this.paths.length; p++) {\n\
     var path = this.paths[p];\n\
-    for(var s = 0; s < path.segments.length; s++) {\n\
+    for (var s = 0; s < path.segments.length; s++) {\n\
       this.processSegment(path.segments[s]);\n\
     }\n\
   }\n\
-\n\
 \n\
   // determine the convergence/divergence vertex stops by looking for stops w/ >2 adjacent stops\n\
   for (var stopId in this.adjacentStops) {\n\
@@ -19400,37 +18648,71 @@ Transitive.prototype.load = function(data) {\n\
   return this;\n\
 };\n\
 \n\
-\n\
 /** Graph Creation/Processing Methods **/\n\
 \n\
-\n\
 Transitive.prototype.createGraph = function() {\n\
-\n\
-  this.graph = new Graph();\n\
-\n\
-  // populate the vertices in the graph object\n\
-  for(var i = 0; i < this.vertexPoints.length; i++) {\n\
-    var point = this.vertexPoints[i];\n\
-    var vertex = this.graph.addVertex(point);\n\
-  }\n\
-\n\
+  this.graph = new Graph(this.baseVertexPoints);\n\
   this.populateGraphEdges();\n\
-\n\
-  this.processGraph();\n\
-};\n\
-\n\
-\n\
-Transitive.prototype.processGraph = function() {\n\
   this.graph.collapseTransfers(this.gridCellSize / 2);\n\
+  this.createInternalVertexPoints();\n\
   this.annotateTransitPoints();\n\
   this.populateRenderSegments();\n\
   this.labeler.updateLabelList();\n\
   this.updateGeometry(true);\n\
 };\n\
 \n\
-Transitive.prototype.updateGeometry = function(snapGrid) {\n\
+/*\n\
+ * identify and populate the 'internal' vertex points, which is zoom-level specfic\n\
+ */\n\
 \n\
-  if(snapGrid) this.graph.snapToGrid(this.gridCellSize);\n\
+Transitive.prototype.createInternalVertexPoints = function() {\n\
+\n\
+  this.internalVertexPoints = [];\n\
+\n\
+  // create a shallow-cloned copy\n\
+  var edges = [];\n\
+  each(this.graph.edges, function(e) {\n\
+    edges.push(e);\n\
+  });\n\
+\n\
+  each(edges, function(edge) {\n\
+    var wlen = edge.getWorldLength();\n\
+\n\
+    var newVertexCount = Math.floor((wlen / this.gridCellSize) / this.getInternalVertexFactor());\n\
+    //console.log('add v: ' + newVertexCount);\n\
+\n\
+    var splitPoints = [];\n\
+    var freq = edge.pointArray.length / (newVertexCount + 1);\n\
+    var nextSplitPoint = freq;\n\
+    each(edge.pointArray, function(point, i) {\n\
+      //console.log(' - i='+i);\n\
+      if (i >= nextSplitPoint) {\n\
+        splitPoints.push(point);\n\
+        nextSplitPoint += freq;\n\
+      }\n\
+\n\
+    }, this);\n\
+    if (splitPoints.length > 0) {\n\
+      this.graph.splitEdgeAtInternalPoints(edge, splitPoints);\n\
+    }\n\
+  }, this);\n\
+};\n\
+\n\
+Transitive.prototype.getInternalVertexFactor = function() {\n\
+\n\
+  var scale = this.display.zoom.scale();\n\
+\n\
+  if (scale > 3) return 5;\n\
+  if (scale > 2.5) return 7.5;\n\
+  if (scale > 2) return 10;\n\
+  if (scale > 1.5) return 12.5;\n\
+  if (scale > 1) return 15;\n\
+\n\
+  return 20;\n\
+\n\
+};\n\
+\n\
+Transitive.prototype.updateGeometry = function(snapGrid) {\n\
 \n\
   // clear the stop render data\n\
   for (var key in this.stops) this.stops[key].renderData = [];\n\
@@ -19446,33 +18728,46 @@ Transitive.prototype.updateGeometry = function(snapGrid) {\n\
       point.clearRenderData();\n\
     });\n\
   });\n\
-  \n\
-  this.graph.calculateGeometry(this.gridCellSize);\n\
-  //this.graph.optimizeCurvature();\n\
 \n\
   this.renderSegments.forEach(function(segment) {\n\
     segment.clearOffsets();\n\
   });\n\
 \n\
-  //this.graph.apply2DOffsets(this);\n\
-  this.graph.apply2DOffsets2(this);\n\
+  if (snapGrid) this.graph.snapToGrid(this.gridCellSize);\n\
+\n\
+  this.graph.calculateGeometry(this.gridCellSize, this.getAngleConstraint());\n\
+\n\
+  this.graph.apply2DOffsets(this);\n\
+};\n\
+\n\
+Transitive.prototype.getAngleConstraint = function() {\n\
+\n\
+  var scale = this.display.zoom.scale();\n\
+\n\
+  if (scale > 3) return 5;\n\
+  if (scale > 2.5) return 10;\n\
+  if (scale > 2) return 15;\n\
+  if (scale > 1.5) return 30;\n\
+  if (scale > 1) return 45;\n\
+\n\
+  return 90;\n\
+\n\
 };\n\
 \n\
 /**\n\
  *\n\
  */\n\
 \n\
-\n\
 Transitive.prototype.processSegment = function(segment) {\n\
 \n\
   // iterate through this pattern's stops, associating stops/patterns with\n\
   // each other and initializing the adjacentStops table\n\
   var previousStop = null;\n\
-  for(var i=0; i < segment.points.length; i++) {\n\
+  for (var i = 0; i < segment.points.length; i++) {\n\
     var point = segment.points[i];\n\
 \n\
     // called for each pair of adjacent stops in sequence\n\
-    if(previousStop && point.getType() === 'STOP') {\n\
+    if (previousStop && point.getType() === 'STOP') {\n\
       this.addStopAdjacency(point.getId(), previousStop.getId());\n\
       this.addStopAdjacency(previousStop.getId(), point.getId());\n\
     }\n\
@@ -19484,13 +18779,12 @@ Transitive.prototype.processSegment = function(segment) {\n\
     this.addVertexPoint(startPoint);\n\
     startPoint.isSegmentEndPoint = true;\n\
 \n\
-    var endPoint = segment.points[segment.points.length-1];\n\
+    var endPoint = segment.points[segment.points.length - 1];\n\
     this.addVertexPoint(endPoint);\n\
     endPoint.isSegmentEndPoint = true;\n\
 \n\
   }\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Helper function for stopAjacency table\n\
@@ -19502,9 +18796,9 @@ Transitive.prototype.processSegment = function(segment) {\n\
 \n\
 Transitive.prototype.addStopAdjacency = function(stopIdA, stopIdB) {\n\
   if (!this.adjacentStops[stopIdA]) this.adjacentStops[stopIdA] = [];\n\
-  if (this.adjacentStops[stopIdA].indexOf(stopIdB) === -1) this.adjacentStops[stopIdA].push(stopIdB);\n\
+  if (this.adjacentStops[stopIdA].indexOf(stopIdB) === -1) this.adjacentStops[\n\
+    stopIdA].push(stopIdB);\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Populate the graph edges\n\
@@ -19521,15 +18815,15 @@ Transitive.prototype.populateGraphEdges = function() {\n\
   // since the last vertex point\n\
   var internalPoints = [];\n\
 \n\
-  for(var p = 0; p < this.paths.length; p++) {\n\
+  for (var p = 0; p < this.paths.length; p++) {\n\
     var path = this.paths[p];\n\
-    for(var s = 0; s < path.segments.length; s++) {\n\
+    for (var s = 0; s < path.segments.length; s++) {\n\
       var segment = path.segments[s];\n\
 \n\
       lastVertex = null;\n\
       var lastVertexIndex = 0;\n\
 \n\
-      for(var i=0; i< segment.points.length; i++) {\n\
+      for (var i = 0; i < segment.points.length; i++) {\n\
         var point = segment.points[i];\n\
         if (point.graphVertex) { // this is a vertex point\n\
           if (lastVertex !== null) {\n\
@@ -19544,16 +18838,13 @@ Transitive.prototype.populateGraphEdges = function() {\n\
               var dy = point.graphVertex.y - lastVertex.y;\n\
               var angle = Math.atan2(dy, dx) * 180 / Math.PI;\n\
               point.angle = lastVertex.point.angle = angle;\n\
-              for(var is = 0; is < internalPoints.length; is++) {\n\
+              for (var is = 0; is < internalPoints.length; is++) {\n\
                 internalPoints[is].angle = angle;\n\
               }\n\
             }\n\
 \n\
-            path.addEdge(edge);\n\
             segment.graphEdges.push(edge);\n\
-            edge.addPath(path);\n\
             edge.addPathSegment(segment);\n\
-\n\
           }\n\
 \n\
           lastVertex = point.graphVertex;\n\
@@ -19567,41 +18858,44 @@ Transitive.prototype.populateGraphEdges = function() {\n\
   }\n\
 };\n\
 \n\
-\n\
 Transitive.prototype.annotateTransitPoints = function() {\n\
   var lookup = {};\n\
-  this.renderSegments = [];\n\
 \n\
   this.paths.forEach(function(path) {\n\
 \n\
     var transitSegments = [];\n\
     path.segments.forEach(function(pathSegment) {\n\
-      if(pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
+      if (pathSegment.type === 'TRANSIT') transitSegments.push(pathSegment);\n\
     });\n\
 \n\
     path.segments.forEach(function(pathSegment) {\n\
-      if(pathSegment.type === 'TRANSIT') {\n\
+      if (pathSegment.type === 'TRANSIT') {\n\
 \n\
         // if first transit segment in path, mark 'from' endpoint as board point\n\
-        if(transitSegments.indexOf(pathSegment) === 0) {\n\
+        if (transitSegments.indexOf(pathSegment) === 0) {\n\
           pathSegment.points[0].isBoardPoint = true;\n\
 \n\
           // if there are additional transit segments, mark the 'to' endpoint as a transfer point\n\
-          if(transitSegments.length > 1) pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+          if (transitSegments.length > 1) pathSegment.points[pathSegment.points\n\
+            .length - 1].isTransferPoint = true;\n\
         }\n\
 \n\
         // if last transit segment in path, mark 'to' endpoint as alight point\n\
-        else if(transitSegments.indexOf(pathSegment) === transitSegments.length-1) {\n\
-          pathSegment.points[pathSegment.points.length-1].isAlightPoint = true;\n\
+        else if (transitSegments.indexOf(pathSegment) === transitSegments.length -\n\
+          1) {\n\
+          pathSegment.points[pathSegment.points.length - 1].isAlightPoint =\n\
+            true;\n\
 \n\
           // if there are additional transit segments, mark the 'from' endpoint as a transfer point\n\
-          if(transitSegments.length > 1) pathSegment.points[0].isTransferPoint = true;\n\
+          if (transitSegments.length > 1) pathSegment.points[0].isTransferPoint =\n\
+            true;\n\
         }\n\
 \n\
         // if this is an 'internal' transit segment, mark both endpoints as transfer points\n\
-        else if(transitSegments.length > 2) {\n\
+        else if (transitSegments.length > 2) {\n\
           pathSegment.points[0].isTransferPoint = true;\n\
-          pathSegment.points[pathSegment.points.length-1].isTransferPoint = true;\n\
+          pathSegment.points[pathSegment.points.length - 1].isTransferPoint =\n\
+            true;\n\
         }\n\
 \n\
       }\n\
@@ -19609,10 +18903,13 @@ Transitive.prototype.annotateTransitPoints = function() {\n\
   });\n\
 };\n\
 \n\
-\n\
 Transitive.prototype.populateRenderSegments = function() {\n\
   var lookup = {};\n\
   this.renderSegments = [];\n\
+\n\
+  for (var patternId in this.patterns) {\n\
+    this.patterns[patternId].renderSegments = [];\n\
+  }\n\
 \n\
   this.paths.forEach(function(path) {\n\
 \n\
@@ -19621,14 +18918,14 @@ Transitive.prototype.populateRenderSegments = function() {\n\
       pathSegment.renderSegments = [];\n\
       pathSegment.graphEdges.forEach(function(edge) {\n\
         var renderSegment;\n\
-        var key = edge.id + '_' + pathSegment.getType() + (pathSegment.pattern ? '_' + pathSegment.pattern.pattern_id : '');\n\
-        if(key in lookup) {\n\
+        var key = edge.id + '_' + pathSegment.getType() + (pathSegment.pattern ?\n\
+          '_' + pathSegment.pattern.pattern_id : '');\n\
+        if (key in lookup) {\n\
           renderSegment = lookup[key];\n\
-        }\n\
-        else {\n\
+        } else {\n\
           renderSegment = new RenderSegment(edge, pathSegment.type);\n\
           var pattern = pathSegment.pattern;\n\
-          if(pattern) {\n\
+          if (pattern) {\n\
             renderSegment.pattern = pattern;\n\
             pattern.addRenderSegment(renderSegment);\n\
           }\n\
@@ -19646,16 +18943,12 @@ Transitive.prototype.populateRenderSegments = function() {\n\
   }, this);\n\
 };\n\
 \n\
-\n\
-\n\
 Transitive.prototype.addVertexPoint = function(point) {\n\
-  if(this.vertexPoints.indexOf(point) !== -1) return;\n\
-  this.vertexPoints.push(point);\n\
+  if (this.baseVertexPoints.indexOf(point) !== -1) return;\n\
+  this.baseVertexPoints.push(point);\n\
 };\n\
 \n\
-\n\
 /** Display/Render Methods **/\n\
-\n\
 \n\
 /**\n\
  * Set the DOM element that serves as the main map canvas\n\
@@ -19667,26 +18960,25 @@ Transitive.prototype.setElement = function(el, legendEl) {\n\
   this.el = el;\n\
   this.initializeDisplay();\n\
 \n\
-  this.setScale();\n\
-  this.lastScale = this.display.zoom.scale();\n\
+  if (this.graph) this.setScale();\n\
 \n\
   this.emit('set element', this, this.el);\n\
   return this;\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Create the Display object and set up the pan/zoom functionality\n\
  */\n\
 \n\
 Transitive.prototype.initializeDisplay = function() {\n\
-  \n\
+\n\
   var self = this;\n\
-  this.display = new Display(this.el);\n\
+  this.display = new Display(this.options);\n\
 \n\
   var zoomBehavior = this.options.useDynamicRendering ?\n\
     function() {\n\
       var scale = self.display.zoom.scale();\n\
+      //debug('scale', scale);\n\
       if (scale !== self.lastScale) {\n\
         self.lastScale = scale;\n\
         self.gridCellSize = self.baseGridCellSize * (1 / scale);\n\
@@ -19700,54 +18992,43 @@ Transitive.prototype.initializeDisplay = function() {\n\
       } else {\n\
         self.refresh();\n\
       }\n\
+\n\
+      var llb = self.display.llBounds();\n\
+      debug('ll bounds: ' + llb[0][0] + ',' + llb[0][1] + ' to ' + llb[1][0] +\n\
+        ',' + llb[1][1]);\n\
     } :\n\
     function() {\n\
       self.refresh();\n\
     };\n\
 \n\
-  this.display.zoom.on('zoom', zoomBehavior);\n\
-\n\
-  /*this.display.zoom.on('zoom', function() {\n\
-\n\
-    if(!this.options.useDynamicRendering) {\n\
-      self.refresh();\n\
-      return;\n\
-    }\n\
-    var scale = self.display.zoom.scale();\n\
-    if (scale !== self.lastScale) {\n\
-      self.lastScale = scale;\n\
-      self.gridCellSize = self.baseGridCellSize * (1 / scale);\n\
-\n\
-      self.paths.forEach(function(path) {\n\
-        path.clearGraphData();\n\
-      });\n\
-\n\
-      self.createGraph();\n\
-      self.render();\n\
-    } else {\n\
-      self.refresh();\n\
-    }\n\
-  });*/\n\
+  this.display.zoom.on('zoom.transitive', zoomBehavior);\n\
 \n\
   this.emit('initialize display', this, this.display);\n\
   return this;\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Set scale\n\
  */\n\
 \n\
 Transitive.prototype.setScale = function() {\n\
-  if (this.display && this.el && this.graph) {\n\
-    this.display.setScale(this.el.clientHeight, this.el.clientWidth,\n\
-      this.graph);\n\
+  var bounds = this.graph.bounds();\n\
+\n\
+  this.display.setScale(this.el.clientHeight, this.el.clientWidth, this.graph.bounds());\n\
+  this.lastScale = this.display.zoom.scale();\n\
+\n\
+  if (this.options.mapboxId) {\n\
+    createTileLayer({\n\
+      el: this.el,\n\
+      display: this.display,\n\
+      graph: this.graph,\n\
+      mapboxId: this.options.mapboxId\n\
+    });\n\
   }\n\
 \n\
   this.emit('set scale', this);\n\
   return this;\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render\n\
@@ -19755,7 +19036,7 @@ Transitive.prototype.setScale = function() {\n\
 \n\
 Transitive.prototype.render = function() {\n\
 \n\
-  if(!this.loaded) {\n\
+  if (!this.loaded) {\n\
     this.load(this.data);\n\
   }\n\
 \n\
@@ -19769,20 +19050,20 @@ Transitive.prototype.render = function() {\n\
   this.display.empty();\n\
 \n\
   // draw the path highlights\n\
-  for(var p = 0; p < this.paths.length; p++) {\n\
+  for (var p = 0; p < this.paths.length; p++) {\n\
     this.paths[p].drawHighlight(this.display);\n\
   }\n\
 \n\
   var legendSegments = {};\n\
 \n\
   // draw the segments\n\
-  for(var s = 0; s < this.renderSegments.length; s++) {\n\
+  for (var s = 0; s < this.renderSegments.length; s++) {\n\
     var segment = this.renderSegments[s];\n\
     //console.log(segment);\n\
     segment.refreshRenderData(this.display);\n\
     segment.render(this.display, 0); // 10);\n\
     var legendType = segment.getLegendType();\n\
-    if(!(legendType in legendSegments)) {\n\
+    if (!(legendType in legendSegments)) {\n\
       legendSegments[legendType] = segment;\n\
     }\n\
   }\n\
@@ -19799,7 +19080,7 @@ Transitive.prototype.render = function() {\n\
     }, this);\n\
   }, this);\n\
 \n\
-  if(this.legend) this.legend.render(legendSegments);\n\
+  if (this.legend) this.legend.render(legendSegments);\n\
 \n\
   this.refresh();\n\
 \n\
@@ -19835,25 +19116,25 @@ Transitive.prototype.refresh = function() {\n\
   });\n\
 \n\
   // draw the grid, if necessary\n\
-  if(this.options.drawGrid) this.display.drawGrid(this.gridCellSize);\n\
+  if (this.options.drawGrid) drawGrid(this.display, this.gridCellSize);\n\
 \n\
   // refresh the segments\n\
 \n\
   this.renderSegments.sort(function(a, b) { // process render transit segments before walk\n\
-    if(a.getType() === 'WALK') return 1;\n\
-    if(b.getType() === 'WALK') return -1;\n\
+    if (a.getType() === 'WALK') return 1;\n\
+    if (b.getType() === 'WALK') return -1;\n\
   });\n\
-  for(var s = 0; s < this.renderSegments.length; s++) {\n\
+  this.refreshSegmentRenderData();\n\
+  for (var s = 0; s < this.renderSegments.length; s++) {\n\
     var segment = this.renderSegments[s];\n\
-    segment.refreshRenderData(this.display);\n\
+    //segment.refreshRenderData(this.display);\n\
     segment.refresh(this.display);\n\
   }\n\
 \n\
   // refresh the path highlights\n\
-  for(var p = 0; p < this.paths.length; p++) {\n\
+  /*for(var p = 0; p < this.paths.length; p++) {\n\
     this.paths[p].refreshHighlight(this.display);\n\
-  }\n\
-\n\
+  }*/\n\
 \n\
   // refresh the vertex-based points\n\
   this.graph.vertices.forEach(function(vertex) {\n\
@@ -19889,13 +19170,30 @@ Transitive.prototype.refresh = function() {\n\
   return this;\n\
 };\n\
 \n\
+Transitive.prototype.refreshSegmentRenderData = function() {\n\
+  each(this.renderSegments, function(segment) {\n\
+    segment.refreshRenderData(this.display);\n\
+  }, this);\n\
+\n\
+  for (var patternId in this.patterns) {\n\
+    var pattern = this.patterns[patternId];\n\
+    for (var s = 0; s < pattern.renderSegments.length - 1; s++) {\n\
+      var seg1 = pattern.renderSegments[s];\n\
+      var seg2 = pattern.renderSegments[s + 1];\n\
+      if (seg1.graphEdge.isInternal && seg2.graphEdge.isInternal) {\n\
+        seg1.intersect(seg2);\n\
+      }\n\
+    }\n\
+  }\n\
+\n\
+};\n\
 \n\
 Transitive.prototype.sortElements = function(journeyId) {\n\
 \n\
   this.renderSegments.sort(function(a, b) {\n\
-    if(a.isFocused() && !b.isFocused()) return 1;\n\
-    if(b.isFocused() && !a.isFocused()) return -1;\n\
-    return(a.compareTo(b));\n\
+    if (a.isFocused() && !b.isFocused()) return 1;\n\
+    if (b.isFocused() && !a.isFocused()) return -1;\n\
+    return (a.compareTo(b));\n\
   });\n\
 \n\
   this.renderSegments.forEach(function(segment, index) {\n\
@@ -19904,30 +19202,30 @@ Transitive.prototype.sortElements = function(journeyId) {\n\
 \n\
   this.display.svg.selectAll('.transitive-sortable').sort(function(a, b) {\n\
     //console.log(a.owner);\n\
-    var aIndex = (typeof a.getZIndex === 'function') ? a.getZIndex() : a.owner.getZIndex();\n\
-    var bIndex = (typeof b.getZIndex === 'function') ? b.getZIndex() : b.owner.getZIndex();\n\
+    var aIndex = (typeof a.getZIndex === 'function') ? a.getZIndex() : a.owner\n\
+      .getZIndex();\n\
+    var bIndex = (typeof b.getZIndex === 'function') ? b.getZIndex() : b.owner\n\
+      .getZIndex();\n\
     //if(a.console.log(aIndex);\n\
     return aIndex - bIndex;\n\
   });\n\
 };\n\
 \n\
-\n\
 Transitive.prototype.focusJourney = function(journeyId) {\n\
   var journeyRenderSegments = [];\n\
 \n\
-  if(journeyId) {\n\
+  if (journeyId) {\n\
     var journey = this.journeys[journeyId];\n\
     journeyRenderSegments = journey.path.getRenderSegments();\n\
 \n\
     this.graph.edges.forEach(function(edge) {\n\
-      edge.pointArray.forEach(function (point, i) {\n\
+      edge.pointArray.forEach(function(point, i) {\n\
         point.setAllPatternsFocused(false);\n\
       });\n\
     }, this);\n\
-  }\n\
-  else {\n\
+  } else {\n\
     this.graph.edges.forEach(function(edge) {\n\
-      edge.pointArray.forEach(function (point, i) {\n\
+      edge.pointArray.forEach(function(point, i) {\n\
         point.setAllPatternsFocused(true);\n\
       });\n\
     }, this);\n\
@@ -19936,15 +19234,14 @@ Transitive.prototype.focusJourney = function(journeyId) {\n\
   var focusedVertexPoints = [];\n\
   //var focusedInternalPoints = [];\n\
   this.renderSegments.forEach(function(segment) {\n\
-    if(journeyId && journeyRenderSegments.indexOf(segment) === -1) {\n\
+    if (journeyId && journeyRenderSegments.indexOf(segment) === -1) {\n\
       segment.setFocused(false);\n\
-    }\n\
-    else {\n\
+    } else {\n\
       segment.setFocused(true);\n\
       //segment.graphEdges.forEach(function(edge, edgeIndex) {\n\
       focusedVertexPoints.push(segment.graphEdge.fromVertex.point);\n\
       focusedVertexPoints.push(segment.graphEdge.toVertex.point);\n\
-      segment.graphEdge.pointArray.forEach(function (point, i) {\n\
+      segment.graphEdge.pointArray.forEach(function(point, i) {\n\
         point.setPatternFocused(segment.pattern.getId(), true);\n\
       });\n\
       //});\n\
@@ -19960,491 +19257,22 @@ Transitive.prototype.focusJourney = function(journeyId) {\n\
   this.refresh();\n\
 };\n\
 \n\
-\n\
 Transitive.prototype.offsetSegment = function(segment, axisId, offset) {\n\
-  if(segment.pattern) {\n\
+  if (segment.pattern) {\n\
     this.renderSegments.forEach(function(rseg) {\n\
-      if(rseg.pattern && rseg.pattern.pattern_id === segment.pattern.pattern_id) {\n\
+      if (rseg.pattern && rseg.pattern.pattern_id === segment.pattern.pattern_id) {\n\
         rseg.offsetAxis(axisId, offset);\n\
       }\n\
     });\n\
-  }\n\
-  else segment.offsetAxis(axisId, offset);\n\
+  } else segment.offsetAxis(axisId, offset);\n\
 };\n\
-\n\
-/**\n\
- * Apply an array of filters to an array of data\n\
- *\n\
- * @param {Array} data\n\
- * @param {Array} filters\n\
- */\n\
-\n\
-function applyFilters(data, filters) {\n\
-  filters.forEach(function (filter) {\n\
-    data = data.filter(filter);\n\
-  });\n\
-\n\
-  return data;\n\
-}//@ sourceURL=transitive/lib/transitive.js"
-));
-require.register("transitive/lib/segment.js", Function("exports, require, module",
-"/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var d3 = require('d3');\n\
-\n\
-var SegmentLabel = require('./labeler/segmentlabel');\n\
-\n\
-\n\
-var segmentId = 0;\n\
-\n\
-/**\n\
- * Expose `Segment`\n\
- */\n\
-\n\
-module.exports = Segment;\n\
-\n\
-/**\n\
- * \n\
- */\n\
-\n\
-function Segment(type) {\n\
-  this.id = segmentId++;\n\
-  this.type = type;\n\
-  this.points = [];\n\
-  this.graphEdges = [];\n\
-  this.edgeFromOffsets = {};\n\
-  this.edgeToOffsets = {};\n\
-  this.focused = true;\n\
-\n\
-  this.label = new SegmentLabel(this);\n\
-  this.renderLabel = true;\n\
-\n\
-  this.sortableType = 'SEGMENT';\n\
-\n\
-}\n\
-\n\
-Segment.prototype.clearGraphData = function() {\n\
-  this.graphEdges = [];\n\
-  this.edgeFromOffsets = {};\n\
-  this.edgeToOffsets = {};\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getId = function() {\n\
-  return this.id;\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getType = function() {\n\
-  return this.type;\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getLegendType = function() {\n\
-  if(this.type === 'TRANSIT') {\n\
-    return this.type + '_' + this.pattern.route.route_type;\n\
-    //console.log(this.pattern);\n\
-  }\n\
-  return this.type;\n\
-};\n\
-\n\
-\n\
-Segment.prototype.addEdge = function(edge) {\n\
-  this.graphEdges.push(edge);\n\
-};\n\
-\n\
-\n\
-Segment.prototype.removeEdge = function(edge) {\n\
-  while(this.graphEdges.indexOf(edge) !== -1) {\n\
-    this.graphEdges.splice(this.graphEdges.indexOf(edge), 1);\n\
-  }\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getEdgeIndex = function(edge) {\n\
-  for(var i = 0; i < this.graphEdges.length; i++) {\n\
-    if(this.graphEdges[i].edge === edge) return i;\n\
-  }\n\
-  return -1;\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getAdjacentEdge = function(edge, vertex) {\n\
-\n\
-  // ensure that edge/vertex pair is valid\n\
-  if(edge.toVertex !== vertex && edge.fromVertex !== vertex) return null;\n\
-\n\
-  var index = this.getEdgeIndex(edge);\n\
-  if(index === -1) return null;\n\
-\n\
-  // check previous edge\n\
-  if(index > 0) {\n\
-    var prevEdge = this.graphEdges[index-1].edge;\n\
-    if(prevEdge.toVertex === vertex || prevEdge.fromVertex === vertex) return prevEdge;\n\
-  }\n\
-\n\
-  // check next edge\n\
-  if(index < this.graphEdges.length-1) {\n\
-    var nextEdge = this.graphEdges[index+1].edge;\n\
-    if(nextEdge.toVertex === vertex || nextEdge.fromVertex === vertex) return nextEdge;\n\
-  }\n\
-\n\
-  return null;\n\
-};\n\
-\n\
-\n\
-Segment.prototype.setEdgeFromOffset = function(edge, offset) {\n\
-  this.edgeFromOffsets[edge] = offset;\n\
-};\n\
-\n\
-Segment.prototype.setEdgeToOffset = function(edge, offset) {\n\
-  this.edgeToOffsets[edge] = offset;\n\
-};\n\
-\n\
-Segment.prototype.clearOffsets = function() {\n\
-  this.edgeFromOffsets = {};\n\
-  this.edgeToOffsets = {};\n\
-};\n\
-\n\
-Segment.prototype.offsetAxis = function(axisId, offset) {\n\
-  var axisInfo = axisId.split('_');\n\
-  var axisVal = parseFloat(axisInfo[1]);\n\
-  this.graphEdges.forEach(function(graphEdge) {\n\
-    \n\
-    if(axisInfo[0] === 'y') {\n\
-      if(axisVal === graphEdge.fromVertex.y && graphEdge.fromVector.y === 0) {\n\
-        this.setEdgeFromOffset(graphEdge, offset);\n\
-      }\n\
-      if(axisVal === graphEdge.toVertex.y && graphEdge.toVector.y === 0) {\n\
-        this.setEdgeToOffset(graphEdge, offset);\n\
-      }\n\
-    }\n\
-\n\
-    if(axisInfo[0] === 'x') {\n\
-      if(axisVal === graphEdge.fromVertex.x && graphEdge.fromVector.x === 0) {\n\
-        this.setEdgeFromOffset(graphEdge, offset);\n\
-      }\n\
-      if(axisVal === graphEdge.toVertex.x && graphEdge.toVector.x === 0) {\n\
-        this.setEdgeToOffset(graphEdge, offset);\n\
-      }\n\
-    }\n\
-\n\
-  }, this);\n\
-};\n\
-\n\
-\n\
-/**\n\
- * Render\n\
- */\n\
-\n\
-Segment.prototype.render = function(display, capExtension) {\n\
-  //var stops = this.points;\n\
-\n\
-  // add the line to the NetworkPath\n\
-  this.line = d3.svg.line() // the line translation function\n\
-    .x(function (pointInfo, i) {\n\
-      var vx = pointInfo.x, x;\n\
-\n\
-      x = display.xScale(vx);\n\
-\n\
-      if (pointInfo.offsetX) {\n\
-        x += pointInfo.offsetX;\n\
-      }\n\
-\n\
-      return x;\n\
-    })\n\
-    .y(function (pointInfo, i) {\n\
-      var vy = pointInfo.y, y;\n\
-\n\
-      y = display.yScale(vy);\n\
-\n\
-      if (pointInfo.offsetY) {\n\
-        y -= pointInfo.offsetY;\n\
-      }\n\
-\n\
-      return y;\n\
-    })\n\
-    .interpolate(display.lineInterpolator.bind(this));\n\
-\n\
-  this.svgGroup = display.svg.append('g');\n\
-\n\
-  this.lineSvg = this.svgGroup.append('g')\n\
-    .attr('class', 'transitive-sortable')\n\
-    .datum({\n\
-      owner: this,\n\
-      sortableType: 'SEGMENT'\n\
-    });\n\
-\n\
-  this.labelSvg = this.svgGroup.append('g');\n\
-\n\
-  this.lineGraph = this.lineSvg.append('path');\n\
-\n\
-  this.lineGraph\n\
-    //.attr('id', 'transitive-path-' +this.parent.getElementId())\n\
-    .attr('class', 'transitive-line')\n\
-    .data([this]);\n\
-    //.data([{ owner: this, element : this.lineGraph }]);\n\
-\n\
-  this.lineGraphFront = this.lineSvg.append('path');\n\
-\n\
-  this.lineGraphFront\n\
-    .attr('class', 'transitive-line-front')\n\
-    .data([this]);\n\
-    //.data([{ owner: this, element: this.lineGraphFront }]);\n\
-};\n\
-\n\
-\n\
-Segment.prototype.setFocused = function(focused) {\n\
-  this.focused = focused;\n\
-};\n\
-\n\
-\n\
-/**\n\
- * Refresh\n\
- */\n\
-\n\
-Segment.prototype.refresh = function(display) {\n\
-\n\
-  // update the line\n\
-  if(!this.renderData || this.renderData.length === 0) return;\n\
-  this.lineGraph.attr('d', this.line(this.renderData));\n\
-  this.lineGraphFront.attr('d', this.line(this.renderData));\n\
-  display.styler.renderSegment(display, this);\n\
-};\n\
-\n\
-\n\
-Segment.prototype.refreshRenderData = function(updatePoints, styler, display) {\n\
-  \n\
-  this.computeLineWidth(styler, display);\n\
-\n\
-  this.renderData = [];\n\
-  var pointIndex = 0;\n\
-\n\
-  this.graphEdges.forEach(function(edge, edgeIndex) {\n\
-\n\
-    var edgeRenderData = [];\n\
-\n\
-    var pointInfo;\n\
-\n\
-    var fromOffsetX = 0, fromOffsetY = 0, toOffsetX = 0, toOffsetY = 0;\n\
-\n\
-    if(edge in this.edgeFromOffsets) {\n\
-      var fromOffset = this.edgeFromOffsets[edge] * this.lineWidth;\n\
-      fromOffsetX = fromOffset * edge.fromRightVector.x;\n\
-      fromOffsetY = fromOffset * edge.fromRightVector.y;\n\
-    }\n\
-\n\
-    if(edge in this.edgeToOffsets) {\n\
-      var toOffset = this.edgeToOffsets[edge] * this.lineWidth;\n\
-      toOffsetX = toOffset * edge.toRightVector.x;\n\
-      toOffsetY = toOffset * edge.toRightVector.y;\n\
-    }\n\
-\n\
-    if(this.getType() === 'WALK') {\n\
-\n\
-      var fromOffsets = getAveragePointOffsets(this.points[0]);\n\
-      if(fromOffsets) {\n\
-        fromOffsetX = fromOffsets.x;\n\
-        fromOffsetY = fromOffsets.y;\n\
-      }\n\
-\n\
-      var toOffsets = getAveragePointOffsets(this.points[this.points.length - 1]);\n\
-      if(toOffsets) {\n\
-        toOffsetX = toOffsets.x;\n\
-        toOffsetY = toOffsets.y;\n\
-      }\n\
-    }\n\
-\n\
-    // the \"from\" vertex point for this edge\n\
-    pointInfo = {\n\
-      segment: this,\n\
-      path: edge.paths[0],\n\
-      x: edge.fromVertex.x,\n\
-      y: edge.fromVertex.y,\n\
-      point: edge.fromVertex.point,\n\
-      inEdge: null,\n\
-      outEdge: edge,\n\
-      index: pointIndex++,\n\
-      offsetX: fromOffsetX,\n\
-      offsetY: fromOffsetY\n\
-    };\n\
-\n\
-    edgeRenderData.push(pointInfo);\n\
-\n\
-    if(updatePoints) edge.fromVertex.point.addRenderData(pointInfo);\n\
-\n\
-\n\
-    // the internal points for this edge\n\
-    if(this.getType() !== 'WALK' && edge.curvaturePoints && edge.curvaturePoints.length > 0) {\n\
-      var cpoints = edge.getCurvaturePoints(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-      edgeRenderData = edgeRenderData.concat(cpoints);\n\
-    }\n\
-\n\
-    if(updatePoints) edge.renderInternalPoints(this, fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-\n\
-\n\
-    // the \"to\" vertex point for this edge.\n\
-\n\
-    pointInfo = {\n\
-      segment: this,\n\
-      path: edge.paths[0],\n\
-      x: edge.toVertex.x,\n\
-      y: edge.toVertex.y,\n\
-      point: edge.toVertex.point,\n\
-      index: pointIndex,\n\
-      offsetX: toOffsetX,\n\
-      offsetY: toOffsetY\n\
-    };\n\
-\n\
-    edgeRenderData.push(pointInfo);\n\
-\n\
-    if(updatePoints) edge.toVertex.point.addRenderData(pointInfo);\n\
-\n\
-    this.renderData = this.renderData.concat(edgeRenderData);\n\
-  }, this);\n\
-\n\
-};\n\
-\n\
-\n\
-Segment.prototype.computeLineWidth = function(styler, display) {\n\
-  if(styler && display) {\n\
-    // compute the line width\n\
-    var env = styler.compute(styler.segments.envelope, display, this);\n\
-    if(env) {\n\
-      this.lineWidth = parseFloat(env.substring(0, env.length - 2), 10) - 2;\n\
-    }\n\
-    else {\n\
-      var lw = styler.compute(styler.segments['stroke-width'], display, this);\n\
-      this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
-    }\n\
-  }\n\
-};\n\
-\n\
-\n\
-Segment.prototype.refreshLabel = function(display) {\n\
-  if(!this.renderLabel) return;\n\
-  this.label.refresh(display);\n\
-};\n\
-\n\
-\n\
-\n\
-Segment.prototype.getLabelAnchors = function(display) {\n\
-\n\
-  var labelAnchors = [];\n\
-  var x, x1, x2, y, y1, y2;\n\
-\n\
-\n\
-  if(this.renderData.length === 2) { // basic straight segment\n\
-    if(this.renderData[0].x === this.renderData[1].x) { // vertical\n\
-      x = display.xScale(this.renderData[0].x) + this.renderData[0].offsetX;\n\
-      y1 = display.yScale(this.renderData[0].y);\n\
-      y2 = display.yScale(this.renderData[1].y);\n\
-      labelAnchors.push({ x : x, y: (y1 + y2) / 2 });\n\
-    }\n\
-    else if(this.renderData[0].y === this.renderData[1].y) { // horizontal\n\
-      x1 = display.xScale(this.renderData[0].x);\n\
-      x2 = display.xScale(this.renderData[1].x);\n\
-      y = display.yScale(this.renderData[0].y) - this.renderData[0].offsetY;\n\
-      labelAnchors.push({ x : (x1 + x2) / 2, y: y });\n\
-    }\n\
-  }\n\
-\n\
-  if(this.renderData.length === 4) { // basic curved segment\n\
-\n\
-    if(this.renderData[0].x === this.renderData[1].x) { // vertical first\n\
-      x = display.xScale(this.renderData[0].x) + this.renderData[0].offsetX;\n\
-      y1 = display.yScale(this.renderData[0].y);\n\
-      y2 = display.yScale(this.renderData[3].y);\n\
-      labelAnchors.push({ x : x, y: (y1 + y2) / 2 });\n\
-\n\
-    }\n\
-    else if(this.renderData[0].y === this.renderData[1].y) { // horiz first\n\
-      x1 = display.xScale(this.renderData[0].x);\n\
-      x2 = display.xScale(this.renderData[3].x);\n\
-      y = display.yScale(this.renderData[0].y) - this.renderData[0].offsetY;\n\
-      labelAnchors.push({ x : (x1 + x2) / 2, y: y });\n\
-    }\n\
-  }\n\
-\n\
-  return labelAnchors;\n\
-\n\
-};\n\
-\n\
-\n\
-Segment.prototype.compareTo = function(other) {\n\
-\n\
-  // if segments are equal, then we are comparing the main and foreground elements\n\
-  if(this === other) {\n\
-    console.log('eq seg');\n\
-  }\n\
-  \n\
-  // show transit segments in front of other types\n\
-  if(this.type === 'TRANSIT' && other.type !== 'TRANSIT') return 1;\n\
-  if(other.type === 'TRANSIT' && this.type !== 'TRANSIT') return -1;\n\
-\n\
-  if(this.type === 'TRANSIT' && other.type === 'TRANSIT') {\n\
-\n\
-    // for two transit segments, try sorting transit mode first\n\
-    if(this.pattern.route.route_type !== other.pattern.route.route_type) {\n\
-      return (this.pattern.route.route_type < other.pattern.route.route_type);\n\
-    }\n\
-\n\
-    // for two transit segments of the same mode, sort by id (for display consistency)\n\
-    return (this.getId() < other.getId());\n\
-  }\n\
-};\n\
-\n\
-\n\
-Segment.prototype.isFocused = function() {\n\
-  return (this.focused === true);\n\
-};\n\
-\n\
-\n\
-Segment.prototype.getZIndex = function() {\n\
-  return this.zIndex;\n\
-};\n\
-\n\
-\n\
-function getAveragePointOffsets(point) {\n\
-  var count = 0;\n\
-  var offsetXTotal = 0, offsetYTotal = 0;\n\
-\n\
-  if(point.patternRenderData) {\n\
-    for(var pattern in point.patternRenderData) {\n\
-      var patternRenderInfo = point.patternRenderData[pattern];\n\
-      offsetXTotal += patternRenderInfo.offsetX;\n\
-      offsetYTotal += patternRenderInfo.offsetY;\n\
-      count++;\n\
-    }\n\
-  }\n\
-  else if(point.renderData) {\n\
-    point.renderData.forEach(function(renderData) {\n\
-      offsetXTotal += renderData.offsetX;\n\
-      offsetYTotal += renderData.offsetY;\n\
-      count++;\n\
-    });\n\
-  }\n\
-\n\
-  if(count > 0) {\n\
-    return {\n\
-      x: offsetXTotal / count,\n\
-      y: offsetYTotal / count\n\
-    };\n\
-  }\n\
-\n\
-  return null;\n\
-}//@ sourceURL=transitive/lib/segment.js"
+//@ sourceURL=transitive/lib/transitive.js"
 ));
 require.register("transitive/lib/rendersegment.js", Function("exports, require, module",
-"/**\n\
- * Dependencies\n\
- */\n\
-\n\
-var d3 = require('d3');\n\
+"var d3 = require('d3');\n\
 var each = require('each');\n\
 \n\
+var interpolateLine = require('./interpolate-line');\n\
 var SegmentLabel = require('./labeler/segmentlabel');\n\
 var Util = require('./util');\n\
 \n\
@@ -20457,7 +19285,7 @@ var segmentId = 0;\n\
 module.exports = RenderSegment;\n\
 \n\
 /**\n\
- * \n\
+ *\n\
  */\n\
 \n\
 function RenderSegment(edge, type) {\n\
@@ -20481,31 +19309,27 @@ RenderSegment.prototype.clearGraphData = function() {\n\
   this.edgeToOffset = 0;\n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.getId = function() {\n\
   return this.id;\n\
 };\n\
-\n\
 \n\
 RenderSegment.prototype.getType = function() {\n\
   return this.type;\n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.getLegendType = function() {\n\
-  if(this.type === 'TRANSIT') {\n\
+  if (this.type === 'TRANSIT' && this.pattern && this.pattern.route) {\n\
     return this.type + '_' + this.pattern.route.route_type;\n\
   }\n\
   return this.type;\n\
 };\n\
-\n\
 \n\
 RenderSegment.prototype.setFromOffset = function(offset) {\n\
   this.fromOffset = offset;\n\
 };\n\
 \n\
 RenderSegment.prototype.setToOffset = function(offset) {\n\
-  this.toOffset  = offset;\n\
+  this.toOffset = offset;\n\
 };\n\
 \n\
 RenderSegment.prototype.clearOffsets = function() {\n\
@@ -20513,78 +19337,34 @@ RenderSegment.prototype.clearOffsets = function() {\n\
   this.toOffset = 0;\n\
 };\n\
 \n\
-/*RenderSegment.prototype.offsetAxis = function(axisId, offset) {\n\
-  var axisInfo = axisId.split('_');\n\
-  var axisVal = parseFloat(axisInfo[1]);\n\
-\n\
-  if(axisInfo[0] === 'y') {\n\
-    if(axisVal === this.graphEdge.fromVertex.y && this.graphEdge.fromVector.y === 0) {\n\
-      this.setFromOffset(offset);\n\
-    }\n\
-    if(axisVal === this.graphEdge.toVertex.y && this.graphEdge.toVector.y === 0) {\n\
-      this.setToOffset(offset);\n\
-    }\n\
-  }\n\
-\n\
-  if(axisInfo[0] === 'x') {\n\
-    if(axisVal === this.graphEdge.fromVertex.x && this.graphEdge.fromVector.x === 0) {\n\
-      this.setFromOffset(offset);\n\
-    }\n\
-    if(axisVal === this.graphEdge.toVertex.x && this.graphEdge.toVector.x === 0) {\n\
-      this.setToOffset(offset);\n\
-    }\n\
-  }\n\
-};*/\n\
-\n\
 RenderSegment.prototype.offsetAlignment = function(alignmentId, offset) {\n\
 \n\
-  if(this.graphEdge.getFromAlignmentId() === alignmentId) {\n\
-    this.setFromOffset(Util.isOutwardVector(this.graphEdge.fromVector) ? offset : -offset);\n\
+  if (this.graphEdge.getFromAlignmentId() === alignmentId) {\n\
+    this.setFromOffset(Util.isOutwardVector(this.graphEdge.fromVector) ? offset :\n\
+      -offset);\n\
   }\n\
-  if(this.graphEdge.getToAlignmentId() === alignmentId) {\n\
-    this.setToOffset(Util.isOutwardVector(this.graphEdge.toVector) ? offset : -offset);\n\
+  if (this.graphEdge.getToAlignmentId() === alignmentId) {\n\
+    this.setToOffset(Util.isOutwardVector(this.graphEdge.toVector) ? offset : -\n\
+      offset);\n\
   }\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Render\n\
  */\n\
 \n\
 RenderSegment.prototype.render = function(display, capExtension) {\n\
-  //var stops = this.points;\n\
 \n\
   // add the line to the NetworkPath\n\
+\n\
   this.line = d3.svg.line() // the line translation function\n\
-    /*.x(function (pointInfo, i) {\n\
-      var vx = pointInfo.x, x;\n\
-\n\
-      x = display.xScale(vx);\n\
-\n\
-      if (pointInfo.offsetX) {\n\
-        x += pointInfo.offsetX;\n\
-      }\n\
-\n\
-      return x;\n\
-    })\n\
-    .y(function (pointInfo, i) {\n\
-      var vy = pointInfo.y, y;\n\
-\n\
-      y = display.yScale(vy);\n\
-\n\
-      if (pointInfo.offsetY) {\n\
-        y -= pointInfo.offsetY;\n\
-      }\n\
-\n\
-      return y;\n\
-    })*/\n\
-    .x(function (data, i) {\n\
-      return data.x;\n\
-    })\n\
-    .y(function (data, i) {\n\
+  .x(function(data, i) {\n\
+    return data.x;\n\
+  })\n\
+    .y(function(data, i) {\n\
       return data.y;\n\
     })\n\
-    .interpolate(display.lineInterpolator.bind(this));\n\
+    .interpolate(interpolateLine.bind(this));\n\
 \n\
   this.svgGroup = display.svg.append('g');\n\
 \n\
@@ -20600,24 +19380,19 @@ RenderSegment.prototype.render = function(display, capExtension) {\n\
   this.lineGraph = this.lineSvg.append('path');\n\
 \n\
   this.lineGraph\n\
-    //.attr('id', 'transitive-path-' +this.parent.getElementId())\n\
     .attr('class', 'transitive-line')\n\
     .data([this]);\n\
-    //.data([{ owner: this, element : this.lineGraph }]);\n\
 \n\
   this.lineGraphFront = this.lineSvg.append('path');\n\
 \n\
   this.lineGraphFront\n\
     .attr('class', 'transitive-line-front')\n\
     .data([this]);\n\
-    //.data([{ owner: this, element: this.lineGraphFront }]);\n\
 };\n\
-\n\
 \n\
 RenderSegment.prototype.setFocused = function(focused) {\n\
   this.focused = focused;\n\
 };\n\
-\n\
 \n\
 /**\n\
  * Refresh\n\
@@ -20630,66 +19405,61 @@ RenderSegment.prototype.refresh = function(display) {\n\
   display.styler.renderSegment(display, this);\n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.refreshRenderData = function(display) {\n\
 \n\
+  if (this.getType() === 'WALK') {\n\
 \n\
-  if(this.getType() === 'WALK') {\n\
+    this.renderData = [];\n\
 \n\
-    this.renderData = [];    \n\
-    \n\
     var fromPt = this.graphEdge.fromVertex.point;\n\
     var toPt = this.graphEdge.toVertex.point;\n\
 \n\
-    if(fromPt.hasRenderData()) {\n\
+    if (fromPt.hasRenderData()) {\n\
       this.renderData.push(fromPt.getAverageCoord());\n\
-    }\n\
-    else {\n\
+    } else {\n\
       this.renderData.push({\n\
-        x : display.xScale(this.graphEdge.fromVertex.x),\n\
-        y : display.yScale(this.graphEdge.fromVertex.y)\n\
+        x: display.xScale(this.graphEdge.fromVertex.x),\n\
+        y: display.yScale(this.graphEdge.fromVertex.y)\n\
       });\n\
     }\n\
 \n\
-    if(toPt.hasRenderData()) {\n\
+    if (toPt.hasRenderData()) {\n\
       this.renderData.push(toPt.getAverageCoord());\n\
-    }\n\
-    else {\n\
+    } else {\n\
       this.renderData.push({\n\
-        x : display.xScale(this.graphEdge.toVertex.x),\n\
-        y : display.yScale(this.graphEdge.toVertex.y)\n\
+        x: display.xScale(this.graphEdge.toVertex.x),\n\
+        y: display.yScale(this.graphEdge.toVertex.y)\n\
       });\n\
     }\n\
 \n\
-  }\n\
-  \n\
-  else {\n\
+  } else {\n\
     this.computeLineWidth(display);\n\
 \n\
     var fromOffsetPx = this.fromOffset * this.lineWidth;\n\
     var toOffsetPx = this.toOffset * this.lineWidth;\n\
 \n\
-\n\
-    this.renderData = this.graphEdge.getRenderCoords(fromOffsetPx, toOffsetPx, display);\n\
-    //console.log(this.renderData);\n\
+    this.renderData = this.graphEdge.getRenderCoords(fromOffsetPx, toOffsetPx,\n\
+      display, (this.id === 1));\n\
   }\n\
 \n\
-  this.graphEdge.fromVertex.point.addRenderData({\n\
-    x: this.renderData[0].x,\n\
-    y: this.renderData[0].y,\n\
-    segment: this\n\
-  });\n\
+  if (!this.graphEdge.fromVertex.isInternal) {\n\
+    this.graphEdge.fromVertex.point.addRenderData({\n\
+      x: this.renderData[0].x,\n\
+      y: this.renderData[0].y,\n\
+      segment: this\n\
+    });\n\
+  }\n\
 \n\
   this.graphEdge.toVertex.point.addRenderData({\n\
-    x: this.renderData[this.renderData.length-1].x,\n\
-    y: this.renderData[this.renderData.length-1].y,\n\
+    x: this.renderData[this.renderData.length - 1].x,\n\
+    y: this.renderData[this.renderData.length - 1].y,\n\
     segment: this\n\
   });\n\
 \n\
   each(this.graphEdge.pointArray, function(point, i) {\n\
     var t = (i + 1) / (this.graphEdge.pointArray.length + 1);\n\
     var coord = this.graphEdge.coordAlongEdge(t, this.renderData, display);\n\
-    if(coord) {\n\
+    if (coord) {\n\
       point.addRenderData({\n\
         x: coord.x,\n\
         y: coord.y,\n\
@@ -20700,190 +19470,73 @@ RenderSegment.prototype.refreshRenderData = function(display) {\n\
 \n\
 };\n\
 \n\
-/*RenderSegment.prototype.refreshRenderData = function(updatePoints, styler, display) {\n\
-  \n\
-  this.computeLineWidth(styler, display);\n\
-\n\
-  this.renderData = [];\n\
-  var pointIndex = 0;\n\
-\n\
-  var edgeRenderData = [];\n\
-\n\
-  var pointInfo;\n\
-\n\
-  //var fromOffsetX = 0, fromOffsetY = 0, toOffsetX = 0, toOffsetY = 0;\n\
-\n\
-  var fromOffset = this.fromOffset * this.lineWidth;\n\
-  var fromOffsetX = fromOffset * this.graphEdge.fromRightVector.x;\n\
-  var fromOffsetY = fromOffset * this.graphEdge.fromRightVector.y;\n\
-\n\
-  var toOffset = this.toOffset * this.lineWidth;\n\
-  var toOffsetX = toOffset * this.graphEdge.toRightVector.x;\n\
-  var toOffsetY = toOffset * this.graphEdge.toRightVector.y;\n\
-\n\
-  if(this.getType() === 'WALK') {\n\
-\n\
-    var fromOffsets = getAveragePointOffsets(this.points[0]);\n\
-    if(fromOffsets) {\n\
-      fromOffsetX = fromOffsets.x;\n\
-      fromOffsetY = fromOffsets.y;\n\
-    }\n\
-\n\
-    var toOffsets = getAveragePointOffsets(this.points[this.points.length - 1]);\n\
-    if(toOffsets) {\n\
-      toOffsetX = toOffsets.x;\n\
-      toOffsetY = toOffsets.y;\n\
-    }\n\
-  }\n\
-\n\
-  // the \"from\" vertex point for this edge\n\
-  pointInfo = {\n\
-    segment: this,\n\
-    path: this.graphEdge.paths[0],\n\
-    x: this.graphEdge.fromVertex.x,\n\
-    y: this.graphEdge.fromVertex.y,\n\
-    point: this.graphEdge.fromVertex.point,\n\
-    inEdge: null,\n\
-    outEdge: this.graphEdge,\n\
-    index: pointIndex++,\n\
-    offsetX: fromOffsetX,\n\
-    offsetY: fromOffsetY\n\
-  };\n\
-\n\
-  edgeRenderData.push(pointInfo);\n\
-\n\
-  if(updatePoints) this.graphEdge.fromVertex.point.addRenderData(pointInfo);\n\
-\n\
-\n\
-  // the internal points for this edge\n\
-  if(this.getType() !== 'WALK' && this.graphEdge.curvaturePoints && this.graphEdge.curvaturePoints.length > 0) {\n\
-    var cpoints = this.graphEdge.getCurvaturePoints(fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-    edgeRenderData = edgeRenderData.concat(cpoints);\n\
-  }\n\
-\n\
-  if(updatePoints) this.graphEdge.renderInternalPoints(this, fromOffsetX, fromOffsetY, toOffsetX, toOffsetY);\n\
-\n\
-\n\
-  // the \"to\" vertex point for this edge.\n\
-\n\
-  pointInfo = {\n\
-    segment: this,\n\
-    path: this.graphEdge.paths[0],\n\
-    x: this.graphEdge.toVertex.x,\n\
-    y: this.graphEdge.toVertex.y,\n\
-    point: this.graphEdge.toVertex.point,\n\
-    index: pointIndex,\n\
-    offsetX: toOffsetX,\n\
-    offsetY: toOffsetY\n\
-  };\n\
-\n\
-  edgeRenderData.push(pointInfo);\n\
-\n\
-  if(updatePoints) this.graphEdge.toVertex.point.addRenderData(pointInfo);\n\
-\n\
-  this.renderData = this.renderData.concat(edgeRenderData);\n\
-\n\
-};*/\n\
-\n\
-\n\
 RenderSegment.prototype.computeLineWidth = function(display) {\n\
   var styler = display.styler;\n\
-  if(styler && display) {\n\
+  if (styler && display) {\n\
     // compute the line width\n\
     var env = styler.compute(styler.segments.envelope, display, this);\n\
-    if(env) {\n\
+    if (env) {\n\
       this.lineWidth = parseFloat(env.substring(0, env.length - 2), 10) - 2;\n\
-    }\n\
-    else {\n\
+    } else {\n\
       var lw = styler.compute(styler.segments['stroke-width'], display, this);\n\
       this.lineWidth = parseFloat(lw.substring(0, lw.length - 2), 10) - 2;\n\
     }\n\
   }\n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.refreshLabel = function(display) {\n\
-  if(!this.renderLabel) return;\n\
+  if (!this.renderLabel) return;\n\
   this.label.refresh(display);\n\
 };\n\
-\n\
-\n\
 \n\
 RenderSegment.prototype.getLabelAnchors = function(display) {\n\
 \n\
   var labelAnchors = [];\n\
   var x, x1, x2, y, y1, y2;\n\
 \n\
-\n\
-  if(this.renderData.length === 2) { // basic straight segment\n\
-    labelAnchors.push({ \n\
-      x: (this.renderData[0].x + this.renderData[1].x) / 2, \n\
+  if (this.renderData.length === 2) { // basic straight segment\n\
+    labelAnchors.push({\n\
+      x: (this.renderData[0].x + this.renderData[1].x) / 2,\n\
       y: (this.renderData[0].y + this.renderData[1].y) / 2\n\
     });\n\
-    /*if(this.renderData[0].x === this.renderData[1].x) { // vertical\n\
-      x = display.xScale(this.renderData[0].x) + this.renderData[0].offsetX;\n\
-      y1 = display.yScale(this.renderData[0].y);\n\
-      y2 = display.yScale(this.renderData[1].y);\n\
-      labelAnchors.push({ x : x, y: (y1 + y2) / 2 });\n\
-    }\n\
-    else if(this.renderData[0].y === this.renderData[1].y) { // horizontal\n\
-      x1 = display.xScale(this.renderData[0].x);\n\
-      x2 = display.xScale(this.renderData[1].x);\n\
-      y = display.yScale(this.renderData[0].y) - this.renderData[0].offsetY;\n\
-      labelAnchors.push({ x : (x1 + x2) / 2, y: y });\n\
-    }*/\n\
   }\n\
 \n\
-  if(this.renderData.length === 4) { // basic curved segment\n\
+  if (this.renderData.length === 4) { // basic curved segment\n\
 \n\
-    if(this.renderData[1].len > this.renderData[3].len) {\n\
-      labelAnchors.push({ \n\
-        x: (this.renderData[0].x + this.renderData[1].x) / 2, \n\
+    if (this.renderData[1].len > this.renderData[3].len) {\n\
+      labelAnchors.push({\n\
+        x: (this.renderData[0].x + this.renderData[1].x) / 2,\n\
         y: (this.renderData[0].y + this.renderData[1].y) / 2\n\
-      });      \n\
-    }    \n\
-    else {\n\
-      labelAnchors.push({ \n\
-        x: (this.renderData[2].x + this.renderData[3].x) / 2, \n\
+      });\n\
+    } else {\n\
+      labelAnchors.push({\n\
+        x: (this.renderData[2].x + this.renderData[3].x) / 2,\n\
         y: (this.renderData[2].y + this.renderData[3].y) / 2\n\
       });\n\
     }\n\
 \n\
-    /*if(this.renderData[0].x === this.renderData[1].x) { // vertical first\n\
-      x = display.xScale(this.renderData[0].x) + this.renderData[0].offsetX;\n\
-      y1 = display.yScale(this.renderData[0].y);\n\
-      y2 = display.yScale(this.renderData[3].y);\n\
-      labelAnchors.push({ x : x, y: (y1 + y2) / 2 });\n\
-\n\
-    }\n\
-    else if(this.renderData[0].y === this.renderData[1].y) { // horiz first\n\
-      x1 = display.xScale(this.renderData[0].x);\n\
-      x2 = display.xScale(this.renderData[3].x);\n\
-      y = display.yScale(this.renderData[0].y) - this.renderData[0].offsetY;\n\
-      labelAnchors.push({ x : (x1 + x2) / 2, y: y });\n\
-    }*/\n\
   }\n\
 \n\
   return labelAnchors;\n\
 \n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.compareTo = function(other) {\n\
 \n\
   // if segments are equal, then we are comparing the main and foreground elements\n\
-  if(this === other) {\n\
+  if (this === other) {\n\
     console.log('eq seg');\n\
   }\n\
-  \n\
-  // show transit segments in front of other types\n\
-  if(this.type === 'TRANSIT' && other.type !== 'TRANSIT') return 1;\n\
-  if(other.type === 'TRANSIT' && this.type !== 'TRANSIT') return -1;\n\
 \n\
-  if(this.type === 'TRANSIT' && other.type === 'TRANSIT') {\n\
+  // show transit segments in front of other types\n\
+  if (this.type === 'TRANSIT' && other.type !== 'TRANSIT') return 1;\n\
+  if (other.type === 'TRANSIT' && this.type !== 'TRANSIT') return -1;\n\
+\n\
+  if (this.type === 'TRANSIT' && other.type === 'TRANSIT') {\n\
 \n\
     // for two transit segments, try sorting transit mode first\n\
-    if(this.pattern.route.route_type !== other.pattern.route.route_type) {\n\
+    if (this.pattern.route && other.pattern.route && this.pattern.route.route_type !==\n\
+      other.pattern.route.route_type) {\n\
       return (this.pattern.route.route_type < other.pattern.route.route_type);\n\
     }\n\
 \n\
@@ -20892,141 +19545,80 @@ RenderSegment.prototype.compareTo = function(other) {\n\
   }\n\
 };\n\
 \n\
-\n\
 RenderSegment.prototype.isFocused = function() {\n\
   return (this.focused === true);\n\
 };\n\
-\n\
 \n\
 RenderSegment.prototype.getZIndex = function() {\n\
   return this.zIndex;\n\
 };\n\
 \n\
-\n\
-function getAveragePointOffsets(point) {\n\
-  console.log('foo');\n\
-  var count = 0;\n\
-  var offsetXTotal = 0, offsetYTotal = 0;\n\
-\n\
-  if(point.patternRenderData) {\n\
-    for(var pattern in point.patternRenderData) {\n\
-      var patternRenderInfo = point.patternRenderData[pattern];\n\
-      offsetXTotal += patternRenderInfo.offsetX;\n\
-      offsetYTotal += patternRenderInfo.offsetY;\n\
-      count++;\n\
-    }\n\
-  }\n\
-  else if(point.renderData) {\n\
-    point.renderData.forEach(function(renderData) {\n\
-      offsetXTotal += renderData.offsetX;\n\
-      offsetYTotal += renderData.offsetY;\n\
-      count++;\n\
-    });\n\
-  }\n\
-\n\
-  if(count > 0) {\n\
-    return {\n\
-      x: offsetXTotal / count,\n\
-      y: offsetYTotal / count\n\
-    };\n\
-  }\n\
-\n\
-  return null;\n\
-}//@ sourceURL=transitive/lib/rendersegment.js"
-));
-require.register("transitive/lib/profiler.js", Function("exports, require, module",
-"/**\n\
- * Expose `TransitiveLoader`\n\
- */\n\
-\n\
-module.exports = ProfilerLoader;\n\
-\n\
 /**\n\
- *\n\
+ *  Computes the point of intersection between two adjacent, offset segments (the\n\
+ *  segment the function is called on and a second segment passed as a parameter)\n\
+ *  by \"extending\" the adjacent segments and finding the point of intersection. If\n\
+ *  such a point exists, the existing renderData arrays for the segments are\n\
+ *  adjusted accordingly, as are any associated stops.\n\
  */\n\
 \n\
-function ProfilerLoader(profiler, od, callback) {\n\
+RenderSegment.prototype.intersect = function(segment) {\n\
 \n\
-  this.callback = callback;\n\
-  this.profiler = profiler;\n\
+  var commonVertex = this.graphEdge.commonVertex(segment.graphEdge);\n\
+  if (!commonVertex) return;\n\
 \n\
-  this.routes = {};\n\
-  \n\
-  this.opts = {\n\
-    from: od.from,\n\
-    to: od.to\n\
-  };\n\
+  var p1 = (commonVertex === this.graphEdge.fromVertex) ? this.renderData[0] :\n\
+    this.renderData[this.renderData.length - 1];\n\
+  var v1 = this.graphEdge.getVector(commonVertex);\n\
 \n\
-  profiler.profile(od, (function(err, profile) {\n\
+  var p2 = (commonVertex === segment.graphEdge.fromVertex) ? segment.renderData[\n\
+    0] : segment.renderData[segment.renderData.length - 1];\n\
+  var v2 = segment.graphEdge.getVector(commonVertex);\n\
 \n\
-    console.log(profile);\n\
-    this.opts.profile = profile;\n\
-    this.opts.limit = profile.options.length;\n\
-    this.loadRoutes();\n\
+  var isect = Util.lineIntersection(p1.x, p1.y, p1.x + v1.x, p1.y - v1.y, p2.x,\n\
+    p2.y, p2.x + v2.x, p2.y - v2.y);\n\
 \n\
-  }).bind(this));\n\
+  if (!isect.intersect) return;\n\
 \n\
-}\n\
+  // adjust the endpoint of the first edge\n\
+  if (commonVertex === this.graphEdge.fromVertex) {\n\
+    this.renderData[0].x = isect.x;\n\
+    this.renderData[0].y = isect.y;\n\
+  } else {\n\
+    this.renderData[this.renderData.length - 1].x = isect.x;\n\
+    this.renderData[this.renderData.length - 1].y = isect.y;\n\
+  }\n\
 \n\
+  // adjust the endpoint of the second edge\n\
+  if (commonVertex === segment.graphEdge.fromVertex) {\n\
+    segment.renderData[0].x = isect.x;\n\
+    segment.renderData[0].y = isect.y;\n\
+  } else {\n\
+    segment.renderData[segment.renderData.length - 1].x = isect.x;\n\
+    segment.renderData[segment.renderData.length - 1].y = isect.y;\n\
+  }\n\
 \n\
-ProfilerLoader.prototype.loadRoutes = function(profileResponse) {\n\
-\n\
-  this.profiler.routes((function(err, routes) {\n\
-\n\
-    routes.forEach(function(route) {\n\
-      this.routes[route.id] = route;\n\
-    }, this);\n\
-\n\
-    this.loadPatterns();\n\
-\n\
-  }).bind(this));\n\
-\n\
-};\n\
-\n\
-\n\
-ProfilerLoader.prototype.loadPatterns = function(profileResponse) {\n\
-\n\
-  this.profiler.patterns(this.opts, (function(err, patterns) {\n\
-    this.opts.patterns = patterns;\n\
-\n\
-    this.opts.routes = [];\n\
-    patterns.forEach(function(pattern) {\n\
-      var route = this.routes[pattern.routeId];\n\
-      if(this.opts.routes.indexOf(route) === -1) {\n\
-        this.opts.routes.push(route);\n\
-      }\n\
-    }, this);\n\
-\n\
-    this.constructData();\n\
-\n\
-  }).bind(this));\n\
+  // update the point renderData\n\
+  commonVertex.point.addRenderData({\n\
+    x: isect.x,\n\
+    y: isect.y,\n\
+    segment: this\n\
+  });\n\
 \n\
 };\n\
-\n\
-\n\
-ProfilerLoader.prototype.constructData = function() {\n\
-\n\
-  var data = this.profiler.convertOtpData(this.opts);\n\
-  this.callback.call(this, data);\n\
-\n\
-};\n\
-\n\
-//@ sourceURL=transitive/lib/profiler.js"
+//@ sourceURL=transitive/lib/rendersegment.js"
 ));
 require.register("transitive/lib/legend.js", Function("exports, require, module",
 "var d3 = require('d3');\n\
 \n\
-var Segment = require('./segment');\n\
+var RenderSegment = require('./rendersegment');\n\
 var Util = require('./util');\n\
 var Stop = require('./point/stop');\n\
-\n\
 \n\
 /**\n\
  * Expose `Legend`\n\
  */\n\
 \n\
 module.exports = Legend;\n\
-\n\
 \n\
 function Legend(el, transitive) {\n\
   this.el = el;\n\
@@ -21041,13 +19633,12 @@ function Legend(el, transitive) {\n\
   this.xScale = d3.scale.linear();\n\
   this.yScale = d3.scale.linear();\n\
   this.styler = transitive.style;\n\
-  this.lineInterpolator = transitive.display.lineInterpolator;\n\
   this.zoom = transitive.display.zoom;\n\
 \n\
   this.fontAttrs = {\n\
-    'font-family' : 'sans-serif',\n\
-    'font-size' : '12px',\n\
-    'font-weight' : 'bold'\n\
+    'font-family': 'sans-serif',\n\
+    'font-size': '12px',\n\
+    'font-weight': 'bold'\n\
   };\n\
 \n\
   this.height = Util.parsePixelStyle(d3.select(el).style('height'));\n\
@@ -21057,22 +19648,21 @@ function Legend(el, transitive) {\n\
 \n\
 }\n\
 \n\
-\n\
 Legend.prototype.render = function(legendSegments) {\n\
 \n\
   this.svg.selectAll(':not(.doNotEmpty)').remove();\n\
-  \n\
+\n\
   this.x = this.spacing;\n\
-  this.y = this.height/2;\n\
+  this.y = this.height / 2;\n\
 \n\
   var segment;\n\
 \n\
   // iterate through the representative map segments\n\
-  for(var legendType in legendSegments) {\n\
+  for (var legendType in legendSegments) {\n\
     var mapSegment = legendSegments[legendType];\n\
 \n\
     // create a segment solely for rendering in the legend\n\
-    segment = new Segment(mapSegment.getType());\n\
+    segment = new RenderSegment(null, mapSegment.getType());\n\
     segment.pattern = mapSegment.pattern;\n\
 \n\
     segment.renderData = [];\n\
@@ -21089,19 +19679,18 @@ Legend.prototype.render = function(legendSegments) {\n\
 \n\
     segment.render(this);\n\
     segment.refresh(this);\n\
-    \n\
+\n\
     this.renderText(getDisplayText(legendType));\n\
 \n\
     this.x += this.spacing * 2;\n\
   }\n\
 \n\
-\n\
   // create the 'board/alight' marker\n\
 \n\
-  segment = new Segment('TRANSIT');\n\
+  segment = new RenderSegment(null, 'TRANSIT');\n\
   segment.pattern = {\n\
-    pattern_id : 'ptn',\n\
-    route : {\n\
+    pattern_id: 'ptn',\n\
+    route: {\n\
       route_type: 1\n\
     }\n\
   };\n\
@@ -21111,7 +19700,6 @@ Legend.prototype.render = function(legendSegments) {\n\
   boardAlightStop.isBoardPoint = true;\n\
 \n\
   this.renderPoint(boardAlightStop, segment, 'Board/Alight');\n\
-\n\
 \n\
   var transferStop = new Stop();\n\
   transferStop.isSegmentEndPoint = true;\n\
@@ -21124,28 +19712,28 @@ Legend.prototype.render = function(legendSegments) {\n\
 \n\
 Legend.prototype.renderPoint = function(point, segment, text) {\n\
   point.addRenderData({\n\
-    owner : point,\n\
-    segment : segment,\n\
-    x : this.x,\n\
-    y : this.y,\n\
-    offsetX : 0,\n\
-    offsetY : 0\n\
+    owner: point,\n\
+    segment: segment,\n\
+    x: this.x,\n\
+    y: this.y,\n\
+    offsetX: 0,\n\
+    offsetY: 0\n\
   });\n\
   point.render(this);\n\
-  \n\
+\n\
   var markerWidth = point.constructMergedMarker(this, 'stops_pattern').width;\n\
-  this.x += markerWidth/2;\n\
-  point.patternRenderData[segment.pattern.pattern_id][segment.getId()].x = this.x;\n\
+  this.x += markerWidth / 2;\n\
+  point.patternRenderData[segment.pattern.pattern_id][segment.getId()].x = this\n\
+    .x;\n\
   this.styler.renderPoint(this, point);\n\
   point.refresh(this);\n\
 \n\
-  this.x += markerWidth/2 + this.spacing;\n\
+  this.x += markerWidth / 2 + this.spacing;\n\
 \n\
   this.renderText(text);\n\
 \n\
   this.x += this.spacing * 2;\n\
 };\n\
-\n\
 \n\
 Legend.prototype.renderText = function(text) {\n\
   var textBBox = Util.getTextBBox(text, this.fontAttrs);\n\
@@ -21161,18 +19749,326 @@ Legend.prototype.renderText = function(text) {\n\
   this.x += textBBox.width;\n\
 };\n\
 \n\
-Legend.prototype.lineInterpolator = function(points) {\n\
-  return points.join('L');\n\
-};\n\
-\n\
-\n\
 function getDisplayText(type) {\n\
-  if(type === 'WALK') return 'Walk';\n\
-  if(type === 'TRANSIT_1') return 'Metro';\n\
-  if(type === 'TRANSIT_3') return 'Bus';\n\
+  if (type === 'WALK') return 'Walk';\n\
+  if (type === 'TRANSIT_1') return 'Metro';\n\
+  if (type === 'TRANSIT_3') return 'Bus';\n\
   return type;\n\
 }\n\
 //@ sourceURL=transitive/lib/legend.js"
+));
+require.register("transitive/lib/spherical-mercator.js", Function("exports, require, module",
+"var SphericalMercator = (function() {\n\
+\n\
+  // Closures including constants and other precalculated values.\n\
+  var cache = {},\n\
+    EPSLN = 1.0e-10,\n\
+    D2R = Math.PI / 180,\n\
+    R2D = 180 / Math.PI,\n\
+    // 900913 properties.\n\
+    A = 6378137,\n\
+    MAXEXTENT = 20037508.34;\n\
+\n\
+  // SphericalMercator constructor: precaches calculations\n\
+  // for fast tile lookups.\n\
+  function SphericalMercator(options) {\n\
+    options = options || {};\n\
+    this.size = options.size || 256;\n\
+    if (!cache[this.size]) {\n\
+      var size = this.size;\n\
+      var c = cache[this.size] = {};\n\
+      c.Bc = [];\n\
+      c.Cc = [];\n\
+      c.zc = [];\n\
+      c.Ac = [];\n\
+      for (var d = 0; d < 30; d++) {\n\
+        c.Bc.push(size / 360);\n\
+        c.Cc.push(size / (2 * Math.PI));\n\
+        c.zc.push(size / 2);\n\
+        c.Ac.push(size);\n\
+        size *= 2;\n\
+      }\n\
+    }\n\
+    this.Bc = cache[this.size].Bc;\n\
+    this.Cc = cache[this.size].Cc;\n\
+    this.zc = cache[this.size].zc;\n\
+    this.Ac = cache[this.size].Ac;\n\
+  }\n\
+\n\
+  // Convert lon lat to screen pixel value\n\
+  //\n\
+  // - `ll` {Array} `[lon, lat]` array of geographic coordinates.\n\
+  // - `zoom` {Number} zoom level.\n\
+  SphericalMercator.prototype.px = function(ll, zoom) {\n\
+    var d = this.zc[zoom];\n\
+    var f = Math.min(Math.max(Math.sin(D2R * ll[1]), -0.9999), 0.9999);\n\
+    var x = Math.round(d + ll[0] * this.Bc[zoom]);\n\
+    var y = Math.round(d + 0.5 * Math.log((1 + f) / (1 - f)) * (-this.Cc[\n\
+      zoom]));\n\
+    if (x > this.Ac[zoom]) x = this.Ac[zoom];\n\
+    if (y > this.Ac[zoom]) y = this.Ac[zoom];\n\
+    //(x < 0) && (x = 0);\n\
+    //(y < 0) && (y = 0);\n\
+    return [x, y];\n\
+  };\n\
+\n\
+  // Convert screen pixel value to lon lat\n\
+  //\n\
+  // - `px` {Array} `[x, y]` array of geographic coordinates.\n\
+  // - `zoom` {Number} zoom level.\n\
+  SphericalMercator.prototype.ll = function(px, zoom) {\n\
+    var g = (px[1] - this.zc[zoom]) / (-this.Cc[zoom]);\n\
+    var lon = (px[0] - this.zc[zoom]) / this.Bc[zoom];\n\
+    var lat = R2D * (2 * Math.atan(Math.exp(g)) - 0.5 * Math.PI);\n\
+    return [lon, lat];\n\
+  };\n\
+\n\
+  // Convert tile xyz value to bbox of the form `[w, s, e, n]`\n\
+  //\n\
+  // - `x` {Number} x (longitude) number.\n\
+  // - `y` {Number} y (latitude) number.\n\
+  // - `zoom` {Number} zoom.\n\
+  // - `tms_style` {Boolean} whether to compute using tms-style.\n\
+  // - `srs` {String} projection for resulting bbox (WGS84|900913).\n\
+  // - `return` {Array} bbox array of values in form `[w, s, e, n]`.\n\
+  SphericalMercator.prototype.bbox = function(x, y, zoom, tms_style, srs) {\n\
+    // Convert xyz into bbox with srs WGS84\n\
+    if (tms_style) {\n\
+      y = (Math.pow(2, zoom) - 1) - y;\n\
+    }\n\
+    // Use +y to make sure it's a number to avoid inadvertent concatenation.\n\
+    var ll = [x * this.size, (+y + 1) * this.size]; // lower left\n\
+    // Use +x to make sure it's a number to avoid inadvertent concatenation.\n\
+    var ur = [(+x + 1) * this.size, y * this.size]; // upper right\n\
+    var bbox = this.ll(ll, zoom).concat(this.ll(ur, zoom));\n\
+\n\
+    // If web mercator requested reproject to 900913.\n\
+    if (srs === '900913') {\n\
+      return this.convert(bbox, '900913');\n\
+    } else {\n\
+      return bbox;\n\
+    }\n\
+  };\n\
+\n\
+  // Convert bbox to xyx bounds\n\
+  //\n\
+  // - `bbox` {Number} bbox in the form `[w, s, e, n]`.\n\
+  // - `zoom` {Number} zoom.\n\
+  // - `tms_style` {Boolean} whether to compute using tms-style.\n\
+  // - `srs` {String} projection of input bbox (WGS84|900913).\n\
+  // - `@return` {Object} XYZ bounds containing minX, maxX, minY, maxY properties.\n\
+  SphericalMercator.prototype.xyz = function(bbox, zoom, tms_style, srs) {\n\
+    // If web mercator provided reproject to WGS84.\n\
+    if (srs === '900913') {\n\
+      bbox = this.convert(bbox, 'WGS84');\n\
+    }\n\
+\n\
+    var ll = [bbox[0], bbox[1]]; // lower left\n\
+    var ur = [bbox[2], bbox[3]]; // upper right\n\
+    var px_ll = this.px(ll, zoom);\n\
+    var px_ur = this.px(ur, zoom);\n\
+    // Y = 0 for XYZ is the top hence minY uses px_ur[1].\n\
+    var bounds = {\n\
+      minX: Math.floor(px_ll[0] / this.size),\n\
+      minY: Math.floor(px_ur[1] / this.size),\n\
+      maxX: Math.floor((px_ur[0] - 1) / this.size),\n\
+      maxY: Math.floor((px_ll[1] - 1) / this.size)\n\
+    };\n\
+    if (tms_style) {\n\
+      var tms = {\n\
+        minY: (Math.pow(2, zoom) - 1) - bounds.maxY,\n\
+        maxY: (Math.pow(2, zoom) - 1) - bounds.minY\n\
+      };\n\
+      bounds.minY = tms.minY;\n\
+      bounds.maxY = tms.maxY;\n\
+    }\n\
+    return bounds;\n\
+  };\n\
+\n\
+  // Convert projection of given bbox.\n\
+  //\n\
+  // - `bbox` {Number} bbox in the form `[w, s, e, n]`.\n\
+  // - `to` {String} projection of output bbox (WGS84|900913). Input bbox\n\
+  //   assumed to be the \"other\" projection.\n\
+  // - `@return` {Object} bbox with reprojected coordinates.\n\
+  SphericalMercator.prototype.convert = function(bbox, to) {\n\
+    if (to === '900913') {\n\
+      return this.forward(bbox.slice(0, 2)).concat(this.forward(bbox.slice(\n\
+        2,\n\
+        4)));\n\
+    } else {\n\
+      return this.inverse(bbox.slice(0, 2)).concat(this.inverse(bbox.slice(\n\
+        2,\n\
+        4)));\n\
+    }\n\
+  };\n\
+\n\
+  // Convert lon/lat values to 900913 x/y.\n\
+  SphericalMercator.prototype.forward = function(ll) {\n\
+    var xy = [\n\
+      A * ll[0] * D2R,\n\
+      A * Math.log(Math.tan((Math.PI * 0.25) + (0.5 * ll[1] * D2R)))\n\
+    ];\n\
+    // if xy value is beyond maxextent (e.g. poles), return maxextent.\n\
+    if (xy[0] > MAXEXTENT) xy[0] = MAXEXTENT;\n\
+    if (xy[0] < -MAXEXTENT) xy[0] = -MAXEXTENT;\n\
+    if (xy[1] > MAXEXTENT) xy[1] = MAXEXTENT;\n\
+    if (xy[1] < -MAXEXTENT) xy[1] = -MAXEXTENT;\n\
+    return xy;\n\
+  };\n\
+\n\
+  // Convert 900913 x/y values to lon/lat.\n\
+  SphericalMercator.prototype.inverse = function(xy) {\n\
+    return [\n\
+      (xy[0] * R2D / A), ((Math.PI * 0.5) - 2.0 * Math.atan(Math.exp(-xy[\n\
+          1] /\n\
+        A))) * R2D\n\
+    ];\n\
+  };\n\
+\n\
+  return SphericalMercator;\n\
+\n\
+})();\n\
+\n\
+if (typeof module !== 'undefined' && typeof exports !== 'undefined') {\n\
+  module.exports = exports = SphericalMercator;\n\
+}\n\
+//@ sourceURL=transitive/lib/spherical-mercator.js"
+));
+require.register("transitive/lib/tile-layer.js", Function("exports, require, module",
+"var d3 = require('d3');\n\
+var debug = require('debug')('transitive:tile-layer');\n\
+\n\
+var geoTile = require('./d3.geo.tile');\n\
+var SphericalMercator = require('./spherical-mercator');\n\
+\n\
+var prefix = prefixMatch(['webkit', 'ms', 'Moz', 'O']);\n\
+\n\
+/**\n\
+ * Tile layer takes a parent element, a zoom behavior, and a Mapbox ID\n\
+ *\n\
+ * @param {Object} opts\n\
+ */\n\
+\n\
+module.exports = function TileLayer(opts) {\n\
+  debug('creating the tile layer');\n\
+\n\
+  var el = opts.el;\n\
+  var display = opts.display;\n\
+  var graph = opts.graph;\n\
+  var height = el.clientHeight;\n\
+  var id = opts.mapboxId;\n\
+  var width = el.clientWidth;\n\
+  var zoom = display.zoom;\n\
+\n\
+  // Set up the projection\n\
+  var projection = d3.geo.mercator()\n\
+    .translate([width / 2, height / 2]);\n\
+\n\
+  // Set up the map tiles\n\
+  var tile = geoTile()\n\
+    .size([width, height]);\n\
+\n\
+  // Create the tile layer\n\
+  var tileLayer = d3.select(el)\n\
+    .append('div')\n\
+    .attr('class', 'tile-layer');\n\
+\n\
+  // Zoom\n\
+  zoom.on('zoom.tile-layer', zoomed);\n\
+\n\
+  // Initial zoom\n\
+  zoomed();\n\
+\n\
+  // Reload tiles on pan and zoom\n\
+  function zoomed() {\n\
+    // Get the current display bounds\n\
+    var bounds = display.llBounds();\n\
+\n\
+    // Project the bounds based on the current projection\n\
+    var pnw = projection(bounds[0]);\n\
+    var pse = projection(bounds[1]);\n\
+\n\
+    // Based the new scale and translation vector off the current one\n\
+    var scale = projection.scale() * 2 * Math.PI;\n\
+    var translate = projection.translate();\n\
+\n\
+    var dx = pse[0] - pnw[0];\n\
+    var dy = pse[1] - pnw[1];\n\
+\n\
+    scale = scale * (1 / Math.max(dx / width, dy / height));\n\
+    projection\n\
+      .translate([width / 2, height / 2])\n\
+      .scale(scale / 2 / Math.PI);\n\
+\n\
+    // Reproject the bounds based on the new scale and translation vector\n\
+    pnw = projection(bounds[0]);\n\
+    pse = projection(bounds[1]);\n\
+    var x = (pnw[0] + pse[0]) / 2;\n\
+    var y = (pnw[1] + pse[1]) / 2;\n\
+    translate = [width - x, height - y];\n\
+\n\
+    // Update the Geo tiles\n\
+    tile\n\
+      .scale(scale)\n\
+      .translate(translate);\n\
+\n\
+    // Get the new set of tiles and render\n\
+    renderTiles(tile());\n\
+  }\n\
+\n\
+  // Render tiles\n\
+  function renderTiles(tiles) {\n\
+    var image = tileLayer\n\
+      .style(prefix + 'transform', matrix3d(tiles.scale, tiles.translate))\n\
+      .selectAll('.tile')\n\
+      .data(tiles, function(d) {\n\
+        return d;\n\
+      });\n\
+\n\
+    image.exit()\n\
+      .remove();\n\
+\n\
+    image.enter().append('img')\n\
+      .attr('class', 'tile')\n\
+      .attr('src', function(d) {\n\
+        return 'http://' + ['a', 'b', 'c', 'd'][Math.random() * 4 | 0] +\n\
+          '.tiles.mapbox.com/v3/' + id + '/' + d[2] + '/' + d[0] +\n\
+          '/' + d[1] + '.png';\n\
+      })\n\
+      .style('left', function(d) {\n\
+        return (d[0] << 8) + 'px';\n\
+      })\n\
+      .style('top', function(d) {\n\
+        return (d[1] << 8) + 'px';\n\
+      });\n\
+  }\n\
+};\n\
+\n\
+/**\n\
+ * Get the 3D Transform Matrix\n\
+ */\n\
+\n\
+function matrix3d(scale, translate) {\n\
+  var k = scale / 256,\n\
+    r = scale % 1 ? Number : Math.round;\n\
+  return 'matrix3d(' + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] *\n\
+    scale), r(translate[1] * scale), 0, 1] + ')';\n\
+}\n\
+\n\
+/**\n\
+ * Match the transform prefix\n\
+ */\n\
+\n\
+function prefixMatch(p) {\n\
+  var i = -1,\n\
+    n = p.length,\n\
+    s = document.body.style;\n\
+  while (++i < n)\n\
+    if (p[i] + 'Transform' in s) return '-' + p[i].toLowerCase() + '-';\n\
+  return '';\n\
+}\n\
+//@ sourceURL=transitive/lib/tile-layer.js"
 ));
 require.register("transitive/lib/util.js", Function("exports, require, module",
 "/**\n\
@@ -21181,65 +20077,141 @@ require.register("transitive/lib/util.js", Function("exports, require, module",
 \n\
 var d3 = require('d3');\n\
 \n\
-\n\
 module.exports.distance = function(x1, y1, x2, y2) {\n\
   return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));\n\
 };\n\
 \n\
-\n\
 module.exports.getRadiusFromAngleChord = function(angleR, chordLen) {\n\
-  return (chordLen/2) / Math.sin(angleR/2);\n\
+  return (chordLen / 2) / Math.sin(angleR / 2);\n\
 };\n\
 \n\
+/*\n\
+ * CCW utility function. Accepts 3 coord pairs; result is positive if points\n\
+ * have counterclockwise orientation, negative if clockwise, 0 if collinear.\n\
+ */\n\
 \n\
 module.exports.ccw = function(ax, ay, bx, by, cx, cy) {\n\
-   return (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);\n\
+  return (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);\n\
 };\n\
 \n\
 module.exports.getVectorAngle = function(x, y) {\n\
-  var t = Math.atan(y/x);\n\
+  var t = Math.atan(y / x);\n\
 \n\
-  if(x < 0 && t <= 0) t += Math.PI;\n\
-  else if(x < 0 && t >= 0) t -= Math.PI;\n\
+  if (x < 0 && t <= 0) t += Math.PI;\n\
+  else if (x < 0 && t >= 0) t -= Math.PI;\n\
 \n\
   return t;\n\
 };\n\
 \n\
+var tol = 0.000001;\n\
+\n\
+module.exports.rayIntersection = function(ax, ay, avx, avy, bx, by, bvx, bvy) {\n\
+  var u = (ay * bvx + bvy * bx - by * bvx - bvy * ax) / (avx * bvy - avy * bvx);\n\
+  var v = (ax + avx * u - bx) / bvx;\n\
+\n\
+  return {\n\
+    u: u,\n\
+    v: v,\n\
+    intersect: (u > -tol && v > -tol)\n\
+  };\n\
+};\n\
+\n\
+module.exports.lineIntersection = function(x1, y1, x2, y2, x3, y3, x4, y4) {\n\
+\n\
+  var d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);\n\
+\n\
+  if (d === 0) { // lines are parallel\n\
+    return {\n\
+      intersect: false\n\
+    };\n\
+  }\n\
+\n\
+  return {\n\
+    x: ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d,\n\
+    y: ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d,\n\
+    intersect: true\n\
+  };\n\
+};\n\
 \n\
 /**\n\
- * Parse a pixel-based style descriptor, returning an number. \n\
+ * Parse a pixel-based style descriptor, returning an number.\n\
  *\n\
- * @param {String/Number} \n\
+ * @param {String/Number}\n\
  */\n\
 \n\
 module.exports.parsePixelStyle = function(descriptor) {\n\
-  if(typeof descriptor === 'number') return descriptor;\n\
+  if (typeof descriptor === 'number') return descriptor;\n\
   return parseFloat(descriptor.substring(0, descriptor.length - 2), 10);\n\
 };\n\
 \n\
-\n\
 module.exports.isOutwardVector = function(vector) {\n\
-  if(vector.x !== 0) return (vector.x > 0);\n\
+  if (vector.x !== 0) return (vector.x > 0);\n\
   return (vector.y > 0);\n\
 };\n\
-\n\
 \n\
 module.exports.getTextBBox = function(text, attrs) {\n\
   var container = d3.select('body').append('svg');\n\
   container.append('text')\n\
-    .attr({ x: -1000, y: -1000 })\n\
+    .attr({\n\
+      x: -1000,\n\
+      y: -1000\n\
+    })\n\
     .attr(attrs)\n\
     .text(text);\n\
   var bbox = container.node().getBBox();\n\
   container.remove();\n\
 \n\
-  return { height: bbox.height, width: bbox.width };\n\
-};//@ sourceURL=transitive/lib/util.js"
+  return {\n\
+    height: bbox.height,\n\
+    width: bbox.width\n\
+  };\n\
+};\n\
+\n\
+/**\n\
+ * Convert lat/lon coords to spherical mercator meter x/y coords\n\
+ */\n\
+\n\
+module.exports.latLonToSphericalMercator = function(lat, lon) {\n\
+  var r = 6378137;\n\
+  var x = r * lon * Math.PI / 180;\n\
+  var y = r * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));\n\
+  return [x, y];\n\
+};\n\
+\n\
+/**\n\
+ * vector utilities\n\
+ */\n\
+\n\
+module.exports.normalizeVector = function(v) {\n\
+  var d = Math.sqrt(v.x * v.x + v.y * v.y);\n\
+  return {\n\
+    x: v.x / d,\n\
+    y: v.y / d\n\
+  };\n\
+};\n\
+\n\
+module.exports.rotateVector = function(v, theta) {\n\
+  return {\n\
+    x: v.x * Math.cos(theta) - v.y * Math.sin(theta),\n\
+    y: v.x * Math.sin(theta) + v.y * Math.cos(theta)\n\
+  };\n\
+};\n\
+\n\
+module.exports.negateVector = function(v) {\n\
+  return {\n\
+    x: -v.x,\n\
+    y: -v.y\n\
+  };\n\
+};\n\
+\n\
+module.exports.addVectors = function(v1, v2) {\n\
+  return {\n\
+    x: v1.x + v2.x,\n\
+    y: v1.y + v2.y\n\
+  };\n\
+};\n\
+//@ sourceURL=transitive/lib/util.js"
 ));
-
-
-
-
 
 
 
@@ -21311,31 +20283,21 @@ require.alias("component-type/index.js", "component-clone/deps/type/index.js");
 require.alias("component-emitter/index.js", "transitive/deps/emitter/index.js");
 require.alias("component-emitter/index.js", "emitter/index.js");
 
-require.alias("component-to-function/index.js", "transitive/deps/to-function/index.js");
-require.alias("component-to-function/index.js", "to-function/index.js");
-require.alias("component-props/index.js", "component-to-function/deps/props/index.js");
-
-require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
-require.alias("cristiandouce-merge-util/index.js", "transitive/deps/merge-util/index.js");
-require.alias("cristiandouce-merge-util/index.js", "merge-util/index.js");
-require.alias("component-type/index.js", "cristiandouce-merge-util/deps/type/index.js");
-
-require.alias("cristiandouce-merge-util/index.js", "cristiandouce-merge-util/index.js");
 require.alias("mbostock-d3/d3.js", "transitive/deps/d3/d3.js");
 require.alias("mbostock-d3/d3.js", "transitive/deps/d3/index.js");
 require.alias("mbostock-d3/d3.js", "d3/index.js");
 require.alias("mbostock-d3/d3.js", "mbostock-d3/index.js");
-require.alias("janogonzalez-priorityqueuejs/index.js", "transitive/deps/priorityqueuejs/index.js");
-require.alias("janogonzalez-priorityqueuejs/index.js", "priorityqueuejs/index.js");
-
 require.alias("javascript-augment/augment.js", "transitive/deps/augment/augment.js");
 require.alias("javascript-augment/augment.js", "transitive/deps/augment/index.js");
 require.alias("javascript-augment/augment.js", "augment/index.js");
 require.alias("javascript-augment/augment.js", "javascript-augment/index.js");
+require.alias("visionmedia-debug/browser.js", "transitive/deps/debug/browser.js");
 require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/debug.js");
-require.alias("visionmedia-debug/debug.js", "transitive/deps/debug/index.js");
-require.alias("visionmedia-debug/debug.js", "debug/index.js");
-require.alias("visionmedia-debug/debug.js", "visionmedia-debug/index.js");
+require.alias("visionmedia-debug/browser.js", "transitive/deps/debug/index.js");
+require.alias("visionmedia-debug/browser.js", "debug/index.js");
+require.alias("guille-ms.js/index.js", "visionmedia-debug/deps/ms/index.js");
+
+require.alias("visionmedia-debug/browser.js", "visionmedia-debug/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "transitive/deps/svg-attributes/index.js");
 require.alias("yields-svg-attributes/index.js", "svg-attributes/index.js");
