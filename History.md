@@ -1,9 +1,11 @@
 
-## Master
+## 0.3.0 — 2014-06-11
 
 * Add `.jsbeautify` config file
 * Removed data filters, should be done outside the lib
 * Removed unused libs
+* Improved dynamic rendering
+* Added ability to pull in Mapbox tiles
 
 ## 0.2.1 — 2014-05-19
 
