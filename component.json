@@ -1,6 +1,6 @@
 {
   "name": "transitive",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
   "keywords": [
     "d3",
@@ -11,17 +11,14 @@
     "component/each": "0.2.3",
     "component/clone": "*",
     "component/emitter": "1.1.2",
-    "component/to-function": "2.0.3",
-    "cristiandouce/merge-util": "0.1.0",
     "mbostock/d3": "v3.4.6",
-    "janogonzalez/priorityqueuejs": "0.2.0",
     "javascript/augment": "v4.0.1",
-    "visionmedia/debug": "0.8.1",
+    "visionmedia/debug": "1.0.0",
     "yields/svg-attributes": "*"
   },
   "development": {
     "component/set": "*",
-    "conveyal/otpprofiler.js": "0.2.4",
+    "conveyal/otpprofiler.js": "0.3.4",
     "yields/select": "*"
   },
   "main": "lib/transitive.js",
@@ -39,13 +36,23 @@
     "lib/labeler/label.js",
     "lib/labeler/pointlabel.js",
     "lib/labeler/segmentlabel.js",
+    "lib/d3.geo.tile.js",
     "lib/display.js",
+    "lib/draw-grid.js",
+    "lib/interpolate-line.js",
     "lib/path.js",
+    "lib/pathsegment.js",
     "lib/pattern.js",
     "lib/route.js",
     "lib/journey.js",
     "lib/transitive.js",
-    "lib/segment.js",
-    "lib/profiler.js"
+    "lib/rendersegment.js",
+    "lib/legend.js",
+    "lib/spherical-mercator.js",
+    "lib/tile-layer.js",
+    "lib/util.js"
+  ],
+  "styles": [
+    "style.css"
   ]
 }

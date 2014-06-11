@@ -1,6 +1,6 @@
 {
   "name": "transitive",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
   "keywords": [ "d3", "maps", "GTFS" ],
   "author": "Conveyal",
@@ -12,22 +12,11 @@
   "devDependencies": {
     "component": "^0.19.9",
     "component-uglifyjs": "^0.3.0",
-    "js-beautify": "^1.4.2",
-    "jshint": "^2.5.0",
+    "js-beautify": "^1.5.1",
+    "jshint": "^2.5.1",
     "serve": "^1.4.0"
   },
   "scripts": {
     "test": "make lint"
-  },
-  "jshintConfig": {
-    "boss": true,
-    "browser": true,
-    "indent": 2,
-    "laxbreak": true,
-    "maxcomplexity": 10,
-    "node": true,
-    "quotmark": "single",
-    "trailing": true,
-    "undef": true
   }
 }

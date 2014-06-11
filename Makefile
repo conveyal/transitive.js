@@ -3,13 +3,16 @@ JSHINT := ./node_modules/.bin/jshint
 SERVE := ./node_modules/.bin/serve
 
 JS := $(shell find lib -name '*.js' -print)
+TESTJS := $(shell find test -name '*.js' -print)
 
 PORT = 3000
 
-build: transitive.js
+build: components $(JS)
+	$(MAKE) lint
+	$(COMPONENT) build --dev --verbose
 
 beautify:
-	@./node_modules/.bin/js-beautify --replace $(JS)
+	@./node_modules/.bin/js-beautify --replace $(JS) $(TESTJS)
 
 clean:
 	rm -rf build components
@@ -30,15 +33,10 @@ release: transitive.min.js
 server:
 	$(SERVE) --port $(PORT)
 
-transitive.js: components $(JS)
-	$(MAKE) lint
-	$(COMPONENT) build --dev --verbose
+transitive.js: build
 	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
 	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
-
-watch:
-	watch $(MAKE) build
 
 .PHONY: build clean install lint release server watch
