@@ -1,0 +1,46 @@
+body {
+  font-family: 'Helvetica', arial, sans-serif;
+  margin: 0;
+}
+
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin-right: 400px;
+  background-color: #fff;
+}
+
+#legend {
+  position: absolute;
+  height: 30px;
+  border: 1px solid #e7e7e7;
+  left: 20px;
+  bottom: 20px;
+  background-color: #fff;
+  z-index: 150;
+  font-weight: 300;
+}
+
+#list {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  border: 1px solid #e7e7e7;
+  background-color: #fff;
+  padding: 20px 20px 0;
+  z-index: 150;
+}
+
+.listItem {
+  margin-bottom: 20px;
+  color: #333;
+  cursor: default;
+}
+
+.listItem:hover {
+  font-weight: bold;
+}

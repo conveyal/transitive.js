@@ -14,7 +14,8 @@
     "mbostock/d3": "v3.4.6",
     "javascript/augment": "v4.0.1",
     "visionmedia/debug": "1.0.0",
-    "yields/svg-attributes": "*"
+    "yields/svg-attributes": "*",
+    "janogonzalez/priorityqueuejs": "*"
   },
   "development": {
     "component/set": "*",

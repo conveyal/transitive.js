@@ -1,4 +1,8 @@
 
+/**
+ * Transitive Base Styles
+ */
+
 .Transitive {
   overflow: hidden;
 }
@@ -14,6 +18,63 @@
   width: 100%;
   height: 100%;
   z-index: 100;
+}
+
+/**
+ * Labels
+ */
+
+.Transitive > .schematic-map .transitive-stop-label,
+.Transitive > .schematic-map .transitive-multi-label,
+.Transitive > .schematic-map .transitive-place-label {
+  text-shadow:
+   -2px -2px 0 #fff,
+    2px -2px 0 #fff,
+    -2px 2px 0 #fff,
+     2px 2px 0 #fff;
+}
+
+.Transitive > .schematic-map .transitive-segment-label {
+  fill: #fff;
+}
+
+/**
+ * Label Container
+ */
+
+.Transitive > .schematic-map .transitive-segment-label-container {
+  fill: #008;
+}
+
+/**
+ * Lines
+ */
+
+.Transitive > .schematic-map .transitive-line {
+  stroke-linecap: round;
+  fill: none;
+}
+
+/**
+ * Places
+ */
+
+.Transitive > .schematic-map .transitive-place-circle {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+/**
+ * Stops
+ */
+
+.Transitive > .schematic-map .transitive-stop-marker-pattern,
+.Transitive > .schematic-map .transitive-stop-marker-merged,
+.Transitive > .schematic-map .transitive-multipoint-marker-merged {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 1px;
 }
 
 /**

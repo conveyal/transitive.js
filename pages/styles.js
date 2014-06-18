@@ -11,13 +11,13 @@
 var STYLES = {};
 
 STYLES.places_icon = {
-  x: [-10, ],
-  y: [-10, ],
+  x: [-10 ],
+  y: [-10 ],
   width: [
-    20,
+    20
   ],
   height: [
-    20,
+    20
   ],
   'xlink:href': [
 
