@@ -52,6 +52,7 @@
 
 .Transitive > .schematic-map .transitive-line {
   stroke-linecap: round;
+  fill: none;
 }
 
 /**
