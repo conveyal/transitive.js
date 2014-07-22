@@ -33,6 +33,7 @@
     "lib/point/stop.js",
     "lib/point/place.js",
     "lib/point/multipoint.js",
+    "lib/point/turn.js",
     "lib/labeler/index.js",
     "lib/labeler/label.js",
     "lib/labeler/pointlabel.js",
