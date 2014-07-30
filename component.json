@@ -26,6 +26,7 @@
   "scripts": [
     "lib/graph/index.js",
     "lib/graph/edge.js",
+    "lib/graph/edgegroup.js",
     "lib/graph/vertex.js",
     "lib/styler/index.js",
     "lib/styler/styles.js",
