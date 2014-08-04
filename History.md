@@ -1,4 +1,9 @@
 
+## 0.3.1 — 2014-08-04
+
+* Update dependencies
+* Lots of rendering updates
+
 ## 0.3.0 — 2014-06-11
 
 * Add `.jsbeautify` config file
