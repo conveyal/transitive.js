@@ -46,6 +46,7 @@
     "lib/path.js",
     "lib/pathsegment.js",
     "lib/pattern.js",
+    "lib/patterngroup.js",
     "lib/route.js",
     "lib/journey.js",
     "lib/transitive.js",
