@@ -11,19 +11,19 @@
 var STYLES = {};
 
 STYLES.places_icon = {
-  x: [-10 ],
-  y: [-10 ],
+  x: [-16 ],
+  y: [-16 ],
   width: [
-    20
+    32
   ],
   height: [
-    20
+    32
   ],
   'xlink:href': [
 
     function(display, data) {
-      if (data.owner.getId() === 'from') return 'img/house.svg';
-      if (data.owner.getId() === 'to') return 'img/office.svg';
+      if (data.owner.getId() === 'from') return 'img/star60.svg';
+      if (data.owner.getId() === 'to') return 'img/map25.svg';
     }
   ],
   visibility: [
