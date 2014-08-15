@@ -51,6 +51,7 @@
     "lib/journey.js",
     "lib/transitive.js",
     "lib/rendersegment.js",
+    "lib/rendersegmentsequence.js",
     "lib/legend.js",
     "lib/spherical-mercator.js",
     "lib/tile-layer.js",
