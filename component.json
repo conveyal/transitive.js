@@ -54,6 +54,7 @@
     "lib/rendersegmentsequence.js",
     "lib/legend.js",
     "lib/spherical-mercator.js",
+    "lib/polyline.js",
     "lib/tile-layer.js",
     "lib/util.js"
   ],
