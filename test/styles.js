@@ -93,6 +93,21 @@ STYLES.segments = {
 
 };
 
+
+/** style overrides for segment-based labels **/
+
+STYLES.segment_label_containers = {
+
+  // specify the fill color for the label bubble
+  fill: function(display, label) {
+    if(!label.isFocused()) return;
+
+    return '#008';
+  }
+};
+
+/** style overrides for places (i.e. the start and end icons) **/
+
 STYLES.places_icon = {
   x: [-16 ],
   y: [-16 ],
