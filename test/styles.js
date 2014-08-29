@@ -19,8 +19,11 @@ STYLES.segments = {
     switch (segment.type) {
       case 'CAR':
         return '#888';
-      case 'WALK', 'BICYCLE': // no stroke for walk, bike segments; use marker styling instead
-        return 'none';
+      case 'WALK':
+        return '#00f';
+      case 'BICYCLE':
+        return '#f00';
+
     }
   },
 
@@ -29,6 +32,9 @@ STYLES.segments = {
     switch (segment.type) {
       case 'CAR':
         return utils.pixels(display.zoom.scale(), 2, 4, 6) + 'px';
+      case 'WALK':
+      case 'BICYCLE':
+        return '4px'
       case 'TRANSIT':
         // bus segments:
         if (segment.mode === 3) return utils.pixels(display.zoom.scale(), 2, 4, 8) + 'px';
@@ -42,6 +48,9 @@ STYLES.segments = {
     switch (segment.type) {
       case 'CAR':
         return '3,2';
+      case 'WALK':
+      case 'BICYCLE':
+        return '0.01,6';
     }
   },
 
@@ -50,11 +59,14 @@ STYLES.segments = {
     switch (segment.type) {
       case 'CAR':
         return 'butt';
+      case 'WALK':
+      case 'BICYCLE':
+        return 'round';
     }
   },
 
   // specify the circle marker for 'dotted' line styles
-  'marker-mid': function(display, segment, index, utils) {
+  /*'marker-mid': function(display, segment, index, utils) {
     var radius, fillColor;
 
     switch(segment.type) {
@@ -77,7 +89,7 @@ STYLES.segments = {
       case 'BICYCLE':
         return 6;
     }
-  }
+  }*/
 
 };
 
