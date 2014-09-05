@@ -35,6 +35,8 @@
     "lib/point/place.js",
     "lib/point/multipoint.js",
     "lib/point/turn.js",
+    "lib/point/pointcluster.js",
+    "lib/point/pointclustermap.js",
     "lib/labeler/index.js",
     "lib/labeler/label.js",
     "lib/labeler/pointlabel.js",
