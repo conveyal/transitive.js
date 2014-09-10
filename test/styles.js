@@ -37,7 +37,8 @@ STYLES.segments = {
         return '4px'
       case 'TRANSIT':
         // bus segments:
-        if (segment.mode === 3) return utils.pixels(display.zoom.scale(), 2, 4, 8) + 'px';
+        if (segment.mode === 3) return utils.pixels(display.zoom.scale(), 2, 4,
+          8) + 'px';
         // all others:
         return utils.pixels(display.zoom.scale(), 4, 8, 12) + 'px';
     }
@@ -55,7 +56,7 @@ STYLES.segments = {
   },
 
   // specify the line cap type
-  'stroke-linecap' : function(display, segment) {
+  'stroke-linecap': function(display, segment) {
     switch (segment.type) {
       case 'CAR':
         return 'butt';
@@ -93,14 +94,13 @@ STYLES.segments = {
 
 };
 
-
 /** style overrides for segment-based labels **/
 
 STYLES.segment_label_containers = {
 
   // specify the fill color for the label bubble
   fill: function(display, label) {
-    if(!label.isFocused()) return;
+    if (!label.isFocused()) return;
 
     return '#008';
   }
@@ -109,8 +109,8 @@ STYLES.segment_label_containers = {
 /** style overrides for places (i.e. the start and end icons) **/
 
 STYLES.places_icon = {
-  x: [-16 ],
-  y: [-16 ],
+  x: [-16],
+  y: [-16],
   width: [
     32
   ],
