@@ -1,4 +1,9 @@
 
+## 0.4.0 — 2014-09-10
+
+* Rendering updates
+* Resize
+
 ## 0.3.1 — 2014-08-04
 
 * Update dependencies
