@@ -15,7 +15,20 @@ var transitive = new Transitive({
   gridCellSize: 300,
   useDynamicRendering: true,
   drawGrid: false,
-  mapboxId: 'conveyal.ie3o67m0'
+  mapboxId: 'conveyal.ie3o67m0',
+  displayMargins: {
+    right: 400,
+    bottom: 50
+  },
+  draggableTypes: ['PLACE']
+});
+
+// listen for place drag events
+transitive.on('place.from.dragend', function(place) {
+  console.log('dragged "from" place to: ' + place.getLat() + ',' + place.getLon());
+});
+transitive.on('place.to.dragend', function(place) {
+  console.log('dragged "to" place to: ' + place.getLat() + ',' + place.getLon());
 });
 
 // apply computed behaviors
