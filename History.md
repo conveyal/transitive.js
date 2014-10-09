@@ -1,4 +1,12 @@
 
+## 0.5.0 — 2014-10-09
+
+* Increase map panning performance
+* Auto-resize when window changes
+* Clean up legend formatting
+* Show route/stop names as is
+* Add draggable places
+
 ## 0.4.0 — 2014-09-10
 
 * Rendering updates
