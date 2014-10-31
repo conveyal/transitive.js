@@ -1,4 +1,14 @@
 
+## 0.6.0 — 2014-10-31
+
+* Always put places in front of stops
+* Refactor legend to use CSS based styling
+* Check if tile layer is active before calling refresh
+* Accept missing/empty data
+* Add `initialBounds` option
+* Add `clearData` & `updateData` methods
+* Bug fixes
+
 ## 0.5.0 — 2014-10-09
 
 * Increase map panning performance
