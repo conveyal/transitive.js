@@ -1,4 +1,8 @@
 
+## 0.6.1 — 2014-10-31
+
+* Return the mode styles
+
 ## 0.6.0 — 2014-10-31
 
 * Always put places in front of stops
