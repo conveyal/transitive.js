@@ -16,7 +16,10 @@ var transitive = new Transitive({
   useDynamicRendering: true,
   drawGrid: false,
   mapboxId: 'conveyal.ie3o67m0',
-  initialBounds: [[-77.093507, 38.921104],[-76.947266, 38.858710]],
+  initialBounds: [
+    [-77.093507, 38.921104],
+    [-76.947266, 38.858710]
+  ],
   displayMargins: {
     right: 400,
     bottom: 50
