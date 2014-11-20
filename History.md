@@ -1,4 +1,8 @@
 
+## 0.6.2 — 2014-10-20
+
+* Remove `lib/transitive.js` from `.gitignore`
+
 ## 0.6.1 — 2014-10-31
 
 * Return the mode styles
