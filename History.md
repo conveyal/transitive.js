@@ -1,4 +1,8 @@
 
+## 0.6.4 — 2015-01-09
+
+* Bug fix
+
 ## 0.6.3 — 2015-01-09
 
 * Emit click events from the display with cartesian and geographic coordinates
