@@ -1,4 +1,8 @@
 
+## 0.6.3 — 2015-01-09
+
+* Emit click events from the display with cartesian and geographic coordinates
+
 ## 0.6.2 — 2014-10-20
 
 * Remove `lib/transitive.js` from `.gitignore`
