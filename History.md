@@ -1,4 +1,8 @@
 
+## 0.6.6 — 2015-01-23
+
+* Reset display scale on data update
+
 ## 0.6.5 — 2015-01-23
 
 * Fixed broken reference in dragging code
