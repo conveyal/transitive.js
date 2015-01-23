@@ -1,4 +1,13 @@
 
+## 0.6.5 — 2015-01-23
+
+* Fixed broken reference in dragging code
+* Don't auto-render on data update
+* Fix broken graph reference in Display constructor
+* Create empty Display if needed in getModeStyles()
+* Set default bounds when needed
+* Additional refactoring
+
 ## 0.6.4 — 2015-01-09
 
 * Bug fix
