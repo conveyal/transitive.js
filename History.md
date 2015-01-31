@@ -1,4 +1,15 @@
 
+## 0.7.0 — 2015-01-30
+
+* Leaflet.js compatability changes!
+* Check that network has been rendered before refreshing
+* Emit events for clear/load data actions
+* Allow resizing to be handled by external control (e.g. leaflet)
+* Updated zoom/scale logic to accomodate external map controls (e.g. leaflet)
+* Allow enabling/disabling of native pan/zoom support
+* Add setBounds() API call
+* Empty existing element contents in setElement() via remove(), not innerHTML=null
+
 ## 0.6.6 — 2015-01-23
 
 * Reset display scale on data update
