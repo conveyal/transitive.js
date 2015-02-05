@@ -41,7 +41,7 @@ function showLabelsOnHover(transitive) {
 function highlightOptionOnHover(transitive) {
 
   //for(var s = 0; s < transitive.renderSegments.length; s++) {
-  transitive.renderSegments.forEach(function(segment) {
+  transitive.renderedSegments.forEach(function(segment) {
     //var segment = transitive.renderSegments[s];
     var currentColor = segment.lineGraph.style('stroke');
     segment.lineGraph
