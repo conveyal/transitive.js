@@ -12,13 +12,11 @@ var transitive = new Transitive({
   legendEl: document.getElementById('legend'),
   data: DATA,
   styles: STYLES,
-  gridCellSize: 300,
-  useDynamicRendering: true,
   drawGrid: false,
-  mapboxId: 'conveyal.ie3o67m0',
+  gridCellSize: 300,
   initialBounds: [
-    [-77.093507, 38.921104],
-    [-76.947266, 38.858710]
+    [-77.093507, 38.858710],
+    [-76.947266, 38.921104]
   ],
   displayMargins: {
     right: 400,
@@ -33,13 +31,6 @@ transitive.on('place.from.dragend', function(place) {
 });
 transitive.on('place.to.dragend', function(place) {
   console.log('dragged "to" place to: ' + place.getLat() + ',' + place.getLon());
-});
-
-// apply computed behaviors
-transitive.on('render', function(transitive) {
-  each(COMPUTED, function(behavior) {
-    behavior(transitive);
-  });
 });
 
 transitive.render();
