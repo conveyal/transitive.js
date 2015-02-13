@@ -39,6 +39,8 @@ After installing from source per above directions, open `test/index.html` in a w
 
 ## API
 
+[See documentation here](https://github.com/conveyal/transitive.js/wiki/API-Documentation).
+
 ## License
 
 The MIT License (MIT)
