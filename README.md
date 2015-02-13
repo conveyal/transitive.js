@@ -25,10 +25,14 @@ $ component install conveyal/transitive.js
 ### From Source
 
 ```bash
-$ git clone git@github.com:conveyal/transitive.js.git
+$ git clone https://github.com/conveyal/transitive.js.git
 $ cd transitive.js
-$ make install && make release
+$ npm install  (may require root access)
+$ make
 ```
+## Example
+
+After installing from source per above directions, open `test/index.html` in a web browser to view the example.
 
 ## API
 
