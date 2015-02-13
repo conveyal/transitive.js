@@ -8,11 +8,14 @@ Dynamic styling of the network elements allows for interactivity and flexibility
 
 ![threeoptions_focused](http://conveyal.com/img/transitive/threeoptions_focused.png)
 
+A Transitive map can be embedded as a freestanding web element or overlaid onto a [Leaflet](http://leafletjs.com/) map using the [Leaflet.TransitiveLayer](https://github.com/conveyal/Leaflet.TransitiveLayer) plugin.
+
 Transitive is supported by the [Mobility Lab](http://mobilitylab.org/) [Transit Tech Initiative](http://mobilitylab.org/tech/transit-tech-initiative/). Read more in [this Mobility Lab article](http://mobilitylab.org/2014/04/16/the-technology-behind-a-new-kind-of-travel-planning/).
 
 ## Demo
 
-[Demo](http://conveyal.github.io/transitive.js "Demo")
+* [Demo of a freestanding Transitive map](http://conveyal.github.io/transitive.js)
+* [Demo using Leaflet and Leaflet.TransitiveLayer](http://conveyal.github.io/Leaflet.TransitiveLayer)
 
 ## Installation
 
