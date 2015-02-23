@@ -1,4 +1,12 @@
 
+## 0.7.1 — 2015-02-23
+
+* Updated `setDisplayBounds` / `getNetworkBounds` API methods
+* Fix legend
+* Make [[west,south], [east,north]] standard for bounds
+* Allow direct rendering of patterns (w/o associated journeys)
+* Fix segment labeling
+
 ## 0.7.0 — 2015-01-30
 
 * Leaflet.js compatability changes!
