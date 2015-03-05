@@ -37,7 +37,7 @@ body {
   float: left;
 }
 
-#list {
+#controls {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -46,6 +46,18 @@ body {
   background-color: #fff;
   padding: 20px 20px 0;
   z-index: 150;
+}
+
+#renderers {
+  background: #e7e7e7;
+  text-align: center;
+  padding: 8px;
+  margin-bottom: 20px;
+}
+
+.select-renderer {
+  color: blue;
+  cursor: pointer;
 }
 
 .listItem {
