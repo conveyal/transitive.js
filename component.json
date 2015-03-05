@@ -56,6 +56,8 @@
     "lib/core/network.js",
     "lib/transitive.js",
     "lib/renderer/index.js",
+    "lib/renderer/default-renderer.js",
+    "lib/renderer/wireframe-renderer.js",
     "lib/renderer/renderededge.js",
     "lib/renderer/renderedsegment.js",
     "lib/util/index.js",
