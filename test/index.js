@@ -52,7 +52,6 @@ DATA.journeys.forEach(function(journey, index) {
   document.getElementById('list').appendChild(div);
 });
 
-
 // set up the renderer toggle links (default vs. wireframe)
 function setRenderer(renderer) {
   transitive.setRenderer(renderer);
