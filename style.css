@@ -61,7 +61,7 @@
 
 .Transitive > .schematic-map .transitive-place-circle {
   fill: #fff;
-  stroke: #000;
+  stroke: #333;
   stroke-width: 2px;
 }
 
@@ -73,7 +73,7 @@
 .Transitive > .schematic-map .transitive-stop-marker-merged,
 .Transitive > .schematic-map .transitive-multipoint-marker-merged {
   fill: #fff;
-  stroke: #000;
+  stroke: #333;
   stroke-width: 1px;
 }
 
