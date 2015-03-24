@@ -35,7 +35,7 @@ transitive.on('place.to.dragend', function(place) {
 
 transitive.render();
 
-// set the journey option list
+// set up the journey option list
 DATA.journeys.forEach(function(journey, index) {
   var div = document.createElement("div");
   div.id = journey.journey_id;
@@ -51,3 +51,18 @@ DATA.journeys.forEach(function(journey, index) {
   };
   document.getElementById('list').appendChild(div);
 });
+
+
+// set up the renderer toggle links (default vs. wireframe)
+function setRenderer(renderer) {
+  transitive.setRenderer(renderer);
+  transitive.render();
+}
+
+document.getElementById('default-renderer').onclick = function(event) {
+  setRenderer('default')
+};
+
+document.getElementById('wireframe-renderer').onclick = function(event) {
+  setRenderer('wireframe')
+};
