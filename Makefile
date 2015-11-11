@@ -9,7 +9,7 @@ PORT = 3000
 
 build: components $(JS)
 	$(MAKE) lint
-	$(COMPONENT) build --dev --verbose
+	$(COMPONENT) build
 
 beautify:
 	@./node_modules/.bin/js-beautify --replace $(JS) $(TESTJS)
@@ -18,7 +18,7 @@ clean:
 	rm -rf build components
 
 components: component.json
-	@$(COMPONENT) install --dev --verbose
+	@$(COMPONENT) install
 
 install: node_modules components
 
@@ -34,9 +34,9 @@ server:
 	$(SERVE) --port $(PORT)
 
 transitive.js: build
-	$(COMPONENT) build --verbose --standalone Transitive --out . --name transitive
+	$(COMPONENT) build --standalone Transitive --out . --name transitive
 
 transitive.min.js: transitive.js
-	$(COMPONENT) build --verbose --use component-uglifyjs --standalone Transitive --out . --name transitive.min
+	$(COMPONENT) build --use component-uglifyjs --standalone Transitive --out . --name transitive.min
 
 .PHONY: build clean install lint release server watch
