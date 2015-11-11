@@ -1,4 +1,11 @@
 
+## 0.7.2 — 2015-11-11
+
+* Upgraded component to 1.0
+* Fixed failing lint test
+* Updated 'test' example
+* Final release before removing component-specific dependencies
+
 ## 0.7.1 — 2015-02-23
 
 * Updated `setDisplayBounds` / `getNetworkBounds` API methods
