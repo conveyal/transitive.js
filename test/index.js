@@ -2,10 +2,7 @@
  * Dependencies
  */
 
-var d3 = require('d3');
-
 var Transitive = require('transitive');
-var OtpProfiler = require('otp-profiler');
 
 var transitive = new Transitive({
   el: document.getElementById('canvas'),
