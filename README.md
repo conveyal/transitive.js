@@ -17,26 +17,6 @@ Transitive is supported by the [Mobility Lab](http://mobilitylab.org/) [Transit 
 * [Demo of a freestanding Transitive map](http://conveyal.github.io/transitive.js)
 * [Demo using Leaflet and Leaflet.TransitiveLayer](http://conveyal.github.io/Leaflet.TransitiveLayer)
 
-## Installation
-
-### Component
-
-```bash
-$ component install conveyal/transitive.js
-```
-
-### From Source
-
-```bash
-$ git clone https://github.com/conveyal/transitive.js.git
-$ cd transitive.js
-$ npm install  (may require root access)
-$ make
-```
-## Example
-
-After installing from source per above directions, open `test/index.html` in a web browser to view the example.
-
 ## API
 
 [See documentation here](https://github.com/conveyal/transitive.js/wiki/API-Documentation).

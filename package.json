@@ -1,5 +1,5 @@
 {
-  "name": "transitive",
+  "name": "transitive-js",
   "version": "0.7.2",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
   "keywords": [ "d3", "maps", "GTFS" ],
@@ -9,14 +9,13 @@
     "type": "git",
     "url": "git://github.com/conveyal/transitive.js.git"
   },
-  "devDependencies": {
-    "component": "^1.0.1",
-    "component-uglifyjs": "^0.3.0",
-    "js-beautify": "^1.5.1",
-    "jshint": "^2.5.1",
-    "serve": "^1.4.0"
-  },
-  "scripts": {
-    "test": "make lint"
+  "main": "lib/transitive.js",
+  "dependencies": {
+    "augment": "*",
+    "component-each": "*",
+    "component-emitter": "*",
+    "d3": "^3.5.8",
+    "debug": "*",
+    "priorityqueuejs": "*"
   }
 }
