@@ -1,3 +1,7 @@
+## 0.8.0 — 2015-11-11
+
+* Removed component as build system; all dependencies now defined in package.json
+* Broke out 'test' example to new transitive-demo repo
 
 ## 0.7.2 — 2015-11-11
 
