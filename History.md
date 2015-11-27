@@ -1,3 +1,8 @@
+
+## 0.8.1 — 2015-11-27
+
+* Don't require .css directly.
+
 ## 0.8.0 — 2015-11-11
 
 * Removed component as build system; all dependencies now defined in package.json
