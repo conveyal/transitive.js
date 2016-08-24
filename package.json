@@ -2,7 +2,11 @@
   "name": "transitive-js",
   "version": "0.8.2",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
-  "keywords": [ "d3", "maps", "GTFS" ],
+  "keywords": [
+    "d3",
+    "maps",
+    "GTFS"
+  ],
   "author": "Conveyal",
   "homepage": "http://conveyal.com/",
   "repository": {
@@ -14,7 +18,7 @@
     "augment": "*",
     "component-each": "*",
     "component-emitter": "*",
-    "d3": "^3.5.8",
+    "d3": "^4.2.2",
     "debug": "*",
     "priorityqueuejs": "*"
   }
