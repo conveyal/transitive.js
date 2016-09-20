@@ -14,7 +14,7 @@
     "augment": "*",
     "component-each": "*",
     "component-emitter": "*",
-    "d3": "^3.5.8",
+    "d3": "^4.2.4",
     "debug": "*",
     "priorityqueuejs": "*"
   }
