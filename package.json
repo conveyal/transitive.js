@@ -1,21 +1,34 @@
 {
   "name": "transitive-js",
-  "version": "0.8.2",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
-  "keywords": [ "d3", "maps", "GTFS" ],
+  "keywords": [
+    "d3",
+    "maps",
+    "GTFS"
+  ],
   "author": "Conveyal",
   "homepage": "http://conveyal.com/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/conveyal/transitive.js.git"
+    "url": "https://github.com/conveyal/transitive.js.git"
   },
   "main": "lib/transitive.js",
   "dependencies": {
-    "augment": "*",
-    "component-each": "*",
-    "component-emitter": "*",
+    "augment": "4.3.0",
+    "component-emitter": "1.2.1",
     "d3": "^3.5.8",
-    "debug": "*",
-    "priorityqueuejs": "*"
+    "debug": "^2.2.0",
+    "priorityqueuejs": "1.0.0"
+  },
+  "scripts": {
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "test": "mastarm lint"
+  },
+  "devDependencies": {
+    "mastarm": "^1.1.3",
+    "semantic-release": "^4.3.5"
+  },
+  "standard": {
+    "parser": "babel-eslint"
   }
 }
