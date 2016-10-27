@@ -17,7 +17,7 @@
     "augment": "4.3.0",
     "component-each": "0.2.6",
     "component-emitter": "1.2.1",
-    "d3": "^3.5.8",
+    "d3": "^4.3.0",
     "debug": "^2.2.0",
     "priorityqueuejs": "1.0.0"
   },
