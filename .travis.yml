@@ -2,7 +2,7 @@ sudo: false
 language: node_js
 cache:
   directories:
-    - node_modules
+    - ~/.yarn-cache
 notifications:
   email: false
 node_js:
