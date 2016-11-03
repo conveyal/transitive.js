@@ -6,13 +6,13 @@ cache:
 notifications:
   email: false
 node_js:
-  - node
+  - '6'
 before_install:
-  - npm i -g npm@^3 yarn
+  - npm i -g yarn
 install:
   - yarn
 after_success:
-  - npm run semantic-release
+  - yarn run semantic-release
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
