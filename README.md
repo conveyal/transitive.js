@@ -1,4 +1,4 @@
-# transitive.js [![Build Status](https://travis-ci.org/conveyal/transitive.js.png)](https://travis-ci.org/conveyal/transitive.js) [![Code Climate](https://codeclimate.com/github/conveyal/transitive.js.png)](https://codeclimate.com/github/conveyal/transitive.js)
+# transitive.js [![NPM version][npm-image]][npm-url] [![Build status][travis-image]][travis-url]
 
 A tool for generating dynamic stylized transit maps that are easy to understand. Transitive takes in information describing specific transport network elements (routes, stops, journeys) -- typically produced by the OpenTripPlanner Profiler extension -- and produces a schematic map of those elements:
 
@@ -21,27 +21,15 @@ Transitive is supported by the [Mobility Lab](http://mobilitylab.org/) [Transit 
 
 [See documentation here](https://github.com/conveyal/transitive.js/wiki/API-Documentation).
 
+## See Also
+
+- [conveyal/modeify](https://github.com/conveyal/modeify)
+
 ## License
 
-The MIT License (MIT)
+MIT
 
-Copyright (c) 2013 Conveyal
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/conveyal/transitive.js/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[npm-image]: https://img.shields.io/npm/v/transitive-js.svg?maxAge=2592000&style=flat-square
+[npm-url]: https://www.npmjs.com/package/transitive-js
+[travis-image]: https://img.shields.io/travis/conveyal/transitive.js.svg?style=flat-square
+[travis-url]: https://travis-ci.org/conveyal/transitive.js
