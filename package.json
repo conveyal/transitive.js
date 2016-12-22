@@ -23,8 +23,10 @@
   },
   "scripts": {
     "prepublish": "mastarm prepublish lib:build",
+    "cover": "npm test -- --coverage",
+    "lint": "mastarm lint",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "test": "mastarm lint"
+    "test": "mastarm test"
   },
   "devDependencies": {
     "mastarm": "^3.2.1",
