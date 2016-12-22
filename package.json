@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/conveyal/transitive.js.git"
   },
-  "main": "lib/transitive.js",
+  "main": "build/transitive.js",
   "dependencies": {
     "augment": "4.3.0",
     "component-each": "0.2.6",
@@ -22,6 +22,7 @@
     "priorityqueuejs": "1.0.0"
   },
   "scripts": {
+    "prepublish": "mastarm prepublish lib:build",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "test": "mastarm lint"
   },
