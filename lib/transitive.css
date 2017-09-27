@@ -24,9 +24,9 @@
  * Labels
  */
 
-.schematic-map .transitive-stop-label,
-.schematic-map .transitive-multi-label,
-.schematic-map .transitive-place-label {
+.transitive-stop-label,
+.transitive-multi-label,
+.transitive-place-label {
   text-shadow:
    -2px -2px 0 #fff,
     2px -2px 0 #fff,
@@ -34,7 +34,7 @@
      2px 2px 0 #fff;
 }
 
-.schematic-map .transitive-segment-label {
+.transitive-segment-label {
   fill: #fff;
 }
 
@@ -42,7 +42,7 @@
  * Label Container
  */
 
-.schematic-map .transitive-segment-label-container {
+.transitive-segment-label-container {
   fill: #008;
 }
 
@@ -50,7 +50,7 @@
  * Lines
  */
 
-.schematic-map .transitive-line {
+.transitive-line {
   stroke-linecap: round;
   fill: none;
 }
@@ -59,7 +59,7 @@
  * Places
  */
 
-.schematic-map .transitive-place-circle {
+.transitive-place-circle {
   fill: #fff;
   stroke: #333;
   stroke-width: 2px;
@@ -69,9 +69,9 @@
  * Stops
  */
 
-.schematic-map .transitive-stop-marker-pattern,
-.schematic-map .transitive-stop-marker-merged,
-.schematic-map .transitive-multipoint-marker-merged {
+.transitive-stop-marker-pattern,
+.transitive-stop-marker-merged,
+.transitive-multipoint-marker-merged {
   fill: #fff;
   stroke: #333;
   stroke-width: 1px;
