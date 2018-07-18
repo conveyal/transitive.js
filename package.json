@@ -1,5 +1,6 @@
 {
   "name": "transitive-js",
+  "version": "1.0.0-SNAPSHOT",
   "description": "A tool for generating dynamic stylized transit maps that are easy to understand.",
   "keywords": [
     "d3",
