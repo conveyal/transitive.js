@@ -23,7 +23,6 @@
     "measure-text": "^0.0.4",
     "priorityqueuejs": "1.0.0",
     "rounded-rect": "^0.0.1",
-    "simple-linear-scale": "^1.0.1",
     "sphericalmercator": "^1.0.5",
     "svg.js": "^2.6.5"
   },

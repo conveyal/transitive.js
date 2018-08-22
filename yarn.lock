@@ -7467,10 +7467,6 @@ simple-html-index@^1.4.0:
   dependencies:
     from2-string "^1.1.0"
 
-simple-linear-scale@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/simple-linear-scale/-/simple-linear-scale-1.0.1.tgz#7142a28923c23d75bc13f437a7e17bea02269eab"
-
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
