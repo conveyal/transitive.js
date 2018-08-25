@@ -76,29 +76,3 @@
   stroke: #333;
   stroke-width: 1px;
 }
-
-/**
- * Tile Layer
- */
-
-.Transitive > .tile-layer {
-  position: absolute;
-  z-index: 50;
-}
-
-.Transitive > .tile-layer > .tile {
-  pointer-events: none;
-  position: absolute;
-  width: 256px;
-  height: 256px;
-}
-
-/**
- * Grid
- */
-
-.Transitive .gridline {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1px;
-}
