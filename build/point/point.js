@@ -156,8 +156,8 @@ var Point = function () {
       var xValues = [];
       var yValues = [];
       dataArray.forEach(function (data) {
-        var x = data.x; // display.xScale(data.x) + data.offsetX;
-        var y = data.y; // display.yScale(data.y) - data.offsetY;
+        var x = data.x;
+        var y = data.y;
         xValues.push(x);
         yValues.push(y);
       });
@@ -231,8 +231,8 @@ var Point = function () {
           owner: this.adjacentPlace
         });
 
-        var placeX = display.xScale(this.adjacentPlace.worldX);
-        var placeY = display.yScale(this.adjacentPlace.worldY);
+        var placeX = display.xScale.compute(this.adjacentPlace.worldX);
+        var placeY = display.yScale.compute(this.adjacentPlace.worldY);
 
         var thisR = this.mergedMarkerData.width / 2;
         var thisX = this.mergedMarkerData.x + thisR;

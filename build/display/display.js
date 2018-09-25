@@ -16,9 +16,9 @@ var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _simpleLinearScale = require('simple-linear-scale');
+var _linearScale = require('../util/linear-scale.js');
 
-var _simpleLinearScale2 = _interopRequireDefault(_simpleLinearScale);
+var _linearScale2 = _interopRequireDefault(_linearScale);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44,7 +44,7 @@ var Display = function () {
     value: function setXDomain(domain) {
       // [minX , maxX]
       this.xDomain = domain;
-      this.xScale = (0, _simpleLinearScale2.default)(domain, [0, this.width]);
+      this.xScale = new _linearScale2.default(domain, [0, this.width]);
       if (!this.initialXDomain) {
         this.initialXDomain = domain;
         this.initialXRes = (domain[1] - domain[0]) / this.width;
@@ -55,7 +55,7 @@ var Display = function () {
     value: function setYDomain(domain) {
       // [minY , maxY]
       this.yDomain = domain;
-      this.yScale = (0, _simpleLinearScale2.default)(domain, [this.height, 0]);
+      this.yScale = new _linearScale2.default(domain, [this.height, 0]);
       if (!this.initialYDomain) this.initialYDomain = domain;
     }
   }, {
@@ -266,10 +266,11 @@ var Display = function () {
     value: function drawText(text, anchor, attrs) {}
   }, {
     key: 'drawPath',
-    value: function drawPath(pathStr, attrs) {}
+    value: function drawPath(renderData, attrs) {}
   }]);
   return Display;
-}();
+}(); //import { scaleLinear } from 'd3-scale'
+
 
 exports.default = Display;
 module.exports = exports['default'];

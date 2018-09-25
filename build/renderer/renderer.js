@@ -14,10 +14,6 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 
 var _lodash = require('lodash');
 
-var _drawGrid = require('../display/draw-grid');
-
-var _drawGrid2 = _interopRequireDefault(_drawGrid);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -53,9 +49,6 @@ var Renderer = function () {
 
       // Clear the display
       display.clear();
-
-      // Draw the grid, if necessary
-      if (this.transitive.options.drawGrid) (0, _drawGrid2.default)(display, this.gridCellSize);
     }
 
     /**

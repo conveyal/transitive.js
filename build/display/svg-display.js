@@ -32,6 +32,8 @@ var _svg = require('svg.js');
 
 var _svg2 = _interopRequireDefault(_svg);
 
+var _util = require('../util');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var SvgDisplay = function (_Display) {
@@ -76,8 +78,8 @@ var SvgDisplay = function (_Display) {
     }
   }, {
     key: 'drawPath',
-    value: function drawPath(pathStr, attrs) {
-      this.svg.path(pathStr).attr(attrs);
+    value: function drawPath(renderData, attrs) {
+      this.svg.path((0, _util.renderDataToSvgPath)(renderData)).attr(attrs);
     }
   }, {
     key: 'drawText',

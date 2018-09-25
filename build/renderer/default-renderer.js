@@ -60,7 +60,6 @@ var DefaultRenderer = function (_Renderer) {
       display.styler = this.transitive.styler;
 
       // TODO: restore legend?
-      // var legendSegments = {}
 
       // Process vertices/points
       var focusedPoints = [];
@@ -81,13 +80,6 @@ var DefaultRenderer = function (_Renderer) {
         (0, _lodash.forEach)(path.segments, function (pathSegment) {
           (0, _lodash.forEach)(pathSegment.renderedSegments, function (renderedSegment) {
             if (renderedSegment.isFocused()) focusedSegments.push(renderedSegment);else unfocusedSegments.push(renderedSegment);
-
-            /*
-            var legendType = renderedSegment.getLegendType()
-            if (!(legendType in legendSegments)) {
-              legendSegments[legendType] = renderedSegment
-            }
-            */
           });
         });
       });
@@ -132,9 +124,6 @@ var DefaultRenderer = function (_Renderer) {
 
       // Keep internal collection of rendered segments
       this.renderedSegments = focusedSegments.concat(unfocusedSegments);
-
-      // TODO: make legends work again
-      // if (display.legend) display.legend.render(legendSegments)
     }
   }, {
     key: 'refreshSegmentRenderData',

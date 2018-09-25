@@ -161,8 +161,8 @@ var Place = function (_Point) {
       if (displayStyle === 'none') return;
 
       this.renderXY = {
-        x: display.xScale(display.activeZoomFactors.useGeographicRendering ? this.worldX : this.graphVertex.x),
-        y: display.yScale(display.activeZoomFactors.useGeographicRendering ? this.worldY : this.graphVertex.y)
+        x: display.xScale.compute(display.activeZoomFactors.useGeographicRendering ? this.worldX : this.graphVertex.x),
+        y: display.yScale.compute(display.activeZoomFactors.useGeographicRendering ? this.worldY : this.graphVertex.y)
       };
 
       var radius = styler.compute2('places', 'r', this) || 10;

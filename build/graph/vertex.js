@@ -48,12 +48,12 @@ var Vertex = function () {
   }, {
     key: 'getRenderX',
     value: function getRenderX(display) {
-      return display.xScale(this.x) + this.point.placeOffsets.x;
+      return display.xScale.compute(this.x) + this.point.placeOffsets.x;
     }
   }, {
     key: 'getRenderY',
     value: function getRenderY(display) {
-      return display.yScale(this.y) + this.point.placeOffsets.y;
+      return display.yScale.compute(this.y) + this.point.placeOffsets.y;
     }
 
     /**

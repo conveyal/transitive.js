@@ -66,16 +66,24 @@ var RenderedSegment = function () {
       if (this.pathSegment.journeySegment && this.pathSegment.journeySegment.arc) {
         var first = this.renderData[0];
         var last = this.renderData[this.renderData.length - 1];
+        var v = {
+          x: last.x - first.x,
+          y: last.y - first.y
+        };
+        var vp = (0, _util.rotateVector)((0, _util.normalizeVector)(v), -Math.PI / 2);
+        var dist = (0, _util.distance)(first.x, first.y, last.x, last.y);
         var arc = {
           x: last.x,
           y: last.y,
           arc: -45,
-          radius: (0, _util.distance)(first.x, first.y, last.x, last.y)
+          radius: dist * 0.75,
+          ex: (last.x + first.x) / 2 + vp.x * (dist / 4),
+          ey: (last.y + first.y) / 2 + vp.y * (dist / 4)
         };
         this.renderData = [first, arc, last];
       }
 
-      display.drawPath((0, _util.renderDataToSvgPath)(this.renderData), {
+      display.drawPath(this.renderData, {
         fill: 'none',
         stroke: styler.compute2('segments', 'stroke', this),
         'stroke-width': styler.compute2('segments', 'stroke-width', this),
@@ -187,14 +195,6 @@ var RenderedSegment = function () {
       (0, _lodash.forEach)(this.renderedEdges, function (rEdge) {
         _this2.renderLength += rEdge.graphEdge.getRenderLength(display);
       });
-    }
-  }, {
-    key: 'getLegendType',
-    value: function getLegendType() {
-      if (this.type === 'TRANSIT') {
-        return this.type + '_' + this.mode;
-      }
-      return this.type;
     }
   }, {
     key: 'toString',

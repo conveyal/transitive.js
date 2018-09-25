@@ -34,8 +34,6 @@ var _renderer = require('./renderer');
 
 var _renderer2 = _interopRequireDefault(_renderer);
 
-var _util = require('../util');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -67,7 +65,7 @@ var WireframeRenderer = function (_Renderer) {
         // Get a basic, non-offset edge renderData array
         var renderData = edge.getRenderCoords(0, 0, display, true);
 
-        display.drawPath((0, _util.renderDataToSvgPath)(renderData), {
+        display.drawPath(renderData, {
           fill: 'none',
           'stroke-width': 2,
           stroke: '#000',
@@ -78,8 +76,8 @@ var WireframeRenderer = function (_Renderer) {
       // Draw the vertices
       (0, _lodash.forEach)(graph.vertices, function (vertex) {
         display.drawCircle({
-          x: display.xScale(vertex.x),
-          y: display.yScale(vertex.y)
+          x: display.xScale.compute(vertex.x),
+          y: display.yScale.compute(vertex.y)
         }, {
           r: 4,
           fill: '#000'

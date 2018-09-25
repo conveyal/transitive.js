@@ -125,24 +125,34 @@ var CanvasDisplay = function (_Display) {
     }
   }, {
     key: 'drawPath',
-    value: function drawPath(pathStr, attrs) {
-      var path = new Path2D(pathStr);
+    value: function drawPath(renderData, attrs) {
+      if (!renderData || renderData.length === 0) return;
 
+      // Apply stroke/width styles
       this.ctx.strokeStyle = attrs['stroke'];
       this.ctx.lineWidth = attrs['stroke-width'];
 
-      // dash array
+      // Apply line-dash style, if present
       if (attrs['stroke-dasharray']) {
         var arr = attrs['stroke-dasharray'].split(',').map(function (str) {
           return parseFloat(str.trim());
         });
         this.ctx.setLineDash(arr);
       }
-      // linecap
+
+      // Apply linecap style
       this.ctx.lineCap = attrs['stroke-linecap'] || 'butt';
 
-      this.ctx.stroke(path);
+      // Draw the path
+      this.ctx.beginPath();
+      this.ctx.moveTo(renderData[0].x, renderData[0].y);
+      for (var i = 1; i < renderData.length; i++) {
+        var rd = renderData[i];
+        if (rd.arc) this.ctx.arcTo(rd.ex, rd.ey, rd.x, rd.y, rd.radius);else this.ctx.lineTo(rd.x, rd.y);
+      }
+      this.ctx.stroke();
 
+      // Revert line-dash style to default
       if (attrs['stroke-dasharray']) this.ctx.setLineDash([]);
     }
   }, {

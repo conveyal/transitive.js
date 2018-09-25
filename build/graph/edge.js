@@ -441,14 +441,14 @@ var Edge = function () {
         var toVector = null;
         var rightVector;
         var xOffset, yOffset;
-        var x1 = display.xScale(coord[0]);
-        var y1 = display.yScale(coord[1]);
+        var x1 = display.xScale.compute(coord[0]);
+        var y1 = display.yScale.compute(coord[1]);
 
         // calculate the vector leading in to this coordinate
         if (i > 0) {
           var prevCoord = geomCoords[i - 1];
-          var x0 = display.xScale(prevCoord[0]);
-          var y0 = display.yScale(prevCoord[1]);
+          var x0 = display.xScale.compute(prevCoord[0]);
+          var y0 = display.yScale.compute(prevCoord[1]);
           if (x1 === x0 && y1 === y0) return;
 
           toVector = {
@@ -460,8 +460,8 @@ var Edge = function () {
         // calculate the vector leading out from this coordinate
         if (i < geomCoords.length - 1) {
           var nextCoord = geomCoords[i + 1];
-          var x2 = display.xScale(nextCoord[0]);
-          var y2 = display.yScale(nextCoord[1]);
+          var x2 = display.xScale.compute(nextCoord[0]);
+          var y2 = display.yScale.compute(nextCoord[1]);
           if (x2 === x1 && y2 === y1) return;
 
           fromVector = {
@@ -590,6 +590,8 @@ var Edge = function () {
               y: y2,
               len: angleR * radius,
               arc: arc,
+              ex: ex,
+              ey: ey,
               radius: radius
             });
 

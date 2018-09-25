@@ -48,6 +48,10 @@ var _labeler = require('./labeler/labeler');
 
 var _labeler2 = _interopRequireDefault(_labeler);
 
+var _point = require('./point/point');
+
+var _point2 = _interopRequireDefault(_point);
+
 var _util = require('./util');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -65,13 +69,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *   - data {Object} data to render
  *   - styles {Object} styles to apply
  *   - el {Element} the DOM element to render the main display to
- *   - legendEl {Element} the DOM element to render the legend to
- *   - drawGrid {Boolean} whether to draw a background grid (defaults to false)
  *   - gridCellSize {Number} resolution of the grid in SphericalMercator meters
  *   - draggableTypes {Array} a list of network element types to enable dragging for
  *   - initialBounds {Array} initial lon/lat bounds for the display expressed as [[west, south], [east, north]]
  *   - displayMargins {Object} padding to apply to the initial rendered network within the display. Expressed in pixels for top/bottom/left/right
- *   - mapboxId {String} an Mapbox tileset id for rendering background tiles (Deprecated -- use Leaflet with Leaflet.TransitiveLayer)
  *   - zoomEnabled {Boolean} whether to enable the display's built-in zoom/pan functionality (defaults to true)
  *   - autoResize {Boolean} whether the display should listen for window resize events and update automatically (defaults to true)
  *   - groupEdges {Boolean} whether to consider edges with the same origin/destination equivalent for rendering, even if intermediate stop sequence is different (defaults to true)
@@ -98,6 +99,10 @@ var Transitive = function () {
 
     this.labeler = new _labeler2.default(this);
     this.styler = new _styler2.default(options.styles, this);
+
+    if (options.initialBounds) {
+      this.display.fitToWorldBounds(options.initialBounds);
+    }
   }
 
   /**
@@ -146,7 +151,7 @@ var Transitive = function () {
 
   }, {
     key: 'setElement',
-    value: function setElement(el, legendEl) {
+    value: function setElement(el) {
       if (this.el) _d2.default.select(this.el).selectAll('*').remove();
 
       this.el = el;
@@ -276,6 +281,14 @@ var Transitive = function () {
     value: function setTransform(transform) {
       this.display.applyTransform(transform);
       this.render();
+    }
+
+    /** editor functions **/
+
+  }, {
+    key: 'createVertex',
+    value: function createVertex(wx, wy) {
+      this.network.graph.addVertex(new _point2.default(), wx, wy);
     }
   }]);
   return Transitive;
