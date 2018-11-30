@@ -101,7 +101,7 @@ var Transitive = function () {
     this.styler = new _styler2.default(options.styles, this);
 
     if (options.initialBounds) {
-      this.display.fitToWorldBounds(options.initialBounds);
+      this.display.fitToWorldBounds([_util.sm.forward(options.initialBounds[0]), _util.sm.forward(options.initialBounds[1])]);
     }
   }
 
