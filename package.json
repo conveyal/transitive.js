@@ -20,19 +20,25 @@
     "d3": "^3.5.8",
     "debug": "^2.5.1",
     "lodash.foreach": "^4.5.0",
+    "measure-text": "^0.0.4",
     "priorityqueuejs": "1.0.0",
-    "sphericalmercator": "^1.0.5"
+    "rounded-rect": "^0.0.1",
+    "sphericalmercator": "^1.0.5",
+    "svg.js": "^2.6.5"
+  },
+  "peerDependencies": {
+    "svg.js": "^2.6.4"
   },
   "scripts": {
     "prepublish": "mastarm prepublish lib:build",
     "cover": "npm test -- --coverage",
-    "lint": "mastarm lint",
+    "lint": "mastarm lint lib",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "test": "mastarm test"
   },
   "devDependencies": {
-    "mastarm": "^3.2.1",
-    "semantic-release": "^6.3.2"
+    "mastarm": "^5.0.1",
+    "semantic-release": "^15.13.16"
   },
   "standard": {
     "parser": "babel-eslint"
