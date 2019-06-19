@@ -1,22 +1,19 @@
 sudo: false
 language: node_js
 cache:
-  directories:
-    - ~/.yarn-cache
+  yarn: true
 notifications:
   email: false
 node_js:
-  - '6'
-before_install:
-  - npm i -g yarn codecov
+  - '10'
 install:
   - yarn
 script:
   - npm run lint
   - npm run cover
-  - codecov
 after_success:
-  - yarn run semantic-release
+  - bash <(curl -s https://codecov.io/bash)
+  - semantic-release
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
