@@ -1,0 +1,603 @@
+{
+  "duration": 1733,
+  "startTime": 1574121578000,
+  "endTime": 1574123311000,
+  "walkTime": 421,
+  "transitTime": 1310,
+  "waitingTime": 2,
+  "walkDistance": 499.0085970098041,
+  "walkLimitExceeded": false,
+  "elevationLost": 8.940000000000008,
+  "elevationGained": 3.0900000000000087,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {}
+  },
+  "legs": [
+    {
+      "startTime": 1574121578000,
+      "endTime": 1574121849000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 328.35299999999995,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "1205 NE 81st Ave, Portland, OR, USA 97213",
+        "lon": -122.58010103963917,
+        "lat": 45.53173643895572,
+        "departure": 1574121578000,
+        "orig": "1205 NE 81st Ave, Portland, OR, USA 97213",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "NE 82nd Ave MAX Station",
+        "stopId": "TriMet:8371",
+        "stopCode": "8371",
+        "lon": -122.578437,
+        "lat": 45.533478,
+        "arrival": 1574121849000,
+        "departure": 1574121850000,
+        "zoneId": "R",
+        "stopIndex": 9,
+        "stopSequence": 10,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "e|{tG`fdkVK?iAAg@?M?Q?s@?O?W?KM]?aA?[?c@?@MZADE?IDMFDLm@DEBI",
+        "length": 23
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 271.0,
+      "transitLeg": false,
+      "steps": [
+        {
+          "distance": 236.315,
+          "relativeDirection": "DEPART",
+          "streetName": "NE 82nd Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.5790408,
+          "lat": 45.531713,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 74.84284254544679
+            },
+            {
+              "first": 10.0,
+              "second": 74.74284254544678
+            },
+            {
+              "first": 20.0,
+              "second": 74.62284254544679
+            },
+            {
+              "first": 30.0,
+              "second": 74.49284254544678
+            },
+            {
+              "first": 40.0,
+              "second": 74.35284254544678
+            },
+            {
+              "first": 47.81,
+              "second": 74.24284254544678
+            },
+            {
+              "first": 47.807,
+              "second": 74.24284254544678
+            },
+            {
+              "first": 57.807,
+              "second": 74.12284254544679
+            },
+            {
+              "first": 67.807,
+              "second": 73.98284254544677
+            },
+            {
+              "first": 77.957,
+              "second": 73.85284254544678
+            },
+            {
+              "first": 77.953,
+              "second": 73.85284254544678
+            },
+            {
+              "first": 87.953,
+              "second": 73.72284254544678
+            },
+            {
+              "first": 97.953,
+              "second": 73.63284254544678
+            },
+            {
+              "first": 107.953,
+              "second": 73.50284254544678
+            },
+            {
+              "first": 116.893,
+              "second": 73.39284254544677
+            },
+            {
+              "first": 116.89500000000001,
+              "second": 73.39284254544677
+            },
+            {
+              "first": 125.97500000000001,
+              "second": 73.26284254544677
+            },
+            {
+              "first": 125.97900000000001,
+              "second": 73.26284254544677
+            },
+            {
+              "first": 139.049,
+              "second": 73.11284254544678
+            },
+            {
+              "first": 139.044,
+              "second": 73.11284254544678
+            },
+            {
+              "first": 149.044,
+              "second": 73.07284254544678
+            },
+            {
+              "first": 159.044,
+              "second": 73.23284254544677
+            },
+            {
+              "first": 164.104,
+              "second": 73.29284254544677
+            },
+            {
+              "first": 164.10500000000002,
+              "second": 73.29284254544677
+            },
+            {
+              "first": 236.315,
+              "second": 68.13284254544678
+            }
+          ]
+        },
+        {
+          "distance": 5.483,
+          "relativeDirection": "RIGHT",
+          "streetName": "footbridge",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.5789617,
+          "lat": 45.5338203,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 68.13284254544678
+            },
+            {
+              "first": 5.48,
+              "second": 67.62284254544679
+            }
+          ]
+        },
+        {
+          "distance": 20.39,
+          "relativeDirection": "RIGHT",
+          "streetName": "sidewalk",
+          "absoluteDirection": "SOUTH",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.5788913,
+          "lat": 45.5338198,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 67.62284254544679
+            },
+            {
+              "first": 20.39,
+              "second": 67.49284254544678
+            }
+          ]
+        },
+        {
+          "distance": 15.042,
+          "relativeDirection": "SLIGHTLY_LEFT",
+          "streetName": "82nd Avenue TC (path)",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.5788584,
+          "lat": 45.5336421,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 67.49284254544678
+            },
+            {
+              "first": 15.04,
+              "second": 67.39284254544677
+            }
+          ]
+        },
+        {
+          "distance": 46.376,
+          "relativeDirection": "SLIGHTLY_LEFT",
+          "streetName": "steps",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.578763,
+          "lat": 45.5335782,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 67.39284254544677
+            },
+            {
+              "first": 10.0,
+              "second": 67.40284254544679
+            },
+            {
+              "first": 23.18,
+              "second": 67.66284254544678
+            }
+          ]
+        },
+        {
+          "distance": 4.747,
+          "relativeDirection": "CONTINUE",
+          "streetName": "NE 82nd Ave (path)",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.5785049,
+          "lat": 45.5334779,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1574121850000,
+      "endTime": 1574123160000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 8815.19612218932,
+      "pathway": false,
+      "mode": "TRAM",
+      "route": "MAX Green Line",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeColor": "008852",
+      "routeType": 0,
+      "routeId": "TriMet:200",
+      "routeTextColor": "FFFFFF",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "9081",
+      "headsign": "City Center/PSU",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9268750",
+      "serviceDate": "20191118",
+      "from": {
+        "name": "NE 82nd Ave MAX Station",
+        "stopId": "TriMet:8371",
+        "stopCode": "8371",
+        "lon": -122.578437,
+        "lat": 45.533478,
+        "arrival": 1574121849000,
+        "departure": 1574121850000,
+        "zoneId": "R",
+        "stopIndex": 9,
+        "stopSequence": 10,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "Pioneer Place/SW 5th Ave MAX Station",
+        "stopId": "TriMet:7646",
+        "stopCode": "7646",
+        "lon": -122.677934,
+        "lat": 45.518255,
+        "arrival": 1574123160000,
+        "departure": 1574123161000,
+        "zoneId": "R",
+        "stopIndex": 19,
+        "stopSequence": 20,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "ig|tGdbdkVEPOh@e@fBo@`CYbAIZQp@mBrHkAzEYfAGZIZMp@Kt@EXEVCNGn@Gl@C`@CVATAXARCt@A\\AR?\\?\\?p@?`@B~@@T@d@@R@NB\\Bb@D^BZBVD\\BTDRBVF\\DRBRFVDTJb@J`@FTJb@N`@Nf@HTL\\Rf@rB~E|AtDnFnMrAbD|ElLh@nAvDfJx@nBx@bBnAvCTh@N^Vn@JVHR?@Pd@BJDNJ^HXHXDRFTJd@F\\FZJj@DVDXJt@D^BVDXBZBZBZB`@Bd@@b@Bd@@b@@p@?p@?b@?b@Ab@A`@AZAZCf@Cb@E`@CZEXCXG\\EVEVETETETGRMh@IZIVKXIXO`@Q^O^S^S`@_@n@i@~@eAbBwC~Ek@|@iAlB{@xAQXMTOVMVS`@GNGNMXGPKXITGTIVGTGREPGZI\\Gb@Y|ACTi@nDg@jDW~A]dCAFIh@Kt@SrAGf@Gb@EVOlA_@tCu@pFo@dEq@|Eo@~ECPAPCXAXALAPAN?P?VAP@`@?R?N@NB^@L@N@L@PBTBLBL@LH`@FXHZDLDPFPBHNZFNFLHPJPNTNTNPTVRRTRbAz@n@f@fBvAXTXTXVVVPPNRNPNRRXP\\HPHPHPTj@HZHTFXDRH^DZDVDZD\\B`@B`@B^@f@@h@DbCN~GRbL\\jTF|CF|CF|CLvH@f@?f@@^?f@A\\?R?^ElB?ZC|@?h@An@Ax@?dB?bAAl@?Z?d@?p@?xA?tC??@T?X?D?R@V?R?f@?r@?xB?xA?^?d@?~@CdB?`C?V?N@\\?D?X?nD?zD?JAX@vC?X?ZAlC??@Z?JAnD?R?`@ATAVAl@?FAL?FCNAJARAbD?T?L?H?H@H@D@HDJBHR\\PZPVHJBDFFDFFDFDDDDBLHl@PZHVHXJJDJFHDJHHFHJNNDFFHHLHLHPFRVr@dAvC~@nCb@nAb@lAN`@JVFPBF@F@D@D@F@H?H@F?HAV?d@AdAChA?r@?R?L@Z@j@@^?H?LAHCHAFGJGFGDE@E?S?G?G@GBA?GDEFABEFCHAFCHETIh@Kj@EVETEZCJ?FAHAF?H?H@H@H@F@D??@FRj@BF@BBDDDBDL?LAnBC??D?J?J?tBAJAlCCnCEH?pBCD?J?H?jBCJAVCJAF@F@b@NPHDBF@fA`@JBJDfBv@@@NFNHfBt@JFxB`AJDNF~At@JDHBRHfBx@FBB@DBdBt@",
+        "length": 482
+      },
+      "interStopGeometry": [
+        {
+          "points": "ig|tGdbdkVEPOh@e@fBo@`CYbAIZQp@mBrHkAzEYfAGZIZMp@Kt@EXEVCNGn@Gl@C`@CVATAXARCt@A\\AR?\\?\\?p@?`@B~@@T@d@@R@NB\\Bb@D^BZBVD\\BTDRBVF\\DRBRFVDTJb@J`@FTJb@N`@Nf@HTL\\Rf@rB~E|AtDnFnMrAbD|ElLh@nAvDfJx@nBx@bBnAvCTh@N^Vn@JVHR?@",
+          "length": 76
+        },
+        {
+          "points": "eh{tG~}hkVPd@BJDNJ^HXHXDRFTJd@F\\FZJj@DVDXJt@D^BVDXBZBZBZB`@Bd@@b@Bd@@b@@p@?p@?b@?b@Ab@A`@AZAZCf@Cb@E`@CZEXCXG\\EVEVETETETGRMh@IZIVKXIXO`@Q^O^S^S`@_@n@i@~@eAbBwC~Ek@|@iAlB{@xAQXMTOVMVS`@GNGNMXGPKXITGTIVGTGREPGZI\\Gb@Y|ACTi@nDg@jDW~A]dCAF",
+          "length": 91
+        },
+        {
+          "points": "cd|tGnnlkVIh@Kt@SrAGf@Gb@EVOlA_@tCu@pFo@dEq@|Eo@~ECPAPCXAXALAPAN?P?VAP@`@?R?N@NB^@L@N@L@PBTBLBL@LH`@FXHZDLDPFPBHNZFNFLHPJPNTNTNPTVRRTRbAz@n@f@fBvAXTXTXVVVPPNRNPNRRXP\\HPHPHPTj@HZHTFXDRH^DZDVDZD\\B`@B`@B^@f@@h@DbCN~GRbL\\jTF|CF|CF|CLvH@f@?f@@^?f@A\\?R?^ElB?ZC|@?h@An@Ax@?dB?bAAl@?Z?d@?p@?xA?tC",
+          "length": 114
+        },
+        {
+          "points": "er{tGr|rkV??@T?X?D?R@V?R?f@?r@?xB?xA?^?d@?~@CdB?`C",
+          "length": 17
+        },
+        {
+          "points": "er{tGfuskV?V?N@\\?D?X?nD?zD?JAX@vC?X?ZAlC??",
+          "length": 15
+        },
+        {
+          "points": "er{tGzotkV@Z?JAnD?R?`@ATAVAl@?FAL?FCNAJARAbD",
+          "length": 16
+        },
+        {
+          "points": "wr{tGvbukV?T?L?H?H@H@D@HDJBHR\\PZPVHJBDFFDFFDFDDDDBLHl@PZHVHXJJDJFHDJHHFHJNNDFFHHLHLHPFRVr@dAvC~@nCb@nAb@lAN`@JVFPBF@F@D@D@F@H?H@F?HAV?d@AdAChA?r@?R?L@Z@j@@^?H?LAHCHAFGJGFGDE@E?S?G?G@GBA?GDEFABEFCHAFCHETIh@Kj@EVETEZCJ?FAHAF?H?H@H@H@F@D??@FRj@BF@BBDDDBDL?LAnBC",
+          "length": 115
+        },
+        {
+          "points": "a}ztG`awkV??D?J?J?tBAJAlCCnCEH?pBC",
+          "length": 11
+        },
+        {
+          "points": "gkztGn`wkVD?J?H?jBCJAVCJAF@F@b@NPHDBF@fA`@JBJDfBv@",
+          "length": 18
+        },
+        {
+          "points": "s|ytGjdwkV@@NFNHfBt@JFxB`AJDNF~At@JDHBRHfBx@FBB@DBdBt@",
+          "length": 18
+        }
+      ],
+      "routeLongName": "MAX Green Line",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 1310.0,
+      "transitLeg": true,
+      "steps": []
+    },
+    {
+      "startTime": 1574123161000,
+      "endTime": 1574123311000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 170.45000000000002,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "Pioneer Place/SW 5th Ave MAX Station",
+        "stopId": "TriMet:7646",
+        "stopCode": "7646",
+        "lon": -122.677934,
+        "lat": 45.518255,
+        "arrival": 1574123160000,
+        "departure": 1574123161000,
+        "zoneId": "R",
+        "stopIndex": 19,
+        "stopSequence": 20,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "Weather Machine, Portland, OR, USA",
+        "lon": -122.67912504605157,
+        "lat": 45.518998702452805,
+        "arrival": 1574123311000,
+        "orig": "Weather Machine, Portland, OR, USA",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "chytGlpwkVHDFBDBo@hDAJAFCLEAECUDa@RSP]O",
+        "length": 14
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 150.0,
+      "transitLeg": false,
+      "steps": [
+        {
+          "distance": 6.307,
+          "relativeDirection": "DEPART",
+          "streetName": "Pioneer Place /SW 5th Ave (path)",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.67798358555626,
+          "lat": 45.51826854934045,
+          "elevation": []
+        },
+        {
+          "distance": 8.054,
+          "relativeDirection": "CONTINUE",
+          "streetName": "path",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.678013,
+          "lat": 45.5182157,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 13.022842545446778
+            },
+            {
+              "first": 8.05,
+              "second": 13.182842545446778
+            }
+          ]
+        },
+        {
+          "distance": 85.644,
+          "relativeDirection": "RIGHT",
+          "streetName": "SW Yamhill St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6780523,
+          "lat": 45.5181487,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 13.182842545446778
+            },
+            {
+              "first": 10.0,
+              "second": 13.442842545446778
+            },
+            {
+              "first": 20.0,
+              "second": 13.722842545446778
+            },
+            {
+              "first": 30.0,
+              "second": 14.152842545446777
+            },
+            {
+              "first": 40.0,
+              "second": 14.362842545446778
+            },
+            {
+              "first": 50.0,
+              "second": 14.632842545446778
+            },
+            {
+              "first": 60.0,
+              "second": 14.922842545446779
+            },
+            {
+              "first": 71.06,
+              "second": 15.092842545446779
+            },
+            {
+              "first": 71.058,
+              "second": 15.092842545446779
+            },
+            {
+              "first": 79.468,
+              "second": 15.112842545446778
+            },
+            {
+              "first": 79.465,
+              "second": 15.112842545446778
+            },
+            {
+              "first": 85.64500000000001,
+              "second": 15.322842545446779
+            }
+          ]
+        },
+        {
+          "distance": 7.017,
+          "relativeDirection": "RIGHT",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6790775,
+          "lat": 45.5184263,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 15.322842545446779
+            },
+            {
+              "first": 7.02,
+              "second": 15.172842545446779
+            }
+          ]
+        },
+        {
+          "distance": 63.428000000000004,
+          "relativeDirection": "SLIGHTLY_LEFT",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6790448,
+          "lat": 45.5184851,
+          "elevation": [
+            {
+              "first": 0.0,
+              "second": 15.172842545446779
+            },
+            {
+              "first": 10.0,
+              "second": 15.30284254544678
+            },
+            {
+              "first": 20.0,
+              "second": 15.46284254544678
+            },
+            {
+              "first": 32.51,
+              "second": 15.022842545446778
+            },
+            {
+              "first": 32.511,
+              "second": 15.022842545446778
+            },
+            {
+              "first": 46.201,
+              "second": 14.512842545446778
+            },
+            {
+              "first": 46.197,
+              "second": 14.512842545446778
+            },
+            {
+              "first": 56.197,
+              "second": 14.342842545446779
+            },
+            {
+              "first": 63.42700000000001,
+              "second": 14.352842545446778
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

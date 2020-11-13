@@ -1,0 +1,1710 @@
+{
+  "duration": 2262,
+  "startTime": 1573688700000,
+  "endTime": 1573690962000,
+  "walkTime": 521,
+  "transitTime": 1300,
+  "waitingTime": 441,
+  "walkDistance": 0,
+  "walkLimitExceeded": false,
+  "elevationLost": 11.799999999999994,
+  "elevationGained": 21.129999999999995,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {}
+  },
+  "legs": [
+    {
+      "startTime": 1573688700000,
+      "endTime": 1573688880000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 961.7650000000001,
+      "pathway": false,
+      "mode": "CAR",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "2943 SE Washington St, Portland, OR, USA 97214",
+        "lon": -122.63470154379792,
+        "lat": 45.519031121242776,
+        "departure": 1573688700000,
+        "orig": "2943 SE Washington St, Portland, OR, USA 97214",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "SE Cesar Chavez Blvd & Stark",
+        "stopId": "TriMet:7485",
+        "stopCode": "7485",
+        "lon": -122.622899,
+        "lat": 45.519195,
+        "arrival": 1573688880000,
+        "departure": 1573689320000,
+        "zoneId": "B",
+        "stopIndex": 46,
+        "stopSequence": 47,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "}lytGnbokV{AFd@??kC?_@?O?yD?{B?gA?oC?q@?M?Q@eG?kF?}F?wF?O?oG?a@?uE?Y?W?E",
+        "length": 24
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": true,
+      "tncData": {
+        "company": "UBER",
+        "currency": "USD",
+        "travelDuration": 300,
+        "maxCost": 10,
+        "minCost": 9,
+        "productId": "a6eef2e1-c99a-436f-bde9-fefb9181c0b0",
+        "displayName": "UberX",
+        "estimatedArrival": 240
+      },
+      "duration": 180,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 31.434,
+          "relativeDirection": "DEPART",
+          "streetName": "SE 30th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.63479456900684,
+          "lat": 45.51903126345032,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 40.152842545446774
+            },
+            {
+              "first": 10,
+              "second": 40.292842545446774
+            },
+            {
+              "first": 20,
+              "second": 40.38284254544678
+            },
+            {
+              "first": 30,
+              "second": 40.462842545446776
+            },
+            {
+              "first": 31.43,
+              "second": 40.47284254544678
+            }
+          ]
+        },
+        {
+          "distance": 930.3310000000001,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Stark St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6348388,
+          "lat": 45.5193089,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 41.00284254544678
+            },
+            {
+              "first": 10,
+              "second": 41.042842545446774
+            },
+            {
+              "first": 20,
+              "second": 41.47284254544678
+            },
+            {
+              "first": 30,
+              "second": 41.64284254544678
+            },
+            {
+              "first": 40,
+              "second": 41.86284254544678
+            },
+            {
+              "first": 50,
+              "second": 42.02284254544678
+            },
+            {
+              "first": 55.12,
+              "second": 42.02284254544678
+            },
+            {
+              "first": 55.122,
+              "second": 42.02284254544678
+            },
+            {
+              "first": 65.122,
+              "second": 42.16284254544678
+            },
+            {
+              "first": 73.252,
+              "second": 42.47284254544678
+            },
+            {
+              "first": 73.251,
+              "second": 42.47284254544678
+            },
+            {
+              "first": 83.251,
+              "second": 42.64284254544678
+            },
+            {
+              "first": 93.251,
+              "second": 42.962842545446776
+            },
+            {
+              "first": 103.251,
+              "second": 43.30284254544678
+            },
+            {
+              "first": 113.251,
+              "second": 43.52284254544678
+            },
+            {
+              "first": 123.251,
+              "second": 44.06284254544678
+            },
+            {
+              "first": 133.251,
+              "second": 44.19284254544678
+            },
+            {
+              "first": 145.931,
+              "second": 44.25284254544678
+            },
+            {
+              "first": 145.93400000000003,
+              "second": 44.25284254544678
+            },
+            {
+              "first": 155.93400000000003,
+              "second": 44.37284254544678
+            },
+            {
+              "first": 165.93400000000003,
+              "second": 44.402842545446774
+            },
+            {
+              "first": 175.93400000000003,
+              "second": 44.45284254544678
+            },
+            {
+              "first": 185.93400000000003,
+              "second": 44.23284254544678
+            },
+            {
+              "first": 194.40400000000002,
+              "second": 44.03284254544678
+            },
+            {
+              "first": 194.40200000000004,
+              "second": 44.03284254544678
+            },
+            {
+              "first": 204.40200000000004,
+              "second": 44.52284254544678
+            },
+            {
+              "first": 214.40200000000004,
+              "second": 44.70284254544678
+            },
+            {
+              "first": 222.17200000000005,
+              "second": 44.792842545446774
+            },
+            {
+              "first": 222.16900000000004,
+              "second": 44.792842545446774
+            },
+            {
+              "first": 232.16900000000004,
+              "second": 44.83284254544678
+            },
+            {
+              "first": 242.16900000000004,
+              "second": 44.932842545446775
+            },
+            {
+              "first": 252.16900000000004,
+              "second": 44.98284254544678
+            },
+            {
+              "first": 262.16900000000004,
+              "second": 45.33284254544678
+            },
+            {
+              "first": 272.16900000000004,
+              "second": 45.56284254544678
+            },
+            {
+              "first": 278.19900000000007,
+              "second": 45.67284254544678
+            },
+            {
+              "first": 278.194,
+              "second": 45.67284254544678
+            },
+            {
+              "first": 288.194,
+              "second": 45.94284254544678
+            },
+            {
+              "first": 298.194,
+              "second": 46.13284254544678
+            },
+            {
+              "first": 303.534,
+              "second": 46.22284254544678
+            },
+            {
+              "first": 303.533,
+              "second": 46.22284254544678
+            },
+            {
+              "first": 313.533,
+              "second": 46.47284254544678
+            },
+            {
+              "first": 323.533,
+              "second": 46.94284254544678
+            },
+            {
+              "first": 333.533,
+              "second": 47.28284254544678
+            },
+            {
+              "first": 343.533,
+              "second": 47.37284254544678
+            },
+            {
+              "first": 353.533,
+              "second": 47.47284254544678
+            },
+            {
+              "first": 363.533,
+              "second": 47.80284254544678
+            },
+            {
+              "first": 373.533,
+              "second": 48.12284254544678
+            },
+            {
+              "first": 383.533,
+              "second": 48.45284254544678
+            },
+            {
+              "first": 393.533,
+              "second": 48.572842545446775
+            },
+            {
+              "first": 403.533,
+              "second": 48.572842545446775
+            },
+            {
+              "first": 412.37300000000005,
+              "second": 48.60284254544678
+            },
+            {
+              "first": 412.377,
+              "second": 48.60284254544678
+            },
+            {
+              "first": 422.377,
+              "second": 48.712842545446776
+            },
+            {
+              "first": 432.377,
+              "second": 48.66284254544678
+            },
+            {
+              "first": 442.377,
+              "second": 49.00284254544678
+            },
+            {
+              "first": 452.377,
+              "second": 49.09284254544678
+            },
+            {
+              "first": 462.377,
+              "second": 49.09284254544678
+            },
+            {
+              "first": 472.377,
+              "second": 49.072842545446775
+            },
+            {
+              "first": 482.377,
+              "second": 49.072842545446775
+            },
+            {
+              "first": 492.377,
+              "second": 49.44284254544678
+            },
+            {
+              "first": 504.717,
+              "second": 49.00284254544678
+            },
+            {
+              "first": 504.717,
+              "second": 49.00284254544678
+            },
+            {
+              "first": 514.717,
+              "second": 49.35284254544678
+            },
+            {
+              "first": 524.717,
+              "second": 49.432842545446775
+            },
+            {
+              "first": 534.717,
+              "second": 49.50284254544678
+            },
+            {
+              "first": 544.717,
+              "second": 49.56284254544678
+            },
+            {
+              "first": 554.717,
+              "second": 49.64284254544678
+            },
+            {
+              "first": 564.717,
+              "second": 49.77284254544678
+            },
+            {
+              "first": 574.717,
+              "second": 49.84284254544678
+            },
+            {
+              "first": 584.717,
+              "second": 49.98284254544678
+            },
+            {
+              "first": 594.717,
+              "second": 50.16284254544678
+            },
+            {
+              "first": 603.377,
+              "second": 50.16284254544678
+            },
+            {
+              "first": 603.376,
+              "second": 50.16284254544678
+            },
+            {
+              "first": 613.376,
+              "second": 50.35284254544678
+            },
+            {
+              "first": 623.376,
+              "second": 50.47284254544678
+            },
+            {
+              "first": 633.376,
+              "second": 50.61284254544678
+            },
+            {
+              "first": 643.376,
+              "second": 50.63284254544678
+            },
+            {
+              "first": 653.376,
+              "second": 50.712842545446776
+            },
+            {
+              "first": 663.376,
+              "second": 50.84284254544678
+            },
+            {
+              "first": 673.376,
+              "second": 50.94284254544678
+            },
+            {
+              "first": 683.376,
+              "second": 50.98284254544678
+            },
+            {
+              "first": 693.376,
+              "second": 51.01284254544677
+            },
+            {
+              "first": 700.1759999999999,
+              "second": 51.13284254544678
+            },
+            {
+              "first": 700.172,
+              "second": 51.13284254544678
+            },
+            {
+              "first": 710.172,
+              "second": 51.28284254544678
+            },
+            {
+              "first": 720.172,
+              "second": 51.532842545446776
+            },
+            {
+              "first": 730.172,
+              "second": 51.56284254544678
+            },
+            {
+              "first": 740.172,
+              "second": 51.67284254544678
+            },
+            {
+              "first": 750.172,
+              "second": 51.76284254544678
+            },
+            {
+              "first": 760.172,
+              "second": 51.782842545446776
+            },
+            {
+              "first": 770.172,
+              "second": 51.70284254544678
+            },
+            {
+              "first": 780.172,
+              "second": 51.88284254544678
+            },
+            {
+              "first": 790.172,
+              "second": 51.98284254544678
+            },
+            {
+              "first": 800.172,
+              "second": 52.02284254544678
+            },
+            {
+              "first": 812.272,
+              "second": 51.99284254544678
+            },
+            {
+              "first": 812.2710000000001,
+              "second": 51.99284254544678
+            },
+            {
+              "first": 825.171,
+              "second": 52.15284254544678
+            },
+            {
+              "first": 825.1730000000001,
+              "second": 52.15284254544678
+            },
+            {
+              "first": 835.1730000000001,
+              "second": 52.252842545446775
+            },
+            {
+              "first": 845.1730000000001,
+              "second": 52.34284254544678
+            },
+            {
+              "first": 855.1730000000001,
+              "second": 52.41284254544678
+            },
+            {
+              "first": 865.1730000000001,
+              "second": 52.44284254544678
+            },
+            {
+              "first": 875.1730000000001,
+              "second": 52.47284254544678
+            },
+            {
+              "first": 885.1730000000001,
+              "second": 52.56284254544678
+            },
+            {
+              "first": 895.1730000000001,
+              "second": 52.56284254544678
+            },
+            {
+              "first": 905.1730000000001,
+              "second": 52.59284254544678
+            },
+            {
+              "first": 918.6030000000001,
+              "second": 52.69284254544678
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573689320000,
+      "endTime": 1573690620000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 5138.874850239785,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "75",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeType": 3,
+      "routeId": "TriMet:75",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "7508",
+      "headsign": "St. Johns via NAYA",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9262578",
+      "serviceDate": "20191113",
+      "from": {
+        "name": "SE Cesar Chavez Blvd & Stark",
+        "stopId": "TriMet:7485",
+        "stopCode": "7485",
+        "lon": -122.622899,
+        "lat": 45.519195,
+        "arrival": 1573688880000,
+        "departure": 1573689320000,
+        "zoneId": "B",
+        "stopIndex": 46,
+        "stopSequence": 47,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "NE 42nd & Killingsworth",
+        "stopId": "TriMet:7520",
+        "stopCode": "7520",
+        "lon": -122.620325,
+        "lat": 45.56346,
+        "arrival": 1573690620000,
+        "departure": 1573690621000,
+        "zoneId": "B",
+        "stopIndex": 69,
+        "stopSequence": 70,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "}mytG`ylkVE?M?K?i@@a@?mBAmC?kB?c@AQ?eB?WK{@?I?mAAK?_@?G?Q?iC?K?mA?]H_@?mCAa@IMCKCGEMIYSIKKIICI?E?C?KDKFILWRIFOFKBI@_@H{BAQ?wB?G?M?M?cC?mBA]?aC?S?Q?kB?SAo@?iA?gA?sAAM?}A?IAq@?G?EAGe@@u@?E@]Bo@?Y@I?]?wA?u@?ORAJEB@D@Z?FKDO?K?[?K?CMa@O?e@?OEO?kA?Y?U?K?i@?U?Q?S@KA?{@UKEAG?_D?y@?I?M?]?]AkB?s@?_@?o@?K?U?iD?iH?I?cH?O?}B?O?aA?I?G@IBIDEDEDGFGJCJENI\\aAhFEPCNGHELIHGDKFKDK@G?GAIAIEIEIICEGIe@w@e@w@GKOSAAMOMMKKKGIECAEAcHAc@?uDAGAIAMCOC?eAm@?]?c@CaD@kA?Q?_@?sC@mC?S?eE@}C?S?wD@}B?w@?aF@}CA}C?M?{A@S?uF?S?iC?mA?c@?aB?yA?w@?Q?{A?A?a@BC?",
+        "length": 215
+      },
+      "interStopGeometry": [
+        {
+          "points": "}mytG`ylkVE?M?K?i@@a@?mBAmC?kB?",
+          "length": 9
+        },
+        {
+          "points": "q|ytG`ylkVc@AQ?eB?WK{@?I?mAAK?_@?",
+          "length": 10
+        },
+        {
+          "points": "ehztGpxlkVG?Q?iC?K?mA?]H_@?mCAa@IMCKCGEMIYSIKKIICI?E?",
+          "length": 20
+        },
+        {
+          "points": "k{ztGhvlkVC?KDKFILWRIFOFKBI@_@H{BAQ?wB?",
+          "length": 14
+        },
+        {
+          "points": "_h{tGvxlkVG?M?M?cC?mBA",
+          "length": 6
+        },
+        {
+          "points": "up{tGtxlkV]?aC?S?Q?kB?",
+          "length": 6
+        },
+        {
+          "points": "gz{tGtxlkVSAo@?iA?gA?sAAM?}A?IA",
+          "length": 9
+        },
+        {
+          "points": "gg|tGnxlkVq@?G?EAGe@@u@?E@]Bo@?Y@I?]?wA?u@?ORAJEB@D@Z?FKDO?K?[?K?CMa@O?",
+          "length": 28
+        },
+        {
+          "points": "og|tGbhlkVe@?OEO?kA?Y?U?K?i@?U?Q?",
+          "length": 11
+        },
+        {
+          "points": "op|tG|glkVS@KA?{@UKEAG?_D?y@?",
+          "length": 9
+        },
+        {
+          "points": "my|tGrelkVI?M?]?]AkB?s@?_@?o@?K?",
+          "length": 10
+        },
+        {
+          "points": "}c}tGpelkVU?iD?iH?",
+          "length": 4
+        },
+        {
+          "points": "gs}tGpelkVI?cH?",
+          "length": 3
+        },
+        {
+          "points": "u|}tGpelkVO?}B?O?aA?I?G@IBIDEDEDGFGJCJENI\\aAhFEPCNGHELIHGDKFKDK@G?GAIAIEIEIICEGIe@w@e@w@GKOSAA",
+          "length": 39
+        },
+        {
+          "points": "ep~tG~llkVMOMMKKKGIECAEAcHAc@?",
+          "length": 10
+        },
+        {
+          "points": "u|~tG`klkVuDAGAIAMCOC?eAm@?",
+          "length": 8
+        },
+        {
+          "points": "ie_uGlhlkV]?c@CaD@kA?",
+          "length": 5
+        },
+        {
+          "points": "yn_uGjhlkVQ?_@?sC@mC?",
+          "length": 5
+        },
+        {
+          "points": "my_uGlhlkVS?eE@}C?",
+          "length": 4
+        },
+        {
+          "points": "ee`uGnhlkVS?wD@}B?",
+          "length": 4
+        },
+        {
+          "points": "oo`uGphlkVw@?aF@}CA}C?M?{A@",
+          "length": 7
+        },
+        {
+          "points": "oeauGrhlkVS?uF?",
+          "length": 3
+        },
+        {
+          "points": "ymauGrhlkVS?iC?mA?c@?aB?yA?w@?Q?{A?A?a@BC?",
+          "length": 13
+        }
+      ],
+      "routeShortName": "75",
+      "routeLongName": "Cesar Chavez/Lombard",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 1300,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "SE Cesar Chavez Blvd & Ash",
+          "stopId": "TriMet:7435",
+          "stopCode": "7435",
+          "lon": -122.622944,
+          "lat": 45.521538,
+          "arrival": 1573689384000,
+          "departure": 1573689384000,
+          "zoneId": "B",
+          "stopIndex": 47,
+          "stopSequence": 48,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "SE Cesar Chavez Blvd & E Burnside",
+          "stopId": "TriMet:7440",
+          "stopCode": "7440",
+          "lon": -122.622915,
+          "lat": 45.523398,
+          "arrival": 1573689434000,
+          "departure": 1573689434000,
+          "zoneId": "B",
+          "stopIndex": 48,
+          "stopSequence": 49,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Cesar Chavez Blvd & Glisan",
+          "stopId": "TriMet:7451",
+          "stopCode": "7451",
+          "lon": -122.622451,
+          "lat": 45.52647,
+          "arrival": 1573689518000,
+          "departure": 1573689518000,
+          "zoneId": "B",
+          "stopIndex": 49,
+          "stopSequence": 50,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Cesar Chavez Blvd & Royal",
+          "stopId": "TriMet:7482",
+          "stopCode": "7482",
+          "lon": -122.622889,
+          "lat": 45.528475,
+          "arrival": 1573689574000,
+          "departure": 1573689574000,
+          "zoneId": "B",
+          "stopIndex": 50,
+          "stopSequence": 51,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Cesar Chavez Blvd & Hazelfern",
+          "stopId": "TriMet:7461",
+          "stopCode": "7461",
+          "lon": -122.622891,
+          "lat": 45.529874,
+          "arrival": 1573689612000,
+          "departure": 1573689612000,
+          "zoneId": "B",
+          "stopIndex": 51,
+          "stopSequence": 52,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Cesar Chavez Blvd & Multnomah",
+          "stopId": "TriMet:7475",
+          "stopCode": "7475",
+          "lon": -122.62288,
+          "lat": 45.531406,
+          "arrival": 1573689653000,
+          "departure": 1573689653000,
+          "zoneId": "B",
+          "stopIndex": 52,
+          "stopSequence": 53,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Cesar Chavez Blvd & Halsey",
+          "stopId": "TriMet:11487",
+          "stopCode": "11487",
+          "lon": -122.622769,
+          "lat": 45.533479,
+          "arrival": 1573689709000,
+          "departure": 1573689709000,
+          "zoneId": "B",
+          "stopIndex": 53,
+          "stopSequence": 54,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "Hollywood Transit Center",
+          "stopId": "TriMet:10872",
+          "stopCode": "10872",
+          "lon": -122.620249,
+          "lat": 45.533528,
+          "arrival": 1573689780000,
+          "departure": 1573689780000,
+          "zoneId": "B",
+          "stopIndex": 54,
+          "stopSequence": 55,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Broadway",
+          "stopId": "TriMet:7509",
+          "stopCode": "7509",
+          "lon": -122.620229,
+          "lat": 45.534967,
+          "arrival": 1573689851000,
+          "departure": 1573689851000,
+          "zoneId": "B",
+          "stopIndex": 55,
+          "stopSequence": 56,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Sandy",
+          "stopId": "TriMet:7528",
+          "stopCode": "7528",
+          "lon": -122.619832,
+          "lat": 45.536397,
+          "arrival": 1573689932000,
+          "departure": 1573689932000,
+          "zoneId": "B",
+          "stopIndex": 56,
+          "stopSequence": 57,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Tillamook",
+          "stopId": "TriMet:7537",
+          "stopCode": "7537",
+          "lon": -122.61984,
+          "lat": 45.538072,
+          "arrival": 1573690014000,
+          "departure": 1573690014000,
+          "zoneId": "B",
+          "stopIndex": 57,
+          "stopSequence": 58,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Brazee",
+          "stopId": "TriMet:7507",
+          "stopCode": "7507",
+          "lon": -122.619836,
+          "lat": 45.54052,
+          "arrival": 1573690069000,
+          "departure": 1573690069000,
+          "zoneId": "B",
+          "stopIndex": 58,
+          "stopSequence": 59,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Knott",
+          "stopId": "TriMet:7521",
+          "stopCode": "7521",
+          "lon": -122.619834,
+          "lat": 45.542032,
+          "arrival": 1573690103000,
+          "departure": 1573690103000,
+          "zoneId": "B",
+          "stopIndex": 59,
+          "stopSequence": 60,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 41st & Alameda",
+          "stopId": "TriMet:7497",
+          "stopCode": "7497",
+          "lon": -122.621045,
+          "lat": 45.545112,
+          "arrival": 1573690199000,
+          "departure": 1573690199000,
+          "zoneId": "B",
+          "stopIndex": 60,
+          "stopSequence": 61,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 41st & Klickitat",
+          "stopId": "TriMet:7499",
+          "stopCode": "7499",
+          "lon": -122.620719,
+          "lat": 45.547156,
+          "arrival": 1573690246000,
+          "departure": 1573690246000,
+          "zoneId": "B",
+          "stopIndex": 61,
+          "stopSequence": 62,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Fremont",
+          "stopId": "TriMet:7501",
+          "stopCode": "7501",
+          "lon": -122.620267,
+          "lat": 45.548535,
+          "arrival": 1573690283000,
+          "departure": 1573690283000,
+          "zoneId": "B",
+          "stopIndex": 62,
+          "stopSequence": 63,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Beech",
+          "stopId": "TriMet:7506",
+          "stopCode": "7506",
+          "lon": -122.620294,
+          "lat": 45.550054,
+          "arrival": 1573690317000,
+          "departure": 1573690317000,
+          "zoneId": "B",
+          "stopIndex": 63,
+          "stopSequence": 64,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Shaver",
+          "stopId": "TriMet:7529",
+          "stopCode": "7529",
+          "lon": -122.620265,
+          "lat": 45.551757,
+          "arrival": 1573690356000,
+          "departure": 1573690356000,
+          "zoneId": "B",
+          "stopIndex": 64,
+          "stopSequence": 65,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Skidmore",
+          "stopId": "TriMet:7533",
+          "stopCode": "7533",
+          "lon": -122.620315,
+          "lat": 45.553635,
+          "arrival": 1573690398000,
+          "departure": 1573690398000,
+          "zoneId": "B",
+          "stopIndex": 65,
+          "stopSequence": 66,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Prescott",
+          "stopId": "TriMet:7526",
+          "stopCode": "7526",
+          "lon": -122.62032,
+          "lat": 45.55529,
+          "arrival": 1573690435000,
+          "departure": 1573690435000,
+          "zoneId": "B",
+          "stopIndex": 66,
+          "stopSequence": 67,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Alberta St",
+          "stopId": "TriMet:7505",
+          "stopCode": "7505",
+          "lon": -122.620339,
+          "lat": 45.558805,
+          "arrival": 1573690515000,
+          "departure": 1573690515000,
+          "zoneId": "B",
+          "stopIndex": 67,
+          "stopSequence": 68,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE 42nd & Sumner",
+          "stopId": "TriMet:7535",
+          "stopCode": "7535",
+          "lon": -122.620324,
+          "lat": 45.560133,
+          "arrival": 1573690545000,
+          "departure": 1573690545000,
+          "zoneId": "B",
+          "stopIndex": 68,
+          "stopSequence": 69,
+          "vertexType": "TRANSIT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1573690621000,
+      "endTime": 1573690962000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1595.5479999999998,
+      "pathway": false,
+      "mode": "CAR",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NE 42nd & Killingsworth",
+        "stopId": "TriMet:7520",
+        "stopCode": "7520",
+        "lon": -122.620325,
+        "lat": 45.56346,
+        "arrival": 1573690620000,
+        "departure": 1573690621000,
+        "zoneId": "B",
+        "stopIndex": 69,
+        "stopSequence": 70,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "5825 NE Emerson St, Portland, OR, USA 97218",
+        "lon": -122.6025660202473,
+        "lat": 45.56161609098961,
+        "arrival": 1573690962000,
+        "orig": "5825 NE Emerson St, Portland, OR, USA 97218",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "qbbuGvhlkV@?`@C@?p@?V?P??S?gA?O?I?W@eB?o@?G?{A?w@@}B?yB?}C?k@?Y@uB?Y?c@?I?_C@_D?m@?{D?u@@_A?k@?gB?uC?iA?c@@M?U?O?W?U?c@?uA?mE?a@?c@?o@?oA?W?w@?kA?aD?cB`CAnAGN?N@?yDSiD",
+        "length": 60
+      },
+      "alerts": [
+        {
+          "alertHeaderText": "Unpaved surface"
+        }
+      ],
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": true,
+      "tncData": {
+        "company": "UBER",
+        "currency": "USD",
+        "travelDuration": 300,
+        "maxCost": 9,
+        "minCost": 8,
+        "productId": "a6eef2e1-c99a-436f-bde9-fefb9181c0b0",
+        "displayName": "UberX",
+        "estimatedArrival": 240
+      },
+      "duration": 341,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 72.863,
+          "relativeDirection": "DEPART",
+          "streetName": "NE 42nd Ave",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.62043709916489,
+          "lat": 45.56345956639614,
+          "elevation": []
+        },
+        {
+          "distance": 1247.2540000000001,
+          "relativeDirection": "LEFT",
+          "streetName": "NE Killingsworth St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6204119,
+          "lat": 45.5628049,
+          "elevation": [
+            {
+              "first": 42.07299999999999,
+              "second": 44.70284254544678
+            },
+            {
+              "first": 45.94299999999999,
+              "second": 44.66284254544678
+            },
+            {
+              "first": 94.38999999999999,
+              "second": 44.432842545446775
+            },
+            {
+              "first": 104.38999999999999,
+              "second": 44.33284254544678
+            },
+            {
+              "first": 113.11999999999999,
+              "second": 44.20284254544678
+            },
+            {
+              "first": 113.12099999999998,
+              "second": 44.20284254544678
+            },
+            {
+              "first": 116.59099999999998,
+              "second": 44.13284254544678
+            },
+            {
+              "first": 116.59299999999998,
+              "second": 44.13284254544678
+            },
+            {
+              "first": 126.59299999999998,
+              "second": 44.02284254544678
+            },
+            {
+              "first": 136.59299999999996,
+              "second": 43.81284254544678
+            },
+            {
+              "first": 146.59299999999996,
+              "second": 43.712842545446776
+            },
+            {
+              "first": 152.64299999999997,
+              "second": 43.64284254544678
+            },
+            {
+              "first": 152.647,
+              "second": 43.64284254544678
+            },
+            {
+              "first": 162.647,
+              "second": 43.52284254544678
+            },
+            {
+              "first": 173.987,
+              "second": 43.47284254544678
+            },
+            {
+              "first": 173.986,
+              "second": 43.47284254544678
+            },
+            {
+              "first": 183.986,
+              "second": 43.42284254544678
+            },
+            {
+              "first": 193.986,
+              "second": 43.39284254544678
+            },
+            {
+              "first": 203.986,
+              "second": 43.39284254544678
+            },
+            {
+              "first": 213.986,
+              "second": 43.39284254544678
+            },
+            {
+              "first": 223.286,
+              "second": 43.38284254544678
+            },
+            {
+              "first": 223.29,
+              "second": 43.38284254544678
+            },
+            {
+              "first": 233.29,
+              "second": 43.432842545446775
+            },
+            {
+              "first": 243.29,
+              "second": 43.45284254544678
+            },
+            {
+              "first": 253.29,
+              "second": 43.44284254544678
+            },
+            {
+              "first": 263.28999999999996,
+              "second": 43.462842545446776
+            },
+            {
+              "first": 270.68,
+              "second": 43.42284254544678
+            },
+            {
+              "first": 270.678,
+              "second": 43.42284254544678
+            },
+            {
+              "first": 280.678,
+              "second": 43.35284254544678
+            },
+            {
+              "first": 290.678,
+              "second": 43.25284254544678
+            },
+            {
+              "first": 300.678,
+              "second": 43.212842545446776
+            },
+            {
+              "first": 310.678,
+              "second": 43.13284254544678
+            },
+            {
+              "first": 320.678,
+              "second": 43.072842545446775
+            },
+            {
+              "first": 332.548,
+              "second": 42.932842545446775
+            },
+            {
+              "first": 332.546,
+              "second": 42.932842545446775
+            },
+            {
+              "first": 342.546,
+              "second": 42.85284254544678
+            },
+            {
+              "first": 349.046,
+              "second": 42.792842545446774
+            },
+            {
+              "first": 349.042,
+              "second": 42.792842545446774
+            },
+            {
+              "first": 359.50199999999995,
+              "second": 42.67284254544678
+            },
+            {
+              "first": 359.49699999999996,
+              "second": 42.67284254544678
+            },
+            {
+              "first": 369.49699999999996,
+              "second": 42.60284254544678
+            },
+            {
+              "first": 379.49699999999996,
+              "second": 42.52284254544678
+            },
+            {
+              "first": 389.49699999999996,
+              "second": 42.44284254544678
+            },
+            {
+              "first": 399.49699999999996,
+              "second": 42.31284254544678
+            },
+            {
+              "first": 409.49699999999996,
+              "second": 42.22284254544678
+            },
+            {
+              "first": 415.717,
+              "second": 42.182842545446775
+            },
+            {
+              "first": 415.72099999999995,
+              "second": 42.182842545446775
+            },
+            {
+              "first": 429.3109999999999,
+              "second": 42.03284254544678
+            },
+            {
+              "first": 429.31399999999996,
+              "second": 42.03284254544678
+            },
+            {
+              "first": 433.054,
+              "second": 42.01284254544677
+            },
+            {
+              "first": 433.04999999999995,
+              "second": 42.01284254544677
+            },
+            {
+              "first": 443.04999999999995,
+              "second": 41.94284254544678
+            },
+            {
+              "first": 453.04999999999995,
+              "second": 41.89284254544678
+            },
+            {
+              "first": 463.04999999999995,
+              "second": 41.822842545446775
+            },
+            {
+              "first": 473.04999999999995,
+              "second": 41.822842545446775
+            },
+            {
+              "first": 483.09999999999997,
+              "second": 41.822842545446775
+            },
+            {
+              "first": 483.102,
+              "second": 41.822842545446775
+            },
+            {
+              "first": 493.102,
+              "second": 41.792842545446774
+            },
+            {
+              "first": 503.102,
+              "second": 41.78284254544678
+            },
+            {
+              "first": 513.102,
+              "second": 41.72284254544678
+            },
+            {
+              "first": 523.102,
+              "second": 41.63284254544678
+            },
+            {
+              "first": 533.102,
+              "second": 41.56284254544678
+            },
+            {
+              "first": 545.482,
+              "second": 41.45284254544678
+            },
+            {
+              "first": 545.477,
+              "second": 41.45284254544678
+            },
+            {
+              "first": 555.477,
+              "second": 41.37284254544678
+            },
+            {
+              "first": 563.457,
+              "second": 41.322842545446775
+            },
+            {
+              "first": 699.5550000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 709.5550000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 719.5550000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 729.5550000000001,
+              "second": 41.05284254544678
+            },
+            {
+              "first": 740.465,
+              "second": 41.01284254544677
+            },
+            {
+              "first": 740.4660000000001,
+              "second": 41.01284254544677
+            },
+            {
+              "first": 750.4660000000001,
+              "second": 41.06284254544678
+            },
+            {
+              "first": 760.4660000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 770.4660000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 780.4660000000001,
+              "second": 41.09284254544678
+            },
+            {
+              "first": 790.4660000000001,
+              "second": 41.03284254544678
+            },
+            {
+              "first": 798.7060000000001,
+              "second": 41.11284254544678
+            },
+            {
+              "first": 798.7070000000001,
+              "second": 41.11284254544678
+            },
+            {
+              "first": 808.7070000000001,
+              "second": 41.10284254544678
+            },
+            {
+              "first": 818.7070000000001,
+              "second": 41.072842545446775
+            },
+            {
+              "first": 827.6370000000001,
+              "second": 41.182842545446775
+            },
+            {
+              "first": 827.6360000000001,
+              "second": 41.182842545446775
+            },
+            {
+              "first": 837.6360000000001,
+              "second": 41.11284254544678
+            },
+            {
+              "first": 847.0760000000001,
+              "second": 41.02284254544678
+            },
+            {
+              "first": 879.5690000000002,
+              "second": 40.72284254544678
+            },
+            {
+              "first": 893.8690000000001,
+              "second": 40.74284254544678
+            },
+            {
+              "first": 893.8700000000002,
+              "second": 40.74284254544678
+            },
+            {
+              "first": 903.8700000000002,
+              "second": 40.81284254544678
+            },
+            {
+              "first": 913.8700000000002,
+              "second": 40.712842545446776
+            },
+            {
+              "first": 926.7500000000002,
+              "second": 40.572842545446775
+            },
+            {
+              "first": 926.7460000000002,
+              "second": 40.572842545446775
+            },
+            {
+              "first": 936.7460000000002,
+              "second": 40.56284254544678
+            },
+            {
+              "first": 946.7460000000002,
+              "second": 40.792842545446774
+            },
+            {
+              "first": 956.7460000000002,
+              "second": 40.572842545446775
+            },
+            {
+              "first": 966.7460000000002,
+              "second": 40.23284254544678
+            },
+            {
+              "first": 976.7460000000002,
+              "second": 39.902842545446774
+            },
+            {
+              "first": 986.7460000000002,
+              "second": 39.80284254544678
+            },
+            {
+              "first": 996.7460000000002,
+              "second": 39.402842545446774
+            },
+            {
+              "first": 1007.1160000000002,
+              "second": 39.22284254544678
+            },
+            {
+              "first": 1115.034,
+              "second": 38.30284254544678
+            },
+            {
+              "first": 1125.034,
+              "second": 38.682842545446775
+            },
+            {
+              "first": 1135.034,
+              "second": 38.80284254544678
+            },
+            {
+              "first": 1144.904,
+              "second": 38.55284254544678
+            },
+            {
+              "first": 1144.9050000000002,
+              "second": 38.55284254544678
+            },
+            {
+              "first": 1154.9050000000002,
+              "second": 38.34284254544678
+            },
+            {
+              "first": 1164.9050000000002,
+              "second": 38.48284254544678
+            },
+            {
+              "first": 1174.9050000000002,
+              "second": 38.80284254544678
+            },
+            {
+              "first": 1184.9050000000002,
+              "second": 39.08284254544678
+            },
+            {
+              "first": 1194.9050000000002,
+              "second": 38.962842545446776
+            },
+            {
+              "first": 1208.1550000000002,
+              "second": 38.61284254544678
+            },
+            {
+              "first": 1208.15,
+              "second": 38.61284254544678
+            },
+            {
+              "first": 1218.15,
+              "second": 38.182842545446775
+            },
+            {
+              "first": 1228.15,
+              "second": 37.712842545446776
+            },
+            {
+              "first": 1238.15,
+              "second": 37.30284254544678
+            },
+            {
+              "first": 1247.25,
+              "second": 36.88284254544678
+            }
+          ]
+        },
+        {
+          "distance": 135.408,
+          "relativeDirection": "RIGHT",
+          "streetName": "NE 57th Ave",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6043909,
+          "lat": 45.5627494,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 36.88284254544678
+            },
+            {
+              "first": 10,
+              "second": 37.52284254544678
+            },
+            {
+              "first": 20,
+              "second": 38.03284254544678
+            },
+            {
+              "first": 30,
+              "second": 38.44284254544678
+            },
+            {
+              "first": 40,
+              "second": 38.932842545446775
+            },
+            {
+              "first": 50,
+              "second": 39.49284254544678
+            },
+            {
+              "first": 60,
+              "second": 40.16284254544678
+            },
+            {
+              "first": 70,
+              "second": 40.70284254544678
+            },
+            {
+              "first": 80,
+              "second": 41.12284254544678
+            },
+            {
+              "first": 90,
+              "second": 41.22284254544678
+            },
+            {
+              "first": 100,
+              "second": 40.84284254544678
+            },
+            {
+              "first": 110,
+              "second": 40.60284254544678
+            },
+            {
+              "first": 120,
+              "second": 40.402842545446774
+            },
+            {
+              "first": 130,
+              "second": 40.542842545446774
+            },
+            {
+              "first": 135.4,
+              "second": 40.822842545446775
+            }
+          ],
+          "alerts": [
+            {
+              "alertHeaderText": "Unpaved surface"
+            }
+          ]
+        },
+        {
+          "distance": 140.023,
+          "relativeDirection": "LEFT",
+          "streetName": "NE Emerson St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6043575,
+          "lat": 45.5615334,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 40.822842545446775
+            },
+            {
+              "first": 10,
+              "second": 40.73284254544678
+            },
+            {
+              "first": 20,
+              "second": 40.932842545446775
+            },
+            {
+              "first": 30,
+              "second": 41.20284254544678
+            },
+            {
+              "first": 40,
+              "second": 41.28284254544678
+            },
+            {
+              "first": 50,
+              "second": 41.44284254544678
+            },
+            {
+              "first": 60,
+              "second": 41.292842545446774
+            },
+            {
+              "first": 70,
+              "second": 41.292842545446774
+            },
+            {
+              "first": 80,
+              "second": 41.72284254544678
+            },
+            {
+              "first": 90,
+              "second": 41.62284254544678
+            },
+            {
+              "first": 100,
+              "second": 41.83284254544678
+            },
+            {
+              "first": 110,
+              "second": 41.59284254544678
+            },
+            {
+              "first": 120,
+              "second": 40.50284254544678
+            },
+            {
+              "first": 130,
+              "second": 40.36284254544678
+            },
+            {
+              "first": 140,
+              "second": 40.28284254544678
+            },
+            {
+              "first": 140.02,
+              "second": 40.28284254544678
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

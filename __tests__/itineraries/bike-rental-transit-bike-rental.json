@@ -1,0 +1,2160 @@
+{
+  "duration": 2184,
+  "startTime": 1573689019000,
+  "endTime": 1573691203000,
+  "walkTime": 1429,
+  "transitTime": 753,
+  "waitingTime": 2,
+  "walkDistance": 3410.4588686470597,
+  "walkLimitExceeded": false,
+  "elevationLost": 31.629999999999995,
+  "elevationGained": 13.820000000000014,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {}
+  },
+  "legs": [
+    {
+      "startTime": 1573689019000,
+      "endTime": 1573689181000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 121.806,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "2943 SE Washington St, Portland, OR, USA 97214",
+        "lon": -122.63470154379792,
+        "lat": 45.519031121242776,
+        "departure": 1573689019000,
+        "orig": "2943 SE Washington St, Portland, OR, USA 97214",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "SE 29th at Stark",
+        "lon": -122.63599276542662,
+        "lat": 45.51936282546957,
+        "arrival": 1573689181000,
+        "departure": 1573689181000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1551\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "}lytGnbokV{AFd@??xEK?",
+        "length": 5
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 162,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 31.434,
+          "relativeDirection": "DEPART",
+          "streetName": "SE 30th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.63479456900684,
+          "lat": 45.51903126345032,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 40.152842545446774
+            },
+            {
+              "first": 10,
+              "second": 40.292842545446774
+            },
+            {
+              "first": 20,
+              "second": 40.38284254544678
+            },
+            {
+              "first": 30,
+              "second": 40.462842545446776
+            },
+            {
+              "first": 31.43,
+              "second": 40.47284254544678
+            }
+          ]
+        },
+        {
+          "distance": 84.447,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE Stark St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6348388,
+          "lat": 45.5193089,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 41.00284254544678
+            },
+            {
+              "first": 10,
+              "second": 41.02284254544678
+            },
+            {
+              "first": 20,
+              "second": 41.20284254544678
+            },
+            {
+              "first": 30,
+              "second": 41.33284254544678
+            },
+            {
+              "first": 40,
+              "second": 41.48284254544678
+            },
+            {
+              "first": 50,
+              "second": 41.63284254544678
+            },
+            {
+              "first": 60,
+              "second": 41.78284254544678
+            },
+            {
+              "first": 70,
+              "second": 41.932842545446775
+            },
+            {
+              "first": 84.45,
+              "second": 42.072842545446775
+            }
+          ]
+        },
+        {
+          "distance": 5.925,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 29th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6359227,
+          "lat": 45.5193092,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 42.072842545446775
+            },
+            {
+              "first": 5.93,
+              "second": 42.11284254544678
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573689181000,
+      "endTime": 1573689573000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1238.5530000000003,
+      "pathway": false,
+      "mode": "BICYCLE",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SE 29th at Stark",
+        "lon": -122.63599276542662,
+        "lat": 45.51936282546957,
+        "arrival": 1573689181000,
+        "departure": 1573689181000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1551\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "NE Glisan at 24th",
+        "lon": -122.6416327804327,
+        "lat": 45.526494932914076,
+        "arrival": 1573689573000,
+        "departure": 1573689573000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1522\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "_oytGpiokVmGC?dG?PqCAiCAAX?pD?zB?l@?ZAxF?b@?X?tBq@?{A?oCAmCAmC?oCAuCA?l@",
+        "length": 23
+      },
+      "rentedBike": true,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 392,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 149.895,
+          "relativeDirection": "CONTINUE",
+          "streetName": "SE 29th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6359221865929,
+          "lat": 45.51936249165759,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 42.072842545446775
+            },
+            {
+              "first": 10,
+              "second": 42.14284254544678
+            },
+            {
+              "first": 20,
+              "second": 42.212842545446776
+            },
+            {
+              "first": 30,
+              "second": 42.322842545446775
+            },
+            {
+              "first": 40,
+              "second": 42.45284254544678
+            },
+            {
+              "first": 50,
+              "second": 42.60284254544678
+            },
+            {
+              "first": 60,
+              "second": 42.78284254544678
+            },
+            {
+              "first": 70,
+              "second": 42.932842545446775
+            },
+            {
+              "first": 80,
+              "second": 43.09284254544678
+            },
+            {
+              "first": 90,
+              "second": 43.22284254544678
+            },
+            {
+              "first": 100,
+              "second": 43.38284254544678
+            },
+            {
+              "first": 110,
+              "second": 43.55284254544678
+            },
+            {
+              "first": 120,
+              "second": 43.69284254544678
+            },
+            {
+              "first": 130,
+              "second": 43.83284254544678
+            },
+            {
+              "first": 140,
+              "second": 43.98284254544678
+            },
+            {
+              "first": 149.9,
+              "second": 44.12284254544678
+            }
+          ]
+        },
+        {
+          "distance": 109.05,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Pine St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6359092,
+          "lat": 45.5207105,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 44.25284254544678
+            },
+            {
+              "first": 10,
+              "second": 44.25284254544678
+            },
+            {
+              "first": 20,
+              "second": 44.16284254544678
+            },
+            {
+              "first": 30,
+              "second": 44.09284254544678
+            },
+            {
+              "first": 40,
+              "second": 43.88284254544678
+            },
+            {
+              "first": 50,
+              "second": 43.74284254544678
+            },
+            {
+              "first": 60,
+              "second": 43.63284254544678
+            },
+            {
+              "first": 70,
+              "second": 43.48284254544678
+            },
+            {
+              "first": 80,
+              "second": 43.322842545446775
+            },
+            {
+              "first": 90,
+              "second": 43.19284254544678
+            },
+            {
+              "first": 100,
+              "second": 43.02284254544678
+            },
+            {
+              "first": 109.05,
+              "second": 43.03284254544678
+            }
+          ]
+        },
+        {
+          "distance": 157.897,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 28th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6373089,
+          "lat": 45.5207158,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 43.03284254544678
+            },
+            {
+              "first": 10,
+              "second": 43.072842545446775
+            },
+            {
+              "first": 20,
+              "second": 43.17284254544678
+            },
+            {
+              "first": 30,
+              "second": 43.38284254544678
+            },
+            {
+              "first": 40,
+              "second": 43.682842545446775
+            },
+            {
+              "first": 50,
+              "second": 43.98284254544678
+            },
+            {
+              "first": 60,
+              "second": 44.27284254544678
+            },
+            {
+              "first": 70,
+              "second": 44.56284254544678
+            },
+            {
+              "first": 80.58,
+              "second": 44.822842545446775
+            },
+            {
+              "first": 80.578,
+              "second": 44.822842545446775
+            },
+            {
+              "first": 90.578,
+              "second": 44.89284254544678
+            },
+            {
+              "first": 100.578,
+              "second": 44.73284254544678
+            },
+            {
+              "first": 110.578,
+              "second": 44.44284254544678
+            },
+            {
+              "first": 120.578,
+              "second": 44.11284254544678
+            },
+            {
+              "first": 130.578,
+              "second": 43.78284254544678
+            },
+            {
+              "first": 140.578,
+              "second": 43.462842545446776
+            },
+            {
+              "first": 150.578,
+              "second": 43.17284254544678
+            },
+            {
+              "first": 157.898,
+              "second": 43.00284254544678
+            }
+          ]
+        },
+        {
+          "distance": 323.892,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Ankeny St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6372845,
+          "lat": 45.5221357,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 43.00284254544678
+            },
+            {
+              "first": 10,
+              "second": 42.932842545446775
+            },
+            {
+              "first": 20,
+              "second": 42.83284254544678
+            },
+            {
+              "first": 30,
+              "second": 42.63284254544678
+            },
+            {
+              "first": 40,
+              "second": 42.38284254544678
+            },
+            {
+              "first": 50,
+              "second": 42.16284254544678
+            },
+            {
+              "first": 60,
+              "second": 41.962842545446776
+            },
+            {
+              "first": 70,
+              "second": 41.69284254544678
+            },
+            {
+              "first": 79.77,
+              "second": 41.51284254544677
+            },
+            {
+              "first": 79.77,
+              "second": 41.51284254544677
+            },
+            {
+              "first": 89.77,
+              "second": 41.76284254544677
+            },
+            {
+              "first": 99.77,
+              "second": 41.822842545446775
+            },
+            {
+              "first": 109.77,
+              "second": 41.70284254544678
+            },
+            {
+              "first": 119.77,
+              "second": 40.962842545446776
+            },
+            {
+              "first": 127.69,
+              "second": 40.73284254544678
+            },
+            {
+              "first": 127.69,
+              "second": 40.73284254544678
+            },
+            {
+              "first": 137.69,
+              "second": 40.402842545446774
+            },
+            {
+              "first": 147.69,
+              "second": 40.24284254544678
+            },
+            {
+              "first": 156.98,
+              "second": 39.92284254544678
+            },
+            {
+              "first": 156.983,
+              "second": 39.92284254544678
+            },
+            {
+              "first": 166.983,
+              "second": 39.85284254544678
+            },
+            {
+              "first": 176.983,
+              "second": 39.86284254544678
+            },
+            {
+              "first": 186.983,
+              "second": 39.73284254544678
+            },
+            {
+              "first": 196.983,
+              "second": 39.63284254544678
+            },
+            {
+              "first": 206.983,
+              "second": 39.59284254544678
+            },
+            {
+              "first": 216.983,
+              "second": 39.86284254544678
+            },
+            {
+              "first": 226.983,
+              "second": 39.63284254544678
+            },
+            {
+              "first": 236.983,
+              "second": 39.48284254544678
+            },
+            {
+              "first": 246.983,
+              "second": 39.212842545446776
+            },
+            {
+              "first": 256.983,
+              "second": 39.072842545446775
+            },
+            {
+              "first": 267.76300000000003,
+              "second": 38.87284254544678
+            },
+            {
+              "first": 267.76,
+              "second": 38.87284254544678
+            },
+            {
+              "first": 278.48,
+              "second": 38.73284254544678
+            },
+            {
+              "first": 278.48,
+              "second": 38.73284254544678
+            },
+            {
+              "first": 288.48,
+              "second": 38.792842545446774
+            },
+            {
+              "first": 298.48,
+              "second": 38.73284254544678
+            },
+            {
+              "first": 308.48,
+              "second": 38.67284254544678
+            },
+            {
+              "first": 318.48,
+              "second": 38.47284254544678
+            },
+            {
+              "first": 323.89,
+              "second": 38.49284254544678
+            }
+          ]
+        },
+        {
+          "distance": 78.85900000000001,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 24th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6414415,
+          "lat": 45.5221551,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 38.49284254544678
+            },
+            {
+              "first": 10,
+              "second": 38.73284254544678
+            },
+            {
+              "first": 20,
+              "second": 38.73284254544678
+            },
+            {
+              "first": 28.04,
+              "second": 38.86284254544678
+            },
+            {
+              "first": 28.043,
+              "second": 38.86284254544678
+            },
+            {
+              "first": 38.043,
+              "second": 39.06284254544678
+            },
+            {
+              "first": 48.043,
+              "second": 39.212842545446776
+            },
+            {
+              "first": 58.043,
+              "second": 39.41284254544678
+            },
+            {
+              "first": 68.043,
+              "second": 39.59284254544678
+            },
+            {
+              "first": 78.863,
+              "second": 39.84284254544678
+            }
+          ]
+        },
+        {
+          "distance": 401.5,
+          "relativeDirection": "CONTINUE",
+          "streetName": "NE 24th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6414426,
+          "lat": 45.5228643,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 39.84284254544678
+            },
+            {
+              "first": 10,
+              "second": 40.02284254544678
+            },
+            {
+              "first": 20,
+              "second": 39.81284254544678
+            },
+            {
+              "first": 30,
+              "second": 39.56284254544678
+            },
+            {
+              "first": 40,
+              "second": 39.33284254544678
+            },
+            {
+              "first": 50,
+              "second": 39.14284254544678
+            },
+            {
+              "first": 60,
+              "second": 38.932842545446775
+            },
+            {
+              "first": 70,
+              "second": 38.712842545446776
+            },
+            {
+              "first": 79.63,
+              "second": 38.59284254544678
+            },
+            {
+              "first": 79.629,
+              "second": 38.59284254544678
+            },
+            {
+              "first": 89.629,
+              "second": 38.51284254544677
+            },
+            {
+              "first": 99.629,
+              "second": 38.572842545446775
+            },
+            {
+              "first": 109.629,
+              "second": 38.76284254544677
+            },
+            {
+              "first": 119.629,
+              "second": 38.99284254544678
+            },
+            {
+              "first": 129.62900000000002,
+              "second": 39.23284254544678
+            },
+            {
+              "first": 139.62900000000002,
+              "second": 39.48284254544678
+            },
+            {
+              "first": 149.62900000000002,
+              "second": 39.712842545446776
+            },
+            {
+              "first": 158.889,
+              "second": 39.89284254544678
+            },
+            {
+              "first": 158.89100000000002,
+              "second": 39.89284254544678
+            },
+            {
+              "first": 168.89100000000002,
+              "second": 40.01284254544677
+            },
+            {
+              "first": 178.89100000000002,
+              "second": 40.09284254544678
+            },
+            {
+              "first": 188.89100000000002,
+              "second": 40.30284254544678
+            },
+            {
+              "first": 198.89100000000002,
+              "second": 40.51284254544677
+            },
+            {
+              "first": 208.89100000000002,
+              "second": 40.70284254544678
+            },
+            {
+              "first": 218.89100000000002,
+              "second": 40.91284254544678
+            },
+            {
+              "first": 228.89100000000002,
+              "second": 41.12284254544678
+            },
+            {
+              "first": 238.18100000000004,
+              "second": 41.28284254544678
+            },
+            {
+              "first": 238.185,
+              "second": 41.28284254544678
+            },
+            {
+              "first": 248.185,
+              "second": 41.44284254544678
+            },
+            {
+              "first": 258.185,
+              "second": 41.45284254544678
+            },
+            {
+              "first": 268.185,
+              "second": 41.542842545446774
+            },
+            {
+              "first": 278.185,
+              "second": 41.61284254544678
+            },
+            {
+              "first": 288.185,
+              "second": 41.67284254544678
+            },
+            {
+              "first": 298.185,
+              "second": 41.74284254544678
+            },
+            {
+              "first": 308.185,
+              "second": 41.80284254544678
+            },
+            {
+              "first": 317.725,
+              "second": 41.87284254544678
+            },
+            {
+              "first": 317.723,
+              "second": 41.87284254544678
+            },
+            {
+              "first": 327.723,
+              "second": 41.91284254544678
+            },
+            {
+              "first": 337.723,
+              "second": 41.932842545446775
+            },
+            {
+              "first": 347.723,
+              "second": 41.97284254544678
+            },
+            {
+              "first": 357.723,
+              "second": 42.02284254544678
+            },
+            {
+              "first": 367.723,
+              "second": 42.08284254544678
+            },
+            {
+              "first": 377.723,
+              "second": 42.14284254544678
+            },
+            {
+              "first": 387.723,
+              "second": 42.212842545446776
+            },
+            {
+              "first": 401.50300000000004,
+              "second": 42.28284254544678
+            }
+          ]
+        },
+        {
+          "distance": 17.46,
+          "relativeDirection": "LEFT",
+          "streetName": "NE Glisan St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6414088,
+          "lat": 45.526475,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 42.28284254544678
+            },
+            {
+              "first": 10,
+              "second": 42.17284254544678
+            },
+            {
+              "first": 17.46,
+              "second": 42.182842545446775
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573689573000,
+      "endTime": 1573689728000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 151.488,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NE Glisan at 24th",
+        "lon": -122.6416327804327,
+        "lat": 45.526494932914076,
+        "arrival": 1573689573000,
+        "departure": 1573689573000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1522\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "NE Sandy & 24th",
+        "stopId": "TriMet:5066",
+        "stopCode": "5066",
+        "lon": -122.641136,
+        "lat": 45.527504,
+        "arrival": 1573689728000,
+        "departure": 1573689729000,
+        "zoneId": "B",
+        "stopIndex": 52,
+        "stopSequence": 53,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "m{ztGfmpkV?m@S@}BAg@?W?EOGU",
+        "length": 8
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 155,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 17.46,
+          "relativeDirection": "HARD_LEFT",
+          "streetName": "NE Glisan St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.64163293606626,
+          "lat": 45.52647589952555,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 42.60284254544678
+            },
+            {
+              "first": 10,
+              "second": 42.64284254544678
+            },
+            {
+              "first": 17.46,
+              "second": 42.66284254544678
+            }
+          ]
+        },
+        {
+          "distance": 116.416,
+          "relativeDirection": "LEFT",
+          "streetName": "NE 24th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6414088,
+          "lat": 45.526475,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 42.28284254544678
+            },
+            {
+              "first": 10,
+              "second": 42.42284254544678
+            },
+            {
+              "first": 20,
+              "second": 42.44284254544678
+            },
+            {
+              "first": 30,
+              "second": 42.53284254544678
+            },
+            {
+              "first": 40,
+              "second": 42.63284254544678
+            },
+            {
+              "first": 50,
+              "second": 42.75284254544678
+            },
+            {
+              "first": 60,
+              "second": 42.87284254544678
+            },
+            {
+              "first": 70,
+              "second": 42.98284254544678
+            },
+            {
+              "first": 81.11,
+              "second": 43.14284254544678
+            },
+            {
+              "first": 81.114,
+              "second": 43.14284254544678
+            },
+            {
+              "first": 91.114,
+              "second": 43.292842545446774
+            },
+            {
+              "first": 101.114,
+              "second": 43.402842545446774
+            },
+            {
+              "first": 111.114,
+              "second": 43.55284254544678
+            },
+            {
+              "first": 116.414,
+              "second": 43.63284254544678
+            }
+          ]
+        },
+        {
+          "distance": 17.612,
+          "relativeDirection": "RIGHT",
+          "streetName": "NE Sandy Blvd",
+          "absoluteDirection": "NORTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.641409,
+          "lat": 45.5275218,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1573689729000,
+      "endTime": 1573690482000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 3262.4448016745714,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "12",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeType": 3,
+      "routeId": "TriMet:12",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "1268",
+      "headsign": "Parkrose TC",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9253541",
+      "serviceDate": "20191113",
+      "from": {
+        "name": "NE Sandy & 24th",
+        "stopId": "TriMet:5066",
+        "stopCode": "5066",
+        "lon": -122.641136,
+        "lat": 45.527504,
+        "arrival": 1573689728000,
+        "departure": 1573689729000,
+        "zoneId": "B",
+        "stopIndex": 52,
+        "stopSequence": 53,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "NE Sandy & 57th",
+        "stopId": "TriMet:5104",
+        "stopCode": "5104",
+        "lon": -122.604775,
+        "lat": 45.542033,
+        "arrival": 1573690482000,
+        "departure": 1573690483000,
+        "zoneId": "B",
+        "stopIndex": 65,
+        "stopSequence": 66,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "mb{tGpjpkVGS]iA]sAkAeE[gASs@Qi@Oi@i@mBOg@Me@Mc@GSQq@q@aCOe@CKISMg@Uw@I[a@uASq@uA_Fc@aBEOY{@g@cBe@cBUw@K_@Y}@GUOa@Wy@CIK[}@{CwAwEUu@o@sBy@sC]iAUs@AYMc@}@uCICW_AM_@M_@Qi@GQACEOk@gB_@oAISm@qBUs@oAcEGSIU[cAa@mAIUa@gAs@oBGSOa@]eA]cAM]Sm@Oa@M_@Sg@Qg@IUe@sAWu@Ma@g@wAi@yAIUISQi@Wu@Ka@EMCIGWK_@_@aBYoAaAcE[sAMg@[oAk@aCS{@GWKc@Mi@EOI[Ka@Qo@u@cC_@gASo@CIeAmDo@yBCKYcA_@oA_@qA",
+        "length": 119
+      },
+      "interStopGeometry": [
+        {
+          "points": "mb{tGpjpkVGS]iA]sAkAeE[gA",
+          "length": 6
+        },
+        {
+          "points": "yg{tGp|okVSs@Qi@Oi@i@mBOg@",
+          "length": 6
+        },
+        {
+          "points": "ik{tGrsokVMe@Mc@GSQq@q@aCOe@CKISMg@Uw@I[a@uASq@uA_Fc@aBEOY{@",
+          "length": 18
+        },
+        {
+          "points": "mw{tGhtnkVg@cBe@cBUw@K_@Y}@GUOa@Wy@CI",
+          "length": 10
+        },
+        {
+          "points": "k}{tGnenkVK[}@{CwAwEUu@",
+          "length": 5
+        },
+        {
+          "points": "cc|tGhwmkVo@sBy@sC]iAUs@AYMc@}@uCICW_AM_@M_@Qi@GQAC",
+          "length": 15
+        },
+        {
+          "points": "im|tGj~lkVEOk@gB_@oAISm@qBUs@oAcEGSIU[cAa@mAIUa@gA",
+          "length": 14
+        },
+        {
+          "points": "ux|tGjclkVs@oBGSOa@]eA]cAM]Sm@",
+          "length": 8
+        },
+        {
+          "points": "_~|tGnwkkVOa@M_@Sg@Qg@IUe@sAWu@Ma@g@wAi@yAIUISQi@Wu@Ka@EM",
+          "length": 17
+        },
+        {
+          "points": "{g}tGnakkVCIGWK_@_@aBYoAaAcE[sA",
+          "length": 8
+        },
+        {
+          "points": "km}tGbqjkVMg@[oAk@aCS{@GWKc@Mi@EO",
+          "length": 9
+        },
+        {
+          "points": "}q}tGvcjkVI[Ka@Qo@u@cC_@gASo@CI",
+          "length": 8
+        },
+        {
+          "points": "sv}tGbxikVeAmDo@yBCKYcA_@oA_@qA",
+          "length": 7
+        }
+      ],
+      "alerts": [
+        {
+          "alertUrl": "http://trimet.org/alerts/",
+          "effectiveStartDate": 1562950483000,
+          "alertDescriptionText": "For trips to Parkrose/Sumner Transit Center, no service to the stop at NE Sandy & 47th (Stop ID 5094) due to long-term construction. Use the temporary stop located at NE Sandy & 48th (Stop ID 14073)."
+        },
+        {
+          "alertUrl": "http://trimet.org/alerts/",
+          "effectiveStartDate": 1564601290000,
+          "alertDescriptionText": "For trips to Tigard Transit Center, no service to the stop at NE Sandy & 91st (Stop ID 5145) due to PBOT sidewalk construction. Use temporary stop on the west side of 91st.  "
+        }
+      ],
+      "routeShortName": "12",
+      "routeLongName": "Barbur/Sandy Blvd",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 753,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "NE Sandy & Lawrence",
+          "stopId": "TriMet:5049",
+          "stopCode": "5049",
+          "lon": -122.638908,
+          "lat": 45.528373,
+          "arrival": 1573689771000,
+          "departure": 1573689771000,
+          "zoneId": "B",
+          "stopIndex": 53,
+          "stopSequence": 54,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 28th",
+          "stopId": "TriMet:5070",
+          "stopCode": "5070",
+          "lon": -122.637476,
+          "lat": 45.528932,
+          "arrival": 1573689798000,
+          "departure": 1573689798000,
+          "zoneId": "B",
+          "stopIndex": 54,
+          "stopSequence": 55,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 31st",
+          "stopId": "TriMet:5076",
+          "stopCode": "5076",
+          "lon": -122.632469,
+          "lat": 45.530883,
+          "arrival": 1573689892000,
+          "departure": 1573689892000,
+          "zoneId": "B",
+          "stopIndex": 55,
+          "stopSequence": 56,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 33rd",
+          "stopId": "TriMet:5079",
+          "stopCode": "5079",
+          "lon": -122.630092,
+          "lat": 45.531835,
+          "arrival": 1573689937000,
+          "departure": 1573689937000,
+          "zoneId": "B",
+          "stopIndex": 56,
+          "stopSequence": 57,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & Imperial",
+          "stopId": "TriMet:5048",
+          "stopCode": "5048",
+          "lon": -122.627831,
+          "lat": 45.532756,
+          "arrival": 1573689980000,
+          "departure": 1573689980000,
+          "zoneId": "B",
+          "stopIndex": 57,
+          "stopSequence": 58,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 38th",
+          "stopId": "TriMet:10793",
+          "stopCode": "10793",
+          "lon": -122.623829,
+          "lat": 45.534366,
+          "arrival": 1573690057000,
+          "departure": 1573690057000,
+          "zoneId": "B",
+          "stopIndex": 58,
+          "stopSequence": 59,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 42nd",
+          "stopId": "TriMet:5087",
+          "stopCode": "5087",
+          "lon": -122.61951,
+          "lat": 45.536199,
+          "arrival": 1573690140000,
+          "departure": 1573690140000,
+          "zoneId": "B",
+          "stopIndex": 59,
+          "stopSequence": 60,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 44th",
+          "stopId": "TriMet:5091",
+          "stopCode": "5091",
+          "lon": -122.617607,
+          "lat": 45.537054,
+          "arrival": 1573690185000,
+          "departure": 1573690185000,
+          "zoneId": "B",
+          "stopIndex": 60,
+          "stopSequence": 61,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 48th",
+          "stopId": "TriMet:14073",
+          "stopCode": "14073",
+          "lon": -122.614099,
+          "lat": 45.538632,
+          "arrival": 1573690270000,
+          "departure": 1573690270000,
+          "zoneId": "B",
+          "stopIndex": 61,
+          "stopSequence": 62,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 50th",
+          "stopId": "TriMet:5097",
+          "stopCode": "5097",
+          "lon": -122.611486,
+          "lat": 45.539503,
+          "arrival": 1573690328000,
+          "departure": 1573690328000,
+          "zoneId": "B",
+          "stopIndex": 62,
+          "stopSequence": 63,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & Sacramento",
+          "stopId": "TriMet:5054",
+          "stopCode": "5054",
+          "lon": -122.609338,
+          "lat": 45.540236,
+          "arrival": 1573690376000,
+          "departure": 1573690376000,
+          "zoneId": "B",
+          "stopIndex": 63,
+          "stopSequence": 64,
+          "vertexType": "TRANSIT"
+        },
+        {
+          "name": "NE Sandy & 54th",
+          "stopId": "TriMet:5102",
+          "stopCode": "5102",
+          "lon": -122.607476,
+          "lat": 45.540992,
+          "arrival": 1573690420000,
+          "departure": 1573690420000,
+          "zoneId": "B",
+          "stopIndex": 64,
+          "stopSequence": 65,
+          "vertexType": "TRANSIT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1573690483000,
+      "endTime": 1573690614000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 84.911,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NE Sandy & 57th",
+        "stopId": "TriMet:5104",
+        "stopCode": "5104",
+        "lon": -122.604775,
+        "lat": 45.542033,
+        "arrival": 1573690482000,
+        "departure": 1573690483000,
+        "zoneId": "B",
+        "stopIndex": 65,
+        "stopSequence": 66,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "0086 BIKETOWN",
+        "lon": -122.60542166666667,
+        "lat": 45.542406666666665,
+        "arrival": 1573690614000,
+        "departure": 1573690614000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"bike_6884\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "g}}tGhgikVCKOe@iBxFJWHWF[Ni@",
+        "length": 8
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 131,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 22.928,
+          "relativeDirection": "DEPART",
+          "streetName": "NE Sandy Blvd",
+          "absoluteDirection": "NORTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.60484587365222,
+          "lat": 45.542122067805494,
+          "elevation": []
+        },
+        {
+          "distance": 61.983,
+          "relativeDirection": "HARD_LEFT",
+          "streetName": "NE Alameda St",
+          "absoluteDirection": "NORTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6045912,
+          "lat": 45.5422255,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 79.95284254544677
+            },
+            {
+              "first": 10,
+              "second": 80.01284254544677
+            },
+            {
+              "first": 20,
+              "second": 79.81284254544678
+            },
+            {
+              "first": 30,
+              "second": 79.94284254544678
+            },
+            {
+              "first": 40,
+              "second": 79.78284254544678
+            },
+            {
+              "first": 50,
+              "second": 79.70284254544677
+            },
+            {
+              "first": 60,
+              "second": 79.55284254544678
+            },
+            {
+              "first": 61.98,
+              "second": 79.54284254544677
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573690614000,
+      "endTime": 1573691051000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1662.6870000000004,
+      "pathway": false,
+      "mode": "BICYCLE",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "0086 BIKETOWN",
+        "lon": -122.60542166666667,
+        "lat": 45.542406666666665,
+        "arrival": 1573690614000,
+        "departure": 1573690614000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"bike_6884\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "NE 60th at Cully ",
+        "lon": -122.6008129119873,
+        "lat": 45.555925802180894,
+        "arrival": 1573691051000,
+        "departure": 1573691051000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_5470\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "w_~tGziikVJOLWFUH]Ng@_@@C?W?[AA?c@?eA?cB?aBAuA?aC?SAM?eHA{B?oAAG?I?]?M@M?_C?mC?oCCqBAKAOAMGIEw@m@a@]_@[eCmBUSWSw@o@c@]{@q@oAcAkByAo@g@[W??c@_@OIy@m@CAQOYFK?w@E",
+        "length": 57
+      },
+      "rentedBike": true,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 437,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 61.983,
+          "relativeDirection": "HARD_LEFT",
+          "streetName": "NE Alameda St",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.60525994806065,
+          "lat": 45.542521013967075,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 79.21284254544678
+            },
+            {
+              "first": 10,
+              "second": 79.32284254544678
+            },
+            {
+              "first": 20,
+              "second": 79.38284254544678
+            },
+            {
+              "first": 30,
+              "second": 79.48284254544677
+            },
+            {
+              "first": 40,
+              "second": 79.55284254544678
+            },
+            {
+              "first": 50,
+              "second": 79.68284254544677
+            },
+            {
+              "first": 60,
+              "second": 79.77284254544678
+            },
+            {
+              "first": 61.98,
+              "second": 79.80284254544678
+            }
+          ]
+        },
+        {
+          "distance": 986.3960000000001,
+          "relativeDirection": "HARD_LEFT",
+          "streetName": "NE 57th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6045912,
+          "lat": 45.5422255,
+          "elevation": [
+            {
+              "first": 50.163000000000004,
+              "second": 79.94284254544678
+            },
+            {
+              "first": 60.163000000000004,
+              "second": 79.89284254544677
+            },
+            {
+              "first": 70.16300000000001,
+              "second": 79.85284254544678
+            },
+            {
+              "first": 80.16300000000001,
+              "second": 79.81284254544678
+            },
+            {
+              "first": 90.16300000000001,
+              "second": 79.75284254544678
+            },
+            {
+              "first": 100.16300000000001,
+              "second": 79.68284254544677
+            },
+            {
+              "first": 110.16300000000001,
+              "second": 79.53284254544678
+            },
+            {
+              "first": 120.16300000000001,
+              "second": 79.37284254544679
+            },
+            {
+              "first": 130.163,
+              "second": 79.16284254544678
+            },
+            {
+              "first": 140.163,
+              "second": 78.94284254544678
+            },
+            {
+              "first": 150.163,
+              "second": 78.75284254544678
+            },
+            {
+              "first": 164.633,
+              "second": 78.51284254544677
+            },
+            {
+              "first": 521.447,
+              "second": 77.00284254544678
+            },
+            {
+              "first": 531.447,
+              "second": 76.98284254544677
+            },
+            {
+              "first": 541.447,
+              "second": 76.96284254544678
+            },
+            {
+              "first": 551.447,
+              "second": 76.92284254544677
+            },
+            {
+              "first": 561.447,
+              "second": 76.88284254544678
+            },
+            {
+              "first": 571.447,
+              "second": 76.84284254544679
+            },
+            {
+              "first": 581.447,
+              "second": 76.78284254544678
+            },
+            {
+              "first": 591.447,
+              "second": 76.71284254544678
+            },
+            {
+              "first": 601.447,
+              "second": 76.67284254544677
+            },
+            {
+              "first": 611.447,
+              "second": 76.63284254544678
+            },
+            {
+              "first": 621.447,
+              "second": 76.59284254544679
+            },
+            {
+              "first": 635.237,
+              "second": 76.52284254544678
+            },
+            {
+              "first": 669.2410000000001,
+              "second": 76.36284254544678
+            },
+            {
+              "first": 679.2410000000001,
+              "second": 76.34284254544679
+            },
+            {
+              "first": 689.2410000000001,
+              "second": 76.24284254544678
+            },
+            {
+              "first": 699.2410000000001,
+              "second": 76.18284254544677
+            },
+            {
+              "first": 709.2410000000001,
+              "second": 76.13284254544678
+            },
+            {
+              "first": 719.2410000000001,
+              "second": 76.08284254544678
+            },
+            {
+              "first": 729.2410000000001,
+              "second": 76.06284254544678
+            },
+            {
+              "first": 739.2410000000001,
+              "second": 76.01284254544677
+            },
+            {
+              "first": 748.7110000000001,
+              "second": 75.97284254544678
+            },
+            {
+              "first": 748.7150000000001,
+              "second": 75.97284254544678
+            },
+            {
+              "first": 758.7150000000001,
+              "second": 75.94284254544678
+            },
+            {
+              "first": 768.7150000000001,
+              "second": 75.91284254544678
+            },
+            {
+              "first": 778.7150000000001,
+              "second": 75.87284254544679
+            },
+            {
+              "first": 788.7150000000001,
+              "second": 75.82284254544678
+            },
+            {
+              "first": 798.7150000000001,
+              "second": 75.74284254544678
+            },
+            {
+              "first": 808.7150000000001,
+              "second": 75.61284254544678
+            },
+            {
+              "first": 818.7150000000001,
+              "second": 75.47284254544678
+            },
+            {
+              "first": 827.6350000000001,
+              "second": 75.30284254544678
+            },
+            {
+              "first": 827.6310000000001,
+              "second": 75.30284254544678
+            },
+            {
+              "first": 837.6310000000001,
+              "second": 75.09284254544679
+            },
+            {
+              "first": 847.6310000000001,
+              "second": 74.89284254544677
+            },
+            {
+              "first": 857.6310000000001,
+              "second": 74.72284254544678
+            },
+            {
+              "first": 867.6310000000001,
+              "second": 74.56284254544678
+            },
+            {
+              "first": 877.6310000000001,
+              "second": 74.40284254544679
+            },
+            {
+              "first": 887.6310000000001,
+              "second": 74.25284254544678
+            },
+            {
+              "first": 897.6310000000001,
+              "second": 74.09284254544679
+            },
+            {
+              "first": 907.5310000000001,
+              "second": 73.91284254544678
+            },
+            {
+              "first": 907.5310000000001,
+              "second": 73.91284254544678
+            },
+            {
+              "first": 917.5310000000001,
+              "second": 73.71284254544678
+            },
+            {
+              "first": 927.5310000000001,
+              "second": 73.50284254544678
+            },
+            {
+              "first": 937.5310000000001,
+              "second": 73.31284254544678
+            },
+            {
+              "first": 947.5310000000001,
+              "second": 73.12284254544679
+            },
+            {
+              "first": 957.5310000000001,
+              "second": 72.91284254544678
+            },
+            {
+              "first": 967.5310000000001,
+              "second": 72.67284254544677
+            },
+            {
+              "first": 977.5310000000001,
+              "second": 72.49284254544678
+            },
+            {
+              "first": 986.4010000000001,
+              "second": 72.31284254544678
+            }
+          ]
+        },
+        {
+          "distance": 562.09,
+          "relativeDirection": "CONTINUE",
+          "streetName": "NE Cully Blvd",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.604512,
+          "lat": 45.5510948,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 72.31284254544678
+            },
+            {
+              "first": 10,
+              "second": 72.04284254544677
+            },
+            {
+              "first": 20,
+              "second": 71.80284254544678
+            },
+            {
+              "first": 30,
+              "second": 71.59284254544679
+            },
+            {
+              "first": 40,
+              "second": 71.35284254544678
+            },
+            {
+              "first": 50.46,
+              "second": 71.11284254544678
+            },
+            {
+              "first": 93.59299999999999,
+              "second": 70.03284254544678
+            },
+            {
+              "first": 103.59299999999999,
+              "second": 69.75284254544678
+            },
+            {
+              "first": 113.59299999999999,
+              "second": 69.49284254544678
+            },
+            {
+              "first": 123.59299999999999,
+              "second": 69.19284254544678
+            },
+            {
+              "first": 133.593,
+              "second": 68.87284254544679
+            },
+            {
+              "first": 143.593,
+              "second": 68.57284254544678
+            },
+            {
+              "first": 153.593,
+              "second": 68.24284254544678
+            },
+            {
+              "first": 163.593,
+              "second": 67.91284254544678
+            },
+            {
+              "first": 173.593,
+              "second": 67.61284254544678
+            },
+            {
+              "first": 179.26299999999998,
+              "second": 67.41284254544678
+            },
+            {
+              "first": 245.29299999999998,
+              "second": 65.42284254544677
+            },
+            {
+              "first": 255.29299999999998,
+              "second": 65.05284254544678
+            },
+            {
+              "first": 268.763,
+              "second": 64.64284254544677
+            },
+            {
+              "first": 268.765,
+              "second": 64.64284254544677
+            },
+            {
+              "first": 278.765,
+              "second": 64.30284254544678
+            },
+            {
+              "first": 288.765,
+              "second": 63.99284254544678
+            },
+            {
+              "first": 298.765,
+              "second": 63.69284254544678
+            },
+            {
+              "first": 306.855,
+              "second": 63.392842545446776
+            },
+            {
+              "first": 306.853,
+              "second": 63.392842545446776
+            },
+            {
+              "first": 316.853,
+              "second": 63.09284254544678
+            },
+            {
+              "first": 326.853,
+              "second": 62.80284254544678
+            },
+            {
+              "first": 336.853,
+              "second": 62.52284254544678
+            },
+            {
+              "first": 346.853,
+              "second": 62.29284254544678
+            },
+            {
+              "first": 359.553,
+              "second": 61.962842545446776
+            },
+            {
+              "first": 359.552,
+              "second": 61.962842545446776
+            },
+            {
+              "first": 369.552,
+              "second": 61.69284254544678
+            },
+            {
+              "first": 379.552,
+              "second": 61.392842545446776
+            },
+            {
+              "first": 389.552,
+              "second": 61.13284254544678
+            },
+            {
+              "first": 399.552,
+              "second": 60.88284254544678
+            },
+            {
+              "first": 409.552,
+              "second": 60.59284254544678
+            },
+            {
+              "first": 419.552,
+              "second": 60.322842545446775
+            },
+            {
+              "first": 429.002,
+              "second": 60.06284254544678
+            },
+            {
+              "first": 428.99800000000005,
+              "second": 60.06284254544678
+            },
+            {
+              "first": 438.99800000000005,
+              "second": 59.74284254544678
+            },
+            {
+              "first": 448.99800000000005,
+              "second": 59.432842545446775
+            },
+            {
+              "first": 459.61800000000005,
+              "second": 59.072842545446775
+            },
+            {
+              "first": 477.766,
+              "second": 58.42284254544678
+            },
+            {
+              "first": 487.766,
+              "second": 58.11284254544678
+            },
+            {
+              "first": 497.766,
+              "second": 57.79284254544678
+            },
+            {
+              "first": 510.586,
+              "second": 57.34284254544678
+            }
+          ]
+        },
+        {
+          "distance": 52.218,
+          "relativeDirection": "LEFT",
+          "streetName": "NE 60th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6008915,
+          "lat": 45.5554659,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 55.572842545446775
+            },
+            {
+              "first": 10,
+              "second": 55.31284254544678
+            },
+            {
+              "first": 20,
+              "second": 54.98284254544678
+            },
+            {
+              "first": 30,
+              "second": 54.76284254544678
+            },
+            {
+              "first": 40,
+              "second": 54.56284254544678
+            },
+            {
+              "first": 50,
+              "second": 54.30284254544678
+            },
+            {
+              "first": 52.22,
+              "second": 54.23284254544678
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573691051000,
+      "endTime": 1573691203000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 150.70299999999997,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NE 60th at Cully ",
+        "lon": -122.6008129119873,
+        "lat": 45.555925802180894,
+        "arrival": 1573691051000,
+        "departure": 1573691051000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_5470\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "5916 NE Going St, Portland, OR, USA 97218",
+        "lon": -122.6017648693917,
+        "lat": 45.556544990525936,
+        "arrival": 1573691203000,
+        "orig": "5916 NE Going St, Portland, OR, USA 97218",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "qs`uGtnhkVGAeA?eAA?nD",
+        "length": 5
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 152,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 82.255,
+          "relativeDirection": "CONTINUE",
+          "streetName": "NE 60th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.60090007573629,
+          "lat": 45.55593126069875,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 55.572842545446775
+            },
+            {
+              "first": 10,
+              "second": 55.31284254544678
+            },
+            {
+              "first": 20,
+              "second": 54.98284254544678
+            },
+            {
+              "first": 30,
+              "second": 54.76284254544678
+            },
+            {
+              "first": 40,
+              "second": 54.56284254544678
+            },
+            {
+              "first": 44.01,
+              "second": 54.462842545446776
+            },
+            {
+              "first": 44.012,
+              "second": 53.002842545446775
+            },
+            {
+              "first": 54.012,
+              "second": 52.712842545446776
+            },
+            {
+              "first": 64.012,
+              "second": 52.41284254544678
+            },
+            {
+              "first": 74.012,
+              "second": 52.12284254544678
+            },
+            {
+              "first": 82.25200000000001,
+              "second": 51.932842545446775
+            }
+          ]
+        },
+        {
+          "distance": 68.448,
+          "relativeDirection": "LEFT",
+          "streetName": "NE Going St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6008843,
+          "lat": 45.5566708,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 51.932842545446775
+            },
+            {
+              "first": 10,
+              "second": 51.85284254544678
+            },
+            {
+              "first": 20,
+              "second": 51.782842545446776
+            },
+            {
+              "first": 30,
+              "second": 51.55284254544678
+            },
+            {
+              "first": 40,
+              "second": 51.572842545446775
+            },
+            {
+              "first": 50,
+              "second": 51.76284254544678
+            },
+            {
+              "first": 60,
+              "second": 51.77284254544678
+            },
+            {
+              "first": 68.45,
+              "second": 51.85284254544678
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

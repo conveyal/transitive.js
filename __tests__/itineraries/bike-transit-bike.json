@@ -1,0 +1,653 @@
+{
+  "duration": 359,
+  "startTime": 1573688657000,
+  "endTime": 1573689016000,
+  "walkTime": 142,
+  "transitTime": 215,
+  "waitingTime": 2,
+  "walkDistance": 272.7689350411961,
+  "walkLimitExceeded": false,
+  "elevationLost": 3.330000000000001,
+  "elevationGained": 3.85,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {
+      "regular": [
+        {
+          "fareId": "1:238",
+          "price": {
+            "currency": {
+              "symbol": "$",
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD"
+            },
+            "cents": 250
+          },
+          "routes": ["1:1"]
+        }
+      ]
+    }
+  },
+  "legs": [
+    {
+      "startTime": 1573688657000,
+      "endTime": 1573688684000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 27.68,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "KGW Studio on the Sq, Portland, OR, USA",
+        "lon": -122.67914856500536,
+        "lat": 45.5187219673841,
+        "departure": 1573688657000,
+        "orig": "KGW Studio on the Sq, Portland, OR, USA",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "corner of path and Pioneer Courthouse Sq (pedestrian street)",
+        "lon": -122.6790448,
+        "lat": 45.5184851,
+        "arrival": 1573688684000,
+        "departure": 1573688684000,
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "_kytGvwwkVXOTE",
+        "length": 3
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 27,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 27.68,
+          "relativeDirection": "DEPART",
+          "streetName": "path",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.67915385043655,
+          "lat": 45.51872034540038,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 15.022842545446778
+            },
+            {
+              "first": 10,
+              "second": 15.412842545446779
+            },
+            {
+              "first": 20,
+              "second": 15.382842545446778
+            },
+            {
+              "first": 27.68,
+              "second": 15.252842545446779
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573688684000,
+      "endTime": 1573688757000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 162.443,
+      "pathway": false,
+      "mode": "BICYCLE",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "corner of path and Pioneer Courthouse Sq (pedestrian street)",
+        "lon": -122.6790448,
+        "lat": 45.5184851,
+        "arrival": 1573688684000,
+        "departure": 1573688684000,
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "corner of path and Pioneer Sq N (path)",
+        "lon": -122.6795595,
+        "lat": 45.5192636,
+        "arrival": 1573688757000,
+        "departure": 1573688757000,
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "oiytG`wwkVBOoBw@IECACHW|AMn@EVD@FB",
+        "length": 11
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 73,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 6.217,
+          "relativeDirection": "LEFT",
+          "streetName": "path",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6790448,
+          "lat": 45.5184851,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 15.172842545446779
+            },
+            {
+              "first": 6.22,
+              "second": 15.002842545446779
+            }
+          ]
+        },
+        {
+          "distance": 74.59400000000001,
+          "relativeDirection": "LEFT",
+          "streetName": "SW 6th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6789697,
+          "lat": 45.5184662,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 15.002842545446779
+            },
+            {
+              "first": 10,
+              "second": 14.942842545446778
+            },
+            {
+              "first": 20,
+              "second": 14.772842545446778
+            },
+            {
+              "first": 30,
+              "second": 14.482842545446779
+            },
+            {
+              "first": 40,
+              "second": 14.292842545446778
+            },
+            {
+              "first": 50,
+              "second": 13.992842545446777
+            },
+            {
+              "first": 60,
+              "second": 13.80284254544678
+            },
+            {
+              "first": 66,
+              "second": 13.662842545446779
+            },
+            {
+              "first": 65.995,
+              "second": 13.662842545446779
+            },
+            {
+              "first": 74.595,
+              "second": 13.522842545446778
+            }
+          ]
+        },
+        {
+          "distance": 73.421,
+          "relativeDirection": "LEFT",
+          "streetName": "SW Morrison St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6786411,
+          "lat": 45.5190963,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 13.522842545446778
+            },
+            {
+              "first": 4.67,
+              "second": 13.622842545446778
+            },
+            {
+              "first": 4.674,
+              "second": 13.622842545446778
+            },
+            {
+              "first": 14.674,
+              "second": 14.042842545446778
+            },
+            {
+              "first": 24.674,
+              "second": 14.502842545446779
+            },
+            {
+              "first": 34.674,
+              "second": 14.672842545446779
+            },
+            {
+              "first": 43.454,
+              "second": 15.072842545446779
+            },
+            {
+              "first": 43.458,
+              "second": 15.072842545446779
+            },
+            {
+              "first": 53.458,
+              "second": 15.622842545446778
+            },
+            {
+              "first": 64.148,
+              "second": 15.932842545446778
+            },
+            {
+              "first": 64.146,
+              "second": 15.932842545446778
+            },
+            {
+              "first": 73.426,
+              "second": 16.23284254544678
+            }
+          ]
+        },
+        {
+          "distance": 8.211,
+          "relativeDirection": "LEFT",
+          "streetName": "path",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6795212,
+          "lat": 45.5193324,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 16.23284254544678
+            },
+            {
+              "first": 8.21,
+              "second": 16.50284254544678
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573688757000,
+      "endTime": 1573688769000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 6.563,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "corner of path and Pioneer Sq N (path)",
+        "lon": -122.6795595,
+        "lat": 45.5192636,
+        "arrival": 1573688757000,
+        "departure": 1573688757000,
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "Pioneer Square North MAX Station",
+        "stopId": "TriMet:8383",
+        "stopCode": "8383",
+        "lon": -122.679475,
+        "lat": 45.519253,
+        "arrival": 1573688769000,
+        "departure": 1573688770000,
+        "zoneId": "R",
+        "stopIndex": 25,
+        "stopSequence": 26,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "knytGfzwkVBM",
+        "length": 2
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 12,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 6.563,
+          "relativeDirection": "LEFT",
+          "streetName": "Pioneer Sq N (path)",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6795595,
+          "lat": 45.5192636,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1573688770000,
+      "endTime": 1573688985000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 855.2914091936907,
+      "pathway": false,
+      "mode": "TRAM",
+      "route": "MAX Blue Line",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeColor": "084C8D",
+      "routeType": 0,
+      "routeId": "TriMet:100",
+      "routeTextColor": "FFFFFF",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "9019",
+      "headsign": "Hillsboro",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9266008",
+      "serviceDate": "20191113",
+      "from": {
+        "name": "Pioneer Square North MAX Station",
+        "stopId": "TriMet:8383",
+        "stopCode": "8383",
+        "lon": -122.679475,
+        "lat": 45.519253,
+        "arrival": 1573688769000,
+        "departure": 1573688770000,
+        "zoneId": "R",
+        "stopIndex": 25,
+        "stopSequence": 26,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "Providence Park MAX Station",
+        "stopId": "TriMet:9757",
+        "stopCode": "9757",
+        "lon": -122.689816,
+        "lat": 45.521833,
+        "arrival": 1573688985000,
+        "departure": 1573688986000,
+        "zoneId": "R",
+        "stopIndex": 27,
+        "stopSequence": 28,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "onytGrywkVCNEPEVm@jDCPKh@G`@CNg@tCADGZAHETER]pBCHG^AD?DGVg@tCEVo@tDEPE\\k@zCEVETi@|CCLCRi@zCCNG\\g@rCCLAHAD?D?H?H?H@HLlA",
+        "length": 45
+      },
+      "interStopGeometry": [
+        {
+          "points": "onytGrywkVCNEPEVm@jDCPKh@G`@CNg@tC",
+          "length": 10
+        },
+        {
+          "points": "qrytG|hxkVADGZAHETER]pBCHG^AD?DGVg@tCEVo@tDEPE\\k@zCEVETi@|CCLCRi@zCCNG\\g@rCCLAHAD?D?H?H?H@HLlA",
+          "length": 36
+        }
+      ],
+      "alerts": [
+        {
+          "alertUrl": "https://news.trimet.org/2019/11/next-up-for-elevator-improvements-sunset-transit-center-park-ride/",
+          "effectiveStartDate": 1573083439000,
+          "alertDescriptionText": "The Park and Ride garage elevator at Sunset Transit Center is closed for approximately 3 months for improvements. During this time garage users must use the stairs or find alternate parking. Visit trimet.org/parkandride for a complete list of Park and Ride garages."
+        },
+        {
+          "alertUrl": "http://trimet.org/alerts/",
+          "effectiveStartDate": 1572827580000,
+          "alertDescriptionText": "The west elevators at the Washington Park MAX Station are out of service. Please use east elevators to access street level and platforms. "
+        }
+      ],
+      "routeLongName": "MAX Blue Line",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 215,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "Galleria/SW 10th Ave MAX Station",
+          "stopId": "TriMet:8384",
+          "stopCode": "8384",
+          "lon": -122.681919,
+          "lat": 45.51991,
+          "arrival": 1573688815000,
+          "departure": 1573688865000,
+          "zoneId": "R",
+          "stopIndex": 26,
+          "stopSequence": 27,
+          "vertexType": "TRANSIT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1573688986000,
+      "endTime": 1573688992000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 5.864,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "Providence Park MAX Station",
+        "stopId": "TriMet:9757",
+        "stopCode": "9757",
+        "lon": -122.689816,
+        "lat": 45.521833,
+        "arrival": 1573688985000,
+        "departure": 1573688986000,
+        "zoneId": "R",
+        "stopIndex": 27,
+        "stopSequence": 28,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "corner of path and Providence Park (path)",
+        "lon": -122.6898884,
+        "lat": 45.5218184,
+        "arrival": 1573688992000,
+        "departure": 1573688992000,
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "m~ytGjzykVBL",
+        "length": 2
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 6,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 5.864,
+          "relativeDirection": "DEPART",
+          "streetName": "Providence Park (path)",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.68981514224929,
+          "lat": 45.52183043749137,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1573688992000,
+      "endTime": 1573689016000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 70.107,
+      "pathway": false,
+      "mode": "BICYCLE",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "corner of path and Providence Park (path)",
+        "lon": -122.6898884,
+        "lat": 45.5218184,
+        "arrival": 1573688992000,
+        "departure": 1573688992000,
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "1737 SW Morrison St, Portland, OR, USA 97205",
+        "lon": -122.68959868692157,
+        "lat": 45.522170898252,
+        "arrival": 1573689016000,
+        "orig": "1737 SW Morrison St, Portland, OR, USA 97205",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "i~ytGxzykVa@JOVMERgA",
+        "length": 5
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 24,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 31.715,
+          "relativeDirection": "RIGHT",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6898884,
+          "lat": 45.5218184,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 30.57284254544678
+            },
+            {
+              "first": 10,
+              "second": 30.18284254544678
+            },
+            {
+              "first": 20,
+              "second": 29.712842545446776
+            },
+            {
+              "first": 31.72,
+              "second": 29.33284254544678
+            }
+          ]
+        },
+        {
+          "distance": 8.242,
+          "relativeDirection": "RIGHT",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6900696,
+          "lat": 45.52206,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 29.33284254544678
+            },
+            {
+              "first": 8.24,
+              "second": 29.05284254544678
+            }
+          ]
+        },
+        {
+          "distance": 30.15,
+          "relativeDirection": "RIGHT",
+          "streetName": "SW Morrison St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6900348,
+          "lat": 45.52213,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 29.05284254544678
+            },
+            {
+              "first": 10,
+              "second": 29.16284254544678
+            },
+            {
+              "first": 20,
+              "second": 29.33284254544678
+            },
+            {
+              "first": 30.15,
+              "second": 29.532842545446776
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

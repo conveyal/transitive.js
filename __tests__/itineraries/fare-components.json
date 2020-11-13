@@ -1,0 +1,2130 @@
+{
+  "duration": 5351,
+  "startTime": 1597949873000,
+  "endTime": 1597955224000,
+  "walkTime": 1498,
+  "transitTime": 2949,
+  "waitingTime": 904,
+  "walkDistance": 2016.2642537270028,
+  "walkLimitExceeded": false,
+  "elevationLost": 32.49999999999994,
+  "elevationGained": 0.21999999999998465,
+  "transfers": 3,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD",
+          "symbol": "$"
+        },
+        "cents": 575
+      }
+    },
+    "details": {
+      "regular": [
+        {
+          "fareId": "1:250",
+          "price": {
+            "currency": {
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD",
+              "symbol": "$"
+            },
+            "cents": 250
+          },
+          "routes": ["1:116"]
+        },
+        {
+          "fareId": "1:sound",
+          "price": {
+            "currency": {
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD",
+              "symbol": "$"
+            },
+            "cents": 325
+          },
+          "routes": ["1:512"]
+        },
+        {
+          "fareId": "kcm:110",
+          "price": {
+            "currency": {
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD",
+              "symbol": "$"
+            },
+            "cents": 0
+          },
+          "routes": ["kcm:100259", "kcm:100225"]
+        }
+      ]
+    }
+  },
+  "legs": [
+    {
+      "startTime": 1597949873000,
+      "endTime": 1597950659000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1076.218,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -25200000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "3826 191st Pl SW, Lynnwood, WA, USA",
+        "lon": -122.2854756863318,
+        "lat": 47.82468116616122,
+        "departure": 1597949873000,
+        "orig": "3826 191st Pl SW, Lynnwood, WA, USA",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "Alderwood Mall Blvd & 40th Ave W",
+        "stopId": "1:1635",
+        "stopCode": "1635",
+        "lon": -122.2897486,
+        "lat": 47.81744203,
+        "arrival": 1597950659000,
+        "departure": 1597950660000,
+        "stopIndex": 34,
+        "stopSequence": 35,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "qu{bHh{jiVAxB?bBA~AnB?J?x@?pA@F?\\?b@?b@?jBAnB?x@?V?Z?X?bA?h@@\\?d@?L?tA@^?fA?tA?d@?Z?p@?d@?BHNd@J`@BJF\\?BDT?B@D@DDh@@H?R@P@Z@b@?V@t@?X?l@?N?j@",
+        "length": 53
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 786,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 118.911,
+          "relativeDirection": "DEPART",
+          "streetName": "road",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.28548660711569,
+          "lat": 47.82441006166374,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 144.39
+            },
+            {
+              "first": 10,
+              "second": 144.22
+            },
+            {
+              "first": 20,
+              "second": 144.08
+            },
+            {
+              "first": 30,
+              "second": 143.86
+            },
+            {
+              "first": 40,
+              "second": 143.93
+            },
+            {
+              "first": 45.81,
+              "second": 143.98
+            },
+            {
+              "first": 45.81,
+              "second": 144.39
+            },
+            {
+              "first": 55.81,
+              "second": 144.04
+            },
+            {
+              "first": 65.81,
+              "second": 143.71
+            },
+            {
+              "first": 75.81,
+              "second": 143.48
+            },
+            {
+              "first": 83.01,
+              "second": 143.29
+            },
+            {
+              "first": 83.00800000000001,
+              "second": 143.29
+            },
+            {
+              "first": 93.00800000000001,
+              "second": 143.05
+            },
+            {
+              "first": 103.00800000000001,
+              "second": 142.85
+            },
+            {
+              "first": 113.00800000000001,
+              "second": 142.6
+            },
+            {
+              "first": 118.90800000000002,
+              "second": 142.42
+            }
+          ]
+        },
+        {
+          "distance": 751.5010000000001,
+          "relativeDirection": "LEFT",
+          "streetName": "40th Avenue West",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.287079,
+          "lat": 47.8244338,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 142.42
+            },
+            {
+              "first": 10,
+              "second": 142.24
+            },
+            {
+              "first": 20,
+              "second": 142.02
+            },
+            {
+              "first": 30,
+              "second": 141.83
+            },
+            {
+              "first": 40,
+              "second": 141.64
+            },
+            {
+              "first": 50,
+              "second": 141.54
+            },
+            {
+              "first": 62.08,
+              "second": 141.43
+            },
+            {
+              "first": 62.083,
+              "second": 141.43
+            },
+            {
+              "first": 68.873,
+              "second": 141.33
+            },
+            {
+              "first": 68.877,
+              "second": 141.33
+            },
+            {
+              "first": 78.877,
+              "second": 141.09
+            },
+            {
+              "first": 88.877,
+              "second": 140.81
+            },
+            {
+              "first": 100.727,
+              "second": 140.63
+            },
+            {
+              "first": 100.725,
+              "second": 140.63
+            },
+            {
+              "first": 110.725,
+              "second": 140.44
+            },
+            {
+              "first": 120.725,
+              "second": 140.28
+            },
+            {
+              "first": 130.725,
+              "second": 140.22
+            },
+            {
+              "first": 140.725,
+              "second": 140.04
+            },
+            {
+              "first": 146.365,
+              "second": 139.93
+            },
+            {
+              "first": 146.362,
+              "second": 139.93
+            },
+            {
+              "first": 151.402,
+              "second": 139.84
+            },
+            {
+              "first": 151.399,
+              "second": 139.84
+            },
+            {
+              "first": 161.399,
+              "second": 139.65
+            },
+            {
+              "first": 168.249,
+              "second": 139.47
+            },
+            {
+              "first": 168.246,
+              "second": 139.47
+            },
+            {
+              "first": 178.246,
+              "second": 139.15
+            },
+            {
+              "first": 187.42600000000002,
+              "second": 138.86
+            },
+            {
+              "first": 187.42700000000002,
+              "second": 138.86
+            },
+            {
+              "first": 197.42700000000002,
+              "second": 138.66
+            },
+            {
+              "first": 207.86700000000002,
+              "second": 138.41
+            },
+            {
+              "first": 207.86400000000003,
+              "second": 138.41
+            },
+            {
+              "first": 217.86400000000003,
+              "second": 138.06
+            },
+            {
+              "first": 227.86400000000003,
+              "second": 137.69
+            },
+            {
+              "first": 237.86400000000003,
+              "second": 137.23
+            },
+            {
+              "first": 247.86400000000003,
+              "second": 136.68
+            },
+            {
+              "first": 257.86400000000003,
+              "second": 136.11
+            },
+            {
+              "first": 267.34400000000005,
+              "second": 135.59
+            },
+            {
+              "first": 267.343,
+              "second": 135.59
+            },
+            {
+              "first": 277.343,
+              "second": 134.92
+            },
+            {
+              "first": 287.343,
+              "second": 134.19
+            },
+            {
+              "first": 297.343,
+              "second": 133.62
+            },
+            {
+              "first": 307.343,
+              "second": 133.04
+            },
+            {
+              "first": 317.343,
+              "second": 132.5
+            },
+            {
+              "first": 330.093,
+              "second": 131.79
+            },
+            {
+              "first": 330.091,
+              "second": 131.79
+            },
+            {
+              "first": 340.091,
+              "second": 131.21
+            },
+            {
+              "first": 350.091,
+              "second": 130.46
+            },
+            {
+              "first": 361.851,
+              "second": 129.46
+            },
+            {
+              "first": 361.848,
+              "second": 129.46
+            },
+            {
+              "first": 371.848,
+              "second": 128.73
+            },
+            {
+              "first": 381.848,
+              "second": 127.86
+            },
+            {
+              "first": 391.308,
+              "second": 127.12
+            },
+            {
+              "first": 391.303,
+              "second": 127.12
+            },
+            {
+              "first": 401.303,
+              "second": 126.32
+            },
+            {
+              "first": 411.303,
+              "second": 125.65
+            },
+            {
+              "first": 421.303,
+              "second": 125.07
+            },
+            {
+              "first": 431.303,
+              "second": 124.67
+            },
+            {
+              "first": 443.603,
+              "second": 124.12
+            },
+            {
+              "first": 443.6,
+              "second": 124.12
+            },
+            {
+              "first": 453.6,
+              "second": 123.72
+            },
+            {
+              "first": 467.45000000000005,
+              "second": 123.16
+            },
+            {
+              "first": 467.452,
+              "second": 123.16
+            },
+            {
+              "first": 477.452,
+              "second": 122.74
+            },
+            {
+              "first": 484.122,
+              "second": 122.45
+            },
+            {
+              "first": 484.12,
+              "second": 122.45
+            },
+            {
+              "first": 494.12,
+              "second": 121.93
+            },
+            {
+              "first": 504.28000000000003,
+              "second": 121.51
+            },
+            {
+              "first": 504.281,
+              "second": 121.51
+            },
+            {
+              "first": 512.331,
+              "second": 121.22
+            },
+            {
+              "first": 512.331,
+              "second": 121.22
+            },
+            {
+              "first": 522.331,
+              "second": 120.84
+            },
+            {
+              "first": 532.331,
+              "second": 120.41
+            },
+            {
+              "first": 542.331,
+              "second": 120.05
+            },
+            {
+              "first": 552.331,
+              "second": 119.75
+            },
+            {
+              "first": 560.791,
+              "second": 119.54
+            },
+            {
+              "first": 560.792,
+              "second": 119.54
+            },
+            {
+              "first": 570.792,
+              "second": 119.32
+            },
+            {
+              "first": 578.472,
+              "second": 119.2
+            },
+            {
+              "first": 578.472,
+              "second": 119.2
+            },
+            {
+              "first": 588.472,
+              "second": 119.08
+            },
+            {
+              "first": 598.472,
+              "second": 118.9
+            },
+            {
+              "first": 608.472,
+              "second": 118.64
+            },
+            {
+              "first": 618.062,
+              "second": 118.39
+            },
+            {
+              "first": 618.057,
+              "second": 118.39
+            },
+            {
+              "first": 628.057,
+              "second": 118.19
+            },
+            {
+              "first": 638.057,
+              "second": 118.03
+            },
+            {
+              "first": 648.057,
+              "second": 117.88
+            },
+            {
+              "first": 658.057,
+              "second": 117.86
+            },
+            {
+              "first": 666.297,
+              "second": 117.84
+            },
+            {
+              "first": 666.293,
+              "second": 117.84
+            },
+            {
+              "first": 676.293,
+              "second": 117.79
+            },
+            {
+              "first": 686.683,
+              "second": 117.78
+            },
+            {
+              "first": 686.686,
+              "second": 117.78
+            },
+            {
+              "first": 696.686,
+              "second": 117.71
+            },
+            {
+              "first": 702.996,
+              "second": 117.65
+            },
+            {
+              "first": 702.998,
+              "second": 117.65
+            },
+            {
+              "first": 712.998,
+              "second": 117.54
+            },
+            {
+              "first": 722.998,
+              "second": 117.37
+            },
+            {
+              "first": 732.998,
+              "second": 117.12
+            },
+            {
+              "first": 742.998,
+              "second": 116.88
+            },
+            {
+              "first": 751.498,
+              "second": 116.65
+            }
+          ]
+        },
+        {
+          "distance": 205.80599999999998,
+          "relativeDirection": "RIGHT",
+          "streetName": "Alderwood Mall Boulevard",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.28709730000001,
+          "lat": 47.8176755,
+          "elevation": [
+            {
+              "first": 39.968,
+              "second": 115.22
+            },
+            {
+              "first": 54.078,
+              "second": 114.95
+            },
+            {
+              "first": 54.08200000000001,
+              "second": 114.95
+            },
+            {
+              "first": 62.382000000000005,
+              "second": 114.84
+            },
+            {
+              "first": 62.38400000000001,
+              "second": 114.84
+            },
+            {
+              "first": 68.974,
+              "second": 114.74
+            },
+            {
+              "first": 68.974,
+              "second": 114.74
+            },
+            {
+              "first": 78.974,
+              "second": 114.54
+            },
+            {
+              "first": 89.04400000000001,
+              "second": 114.44
+            },
+            {
+              "first": 89.045,
+              "second": 114.44
+            },
+            {
+              "first": 96.105,
+              "second": 114.37
+            },
+            {
+              "first": 96.105,
+              "second": 114.37
+            },
+            {
+              "first": 106.105,
+              "second": 114.29
+            },
+            {
+              "first": 113.625,
+              "second": 114.28
+            },
+            {
+              "first": 113.628,
+              "second": 114.28
+            },
+            {
+              "first": 123.628,
+              "second": 114.23
+            },
+            {
+              "first": 135.878,
+              "second": 114.14
+            },
+            {
+              "first": 135.878,
+              "second": 114.14
+            },
+            {
+              "first": 145.878,
+              "second": 114.14
+            },
+            {
+              "first": 156.25799999999998,
+              "second": 114.13
+            },
+            {
+              "first": 156.253,
+              "second": 114.13
+            },
+            {
+              "first": 166.253,
+              "second": 114.09
+            },
+            {
+              "first": 176.253,
+              "second": 114.04
+            },
+            {
+              "first": 183.13299999999998,
+              "second": 114.04
+            },
+            {
+              "first": 183.136,
+              "second": 114.04
+            },
+            {
+              "first": 188.846,
+              "second": 114.04
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1597950660000,
+      "endTime": 1597950900000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 687.6724883861219,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "116",
+      "agencyName": "Community Transit",
+      "agencyUrl": "http://www.communitytransit.org/",
+      "agencyTimeZoneOffset": -25200000,
+      "routeColor": "0070c0",
+      "routeType": 3,
+      "routeId": "1:116",
+      "routeTextColor": "ffffff",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "MCOB-DO:DO25New:0:Weekday:3:20MAR:41055:12345",
+      "headsign": "Edmonds",
+      "agencyId": "29",
+      "tripId": "1:8617811__MCOB-DO:DO25New:0:Weekday:3:20MAR:41055:12345",
+      "serviceDate": "20200820",
+      "from": {
+        "name": "Alderwood Mall Blvd & 40th Ave W",
+        "stopId": "1:1635",
+        "stopCode": "1635",
+        "lon": -122.2897486,
+        "lat": 47.81744203,
+        "arrival": 1597950659000,
+        "departure": 1597950660000,
+        "stopIndex": 34,
+        "stopSequence": 35,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "Lynnwood Transit Center Bay C2",
+        "stopId": "1:2110",
+        "stopCode": "2110",
+        "lon": -122.2969148,
+        "lat": 47.81605892,
+        "arrival": 1597950900000,
+        "departure": 1597950900000,
+        "stopIndex": 36,
+        "stopSequence": 37,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "gizbH|ukiV?@AnB?^AjC?vB?N????AbB?|F?tCAdCrCAlA?`@A?jAHDDHBJ@NC`G",
+        "length": 22
+      },
+      "interStopGeometry": [
+        {
+          "points": "gizbH|ukiV?@AnB?^AjC?vB?N",
+          "length": 7
+        },
+        {
+          "points": "kizbHbcliV????AbB?|F?tCAdCrCAlA?`@A?jAHDDHBJ@NC`G",
+          "length": 16
+        }
+      ],
+      "routeShortName": "116",
+      "routeLongName": "Silver Firs - Edmonds",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 240,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "Alderwood Mall Blvd & 44th Ave W",
+          "stopId": "1:1643",
+          "stopCode": "1643",
+          "lon": -122.2918518,
+          "lat": 47.81743955,
+          "arrival": 1597950720000,
+          "departure": 1597950720000,
+          "stopIndex": 35,
+          "stopSequence": 36,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1597950900000,
+      "endTime": 1597950958000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 74.789,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -25200000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "Lynnwood Transit Center Bay C2",
+        "stopId": "1:2110",
+        "stopCode": "2110",
+        "lon": -122.2969148,
+        "lat": 47.81605892,
+        "arrival": 1597950900000,
+        "departure": 1597950900000,
+        "stopIndex": 36,
+        "stopSequence": 37,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "Lynnwood Transit Center Bay D3",
+        "stopId": "1:2422",
+        "stopCode": "2422",
+        "lon": -122.2963008,
+        "lat": 47.81588022,
+        "arrival": 1597950958000,
+        "departure": 1597951620000,
+        "stopIndex": 4,
+        "stopSequence": 5,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "iazbHvbmiV?LN@N??mA@{@",
+        "length": 6
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 58,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 74.789,
+          "relativeDirection": "DEPART",
+          "streetName": "path",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.29691495561941,
+          "lat": 47.816054436421105,
+          "elevation": [
+            {
+              "first": 5.553,
+              "second": 103.42
+            },
+            {
+              "first": 15.553,
+              "second": 102.67
+            },
+            {
+              "first": 23.123,
+              "second": 102.17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1597951620000,
+      "endTime": 1597952820000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 18912.47262757016,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "512",
+      "agencyName": "Community Transit",
+      "agencyUrl": "http://www.communitytransit.org/",
+      "agencyTimeZoneOffset": -25200000,
+      "routeColor": "0070c0",
+      "routeType": 3,
+      "routeId": "1:512",
+      "routeTextColor": "ffffff",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "KPOB-CS:CS25Per:0:Weekday:3:20MAR:85036:12345",
+      "headsign": "Seattle 5th Ave",
+      "agencyId": "29",
+      "tripId": "1:8621847__KPOB-CS:CS25Per:0:Weekday:3:20MAR:85036:12345",
+      "serviceDate": "20200820",
+      "from": {
+        "name": "Lynnwood Transit Center Bay D3",
+        "stopId": "1:2422",
+        "stopCode": "2422",
+        "lon": -122.2963008,
+        "lat": 47.81588022,
+        "arrival": 1597950958000,
+        "departure": 1597951620000,
+        "stopIndex": 4,
+        "stopSequence": 5,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "NE 45TH ST Fwy Station",
+        "stopId": "1:2166",
+        "stopCode": "2166",
+        "lon": -122.323013,
+        "lat": 47.660564,
+        "arrival": 1597952820000,
+        "departure": 1597952820000,
+        "stopIndex": 6,
+        "stopSequence": 7,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "w`zbHz~liV?t@?FA|@?R?r@ABAJCHEDGBI?ECEICIAM@??s@?Q@_A?G?s@?A???G@}@???S?c@?M@C?GDKDGJC?kAfA@vDD`@?X?VAZEp@Uf@Y\\Yf@k@Z]V]V_@xGfOH^f@pAn@~AhAjCtBdF`AbCJ`@R~@bCvFl@vAj@pATh@Zr@b@bArEjKj@pAbA~B^z@nIvRx@hBl@pA`AlBz@rA~@pA`AnAl@l@b@b@TRh@f@d@^n@d@f@Zn@^j@Xb@Rl@Vj@R`@Ln@P~@Tl@JnATvATdAPdBXtCd@jBXt@LnARt@LjBZj@JdC`@pATlANjAJ`AFfAFrADV@b@@R?J?dB?tEA`B?nEAH?jA?nB?pB?z@?hAAbBA~BBlBB^BxAF`BJfBNrAPlFt@bBTx@L|@LtInAfAPl@JVDt@H~Cb@~Dl@fARz@Tr@Tt@XD@RJd@Tv@`@r@b@vClB~@n@~AdAb@XfDxB\\Tf@\\h@ZLHHDZN`Ad@h@Rt@Tt@Rj@Lt@Lt@Jv@Jz@LzMdBnAPdAPz@P~@Tp@Rl@Pl@P|@\\zB`AnAp@dAl@z@h@p@d@`@Zn@f@x@r@n@l@lEhEn@p@v@z@dBdBhAfA`A|@z@p@l@`@NJfAl@hAj@v@Xv@Vx@Tx@Pb@HTDdALbAHx@BfBAJ?n@CB?r@ELAtAQfAURE^KnAc@hAa@pAc@n@S`@KdAUr@KjAIx@Ct@?~@Dt@D~@Lz@NjDn@`APD@jARfAPfAPj@DVBT@j@@p@?v@CXCNAf@GNCz@Mv@S^KXI~@]pAm@rFuChJ{E|FuCvFsCd@GTG~EaBfAYn@K~@Il@El@B\\I|@YHEnA_@l@OfAMrDg@~D?^?|C@~A@zB@lB?zMBxH@nKBvF@dA?zBDD?t@Dv@Fv@JpAVpA\\dA\\bAb@fAl@hAr@hAv@rF|Db@Zt@j@nA~@zCxB|BbBz@p@r@f@t@b@r@^bAb@jA^jAVx@Jv@Ht@B|@@nDIjFKt@CvACfBAbB?jA@rABjCJr@Bp@Bj@B\\@z@BdAB`ABx@?|@Ct@Cr@C|@GdIe@XCzCQpF[hAGnBK`BG`CAzLBhA?x@AbACz@Gl@I`AQx@Uv@W~@a@`Ae@x@g@ZUb@[t@o@~@aAv@_A|@kAf@q@Va@j@y@\\e@BEn@y@`B{BhA}AtAiBHM|@qA|@mAb@i@`@a@d@k@v@u@h@a@`Aq@`Ai@`Ae@|@[h@Op@Op@M`AM~@G`ACfBCtHMtA@|@Cj@?h@Bl@?X@f@@fBHjCTvARnCf@bEt@vAXn@Lb@H`@Fz@Lr@Hv@FbAHz@DX@N?V@TNTH\\Dj@Dd@B|@BvABbCA`A?r@ChBAtBAfBCvAAdAA|AAL?~AAdAA|@@|@B\\DTFZLZPRHTFh@JhAB~@@`C@\\?",
+        "length": 446
+      },
+      "interStopGeometry": [
+        {
+          "points": "w`zbHz~liV?t@?FA|@?R?r@ABAJCHEDGBI?ECEICIAM@??s@?Q@_A?G?s@?A???G@}@???S?c@?M@C?GDKDGJC?kAfA@vDD`@?X?VAZEp@Uf@Y\\Yf@k@Z]V]V_@xGfOH^f@pAn@~AhAjCtBdF`AbCJ`@R~@bCvFl@vAj@pATh@Zr@b@bArEjKj@pAbA~B^z@nIvRx@hBl@pA`AlBz@rA~@pA`AnAl@l@b@b@TRh@f@d@^n@d@f@Zn@^j@Xb@Rl@Vj@R`@Ln@P~@Tl@JnATvATdAPdBXtCd@jBXt@LnARt@LjBZj@JdC`@pATlANjAJ`AFfAFrADV@b@@R?J?dB?tEA`B?nEAH?jA?nB?pB?z@?hAAbBA~BBlBB^BxAF`BJfBNrAPlFt@bBTx@L|@LtInAfAPl@JVDt@H~Cb@~Dl@fARz@Tr@Tt@XD@RJd@Tv@`@r@b@vClB~@n@~AdAb@XfDxB\\Tf@\\h@ZLHHDZN`Ad@h@Rt@Tt@Rj@Lt@Lt@Jv@Jz@LzMdBnAPdAPz@P~@Tp@Rl@Pl@P|@\\zB`AnAp@dAl@z@h@p@d@`@Zn@f@x@r@n@l@lEhEn@p@v@z@dBdBhAfA`A|@z@p@l@`@NJfAl@hAj@v@Xv@Vx@Tx@Pb@HTDdALbAHx@BfBAJ?n@CB?r@ELAtAQfAURE^KnAc@hAa@pAc@n@S`@KdAUr@KjAIx@Ct@?~@Dt@D~@Lz@NjDn@`APD@jARfAPfAPj@DVBT@j@@p@?v@CXCNAf@GNCz@Mv@S^KXI~@]pAm@rFuChJ{E|FuCvFsCd@GTG~EaBfAYn@K~@Il@El@B\\I|@Y",
+          "length": 269
+        },
+        {
+          "points": "qwibHxqriVHEnA_@l@OfAMrDg@~D?^?|C@~A@zB@lB?zMBxH@nKBvF@dA?zBDD?t@Dv@Fv@JpAVpA\\dA\\bAb@fAl@hAr@hAv@rF|Db@Zt@j@nA~@zCxB|BbBz@p@r@f@t@b@r@^bAb@jA^jAVx@Jv@Ht@B|@@nDIjFKt@CvACfBAbB?jA@rABjCJr@Bp@Bj@B\\@z@BdAB`ABx@?|@Ct@Cr@C|@GdIe@XCzCQpF[hAGnBK`BG`CAzLBhA?x@AbACz@Gl@I`AQx@Uv@W~@a@`Ae@x@g@ZUb@[t@o@~@aAv@_A|@kAf@q@Va@j@y@\\e@BEn@y@`B{BhA}AtAiBHM|@qA|@mAb@i@`@a@d@k@v@u@h@a@`Aq@`Ai@`Ae@|@[h@Op@Op@M`AM~@G`ACfBCtHMtA@|@Cj@?h@Bl@?X@f@@fBHjCTvARnCf@bEt@vAXn@Lb@H`@Fz@Lr@Hv@FbAHz@DX@N?V@TNTH\\Dj@Dd@B|@BvABbCA`A?r@ChBAtBAfBCvAAdAA|AAL?~AAdAA|@@|@B\\DTFZLZPRHTFh@JhAB~@@`C@\\?",
+          "length": 178
+        }
+      ],
+      "routeShortName": "512",
+      "routeLongName": "Everett - Seattle",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 1200,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "NE 145TH ST Fwy Station",
+          "stopId": "1:2165",
+          "stopCode": "2165",
+          "lon": -122.324989,
+          "lat": 47.732468,
+          "arrival": 1597952280000,
+          "departure": 1597952280000,
+          "stopIndex": 5,
+          "stopSequence": 6,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1597952820000,
+      "endTime": 1597953291000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 628.1850000000002,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -25200000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NE 45TH ST Fwy Station",
+        "stopId": "1:2166",
+        "stopCode": "2166",
+        "lon": -122.323013,
+        "lat": 47.660564,
+        "arrival": 1597952820000,
+        "departure": 1597952820000,
+        "stopIndex": 6,
+        "stopSequence": 7,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "11th Ave NE & NE 45th St",
+        "stopId": "kcm:9650",
+        "lon": -122.316467,
+        "lat": 47.6617813,
+        "arrival": 1597953291000,
+        "departure": 1597953420000,
+        "zoneId": "1",
+        "stopIndex": 11,
+        "stopSequence": 170,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "ou{aH|eriV??{@Ae@?M?M@AM?Q[?@g@?aB@gB@aA?W?I???[?Q?O?O?W?a@?aA@gA?o@?M?aA?_@?e@?qA?gA?e@?G?E?W?I?]?S?K@A?W?m@?k@?WS?MAa@?UAG??O?C",
+        "length": 51
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 471,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 69.758,
+          "relativeDirection": "DEPART",
+          "streetName": "sidewalk",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.32302318262064,
+          "lat": 47.66056406540946,
+          "elevation": [
+            {
+              "first": 33.629999999999995,
+              "second": 58.43
+            },
+            {
+              "first": 43.629999999999995,
+              "second": 58.51
+            },
+            {
+              "first": 54.72,
+              "second": 58.52
+            },
+            {
+              "first": 54.724,
+              "second": 58.52
+            },
+            {
+              "first": 64.72399999999999,
+              "second": 58.63
+            },
+            {
+              "first": 69.764,
+              "second": 58.81
+            }
+          ]
+        },
+        {
+          "distance": 12.233,
+          "relativeDirection": "RIGHT",
+          "streetName": "path",
+          "absoluteDirection": "EAST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.3230259,
+          "lat": 47.661191,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 58.81
+            },
+            {
+              "first": 5.92,
+              "second": 57.94
+            },
+            {
+              "first": 5.92,
+              "second": 57.94
+            },
+            {
+              "first": 12.23,
+              "second": 56.53
+            }
+          ]
+        },
+        {
+          "distance": 14.56,
+          "relativeDirection": "LEFT",
+          "streetName": "5th Avenue Northeast",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.3228677,
+          "lat": 47.661209500000005,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 56.53
+            },
+            {
+              "first": 14.56,
+              "second": 56.77
+            }
+          ]
+        },
+        {
+          "distance": 469.97399999999993,
+          "relativeDirection": "RIGHT",
+          "streetName": "Northeast 45th Street",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.32286260000001,
+          "lat": 47.6613404,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 56.77
+            },
+            {
+              "first": 10,
+              "second": 51.46
+            },
+            {
+              "first": 15.16,
+              "second": 49.99
+            },
+            {
+              "first": 144.85399999999998,
+              "second": 53.74
+            },
+            {
+              "first": 150.934,
+              "second": 53.8
+            },
+            {
+              "first": 150.93499999999997,
+              "second": 53.8
+            },
+            {
+              "first": 157.27499999999998,
+              "second": 53.77
+            },
+            {
+              "first": 157.27799999999996,
+              "second": 53.77
+            },
+            {
+              "first": 167.27799999999996,
+              "second": 53.81
+            },
+            {
+              "first": 178.61799999999997,
+              "second": 53.85
+            },
+            {
+              "first": 178.62199999999996,
+              "second": 53.85
+            },
+            {
+              "first": 188.62199999999996,
+              "second": 53.74
+            },
+            {
+              "first": 198.62199999999996,
+              "second": 53.58
+            },
+            {
+              "first": 203.72199999999995,
+              "second": 53.6
+            },
+            {
+              "first": 203.72499999999997,
+              "second": 53.6
+            },
+            {
+              "first": 213.72499999999997,
+              "second": 53.72
+            },
+            {
+              "first": 223.72499999999997,
+              "second": 53.62
+            },
+            {
+              "first": 230.70499999999996,
+              "second": 53.48
+            },
+            {
+              "first": 230.70799999999997,
+              "second": 53.48
+            },
+            {
+              "first": 240.70799999999997,
+              "second": 53.52
+            },
+            {
+              "first": 248.48799999999997,
+              "second": 53.55
+            },
+            {
+              "first": 248.48699999999997,
+              "second": 53.55
+            },
+            {
+              "first": 253.47699999999998,
+              "second": 53.63
+            },
+            {
+              "first": 253.47399999999996,
+              "second": 53.63
+            },
+            {
+              "first": 263.47399999999993,
+              "second": 53.74
+            },
+            {
+              "first": 278.09399999999994,
+              "second": 53.69
+            },
+            {
+              "first": 278.09799999999996,
+              "second": 53.69
+            },
+            {
+              "first": 290.54799999999994,
+              "second": 53.7
+            },
+            {
+              "first": 290.55199999999996,
+              "second": 53.7
+            },
+            {
+              "first": 304.792,
+              "second": 53.66
+            },
+            {
+              "first": 304.78799999999995,
+              "second": 53.66
+            },
+            {
+              "first": 314.78799999999995,
+              "second": 53.46
+            },
+            {
+              "first": 324.78799999999995,
+              "second": 53.22
+            },
+            {
+              "first": 335.018,
+              "second": 52.97
+            },
+            {
+              "first": 335.01399999999995,
+              "second": 52.97
+            },
+            {
+              "first": 345.01399999999995,
+              "second": 52.63
+            },
+            {
+              "first": 355.01399999999995,
+              "second": 52.14
+            },
+            {
+              "first": 361.96399999999994,
+              "second": 51.75
+            },
+            {
+              "first": 361.96,
+              "second": 51.75
+            },
+            {
+              "first": 371.96,
+              "second": 51.24
+            },
+            {
+              "first": 379.52,
+              "second": 50.87
+            },
+            {
+              "first": 379.522,
+              "second": 50.87
+            },
+            {
+              "first": 382.152,
+              "second": 50.75
+            },
+            {
+              "first": 382.15,
+              "second": 50.75
+            },
+            {
+              "first": 390.71999999999997,
+              "second": 50.44
+            },
+            {
+              "first": 390.717,
+              "second": 50.44
+            },
+            {
+              "first": 394.727,
+              "second": 50.32
+            },
+            {
+              "first": 394.72299999999996,
+              "second": 50.32
+            },
+            {
+              "first": 405.83299999999997,
+              "second": 50.03
+            },
+            {
+              "first": 405.8299999999999,
+              "second": 50.03
+            },
+            {
+              "first": 413.17999999999995,
+              "second": 49.88
+            },
+            {
+              "first": 427.4289999999999,
+              "second": 49.66
+            },
+            {
+              "first": 437.4289999999999,
+              "second": 49.53
+            },
+            {
+              "first": 444.5489999999999,
+              "second": 49.55
+            },
+            {
+              "first": 444.5489999999999,
+              "second": 49.55
+            },
+            {
+              "first": 454.5489999999999,
+              "second": 49.55
+            },
+            {
+              "first": 461.39899999999994,
+              "second": 49.53
+            },
+            {
+              "first": 461.39899999999994,
+              "second": 49.53
+            },
+            {
+              "first": 469.96899999999994,
+              "second": 49.56
+            }
+          ]
+        },
+        {
+          "distance": 54.265,
+          "relativeDirection": "LEFT",
+          "streetName": "11th Avenue Northeast",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.31658750000001,
+          "lat": 47.6612975,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 49.56
+            },
+            {
+              "first": 10.9,
+              "second": 50.02
+            },
+            {
+              "first": 10.902,
+              "second": 50.02
+            },
+            {
+              "first": 20.902,
+              "second": 50.23
+            },
+            {
+              "first": 30.902,
+              "second": 50.43
+            },
+            {
+              "first": 40.902,
+              "second": 50.73
+            },
+            {
+              "first": 49.472,
+              "second": 50.92
+            },
+            {
+              "first": 49.471000000000004,
+              "second": 50.92
+            },
+            {
+              "first": 54.261,
+              "second": 51.05
+            }
+          ]
+        },
+        {
+          "distance": 7.395,
+          "relativeDirection": "RIGHT",
+          "streetName": "service road",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.3165656,
+          "lat": 47.661785300000005,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 51.05
+            },
+            {
+              "first": 6.28,
+              "second": 51.09
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1597953420000,
+      "endTime": 1597953673000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1219.3242176370456,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "67",
+      "agencyName": "Metro Transit",
+      "agencyUrl": "http://metro.kingcounty.gov",
+      "agencyTimeZoneOffset": -25200000,
+      "routeType": 3,
+      "routeId": "kcm:100259",
+      "interlineWithPreviousLeg": false,
+      "tripShortName": "LOCAL",
+      "tripBlockId": "5863957",
+      "headsign": "Northgate Roosevelt",
+      "agencyId": "1",
+      "tripId": "kcm:44052757",
+      "serviceDate": "20200820",
+      "from": {
+        "name": "11th Ave NE & NE 45th St",
+        "stopId": "kcm:9650",
+        "lon": -122.316467,
+        "lat": 47.6617813,
+        "arrival": 1597953291000,
+        "departure": 1597953420000,
+        "zoneId": "1",
+        "stopIndex": 11,
+        "stopSequence": 170,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "12th Ave NE & NE 61st St",
+        "stopId": "kcm:23540",
+        "lon": -122.315552,
+        "lat": 47.6726532,
+        "arrival": 1597953673000,
+        "departure": 1597953784000,
+        "zoneId": "1",
+        "stopIndex": 17,
+        "stopSequence": 194,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "c}{aHp}piVs@?{Bc@yAEq@?wHEq@?}F?w@?qJEe@?cC?aJE]KA??AcAe@g@_@KIOGMCSISAWAm@?",
+        "length": 25
+      },
+      "interStopGeometry": [
+        {
+          "points": "c}{aHp}piVs@?{Bc@yAEq@?",
+          "length": 5
+        },
+        {
+          "points": "_g|aHf|piVwHEq@?",
+          "length": 3
+        },
+        {
+          "points": "ir|aH`|piV}F?w@?",
+          "length": 3
+        },
+        {
+          "points": "_||aH`|piVqJEe@?",
+          "length": 3
+        },
+        {
+          "points": "wh}aHz{piVcC?aJE]KA?",
+          "length": 5
+        },
+        {
+          "points": "}x}aHh{piV?AcAe@g@_@KIOGMCSISAWAm@?",
+          "length": 11
+        }
+      ],
+      "routeShortName": "67",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 253,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "11th Ave NE & NE 47th St",
+          "stopId": "kcm:9660",
+          "lon": -122.316254,
+          "lat": 47.6633682,
+          "arrival": 1597953457000,
+          "departure": 1597953457000,
+          "zoneId": "1",
+          "stopIndex": 12,
+          "stopSequence": 174,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "11th Ave NE & NE 50th St",
+          "stopId": "kcm:23500",
+          "lon": -122.316238,
+          "lat": 47.6651726,
+          "arrival": 1597953499000,
+          "departure": 1597953499000,
+          "zoneId": "1",
+          "stopIndex": 13,
+          "stopSequence": 176,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "11th Ave NE & NE 52nd St",
+          "stopId": "kcm:23510",
+          "lon": -122.316208,
+          "lat": 47.6667137,
+          "arrival": 1597953534000,
+          "departure": 1597953534000,
+          "zoneId": "1",
+          "stopIndex": 14,
+          "stopSequence": 178,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "11th Ave NE & NE 55th St",
+          "stopId": "kcm:23520",
+          "lon": -122.316185,
+          "lat": 47.6687584,
+          "arrival": 1597953582000,
+          "departure": 1597953582000,
+          "zoneId": "1",
+          "stopIndex": 15,
+          "stopSequence": 180,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "11th Ave NE & NE Ravenna Blvd",
+          "stopId": "kcm:23530",
+          "lon": -122.316101,
+          "lat": 47.6713295,
+          "arrival": 1597953642000,
+          "departure": 1597953642000,
+          "zoneId": "1",
+          "stopIndex": 16,
+          "stopSequence": 184,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1597953784000,
+      "endTime": 1597955040000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 5290.865512970262,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "45",
+      "agencyName": "Metro Transit",
+      "agencyUrl": "http://metro.kingcounty.gov",
+      "agencyTimeZoneOffset": -25200000,
+      "routeType": 3,
+      "routeId": "kcm:100225",
+      "interlineWithPreviousLeg": false,
+      "tripShortName": "LOCAL",
+      "tripBlockId": "5864148",
+      "headsign": "Loyal Heights Greenwood",
+      "agencyId": "1",
+      "tripId": "kcm:47377584",
+      "serviceDate": "20200820",
+      "from": {
+        "name": "12th Ave NE & NE 61st St",
+        "stopId": "kcm:23540",
+        "lon": -122.315552,
+        "lat": 47.6726532,
+        "arrival": 1597953673000,
+        "departure": 1597953784000,
+        "zoneId": "1",
+        "stopIndex": 11,
+        "stopSequence": 75,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "NW 85th St & 8th Ave NW",
+        "stopId": "kcm:37060",
+        "lon": -122.366653,
+        "lat": 47.6907234,
+        "arrival": 1597955040000,
+        "departure": 1597955041000,
+        "zoneId": "1",
+        "stopIndex": 28,
+        "stopSequence": 174,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "aa~aH|wpiV]?iB?cD?cD?cD?C?CrI?jA?v@?fCAfC?fC?jAAr@?zAAZ?lBeJhIc@b@sEjE[V_A`A{AnBw@Dg@Nc@Tm@d@{@|@[n@a@t@cAlBaBvCc@~@Qf@Sx@Oz@Ij@GfAAJClA@~@L~B?l@A~BIfAKl@YlAc@bAa@t@c@h@{@x@e@f@aBdBiCfCa@j@QXOb@Un@Id@EReEEOMo@q@OG_A?sGFg@?aID?~@?nA?|B?^?TAtE?xE?r@AlCAT?hB?lBArE?nCAx@@XCjO?zO?fAAvE?xFAlGAnG@hAA`EAjGAlM?dAAvOCvO?`C",
+        "length": 100
+      },
+      "interStopGeometry": [
+        {
+          "points": "aa~aH|wpiV]?iB?cD?cD?cD?C?CrI?jA",
+          "length": 9
+        },
+        {
+          "points": "}t~aH|dqiV?v@?fCAfC?fC?jAAr@?zA",
+          "length": 8
+        },
+        {
+          "points": "au~aHhzqiVAZ?lBeJhIc@b@",
+          "length": 5
+        },
+        {
+          "points": "ma_bH`jriVsEjE",
+          "length": 2
+        },
+        {
+          "points": "ah_bHlpriV[V_A`A{AnBw@Dg@Nc@Tm@d@{@|@[n@a@t@",
+          "length": 11
+        },
+        {
+          "points": "ew_bHl~riVcAlBaBvCc@~@Qf@Sx@Oz@Ij@GfA",
+          "length": 9
+        },
+        {
+          "points": "w_`bHdqsiVAJClA@~@L~B?l@A~BIfAKl@YlAc@bAa@t@c@h@{@x@e@f@",
+          "length": 15
+        },
+        {
+          "points": "kg`bHvmtiVaBdBiCfCa@j@QXOb@Un@Id@",
+          "length": 8
+        },
+        {
+          "points": "{q`bHd{tiVEReEEOMo@q@OG_A?",
+          "length": 7
+        },
+        {
+          "points": "w|`bHjytiVsGFg@?",
+          "length": 3
+        },
+        {
+          "points": "sfabHrytiVaID?~@",
+          "length": 3
+        },
+        {
+          "points": "upabHx{tiV?nA?|B?^?TAtE?xE?r@AlC",
+          "length": 9
+        },
+        {
+          "points": "ypabHnwuiVAT?hB?lBArE?nC",
+          "length": 6
+        },
+        {
+          "points": "}pabH`jviVAx@@XCjO?zO?fA",
+          "length": 6
+        },
+        {
+          "points": "aqabHdpwiVAvE?xFAlGAnG@hA",
+          "length": 6
+        },
+        {
+          "points": "eqabH~qxiVA`EAjGAlM",
+          "length": 4
+        },
+        {
+          "points": "kqabHznyiV?dAAvOCvO?`C",
+          "length": 5
+        }
+      ],
+      "routeShortName": "45",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 1256,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "NE 65th St & Roosevelt Way NE",
+          "stopId": "kcm:36950",
+          "lon": -122.317726,
+          "lat": 47.6758995,
+          "arrival": 1597953900000,
+          "departure": 1597953900000,
+          "zoneId": "1",
+          "stopIndex": 12,
+          "stopSequence": 83,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NE 65th St & Oswego Pl NE",
+          "stopId": "kcm:36960",
+          "lon": -122.321167,
+          "lat": 47.67593,
+          "arrival": 1597953987000,
+          "departure": 1597953987000,
+          "zoneId": "1",
+          "stopIndex": 13,
+          "stopSequence": 90,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NE Ravenna Blvd & NE 68th St",
+          "stopId": "kcm:16515",
+          "lon": -122.323601,
+          "lat": 47.6778717,
+          "arrival": 1597954092000,
+          "departure": 1597954092000,
+          "zoneId": "1",
+          "stopIndex": 14,
+          "stopSequence": 94,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NE Ravenna Blvd & Woodlawn Ave NE",
+          "stopId": "kcm:16520",
+          "lon": -122.324608,
+          "lat": 47.6789322,
+          "arrival": 1597954140000,
+          "departure": 1597954140000,
+          "zoneId": "1",
+          "stopIndex": 15,
+          "stopSequence": 95,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "East Green Lake Dr N & 4th Ave NE",
+          "stopId": "kcm:36961",
+          "lon": -122.326881,
+          "lat": 47.6813583,
+          "arrival": 1597954214000,
+          "departure": 1597954214000,
+          "zoneId": "1",
+          "stopIndex": 16,
+          "stopSequence": 105,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "East Green Lake Dr N & Sunnyside Ave N",
+          "stopId": "kcm:36990",
+          "lon": -122.32991,
+          "lat": 47.6827507,
+          "arrival": 1597954277000,
+          "departure": 1597954277000,
+          "zoneId": "1",
+          "stopIndex": 17,
+          "stopSequence": 113,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "East Green Lake Dr N & Orin Ct N",
+          "stopId": "kcm:37010",
+          "lon": -122.334435,
+          "lat": 47.6839371,
+          "arrival": 1597954369000,
+          "departure": 1597954369000,
+          "zoneId": "1",
+          "stopIndex": 18,
+          "stopSequence": 127,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "East Green Lake Dr N & Wallingford Ave N",
+          "stopId": "kcm:37020",
+          "lon": -122.336632,
+          "lat": 47.6856461,
+          "arrival": 1597954427000,
+          "departure": 1597954427000,
+          "zoneId": "1",
+          "stopIndex": 19,
+          "stopSequence": 134,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "Wallingford Ave N & N 80th St",
+          "stopId": "kcm:17640",
+          "lon": -122.336273,
+          "lat": 47.6873322,
+          "arrival": 1597954474000,
+          "departure": 1597954474000,
+          "zoneId": "1",
+          "stopIndex": 20,
+          "stopSequence": 140,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "Wallingford Ave N & N 82nd St",
+          "stopId": "kcm:17650",
+          "lon": -122.336319,
+          "lat": 47.6889038,
+          "arrival": 1597954514000,
+          "departure": 1597954514000,
+          "zoneId": "1",
+          "stopIndex": 21,
+          "stopSequence": 142,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N 85th St & Wallingford Ave N",
+          "stopId": "kcm:5420",
+          "lon": -122.336769,
+          "lat": 47.6905785,
+          "arrival": 1597954560000,
+          "departure": 1597954560000,
+          "zoneId": "1",
+          "stopIndex": 22,
+          "stopSequence": 144,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N 85th St & Stone Ave N",
+          "stopId": "kcm:5440",
+          "lon": -122.341194,
+          "lat": 47.690609,
+          "arrival": 1597954630000,
+          "departure": 1597954630000,
+          "zoneId": "1",
+          "stopIndex": 23,
+          "stopSequence": 152,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N 85th St & Aurora Ave N",
+          "stopId": "kcm:5450",
+          "lon": -122.344162,
+          "lat": 47.6906242,
+          "arrival": 1597954677000,
+          "departure": 1597954677000,
+          "zoneId": "1",
+          "stopIndex": 24,
+          "stopSequence": 157,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N 85th St & Fremont Ave N",
+          "stopId": "kcm:5470",
+          "lon": -122.350266,
+          "lat": 47.6906471,
+          "arrival": 1597954774000,
+          "departure": 1597954774000,
+          "zoneId": "1",
+          "stopIndex": 25,
+          "stopSequence": 162,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N 85th St & Greenwood Ave N",
+          "stopId": "kcm:41450",
+          "lon": -122.355675,
+          "lat": 47.6906662,
+          "arrival": 1597954860000,
+          "departure": 1597954860000,
+          "zoneId": "1",
+          "stopIndex": 26,
+          "stopSequence": 167,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 85th St & 3rd Ave NW",
+          "stopId": "kcm:37040",
+          "lon": -122.360275,
+          "lat": 47.6906891,
+          "arrival": 1597954936000,
+          "departure": 1597954936000,
+          "zoneId": "1",
+          "stopIndex": 27,
+          "stopSequence": 170,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1597955041000,
+      "endTime": 1597955224000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 236.898,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -25200000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "NW 85th St & 8th Ave NW",
+        "stopId": "kcm:37060",
+        "lon": -122.366653,
+        "lat": 47.6907234,
+        "arrival": 1597955040000,
+        "departure": 1597955041000,
+        "zoneId": "1",
+        "stopIndex": 28,
+        "stopSequence": 174,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "8212 8th Ave NW, Seattle, WA, USA",
+        "lon": -122.36571962588302,
+        "lat": 47.68896584339047,
+        "arrival": 1597955224000,
+        "orig": "8212 8th Ave NW, Seattle, WA, USA",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "mqabHrvziV?A?_C\\EV?X?H?P?t@?dA?fA??q@",
+        "length": 12
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 183,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 48.135,
+          "relativeDirection": "DEPART",
+          "streetName": "Northwest 85th Street",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.36665220078636,
+          "lat": 47.69063455760549,
+          "elevation": [
+            {
+              "first": 0.778,
+              "second": 88.24
+            },
+            {
+              "first": 10.778,
+              "second": 87.75
+            },
+            {
+              "first": 20.778,
+              "second": 87.25
+            },
+            {
+              "first": 30.778,
+              "second": 86.8
+            },
+            {
+              "first": 40.778,
+              "second": 86.45
+            },
+            {
+              "first": 48.138,
+              "second": 86.23
+            }
+          ]
+        },
+        {
+          "distance": 169.894,
+          "relativeDirection": "RIGHT",
+          "streetName": "8th Avenue Northwest",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.36600910000001,
+          "lat": 47.690635900000004,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 86.23
+            },
+            {
+              "first": 10,
+              "second": 86.14
+            },
+            {
+              "first": 20,
+              "second": 86.1
+            },
+            {
+              "first": 29.81,
+              "second": 86.15
+            },
+            {
+              "first": 29.813,
+              "second": 86.15
+            },
+            {
+              "first": 44.413,
+              "second": 86.14
+            },
+            {
+              "first": 90.958,
+              "second": 86.08
+            },
+            {
+              "first": 100.958,
+              "second": 86.13
+            },
+            {
+              "first": 110.958,
+              "second": 86.11
+            },
+            {
+              "first": 120.958,
+              "second": 86.05
+            },
+            {
+              "first": 129.468,
+              "second": 86
+            },
+            {
+              "first": 129.464,
+              "second": 86
+            },
+            {
+              "first": 139.464,
+              "second": 85.9
+            },
+            {
+              "first": 149.464,
+              "second": 85.83
+            },
+            {
+              "first": 159.464,
+              "second": 85.8
+            },
+            {
+              "first": 169.894,
+              "second": 85.79
+            }
+          ]
+        },
+        {
+          "distance": 18.869,
+          "relativeDirection": "LEFT",
+          "streetName": "Northwest 83rd Street",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.36597210000001,
+          "lat": 47.6891101,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 85.79
+            },
+            {
+              "first": 10,
+              "second": 85.51
+            },
+            {
+              "first": 18.87,
+              "second": 85.23
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

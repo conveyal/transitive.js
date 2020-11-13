@@ -1,0 +1,398 @@
+{
+  "duration": 203,
+  "startTime": 1573688700000,
+  "endTime": 1573688903000,
+  "walkTime": 113,
+  "transitTime": 90,
+  "waitingTime": 0,
+  "walkDistance": 492.2908345853744,
+  "walkLimitExceeded": false,
+  "elevationLost": 2.6599999999999984,
+  "elevationGained": 0.6700000000000017,
+  "transfers": 0,
+  "legs": [
+    {
+      "startTime": 1573688700000,
+      "endTime": 1573688813000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 62.808,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "600 SW 5th Ave, Portland, OR, USA 97204",
+        "lon": -122.67667146034765,
+        "lat": 45.51924894918581,
+        "departure": 1573688700000,
+        "orig": "600 SW 5th Ave, Portland, OR, USA 97204",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "EMAQ",
+        "lon": -122.6759076,
+        "lat": 45.5193746,
+        "arrival": 1573688813000,
+        "departure": 1573688813000,
+        "vertexType": "VEHICLERENTAL",
+        "networks": ["RAZOR"]
+      },
+      "legGeometry": {
+        "points": "unytG~gwkVNy@F[KEa@Q",
+        "length": 5
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 113,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 35.96,
+          "relativeDirection": "DEPART",
+          "streetName": "SW Alder St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.67663812781254,
+          "lat": 45.51931045602352,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 10.062842545446777
+            },
+            {
+              "first": 10,
+              "second": 10.122842545446778
+            },
+            {
+              "first": 20,
+              "second": 10.112842545446778
+            },
+            {
+              "first": 30,
+              "second": 10.032842545446778
+            },
+            {
+              "first": 35.96,
+              "second": 9.982842545446779
+            }
+          ]
+        },
+        {
+          "distance": 26.848,
+          "relativeDirection": "LEFT",
+          "streetName": "SW 4th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6762066,
+          "lat": 45.5191957,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 9.792842545446778
+            },
+            {
+              "first": 10,
+              "second": 9.772842545446778
+            },
+            {
+              "first": 20,
+              "second": 9.682842545446778
+            },
+            {
+              "first": 26.85,
+              "second": 9.582842545446779
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573688813000,
+      "endTime": 1573688903000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 429.44,
+      "pathway": false,
+      "mode": "MICROMOBILITY",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "EMAQ",
+        "lon": -122.6759076,
+        "lat": 45.5193746,
+        "arrival": 1573688813000,
+        "departure": 1573688813000,
+        "vertexType": "VEHICLERENTAL",
+        "networks": ["RAZOR"]
+      },
+      "to": {
+        "name": "205 SW Pine St, Portland, OR, USA 97204",
+        "lon": -122.67307275796767,
+        "lat": 45.521469054694954,
+        "arrival": 1573688903000,
+        "orig": "205 SW Pine St, Portland, OR, USA 97204",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "koytGpdwkViAg@MGKEkBy@KGME[OoAi@KGKEkB{@MEDYh@yCFWf@wCEV",
+        "length": 18
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": true,
+      "hailedCar": false,
+      "duration": 90,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 290.58799999999997,
+          "relativeDirection": "CONTINUE",
+          "streetName": "SW 4th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6760846357673,
+          "lat": 45.519421523441345,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 9.792842545446778
+            },
+            {
+              "first": 10,
+              "second": 9.772842545446778
+            },
+            {
+              "first": 20,
+              "second": 9.682842545446778
+            },
+            {
+              "first": 30,
+              "second": 9.532842545446778
+            },
+            {
+              "first": 40,
+              "second": 9.462842545446778
+            },
+            {
+              "first": 50,
+              "second": 9.352842545446778
+            },
+            {
+              "first": 52.44,
+              "second": 9.332842545446779
+            },
+            {
+              "first": 52.437,
+              "second": 9.162842545446779
+            },
+            {
+              "first": 62.437,
+              "second": 9.182842545446778
+            },
+            {
+              "first": 72.437,
+              "second": 9.072842545446779
+            },
+            {
+              "first": 82.437,
+              "second": 8.982842545446779
+            },
+            {
+              "first": 92.437,
+              "second": 8.862842545446778
+            },
+            {
+              "first": 102.437,
+              "second": 8.812842545446777
+            },
+            {
+              "first": 112.437,
+              "second": 8.722842545446778
+            },
+            {
+              "first": 122.437,
+              "second": 8.652842545446779
+            },
+            {
+              "first": 131.36700000000002,
+              "second": 8.612842545446778
+            },
+            {
+              "first": 131.369,
+              "second": 8.612842545446778
+            },
+            {
+              "first": 141.369,
+              "second": 8.572842545446779
+            },
+            {
+              "first": 155.779,
+              "second": 8.422842545446779
+            },
+            {
+              "first": 155.777,
+              "second": 8.422842545446779
+            },
+            {
+              "first": 165.777,
+              "second": 8.382842545446778
+            },
+            {
+              "first": 175.777,
+              "second": 8.362842545446778
+            },
+            {
+              "first": 185.777,
+              "second": 8.362842545446778
+            },
+            {
+              "first": 195.777,
+              "second": 8.322842545446779
+            },
+            {
+              "first": 205.777,
+              "second": 8.312842545446777
+            },
+            {
+              "first": 210.84699999999998,
+              "second": 8.312842545446777
+            },
+            {
+              "first": 210.84699999999998,
+              "second": 8.312842545446777
+            },
+            {
+              "first": 220.84699999999998,
+              "second": 8.342842545446779
+            },
+            {
+              "first": 230.84699999999998,
+              "second": 8.252842545446779
+            },
+            {
+              "first": 240.84699999999998,
+              "second": 8.272842545446778
+            },
+            {
+              "first": 250.84699999999998,
+              "second": 8.212842545446778
+            },
+            {
+              "first": 260.847,
+              "second": 8.212842545446778
+            },
+            {
+              "first": 270.847,
+              "second": 8.142842545446777
+            },
+            {
+              "first": 280.847,
+              "second": 8.182842545446778
+            },
+            {
+              "first": 290.587,
+              "second": 8.142842545446777
+            }
+          ]
+        },
+        {
+          "distance": 138.852,
+          "relativeDirection": "RIGHT",
+          "streetName": "SW Pine St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6747645,
+          "lat": 45.5218657,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 8.142842545446777
+            },
+            {
+              "first": 10,
+              "second": 8.082842545446779
+            },
+            {
+              "first": 20,
+              "second": 8.202842545446778
+            },
+            {
+              "first": 30,
+              "second": 8.182842545446778
+            },
+            {
+              "first": 40,
+              "second": 8.212842545446778
+            },
+            {
+              "first": 50,
+              "second": 8.302842545446778
+            },
+            {
+              "first": 60,
+              "second": 8.222842545446778
+            },
+            {
+              "first": 70,
+              "second": 8.142842545446777
+            },
+            {
+              "first": 80,
+              "second": 8.332842545446779
+            },
+            {
+              "first": 85.47,
+              "second": 8.302842545446778
+            },
+            {
+              "first": 85.465,
+              "second": 8.302842545446778
+            },
+            {
+              "first": 95.465,
+              "second": 8.212842545446778
+            },
+            {
+              "first": 105.465,
+              "second": 8.152842545446779
+            },
+            {
+              "first": 115.465,
+              "second": 8.112842545446778
+            },
+            {
+              "first": 125.465,
+              "second": 7.872842545446778
+            },
+            {
+              "first": 135.465,
+              "second": 7.942842545446778
+            },
+            {
+              "first": 138.85500000000002,
+              "second": 7.922842545446779
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

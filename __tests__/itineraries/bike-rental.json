@@ -1,0 +1,863 @@
+{
+  "duration": 792,
+  "startTime": 1573688700000,
+  "endTime": 1573689492000,
+  "walkTime": 792,
+  "transitTime": 0,
+  "waitingTime": 0,
+  "walkDistance": 1280.5410121370023,
+  "walkLimitExceeded": false,
+  "elevationLost": 11.5,
+  "elevationGained": 21.87,
+  "transfers": 0,
+  "legs": [
+    {
+      "startTime": 1573688700000,
+      "endTime": 1573688886000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 151.884,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "2624 SE 30th Ave, Portland, OR, USA 97202",
+        "lon": -122.63428176817192,
+        "lat": 45.50357980690456,
+        "departure": 1573688700000,
+        "orig": "2624 SE 30th Ave, Portland, OR, USA 97202",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "SE 30th at Division",
+        "lon": -122.63455510139465,
+        "lat": 45.504688916692,
+        "arrival": 1573688886000,
+        "departure": 1573688886000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1549\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "alvtGh_okVArA?UcF?",
+        "length": 4
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 186,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 24.171,
+          "relativeDirection": "DEPART",
+          "streetName": "SE Clinton St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.63428214557513,
+          "lat": 45.50353948572678,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 37.26284254544677
+            },
+            {
+              "first": 10,
+              "second": 37.59284254544678
+            },
+            {
+              "first": 20,
+              "second": 37.58284254544678
+            },
+            {
+              "first": 24.17,
+              "second": 37.52284254544678
+            }
+          ]
+        },
+        {
+          "distance": 127.713,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 30th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6345923,
+          "lat": 45.5035403,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 36.39284254544678
+            },
+            {
+              "first": 10,
+              "second": 36.542842545446774
+            },
+            {
+              "first": 20,
+              "second": 36.62284254544678
+            },
+            {
+              "first": 30,
+              "second": 37.152842545446774
+            },
+            {
+              "first": 40,
+              "second": 37.62284254544678
+            },
+            {
+              "first": 50,
+              "second": 38.14284254544678
+            },
+            {
+              "first": 60,
+              "second": 38.652842545446774
+            },
+            {
+              "first": 70,
+              "second": 39.12284254544678
+            },
+            {
+              "first": 80,
+              "second": 39.45284254544678
+            },
+            {
+              "first": 90,
+              "second": 39.22284254544678
+            },
+            {
+              "first": 100,
+              "second": 38.91284254544678
+            },
+            {
+              "first": 110,
+              "second": 38.682842545446775
+            },
+            {
+              "first": 120,
+              "second": 38.41284254544678
+            },
+            {
+              "first": 127.71,
+              "second": 38.182842545446775
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573688886000,
+      "endTime": 1573689303000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 940.033,
+      "pathway": false,
+      "mode": "BICYCLE",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SE 30th at Division",
+        "lon": -122.63455510139465,
+        "lat": 45.504688916692,
+        "arrival": 1573688886000,
+        "departure": 1573688886000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1549\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "SE 29th at Hawthorne",
+        "lon": -122.6363119482994,
+        "lat": 45.51202352994066,
+        "arrival": 1573689303000,
+        "departure": 1573689303000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1608\"",
+        "networks": ["GBFS"]
+      },
+      "legGeometry": {
+        "points": "gsvtGfaokVa@HD?D?QLC?wB?qC?kB@_B?mEBS@GVET?R?`@?~A?pAWAgB?}B?I@mCAmCAqAAg@?]?W??f@",
+        "length": 29
+      },
+      "rentedBike": true,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 417,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 413.022,
+          "relativeDirection": "CONTINUE",
+          "streetName": "SE 30th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.63459592690745,
+          "lat": 45.504688853368016,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 36.39284254544678
+            },
+            {
+              "first": 10,
+              "second": 36.542842545446774
+            },
+            {
+              "first": 13.4,
+              "second": 36.572842545446775
+            },
+            {
+              "first": 13.403,
+              "second": 37.89284254544678
+            },
+            {
+              "first": 23.403,
+              "second": 37.74284254544678
+            },
+            {
+              "first": 33.403,
+              "second": 37.712842545446776
+            },
+            {
+              "first": 43.403,
+              "second": 37.682842545446775
+            },
+            {
+              "first": 53.403,
+              "second": 37.69284254544678
+            },
+            {
+              "first": 63.403,
+              "second": 37.70284254544678
+            },
+            {
+              "first": 73.403,
+              "second": 37.70284254544678
+            },
+            {
+              "first": 83.403,
+              "second": 37.70284254544678
+            },
+            {
+              "first": 93.283,
+              "second": 37.75284254544678
+            },
+            {
+              "first": 93.299,
+              "second": 37.75284254544678
+            },
+            {
+              "first": 103.299,
+              "second": 37.792842545446774
+            },
+            {
+              "first": 113.299,
+              "second": 37.792842545446774
+            },
+            {
+              "first": 123.299,
+              "second": 37.85284254544678
+            },
+            {
+              "first": 133.299,
+              "second": 37.91284254544678
+            },
+            {
+              "first": 143.299,
+              "second": 37.94284254544678
+            },
+            {
+              "first": 153.299,
+              "second": 38.01284254544677
+            },
+            {
+              "first": 163.299,
+              "second": 38.072842545446775
+            },
+            {
+              "first": 173.849,
+              "second": 38.13284254544678
+            },
+            {
+              "first": 173.849,
+              "second": 38.13284254544678
+            },
+            {
+              "first": 183.849,
+              "second": 38.25284254544678
+            },
+            {
+              "first": 193.849,
+              "second": 38.36284254544678
+            },
+            {
+              "first": 203.849,
+              "second": 38.41284254544678
+            },
+            {
+              "first": 213.849,
+              "second": 38.36284254544678
+            },
+            {
+              "first": 223.849,
+              "second": 38.212842545446776
+            },
+            {
+              "first": 234.38899999999998,
+              "second": 38.03284254544678
+            },
+            {
+              "first": 234.384,
+              "second": 38.03284254544678
+            },
+            {
+              "first": 244.384,
+              "second": 38.09284254544678
+            },
+            {
+              "first": 254.384,
+              "second": 38.33284254544678
+            },
+            {
+              "first": 264.384,
+              "second": 38.83284254544678
+            },
+            {
+              "first": 274.384,
+              "second": 39.39284254544678
+            },
+            {
+              "first": 288.054,
+              "second": 40.13284254544678
+            },
+            {
+              "first": 288.058,
+              "second": 40.13284254544678
+            },
+            {
+              "first": 298.058,
+              "second": 40.59284254544678
+            },
+            {
+              "first": 308.058,
+              "second": 41.182842545446775
+            },
+            {
+              "first": 318.058,
+              "second": 42.13284254544678
+            },
+            {
+              "first": 328.058,
+              "second": 43.12284254544678
+            },
+            {
+              "first": 338.058,
+              "second": 44.05284254544678
+            },
+            {
+              "first": 348.058,
+              "second": 44.902842545446774
+            },
+            {
+              "first": 358.058,
+              "second": 45.66284254544678
+            },
+            {
+              "first": 368.058,
+              "second": 46.34284254544678
+            },
+            {
+              "first": 378.058,
+              "second": 46.94284254544678
+            },
+            {
+              "first": 388.058,
+              "second": 47.51284254544677
+            },
+            {
+              "first": 398.058,
+              "second": 47.99284254544678
+            },
+            {
+              "first": 413.018,
+              "second": 48.35284254544678
+            }
+          ]
+        },
+        {
+          "distance": 110.101,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Harrison St",
+          "absoluteDirection": "NORTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6347507,
+          "lat": 45.5083813,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 48.35284254544678
+            },
+            {
+              "first": 10,
+              "second": 48.56284254544678
+            },
+            {
+              "first": 20,
+              "second": 49.402842545446774
+            },
+            {
+              "first": 30,
+              "second": 49.74284254544678
+            },
+            {
+              "first": 40,
+              "second": 49.932842545446775
+            },
+            {
+              "first": 50,
+              "second": 50.19284254544678
+            },
+            {
+              "first": 60,
+              "second": 50.182842545446775
+            },
+            {
+              "first": 70,
+              "second": 49.89284254544678
+            },
+            {
+              "first": 78.48,
+              "second": 49.50284254544678
+            },
+            {
+              "first": 78.464,
+              "second": 49.50284254544678
+            },
+            {
+              "first": 88.464,
+              "second": 49.66284254544678
+            },
+            {
+              "first": 98.464,
+              "second": 49.712842545446776
+            },
+            {
+              "first": 110.104,
+              "second": 49.69284254544678
+            }
+          ]
+        },
+        {
+          "distance": 401.74699999999996,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 29th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.636141,
+          "lat": 45.5084586,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 49.69284254544678
+            },
+            {
+              "first": 10,
+              "second": 49.182842545446775
+            },
+            {
+              "first": 20,
+              "second": 49.01284254544677
+            },
+            {
+              "first": 30,
+              "second": 48.97284254544678
+            },
+            {
+              "first": 40,
+              "second": 48.932842545446775
+            },
+            {
+              "first": 50,
+              "second": 48.85284254544678
+            },
+            {
+              "first": 60,
+              "second": 48.80284254544678
+            },
+            {
+              "first": 70.24,
+              "second": 48.75284254544678
+            },
+            {
+              "first": 70.242,
+              "second": 48.75284254544678
+            },
+            {
+              "first": 80.242,
+              "second": 48.69284254544678
+            },
+            {
+              "first": 90.242,
+              "second": 48.52284254544678
+            },
+            {
+              "first": 100.242,
+              "second": 48.25284254544678
+            },
+            {
+              "first": 110.242,
+              "second": 47.98284254544678
+            },
+            {
+              "first": 120.242,
+              "second": 47.69284254544678
+            },
+            {
+              "first": 130.24200000000002,
+              "second": 47.45284254544678
+            },
+            {
+              "first": 140.24200000000002,
+              "second": 47.19284254544678
+            },
+            {
+              "first": 146.93200000000002,
+              "second": 47.06284254544678
+            },
+            {
+              "first": 146.921,
+              "second": 47.06284254544678
+            },
+            {
+              "first": 156.921,
+              "second": 46.87284254544678
+            },
+            {
+              "first": 166.921,
+              "second": 46.70284254544678
+            },
+            {
+              "first": 176.921,
+              "second": 46.49284254544678
+            },
+            {
+              "first": 186.921,
+              "second": 46.26284254544677
+            },
+            {
+              "first": 196.921,
+              "second": 46.042842545446774
+            },
+            {
+              "first": 206.921,
+              "second": 45.822842545446775
+            },
+            {
+              "first": 216.921,
+              "second": 45.60284254544678
+            },
+            {
+              "first": 225.37099999999998,
+              "second": 45.45284254544678
+            },
+            {
+              "first": 225.37199999999999,
+              "second": 45.45284254544678
+            },
+            {
+              "first": 235.37199999999999,
+              "second": 45.41284254544678
+            },
+            {
+              "first": 245.37199999999999,
+              "second": 45.41284254544678
+            },
+            {
+              "first": 255.37199999999999,
+              "second": 45.462842545446776
+            },
+            {
+              "first": 265.37199999999996,
+              "second": 45.49284254544678
+            },
+            {
+              "first": 275.37199999999996,
+              "second": 45.51284254544677
+            },
+            {
+              "first": 285.37199999999996,
+              "second": 45.52284254544678
+            },
+            {
+              "first": 295.37199999999996,
+              "second": 45.542842545446774
+            },
+            {
+              "first": 304.24199999999996,
+              "second": 45.572842545446775
+            },
+            {
+              "first": 304.241,
+              "second": 45.572842545446775
+            },
+            {
+              "first": 314.241,
+              "second": 45.69284254544678
+            },
+            {
+              "first": 324.241,
+              "second": 45.932842545446775
+            },
+            {
+              "first": 334.241,
+              "second": 46.38284254544678
+            },
+            {
+              "first": 344.241,
+              "second": 46.88284254544678
+            },
+            {
+              "first": 349.611,
+              "second": 47.14284254544678
+            },
+            {
+              "first": 349.608,
+              "second": 47.14284254544678
+            },
+            {
+              "first": 359.608,
+              "second": 47.61284254544678
+            },
+            {
+              "first": 372.168,
+              "second": 48.23284254544678
+            },
+            {
+              "first": 372.169,
+              "second": 48.23284254544678
+            },
+            {
+              "first": 382.169,
+              "second": 48.72284254544678
+            },
+            {
+              "first": 392.169,
+              "second": 49.20284254544678
+            },
+            {
+              "first": 401.74899999999997,
+              "second": 49.58284254544678
+            }
+          ]
+        },
+        {
+          "distance": 15.163,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Hawthorne Blvd",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6361172,
+          "lat": 45.5120707,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 49.58284254544678
+            },
+            {
+              "first": 10,
+              "second": 49.792842545446774
+            },
+            {
+              "first": 15.16,
+              "second": 49.88284254544678
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1573689303000,
+      "endTime": 1573689492000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 188.476,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SE 29th at Hawthorne",
+        "lon": -122.6363119482994,
+        "lat": 45.51202352994066,
+        "arrival": 1573689303000,
+        "departure": 1573689303000,
+        "vertexType": "BIKESHARE",
+        "bikeShareId": "\"hub_1608\"",
+        "networks": ["GBFS"]
+      },
+      "to": {
+        "name": "1415 SE 28th Ave, Portland, OR, USA 97214",
+        "lon": -122.63757592401461,
+        "lat": 45.51258575759002,
+        "arrival": 1573689492000,
+        "orig": "1415 SE 28th Ave, Portland, OR, USA 97214",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "maxtG~kokV?xA?hAY?eCAAxA",
+        "length": 6
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 189,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 64.03399999999999,
+          "relativeDirection": "CONTINUE",
+          "streetName": "SE Hawthorne Blvd",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.63631179997208,
+          "lat": 45.51207099860361,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 49.58284254544678
+            },
+            {
+              "first": 10,
+              "second": 49.792842545446774
+            },
+            {
+              "first": 20,
+              "second": 49.97284254544678
+            },
+            {
+              "first": 30,
+              "second": 50.11284254544678
+            },
+            {
+              "first": 35.62,
+              "second": 50.182842545446775
+            }
+          ]
+        },
+        {
+          "distance": 89.768,
+          "relativeDirection": "RIGHT",
+          "streetName": "SE 28th Ave",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6371336,
+          "lat": 45.5120723,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 50.60284254544678
+            },
+            {
+              "first": 10,
+              "second": 50.682842545446775
+            },
+            {
+              "first": 20,
+              "second": 50.39284254544678
+            },
+            {
+              "first": 30,
+              "second": 49.89284254544678
+            },
+            {
+              "first": 40,
+              "second": 49.30284254544678
+            },
+            {
+              "first": 50,
+              "second": 48.712842545446776
+            },
+            {
+              "first": 60,
+              "second": 48.11284254544678
+            },
+            {
+              "first": 70,
+              "second": 47.49284254544678
+            },
+            {
+              "first": 80,
+              "second": 46.902842545446774
+            },
+            {
+              "first": 89.77,
+              "second": 46.51284254544677
+            }
+          ]
+        },
+        {
+          "distance": 34.674,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Madison St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6371298,
+          "lat": 45.5128796,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 46.51284254544677
+            },
+            {
+              "first": 10,
+              "second": 46.462842545446776
+            },
+            {
+              "first": 20,
+              "second": 46.51284254544677
+            },
+            {
+              "first": 30,
+              "second": 46.30284254544678
+            },
+            {
+              "first": 34.67,
+              "second": 46.152842545446774
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}

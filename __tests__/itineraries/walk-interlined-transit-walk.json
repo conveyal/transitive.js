@@ -1,0 +1,611 @@
+{
+  "duration": 701,
+  "startTime": 1573688874000,
+  "endTime": 1573689575000,
+  "walkTime": 384,
+  "transitTime": 315,
+  "waitingTime": 2,
+  "walkDistance": 447.5804179056796,
+  "walkLimitExceeded": false,
+  "elevationLost": 4.679999999999998,
+  "elevationGained": 7.629999999999997,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {}
+  },
+  "legs": [
+    {
+      "startTime": 1573688874000,
+      "endTime": 1573689069000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 226.31699999999998,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SW 1st Ave, Portland, OR, USA",
+        "lon": -122.67843192290314,
+        "lat": 45.508340365279345,
+        "departure": 1573688874000,
+        "orig": "SW 1st Ave, Portland, OR, USA",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "Lincoln St/SW 3rd Ave MAX Station",
+        "stopId": "TriMet:13729",
+        "stopCode": "13729",
+        "lon": -122.680858,
+        "lat": 45.507942,
+        "arrival": 1573689069000,
+        "departure": 1573689070000,
+        "zoneId": "R",
+        "stopIndex": 9,
+        "stopSequence": 10,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "cjwtGfswkVJ`@CEf@@J?@^@ZBl@?^@f@?J?`@?N?^?PH?D??VAdAAdA",
+        "length": 20
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 195,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 11.755,
+          "relativeDirection": "DEPART",
+          "streetName": "service road",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.67843877803429,
+          "lat": 45.508345508923014,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 31.222842545446778
+            },
+            {
+              "first": 10,
+              "second": 30.992842545446777
+            },
+            {
+              "first": 11.76,
+              "second": 31.05284254544678
+            }
+          ]
+        },
+        {
+          "distance": 28.928,
+          "relativeDirection": "LEFT",
+          "streetName": "SW 1st Ave",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6785757,
+          "lat": 45.5083062,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 33.09284254544678
+            },
+            {
+              "first": 10,
+              "second": 33.26284254544678
+            },
+            {
+              "first": 20,
+              "second": 33.42284254544678
+            },
+            {
+              "first": 28.93,
+              "second": 33.542842545446774
+            }
+          ]
+        },
+        {
+          "distance": 112.755,
+          "relativeDirection": "RIGHT",
+          "streetName": "SW Lincoln St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6785885,
+          "lat": 45.5080462,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 33.542842545446774
+            },
+            {
+              "first": 12.09,
+              "second": 34.08284254544678
+            },
+            {
+              "first": 12.088,
+              "second": 34.08284254544678
+            },
+            {
+              "first": 22.088,
+              "second": 34.51284254544678
+            },
+            {
+              "first": 32.088,
+              "second": 34.83284254544678
+            },
+            {
+              "first": 40.998,
+              "second": 35.212842545446776
+            },
+            {
+              "first": 41.001,
+              "second": 35.212842545446776
+            },
+            {
+              "first": 51.001,
+              "second": 35.61284254544678
+            },
+            {
+              "first": 61.001,
+              "second": 35.962842545446776
+            },
+            {
+              "first": 69.161,
+              "second": 36.25284254544678
+            },
+            {
+              "first": 93.422,
+              "second": 37.00284254544678
+            },
+            {
+              "first": 106.27199999999999,
+              "second": 37.64284254544678
+            },
+            {
+              "first": 106.27199999999999,
+              "second": 37.64284254544678
+            },
+            {
+              "first": 112.752,
+              "second": 37.902842545446774
+            }
+          ]
+        },
+        {
+          "distance": 8.607,
+          "relativeDirection": "LEFT",
+          "streetName": "path",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6800322,
+          "lat": 45.5079935,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 37.902842545446774
+            },
+            {
+              "first": 8.61,
+              "second": 37.902842545446774
+            }
+          ]
+        },
+        {
+          "distance": 64.272,
+          "relativeDirection": "RIGHT",
+          "streetName": "Lincoln Street /SW 3rd Ave (path)",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.680034,
+          "lat": 45.5079161,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1573689070000,
+      "endTime": 1573689165000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 282.96845309578106,
+      "pathway": false,
+      "mode": "TRAM",
+      "route": "MAX Orange Line",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeColor": "F58220",
+      "routeType": 0,
+      "routeId": "TriMet:290",
+      "routeTextColor": "000000",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "9071",
+      "headsign": "City Center/Expo Center",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9269760",
+      "serviceDate": "20191113",
+      "from": {
+        "name": "Lincoln St/SW 3rd Ave MAX Station",
+        "stopId": "TriMet:13729",
+        "stopCode": "13729",
+        "lon": -122.680858,
+        "lat": 45.507942,
+        "arrival": 1573689069000,
+        "departure": 1573689070000,
+        "zoneId": "R",
+        "stopIndex": 9,
+        "stopSequence": 10,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "PSU South/SW 6th & College MAX Stn",
+        "stopId": "TriMet:10293",
+        "stopCode": "10293",
+        "lon": -122.683593,
+        "lat": 45.509616,
+        "arrival": 1573689165000,
+        "departure": 1573689205000,
+        "zoneId": "R",
+        "stopIndex": 10,
+        "stopSequence": 11,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "wgwtGjbxkV?@?J?HAPAt@?H?H?FAHAHAFAJCRCTAD?BANAJ?HC~@?JAL?HAJAHCNALCFADENCLENCLIXSt@CHCJEFEDGDE@G@_@?UAIAIAOC_AWe@C",
+        "length": 50
+      },
+      "interStopGeometry": [
+        {
+          "points": "wgwtGjbxkV?@?J?HAPAt@?H?H?FAHAHAFAJCRCTAD?BANAJ?HC~@?JAL?HAJAHCNALCFADENCLENCLIXSt@CHCJEFEDGDE@G@_@?UAIAIAOC_AWe@C",
+          "length": 50
+        }
+      ],
+      "routeLongName": "MAX Orange Line",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 95,
+      "transitLeg": true,
+      "intermediateStops": [],
+      "steps": []
+    },
+    {
+      "startTime": 1573689205000,
+      "endTime": 1573689385000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 714.3440742174371,
+      "pathway": false,
+      "mode": "TRAM",
+      "route": "MAX Yellow Line",
+      "agencyName": "TriMet",
+      "agencyUrl": "http://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeColor": "F8C213",
+      "routeType": 0,
+      "routeId": "TriMet:190",
+      "routeTextColor": "000000",
+      "interlineWithPreviousLeg": true,
+      "tripBlockId": "9071",
+      "headsign": "Expo Center",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:9266764",
+      "serviceDate": "20191113",
+      "from": {
+        "name": "PSU South/SW 6th & College MAX Stn",
+        "stopId": "TriMet:10293",
+        "stopCode": "10293",
+        "lon": -122.683593,
+        "lat": 45.509616,
+        "arrival": 1573689165000,
+        "departure": 1573689205000,
+        "zoneId": "R",
+        "stopIndex": 0,
+        "stopSequence": 1,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "SW 6th & Madison MAX Station",
+        "stopId": "TriMet:13123",
+        "stopCode": "13123",
+        "lon": -122.680381,
+        "lat": 45.515633,
+        "arrival": 1573689385000,
+        "departure": 1573689386000,
+        "zoneId": "R",
+        "stopIndex": 2,
+        "stopSequence": 3,
+        "vertexType": "TRANSIT"
+      },
+      "legGeometry": {
+        "points": "crwtGbtxkVWCgAe@}@a@aAc@MGs@[mB{@KEMG{BcAGCgBw@EAUMGA{@a@aAc@mBy@WMcCgAsB}@",
+        "length": 22
+      },
+      "interStopGeometry": [
+        {
+          "points": "crwtGbtxkVWCgAe@}@a@aAc@MGs@[mB{@",
+          "length": 8
+        },
+        {
+          "points": "s~wtGrmxkVKEMG{BcAGCgBw@EAUMGA{@a@aAc@mBy@WMcCgAsB}@",
+          "length": 15
+        }
+      ],
+      "routeLongName": "MAX Yellow Line",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 180,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "PSU Urban Center/SW 6th & Montgomery MAX Stn",
+          "stopId": "TriMet:7774",
+          "stopCode": "7774",
+          "lon": -122.68255,
+          "lat": 45.511597,
+          "arrival": 1573689250000,
+          "departure": 1573689300000,
+          "zoneId": "R",
+          "stopIndex": 1,
+          "stopSequence": 2,
+          "vertexType": "TRANSIT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1573689386000,
+      "endTime": 1573689575000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 221.07199999999997,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SW 6th & Madison MAX Station",
+        "stopId": "TriMet:13123",
+        "stopCode": "13123",
+        "lon": -122.680381,
+        "lat": 45.515633,
+        "arrival": 1573689385000,
+        "departure": 1573689386000,
+        "zoneId": "R",
+        "stopIndex": 2,
+        "stopSequence": 3,
+        "vertexType": "TRANSIT"
+      },
+      "to": {
+        "name": "1000 SW Broadway, Portland, OR, USA 97205",
+        "lon": -122.68073965894222,
+        "lat": 45.51695792552151,
+        "arrival": 1573689575000,
+        "orig": "1000 SW Broadway, Portland, OR, USA 97205",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "swxtGd_xkVEAKEAJCJGZ_@|BGVCRMEkB{@MEIEs@[",
+        "length": 14
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "duration": 189,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 3.497,
+          "relativeDirection": "DEPART",
+          "streetName": "SW 6th & Madison (path)",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6803484328138,
+          "lat": 45.5156245203574,
+          "elevation": []
+        },
+        {
+          "distance": 6.818,
+          "relativeDirection": "CONTINUE",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.6803328,
+          "lat": 45.515654,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 25.69284254544678
+            },
+            {
+              "first": 6.82,
+              "second": 25.352842545446777
+            }
+          ]
+        },
+        {
+          "distance": 93.255,
+          "relativeDirection": "LEFT",
+          "streetName": "SW Madison St",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6803009,
+          "lat": 45.5157111,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 25.352842545446777
+            },
+            {
+              "first": 10.41,
+              "second": 25.73284254544678
+            },
+            {
+              "first": 10.408,
+              "second": 25.73284254544678
+            },
+            {
+              "first": 20.408,
+              "second": 25.792842545446778
+            },
+            {
+              "first": 30.408,
+              "second": 26.132842545446778
+            },
+            {
+              "first": 40.408,
+              "second": 26.57284254544678
+            },
+            {
+              "first": 50.408,
+              "second": 27.202842545446778
+            },
+            {
+              "first": 60.408,
+              "second": 27.73284254544678
+            },
+            {
+              "first": 74.768,
+              "second": 28.112842545446778
+            },
+            {
+              "first": 74.77,
+              "second": 28.112842545446778
+            },
+            {
+              "first": 84.77,
+              "second": 28.50284254544678
+            },
+            {
+              "first": 93.25999999999999,
+              "second": 28.862842545446778
+            }
+          ]
+        },
+        {
+          "distance": 117.502,
+          "relativeDirection": "RIGHT",
+          "streetName": "SW Broadway",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6814199,
+          "lat": 45.5160087,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 28.862842545446778
+            },
+            {
+              "first": 10,
+              "second": 28.62284254544678
+            },
+            {
+              "first": 20,
+              "second": 28.202842545446778
+            },
+            {
+              "first": 30,
+              "second": 27.75284254544678
+            },
+            {
+              "first": 40,
+              "second": 27.362842545446778
+            },
+            {
+              "first": 50,
+              "second": 27.00284254544678
+            },
+            {
+              "first": 60,
+              "second": 26.62284254544678
+            },
+            {
+              "first": 72.52,
+              "second": 26.202842545446778
+            },
+            {
+              "first": 72.515,
+              "second": 26.202842545446778
+            },
+            {
+              "first": 80.005,
+              "second": 25.952842545446778
+            },
+            {
+              "first": 80.007,
+              "second": 25.952842545446778
+            },
+            {
+              "first": 86.84700000000001,
+              "second": 25.882842545446778
+            },
+            {
+              "first": 86.851,
+              "second": 25.882842545446778
+            },
+            {
+              "first": 96.851,
+              "second": 25.652842545446777
+            },
+            {
+              "first": 106.851,
+              "second": 25.23284254544678
+            },
+            {
+              "first": 116.851,
+              "second": 24.792842545446778
+            },
+            {
+              "first": 117.501,
+              "second": 24.75284254544678
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}
