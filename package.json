@@ -29,7 +29,7 @@
   "scripts": {
     "prepublish": "mastarm prepublish lib:build",
     "cover": "npm test -- --coverage",
-    "build": "webpack",
+    "lint": "mastarm lint lib",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "start": "start-storybook -p 5555"
   },
