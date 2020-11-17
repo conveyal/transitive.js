@@ -1,25 +1,13 @@
 import styled from 'styled-components'
 import React from 'react'
-import BaseMap from "@opentripplanner/base-map";
+import BaseMap from '@opentripplanner/base-map'
+import {itineraryToTransitive} from '@opentripplanner/core-utils/lib/map'
 
-import Transitive from '../lib/transitive'
 import TransitiveOverlay from './transitive-overlay'
-import {itineraryToTransitive} from './util'
 
-import "../node_modules/leaflet/dist/leaflet.css";
+import '../node_modules/leaflet/dist/leaflet.css'
 
-require("./leaflet-canvas-layer")
-
-const zoomFactors = [
-  {
-    minScale: 0,
-    gridCellSize: 0,
-    internalVertexFactor: 0,
-    angleConstraint: 5,
-    mergeVertexThreshold: 0,
-    useGeographicRendering: true
-  }
-];
+require('./leaflet-canvas-layer')
 
 const MapContainer = styled.div`
   height: 800px;
@@ -38,13 +26,24 @@ const MapContainer = styled.div`
 /**
  * Primary UI component for user interaction
  */
-export const TransitiveMap = ({ companies = [], itinerary, styles }) => {
-  const data = itineraryToTransitive(itinerary, companies)
+export const TransitiveMap = ({
+  center = [45.506, -122.68302],
+  companies = [],
+  itinerary,
+  styles,
+  // If no transitiveData is provided, default to generating from itinerary.
+  transitiveData = itineraryToTransitive(itinerary, companies),
+  zoom = 15
+}) => {
   return (
     <MapContainer>
-      <BaseMap center={[45.506, -122.68302]} zoom={15}>
+      <BaseMap
+        // TODO: Determine center/zoom based on input data?
+        center={center}
+        zoom={zoom}
+      >
         <TransitiveOverlay
-          transitiveData={data}
+          transitiveData={transitiveData}
           visible
         />
       </BaseMap>

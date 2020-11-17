@@ -1688,7 +1688,7 @@
     "@opentripplanner/core-utils" "^3.0.0"
     prop-types "^15.7.2"
 
-"@opentripplanner/core-utils@^3.0.0":
+"@opentripplanner/core-utils@^3.0.0", "@opentripplanner/core-utils@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@opentripplanner/core-utils/-/core-utils-3.0.1.tgz#6efa8dabceeae4527343edba2e6a9b06ce1fcb1c"
   integrity sha512-R6VIJfNL0PnddpV+0uJfCGjy3M4HwtujeKSWDl70YoKJa+7G9AVjtk7rKHagwOefpWaUBI86T03EbklyllZgRQ==

@@ -19,9 +19,17 @@ export default {
 
 const Template = (args) => TransitiveMap(args)
 
-export const Primary = Template.bind({})
-Primary.args = {
+export const Itinerary = Template.bind({})
+Itinerary.args = {
   companies,
-  itinerary: require('../__tests__/itineraries/walk-interlined-transit-walk.json'),
+  itinerary: require('./data/walk-interlined-transit-walk-itinerary.json'),
   styles: undefined
+}
+
+export const Profile = Template.bind({})
+Profile.args = {
+  center: [38.885, -77.0369],
+  styles: undefined,
+  transitiveData: require('./data/profile.json'),
+  zoom: 14
 }

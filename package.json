@@ -37,7 +37,7 @@
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@opentripplanner/base-map": "^1.0.4",
-    "@opentripplanner/geocoder": "^1.0.2",
+    "@opentripplanner/core-utils": "^3.0.2",
     "@storybook/addon-essentials": "^6.1.0-beta.6",
     "@storybook/addon-info": "5.3.21",
     "@storybook/addon-links": "^6.1.0-beta.6",

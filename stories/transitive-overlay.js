@@ -1,5 +1,6 @@
 // Note: this code is duplicated from @opentripplanner/transitive-overlay package
 // with the transitive-js imports replaced with local imports.
+// See https://github.com/opentripplanner/otp-ui/blob/master/packages/transitive-overlay/src/index.js
 
 import L from 'leaflet'
 import isEqual from 'lodash.isequal'
