@@ -14,6 +14,7 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - semantic-release
+  - yarn deploy-storybook --out=demo
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
