@@ -14,7 +14,9 @@ Transitive is supported by the [Mobility Lab](http://mobilitylab.org/) [Transit 
 
 ## Storybook
 
-To view samples of Transitive in action, follow these steps:
+To view samples of Transitive in action, [check out the live Storybook](https://s3.amazonaws.com/transitive.js/index.html).
+
+You can also run this locally with:
 
 ```bash
 git clone https://github.com/conveyal/transitive.js
@@ -37,8 +39,8 @@ project to render transitive data on a Leaflet map. Specifically, it uses:
 ### BYOD - Bring your own data
 
 To test out how your own data (e.g., an OpenTripPlanner itinerary) would appear in
-Transitive, try replacing the `itinerary` prop in the [Itinerary](http://localhost:5555/?path=/story/example-transitive--itinerary) (for OpenTripPlanner itineraries) story (or `transitiveData`
-in the [Profile](http://localhost:5555/?path=/story/example-transitive--profile)
+Transitive, try replacing the `itinerary` prop in the [Itinerary](https://s3.amazonaws.com/transitive.js/index.html?path=/story/example-transitive--itinerary) (for OpenTripPlanner itineraries) story (or `transitiveData`
+in the [Profile](https://s3.amazonaws.com/transitive.js/index.html?path=/story/example-transitive--profile)
 story).
 
 You can also override the default style by adding a `style` prop. See a style
