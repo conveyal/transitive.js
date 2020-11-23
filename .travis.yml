@@ -6,6 +6,11 @@ notifications:
   email: false
 node_js:
   - '10'
+# Install AWS CLI for uploading storybook to S3.
+before_install:
+  - pyenv global 3.7.1
+  - pip install -U pip
+  - pip install awscli
 install:
   - yarn
 script:
