@@ -23,7 +23,7 @@ after_success:
   - semantic-release
   # Deploy storybook demo to S3 if handling a non-PR build on the main branch
   # https://s3.amazonaws.com/transitive.js/index.html
-  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; yarn deploy-storybook; else echo 'skipping deploy to s3'; fi
+  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-storybook; else echo 'skipping deploy to s3'; fi
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
