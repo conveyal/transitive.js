@@ -14,7 +14,8 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - semantic-release
-  - yarn deploy-storybook --out=demo
+  # Deploy storybook demo to S3: https://s3.amazonaws.com/transitive.js/index.html
+  - yarn deploy-storybook
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
