@@ -26,19 +26,40 @@
     "sphericalmercator": "^1.0.5",
     "svg.js": "^2.6.5"
   },
-  "peerDependencies": {
-    "svg.js": "^2.6.4"
-  },
   "scripts": {
     "prepublish": "mastarm prepublish lib:build",
     "cover": "npm test -- --coverage",
     "lint": "mastarm lint lib",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "test": "mastarm test"
+    "start": "start-storybook -p 5555",
+    "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@opentripplanner/base-map": "^1.0.4",
+    "@opentripplanner/core-utils": "^3.0.2",
+    "@storybook/addon-essentials": "^6.1.0-beta.6",
+    "@storybook/addon-info": "5.3.21",
+    "@storybook/addon-links": "^6.1.0-beta.6",
+    "@storybook/preset-create-react-app": "^3.1.5",
+    "@storybook/react": "^6.1.0-beta.6",
+    "@storybook/storybook-deployer": "^2.8.7",
+    "@webpack-cli/init": "^1.0.3",
+    "babel-loader": "^8.1.0",
+    "core-js": "2",
+    "css-loader": "^5.0.1",
+    "file-loader": "^6.2.0",
+    "leaflet": "^1.7.1",
+    "lodash.isequal": "^4.5.0",
     "mastarm": "^5.0.1",
-    "semantic-release": "^15.13.16"
+    "react-leaflet": "^2.6.1",
+    "semantic-release": "^15.13.16",
+    "style-loader": "^2.0.0",
+    "styled-components": "^5.2.1",
+    "terser-webpack-plugin": "^5.0.3",
+    "webpack": "^5.4.0",
+    "webpack-cli": "^4.2.0"
   },
   "standard": {
     "parser": "babel-eslint"

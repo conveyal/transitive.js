@@ -4,6 +4,7 @@ lib-cov
 *.csv
 *.dat
 *.out
+out*
 *.pid
 *.gz
 
