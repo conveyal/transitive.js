@@ -54,7 +54,7 @@
     "lodash.isequal": "^4.5.0",
     "mastarm": "^5.0.1",
     "react-leaflet": "^2.6.1",
-    "semantic-release": "^15.13.16",
+    "semantic-release": "^17.2.3",
     "style-loader": "^2.0.0",
     "styled-components": "^5.2.1",
     "terser-webpack-plugin": "^5.0.3",
