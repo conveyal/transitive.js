@@ -2,11 +2,11 @@
 
 A tool for generating dynamic stylized transit maps that are easy to understand. Transitive takes in information describing specific transport network elements (routes, stops, journeys) -- typically produced by the OpenTripPlanner Profiler extension -- and produces a schematic map of those elements:
 
-![threeoptions](http://conveyal.com/img/transitive/threeoptions.png)
+![threeoptions](img/threeoptions.png)
 
 Dynamic styling of the network elements allows for interactivity and flexibility in the visual presentation. For instance, a single journey can be highlighted:
 
-![threeoptions_focused](http://conveyal.com/img/transitive/threeoptions_focused.png)
+![threeoptions_focused](img/threeoptions_focused.png)
 
 A Transitive map can be embedded as a freestanding web element or overlaid onto a [Leaflet](http://leafletjs.com/) map using the [Leaflet.TransitiveLayer](https://github.com/conveyal/Leaflet.TransitiveLayer) plugin.
 
