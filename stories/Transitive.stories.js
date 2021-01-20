@@ -35,9 +35,10 @@ Bus.args = {
     {
       color: [
         '#fff', // Text color falls back on white.
-        function (display, segment) {
+        (display, segment) => {
           if (segment.type === 'TRANSIT') {
             if (segment.patterns) {
+              // Make bus labels transparent
               if (segment.patterns[0].route.route_type === 3) return 'rgba(0, 0, 0, 0)'
               return segment.patterns[0].route.getTextColor()
             }
@@ -46,9 +47,10 @@ Bus.args = {
       ],
       background: [
         '#008', // Background color falls back on dark blue.
-        function (display, segment) {
+        (display, segment) => {
           if (segment.type === 'TRANSIT') {
             if (segment.patterns) {
+              // Make bus labels transparent
               if (segment.patterns[0].route.route_type === 3) return 'rgba(0, 0, 0, 0)'
               return segment.patterns[0].route.getColor()
             }
