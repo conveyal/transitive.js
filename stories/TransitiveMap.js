@@ -44,6 +44,7 @@ export const TransitiveMap = ({
       >
         <TransitiveOverlay
           transitiveData={transitiveData}
+          styles={styles}
           visible
         />
       </BaseMap>

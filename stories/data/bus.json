@@ -1,0 +1,1120 @@
+{
+  "duration": 2325,
+  "startTime": 1611164655000,
+  "endTime": 1611166980000,
+  "walkTime": 679,
+  "transitTime": 1644,
+  "waitingTime": 2,
+  "walkDistance": 797.7835671595318,
+  "walkLimitExceeded": false,
+  "elevationLost": 0.870000000000001,
+  "elevationGained": 27.19,
+  "transfers": 0,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "symbol": "$",
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD"
+        },
+        "cents": 250
+      }
+    },
+    "details": {
+      "regular": [
+        {
+          "fareId": "TriMet:B",
+          "price": {
+            "currency": {
+              "symbol": "$",
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD"
+            },
+            "cents": 250
+          },
+          "routes": [
+            "TriMet:15"
+          ]
+        }
+      ]
+    }
+  },
+  "legs": [
+    {
+      "startTime": 1611164655000,
+      "endTime": 1611165168000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 531.231,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "2304 NW 30th Ave, Portland 97210",
+        "lon": -122.71213531494142,
+        "lat": 45.53918071755759,
+        "departure": 1611164655000,
+        "orig": "2304 NW 30th Ave, Portland 97210",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "NW Thurman & 29th",
+        "stopId": "TriMet:5840",
+        "stopCode": "5840",
+        "lon": -122.71107,
+        "lat": 45.535202,
+        "arrival": 1611165168000,
+        "departure": 1611165169000,
+        "zoneId": "B",
+        "stopIndex": 7,
+        "stopSequence": 8,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "yj}tG|e~kVH_@`BCl@ACc@GaA?IE]CYZ?p@ArBC@EBCD?D@FDnCEvAAr@ALAj@?RBDCF?BD`@???NGJ?",
+        "length": 30
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 513,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 93.159,
+          "relativeDirection": "DEPART",
+          "streetName": "service road",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -122.71214062561431,
+          "lat": 45.53917219683127,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 9.072844273581605
+            },
+            {
+              "first": 10,
+              "second": 9.062844273581604
+            },
+            {
+              "first": 20,
+              "second": 9.112844273581604
+            },
+            {
+              "first": 30,
+              "second": 9.122844273581604
+            },
+            {
+              "first": 40,
+              "second": 9.112844273581604
+            },
+            {
+              "first": 50,
+              "second": 9.122844273581604
+            },
+            {
+              "first": 60,
+              "second": 9.142844273581604
+            },
+            {
+              "first": 67.87,
+              "second": 9.172844273581605
+            },
+            {
+              "first": 67.873,
+              "second": 9.222844273581604
+            },
+            {
+              "first": 77.873,
+              "second": 9.182844273581605
+            },
+            {
+              "first": 87.873,
+              "second": 9.612844273581604
+            },
+            {
+              "first": 93.16300000000001,
+              "second": 9.962844273581604
+            }
+          ]
+        },
+        {
+          "distance": 66.144,
+          "relativeDirection": "LEFT",
+          "streetName": "NW Nicolai St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.7119514,
+          "lat": 45.538407,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 9.962844273581604
+            },
+            {
+              "first": 13.85,
+              "second": 9.892844273581604
+            },
+            {
+              "first": 13.849,
+              "second": 9.892844273581604
+            },
+            {
+              "first": 23.849,
+              "second": 10.062844273581604
+            },
+            {
+              "first": 33.849000000000004,
+              "second": 9.882844273581604
+            },
+            {
+              "first": 40.329,
+              "second": 9.782844273581604
+            },
+            {
+              "first": 40.328,
+              "second": 9.782844273581604
+            },
+            {
+              "first": 50.328,
+              "second": 9.782844273581604
+            },
+            {
+              "first": 60.328,
+              "second": 9.832844273581605
+            },
+            {
+              "first": 66.138,
+              "second": 9.852844273581605
+            }
+          ]
+        },
+        {
+          "distance": 107.387,
+          "relativeDirection": "RIGHT",
+          "streetName": "NW 29th Ave",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.711116,
+          "lat": 45.5385117,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 9.852844273581605
+            },
+            {
+              "first": 10,
+              "second": 9.872844273581604
+            },
+            {
+              "first": 20,
+              "second": 9.832844273581605
+            },
+            {
+              "first": 30,
+              "second": 10.072844273581605
+            },
+            {
+              "first": 40,
+              "second": 10.252844273581605
+            },
+            {
+              "first": 50,
+              "second": 10.532844273581604
+            },
+            {
+              "first": 60,
+              "second": 11.142844273581604
+            },
+            {
+              "first": 70,
+              "second": 12.052844273581606
+            },
+            {
+              "first": 80,
+              "second": 12.822844273581605
+            },
+            {
+              "first": 90,
+              "second": 13.292844273581604
+            },
+            {
+              "first": 100,
+              "second": 14.172844273581605
+            },
+            {
+              "first": 107.39,
+              "second": 14.792844273581604
+            }
+          ]
+        },
+        {
+          "distance": 264.541,
+          "relativeDirection": "SLIGHTLY_LEFT",
+          "streetName": "NW 29th Ave (path)",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.7110839,
+          "lat": 45.5375462,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 14.792844273581604
+            },
+            {
+              "first": 8.62,
+              "second": 15.602844273581605
+            },
+            {
+              "first": 8.615,
+              "second": 15.602844273581605
+            },
+            {
+              "first": 16.985,
+              "second": 15.902844273581604
+            },
+            {
+              "first": 16.983,
+              "second": 15.902844273581604
+            },
+            {
+              "first": 26.983,
+              "second": 16.302844273581606
+            },
+            {
+              "first": 36.983000000000004,
+              "second": 17.042844273581604
+            },
+            {
+              "first": 46.983000000000004,
+              "second": 17.602844273581603
+            },
+            {
+              "first": 56.983000000000004,
+              "second": 17.992844273581603
+            },
+            {
+              "first": 66.983,
+              "second": 18.682844273581605
+            },
+            {
+              "first": 76.983,
+              "second": 19.042844273581604
+            },
+            {
+              "first": 86.983,
+              "second": 19.492844273581603
+            },
+            {
+              "first": 97.38300000000001,
+              "second": 19.832844273581603
+            },
+            {
+              "first": 97.381,
+              "second": 19.832844273581603
+            },
+            {
+              "first": 107.381,
+              "second": 20.372844273581606
+            },
+            {
+              "first": 117.381,
+              "second": 21.042844273581604
+            },
+            {
+              "first": 127.381,
+              "second": 21.682844273581605
+            },
+            {
+              "first": 137.381,
+              "second": 22.332844273581603
+            },
+            {
+              "first": 145.671,
+              "second": 22.972844273581604
+            },
+            {
+              "first": 145.666,
+              "second": 22.972844273581604
+            },
+            {
+              "first": 155.666,
+              "second": 23.692844273581606
+            },
+            {
+              "first": 165.666,
+              "second": 24.142844273581606
+            },
+            {
+              "first": 174.846,
+              "second": 24.762844273581607
+            },
+            {
+              "first": 174.84199999999998,
+              "second": 24.762844273581607
+            },
+            {
+              "first": 184.84199999999998,
+              "second": 26.222844273581604
+            },
+            {
+              "first": 194.84199999999998,
+              "second": 27.352844273581603
+            },
+            {
+              "first": 207.00199999999998,
+              "second": 30.392844273581602
+            },
+            {
+              "first": 207,
+              "second": 30.392844273581602
+            },
+            {
+              "first": 217,
+              "second": 32.6428442735816
+            },
+            {
+              "first": 229.6,
+              "second": 35.162844273581605
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1611165169000,
+      "endTime": 1611166813000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 6331.067646753987,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "15",
+      "agencyName": "TriMet",
+      "agencyUrl": "https://trimet.org/",
+      "agencyTimeZoneOffset": -28800000,
+      "routeType": 3,
+      "routeId": "TriMet:15",
+      "interlineWithPreviousLeg": false,
+      "tripBlockId": "1505",
+      "headsign": "Gateway TC",
+      "agencyId": "TRIMET",
+      "tripId": "TriMet:10408562",
+      "serviceDate": "20210120",
+      "from": {
+        "name": "NW Thurman & 29th",
+        "stopId": "TriMet:5840",
+        "stopCode": "5840",
+        "lon": -122.71107,
+        "lat": 45.535202,
+        "arrival": 1611165168000,
+        "departure": 1611165169000,
+        "zoneId": "B",
+        "stopIndex": 7,
+        "stopSequence": 8,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "SE Belmont & 9th",
+        "stopId": "TriMet:465",
+        "stopCode": "465",
+        "lon": -122.656805,
+        "lat": 45.516428,
+        "arrival": 1611166813000,
+        "departure": 1611166814000,
+        "zoneId": "B",
+        "stopIndex": 32,
+        "stopSequence": 33,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "kr|tGf_~kV?M?YI}KCaHA_A?i@A_AEyH?SA_AEmIAmBCiG?SCyCAo@?qAAeB?SLAd@AB?hAAJ?J?tBEJ?L?VAxAAL?nCGxBCF?J?L?rBCLAT?l@Ab@AN?T?~BEL?vBCTAlCC|BEP?jCCpCEjACp@?NAlBC`@?dCE??V?B?D?NAL?LC`@KTEBa@Dq@@K@W@i@?QBq@?]@a@@o@@m@BkA@GBgBBiA?C@q@@w@@M?U@_@Bw@?SDwADwC@u@@WBgADmBBkA@e@?YB_A\\EfAOJCH?JGTHJDLRh@TRHh@ZXNhBv@JFJFRJFDFFFH@@`@Xp@h@RNBMBQBMBO?I@I?O?u@?e@?A?S@WBMDY\\sBJe@Fc@@Ep@sDBOBSd@mCBKDSDWHe@XcBLs@n@mDBUFYDUFa@BKDSJm@He@@GJk@Hg@PeADUF[@IBMNy@He@RkAToAFYr@eEDSh@aDBK?ADWh@yCHa@?ABOn@wDFYf@yCFWr@eEMEaBu@GCMGKEiBw@GCQKwB_ACAoB{@EAMG?Y@c@J}ALaCH_ADk@B]Hq@FaA`BoJfAkGh@iBn@eBp@oBJYHWFWF[De@@G?E@Q?c@?w@?mHBc@?_E@sDAsD?O@Y?O?}@?yB?gC?kAAW?{A?a@?k@@qA?kA?W",
+        "length": 245
+      },
+      "interStopGeometry": [
+        {
+          "points": "kr|tGf_~kV?M?YI}KCaHA_A?i@A_A",
+          "length": 8
+        },
+        {
+          "points": "}r|tGtb}kVEyH?SA_A",
+          "length": 4
+        },
+        {
+          "points": "es|tGfv|kVEmIAmBCiG",
+          "length": 4
+        },
+        {
+          "points": "qs|tG``|kV?SCyCAo@?qAAeB?SLAd@A",
+          "length": 9
+        },
+        {
+          "points": "er|tGrr{kVB?hAAJ?J?tBEJ?L?VA",
+          "length": 9
+        },
+        {
+          "points": "wi|tGhr{kVxAAL?nCGxBC",
+          "length": 5
+        },
+        {
+          "points": "e~{tGzq{kVF?J?L?rBCLAT?l@Ab@AN?",
+          "length": 10
+        },
+        {
+          "points": "iu{tGpq{kVT?~BEL?vBCTAlCC|BE",
+          "length": 8
+        },
+        {
+          "points": "kc{tGzp{kVP?jCCpCEjACp@?",
+          "length": 6
+        },
+        {
+          "points": "}uztGlp{kVNAlBC`@?dCE",
+          "length": 5
+        },
+        {
+          "points": "wlztG`p{kV??V?B?D?NAL?LC`@KTEBa@Dq@@K@W@i@?QBq@?]",
+          "length": 18
+        },
+        {
+          "points": "}gztGdg{kV@a@@o@@m@BkA@GBgBBiA?C@q@@w@",
+          "length": 11
+        },
+        {
+          "points": "egztGpwzkV@M?U@_@Bw@?SDwADwC",
+          "length": 8
+        },
+        {
+          "points": "qfztGpkzkV@u@@WBgADmBBkA@e@?YB_A\\EfAOJCH?JGTHJDLRh@T",
+          "length": 18
+        },
+        {
+          "points": "w~ytGx}ykVRHh@ZXNhBv@JFJFRJFDFFFH@@`@Xp@h@RNBMBQBMBO?I@I?O?u@?e@?A?S@WBMDY\\sBJe@Fc@",
+          "length": 32
+        },
+        {
+          "points": "wpytG~vykV@Ep@sDBOBSd@mC",
+          "length": 6
+        },
+        {
+          "points": "umytGrkykVBKDSDWHe@XcBLs@n@mDBUFYDUFa@BK",
+          "length": 13
+        },
+        {
+          "points": "eiytGzzxkVDSJm@He@@GJk@Hg@PeA",
+          "length": 8
+        },
+        {
+          "points": "_gytGprxkVDUF[@IBMNy@He@RkAToA",
+          "length": 9
+        },
+        {
+          "points": "gdytGjhxkVFYr@eEDSh@aDBK?ADWh@yC",
+          "length": 9
+        },
+        {
+          "points": "g_ytGtuwkVHa@?ABOn@wDFYf@yCFWr@eEMEaBu@",
+          "length": 11
+        },
+        {
+          "points": "m}xtGz_wkVGCMGKEiBw@GCQKwB_ACAoB{@",
+          "length": 10
+        },
+        {
+          "points": "_jytGbyvkVEAMG?Y@c@J}ALaCH_ADk@B]Hq@FaA`BoJfAkGh@iBn@eBp@oBJYHWFWF[De@@G",
+          "length": 23
+        },
+        {
+          "points": "m}xtGleukV?E@Q?c@?w@?mHBc@?_E@sDAsD",
+          "length": 10
+        },
+        {
+          "points": "g}xtG~etkV?O@Y?O?}@?yB?gC?kAAW?{A?a@?k@@qA?kA?W",
+          "length": 15
+        }
+      ],
+      "alerts": [
+        {
+          "alertDescriptionText": "Beginning Monday, January 18th thru Monday, January 25th from 9:00 p.m. to 6:00 a.m., no service to eastbound SW Salmon & 14th (Stop ID 5014) due to potholing work. ",
+          "alertUrl": "http://trimet.org/alerts/",
+          "effectiveStartDate": 1610765577000
+        },
+        {
+          "alertDescriptionText": "No service to westbound NW Thurman & 28th (Stop ID 5837) due to long term stop closure. ",
+          "alertUrl": "http://trimet.org/alerts/",
+          "effectiveStartDate": 1582249544000
+        }
+      ],
+      "routeShortName": "15",
+      "routeLongName": "Belmont/NW 23rd",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 1644,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "NW Thurman & 27th",
+          "stopId": "TriMet:5836",
+          "stopCode": "5836",
+          "lon": -122.706505,
+          "lat": 45.535293,
+          "arrival": 1611165240000,
+          "departure": 1611165240000,
+          "zoneId": "B",
+          "stopIndex": 8,
+          "stopSequence": 9,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW Thurman & 26th",
+          "stopId": "TriMet:5832",
+          "stopCode": "5832",
+          "lon": -122.704516,
+          "lat": 45.535342,
+          "arrival": 1611165273000,
+          "departure": 1611165273000,
+          "zoneId": "B",
+          "stopIndex": 9,
+          "stopSequence": 10,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW Thurman & 24th",
+          "stopId": "TriMet:10808",
+          "stopCode": "10808",
+          "lon": -122.700964,
+          "lat": 45.535396,
+          "arrival": 1611165331000,
+          "departure": 1611165331000,
+          "zoneId": "B",
+          "stopIndex": 10,
+          "stopSequence": 11,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Thurman",
+          "stopId": "TriMet:8986",
+          "stopCode": "8986",
+          "lon": -122.698886,
+          "lat": 45.535235,
+          "arrival": 1611165372000,
+          "departure": 1611165372000,
+          "zoneId": "B",
+          "stopIndex": 11,
+          "stopSequence": 12,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Raleigh",
+          "stopId": "TriMet:9030",
+          "stopCode": "9030",
+          "lon": -122.698811,
+          "lat": 45.533888,
+          "arrival": 1611165404000,
+          "departure": 1611165404000,
+          "zoneId": "B",
+          "stopIndex": 12,
+          "stopSequence": 13,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Overton",
+          "stopId": "TriMet:10287",
+          "stopCode": "10287",
+          "lon": -122.698763,
+          "lat": 45.532029,
+          "arrival": 1611165447000,
+          "departure": 1611165447000,
+          "zoneId": "B",
+          "stopIndex": 13,
+          "stopSequence": 14,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Marshall",
+          "stopId": "TriMet:8989",
+          "stopCode": "8989",
+          "lon": -122.698688,
+          "lat": 45.530612,
+          "arrival": 1611165480000,
+          "departure": 1611165480000,
+          "zoneId": "B",
+          "stopIndex": 14,
+          "stopSequence": 15,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Irving",
+          "stopId": "TriMet:7162",
+          "stopCode": "7162",
+          "lon": -122.698583,
+          "lat": 45.527737,
+          "arrival": 1611165566000,
+          "departure": 1611165566000,
+          "zoneId": "B",
+          "stopIndex": 15,
+          "stopSequence": 16,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Flanders",
+          "stopId": "TriMet:8963",
+          "stopCode": "8963",
+          "lon": -122.698513,
+          "lat": 45.525593,
+          "arrival": 1611165630000,
+          "departure": 1611165630000,
+          "zoneId": "B",
+          "stopIndex": 16,
+          "stopSequence": 17,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "NW 23rd & Westover",
+          "stopId": "TriMet:7174",
+          "stopCode": "7174",
+          "lon": -122.698466,
+          "lat": 45.524139,
+          "arrival": 1611165674000,
+          "departure": 1611165674000,
+          "zoneId": "B",
+          "stopIndex": 17,
+          "stopSequence": 18,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "W Burnside & SW St Clair",
+          "stopId": "TriMet:718",
+          "stopCode": "718",
+          "lon": -122.69698,
+          "lat": 45.523288,
+          "arrival": 1611165722000,
+          "departure": 1611165722000,
+          "zoneId": "B",
+          "stopIndex": 18,
+          "stopSequence": 19,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "W Burnside & SW 21st",
+          "stopId": "TriMet:749",
+          "stopCode": "749",
+          "lon": -122.694489,
+          "lat": 45.523145,
+          "arrival": 1611165775000,
+          "departure": 1611165775000,
+          "zoneId": "B",
+          "stopIndex": 19,
+          "stopSequence": 20,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "W Burnside & SW 20th",
+          "stopId": "TriMet:8511",
+          "stopCode": "8511",
+          "lon": -122.692569,
+          "lat": 45.523058,
+          "arrival": 1611165815000,
+          "departure": 1611165815000,
+          "zoneId": "B",
+          "stopIndex": 20,
+          "stopSequence": 21,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW 18th & Morrison",
+          "stopId": "TriMet:6911",
+          "stopCode": "6911",
+          "lon": -122.690453,
+          "lat": 45.52188,
+          "arrival": 1611165900000,
+          "departure": 1611165900000,
+          "zoneId": "B",
+          "stopIndex": 21,
+          "stopSequence": 22,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & 16th",
+          "stopId": "TriMet:5016",
+          "stopCode": "5016",
+          "lon": -122.689312,
+          "lat": 45.519578,
+          "arrival": 1611166035000,
+          "departure": 1611166035000,
+          "zoneId": "B",
+          "stopIndex": 22,
+          "stopSequence": 23,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & 14th",
+          "stopId": "TriMet:5014",
+          "stopCode": "5014",
+          "lon": -122.687479,
+          "lat": 45.519106,
+          "arrival": 1611166085000,
+          "departure": 1611166085000,
+          "zoneId": "B",
+          "stopIndex": 23,
+          "stopSequence": 24,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & 12th",
+          "stopId": "TriMet:5012",
+          "stopCode": "5012",
+          "lon": -122.684797,
+          "lat": 45.518386,
+          "arrival": 1611166158000,
+          "departure": 1611166158000,
+          "zoneId": "B",
+          "stopIndex": 24,
+          "stopSequence": 25,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & 10th",
+          "stopId": "TriMet:5009",
+          "stopCode": "5009",
+          "lon": -122.683475,
+          "lat": 45.518026,
+          "arrival": 1611166194000,
+          "departure": 1611166194000,
+          "zoneId": "B",
+          "stopIndex": 25,
+          "stopSequence": 26,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & Park",
+          "stopId": "TriMet:5007",
+          "stopCode": "5007",
+          "lon": -122.681844,
+          "lat": 45.517596,
+          "arrival": 1611166239000,
+          "departure": 1611166239000,
+          "zoneId": "B",
+          "stopIndex": 26,
+          "stopSequence": 27,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW Salmon & 5th",
+          "stopId": "TriMet:5020",
+          "stopCode": "5020",
+          "lon": -122.678854,
+          "lat": 45.516794,
+          "arrival": 1611166320000,
+          "departure": 1611166320000,
+          "zoneId": "B",
+          "stopIndex": 27,
+          "stopSequence": 28,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW 2nd & Taylor",
+          "stopId": "TriMet:7098",
+          "stopCode": "7098",
+          "lon": -122.67524,
+          "lat": 45.51653,
+          "arrival": 1611166403000,
+          "departure": 1611166403000,
+          "zoneId": "B",
+          "stopIndex": 28,
+          "stopSequence": 29,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "SW 2nd & Alder",
+          "stopId": "TriMet:7095",
+          "stopCode": "7095",
+          "lon": -122.674134,
+          "lat": 45.518528,
+          "arrival": 1611166461000,
+          "departure": 1611166461000,
+          "zoneId": "B",
+          "stopIndex": 29,
+          "stopSequence": 30,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "Morrison Bridge",
+          "stopId": "TriMet:4028",
+          "stopCode": "4028",
+          "lon": -122.665998,
+          "lat": 45.516483,
+          "arrival": 1611166635000,
+          "departure": 1611166635000,
+          "zoneId": "B",
+          "stopIndex": 30,
+          "stopSequence": 31,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "Morrison Bridge/Belmont & Grand",
+          "stopId": "TriMet:13689",
+          "stopCode": "13689",
+          "lon": -122.660956,
+          "lat": 45.516483,
+          "arrival": 1611166732000,
+          "departure": 1611166732000,
+          "zoneId": "B",
+          "stopIndex": 31,
+          "stopSequence": 32,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1611166814000,
+      "endTime": 1611166980000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 266.366,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -28800000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "SE Belmont & 9th",
+        "stopId": "TriMet:465",
+        "stopCode": "465",
+        "lon": -122.656805,
+        "lat": 45.516428,
+        "arrival": 1611166813000,
+        "departure": 1611166814000,
+        "zoneId": "B",
+        "stopIndex": 32,
+        "stopSequence": 33,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "1030 SE Belmont St, Portland 97214",
+        "lon": -122.6552212451609,
+        "lat": 45.51532241826029,
+        "arrival": 1611166980000,
+        "orig": "1030 SE Belmont St, Portland 97214",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "s|xtGjkskV@?X@b@?T?V?P?L?~B@?Y?oD@_B",
+        "length": 12
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 166,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 150.40699999999998,
+          "relativeDirection": "DEPART",
+          "streetName": "SE 9th Ave",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.65669988425992,
+          "lat": 45.51642742712894,
+          "elevation": [
+            {
+              "first": 16.293,
+              "second": 10.752844273581605
+            },
+            {
+              "first": 26.293,
+              "second": 10.782844273581604
+            },
+            {
+              "first": 35.813,
+              "second": 10.802844273581604
+            },
+            {
+              "first": 35.808,
+              "second": 10.802844273581604
+            },
+            {
+              "first": 47.897999999999996,
+              "second": 10.832844273581605
+            },
+            {
+              "first": 47.894999999999996,
+              "second": 10.832844273581605
+            },
+            {
+              "first": 57.894999999999996,
+              "second": 10.822844273581605
+            },
+            {
+              "first": 70.945,
+              "second": 10.752844273581605
+            },
+            {
+              "first": 70.946,
+              "second": 10.752844273581605
+            },
+            {
+              "first": 80.946,
+              "second": 10.722844273581604
+            },
+            {
+              "first": 90.946,
+              "second": 10.722844273581604
+            },
+            {
+              "first": 100.946,
+              "second": 10.692844273581604
+            },
+            {
+              "first": 110.946,
+              "second": 10.662844273581605
+            },
+            {
+              "first": 120.946,
+              "second": 10.622844273581604
+            },
+            {
+              "first": 130.946,
+              "second": 10.602844273581605
+            },
+            {
+              "first": 140.946,
+              "second": 10.602844273581605
+            },
+            {
+              "first": 150.406,
+              "second": 10.542844273581604
+            }
+          ]
+        },
+        {
+          "distance": 115.959,
+          "relativeDirection": "LEFT",
+          "streetName": "SE Taylor St",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -122.6567112,
+          "lat": 45.5150748,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 10.542844273581604
+            },
+            {
+              "first": 10,
+              "second": 10.682844273581605
+            },
+            {
+              "first": 20,
+              "second": 10.742844273581605
+            },
+            {
+              "first": 30,
+              "second": 10.712844273581604
+            },
+            {
+              "first": 40,
+              "second": 10.692844273581604
+            },
+            {
+              "first": 50,
+              "second": 10.662844273581605
+            },
+            {
+              "first": 60,
+              "second": 10.712844273581604
+            },
+            {
+              "first": 70,
+              "second": 10.692844273581604
+            },
+            {
+              "first": 78.67,
+              "second": 10.742844273581605
+            },
+            {
+              "first": 78.665,
+              "second": 10.742844273581605
+            },
+            {
+              "first": 88.665,
+              "second": 10.712844273581604
+            },
+            {
+              "first": 98.665,
+              "second": 10.762844273581605
+            },
+            {
+              "first": 108.665,
+              "second": 10.852844273581605
+            },
+            {
+              "first": 115.95500000000001,
+              "second": 11.032844273581604
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}
