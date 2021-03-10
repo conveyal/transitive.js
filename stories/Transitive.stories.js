@@ -28,7 +28,7 @@ Itinerary.args = {
 
 export const Itinerary2 = Template.bind({})
 Itinerary2.args = {
-  center: [28.535358, -81.378984],
+  center: [28.5459257, -81.3467216],
   companies,
   itinerary: require('./data/fdot-itin.json'),
   styles: {
