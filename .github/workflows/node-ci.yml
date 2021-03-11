@@ -51,5 +51,5 @@ jobs:
       # Deploy storybook demo to S3 if handling a non-PR build on the main branch
       # https://s3.amazonaws.com/transitive.js/index.html
       - name: Deploy storybook to S3
-        if: ${{ github.event.issue.pull_request }}
+        if: ${{ github.event.pull_request }}
         run: yarn deploy-storybook
