@@ -30,9 +30,9 @@
     "prepublish": "mastarm prepublish lib:build",
     "cover": "npm test -- --coverage",
     "lint": "mastarm lint lib",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release",
     "start": "start-storybook -p 5555",
-    "deploy-storybook": "storybook-to-aws-s3 --bucket-path=bdam-testbuckt --s3-sync-options=--acl=public-read"
+    "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
