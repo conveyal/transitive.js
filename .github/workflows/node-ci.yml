@@ -34,6 +34,10 @@ jobs:
       #    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       #  run: yarn semantic-release
 
+      - name: AWS region?
+        run: echo "region=$AWS_REGION"
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
       - name: Add AWS credentials
         run: mkdir ~/.aws && printf '%s\n' '[default]' "aws_access_key_id=$AWS_ACCESS_KEY_ID" "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" "region=$AWS_REGION" > ~/.aws/config
         env:
