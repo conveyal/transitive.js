@@ -19,15 +19,6 @@ jobs:
           node-version: 12.x
       - name: Install npm packages using cache
         uses: bahmutov/npm-install@v1
-
-      # Install AWS CLI for uploading storybook to S3
-      #- name: Install PyEnv Global
-      #  run: pyenv global 3.7.1 ##
-      #- name: Install pip
-      #  run: pip install -U pip
-      #- name: Install AWS CLI
-      #  run: pip install awscli
-
       - name: Lint code
         run: yarn lint
       - name: Run tests with coverage
@@ -37,13 +28,28 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v1.2.0
         continue-on-error: true
-      - name: Semantic Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: semantic-release
+      #- name: Semantic Release
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #  run: yarn semantic-release
 
+      - name: Add AWS credentials
+        run: mkdir ~/.aws && printf '%s\n' '[default]' 'aws_access_key_id=${AWS_ACCESS_KEY_ID}' 'aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}' 'region=${AWS_REGION}' > ~/.aws/config
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # Install AWS CLI v1 for uploading storybook to S3
+      # (AWS CLI v2 does not come with a non-sudo installer as of writing)
+      - name: Set up Python (default to latest 3.x)
+        uses: actions/setup-python@v2
+      - name: Install pip
+        run: pip install -U pip
+      - name: Install AWS CLI v1
+        run: pip install awscli
       # Deploy storybook demo to S3 if handling a non-PR build on the main branch
       # https://s3.amazonaws.com/transitive.js/index.html
-      #- name: Deploy storybook to S3
-      #  run: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-storybook; else echo 'skipping deploy to s3'; fi
+      - name: Deploy storybook to S3
+        if: ${{ github.event.issue.pull_request }}
+        run: yarn deploy-storybook
