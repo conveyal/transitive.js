@@ -8,6 +8,8 @@ on:
 
 jobs:
   test-build-release:
+    env:
+      IS_PUSH_TO_MASTER: ${{ github.event.push && github.ref == 'refs/heads/main' }}
 
     runs-on: ubuntu-latest
 
@@ -34,26 +36,28 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn semantic-release
 
+      # Steps below deal with uploading Storybook to S3,
+      # which is only performed with a push to the main branch.
       - name: Add AWS credentials
-        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
+        if: $IS_PUSH_TO_MASTER
         run: mkdir ~/.aws && printf '%s\n' '[default]' "aws_access_key_id=$AWS_ACCESS_KEY_ID" "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" "region=$AWS_REGION" > ~/.aws/config
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      # Install AWS CLI v1 for uploading storybook to S3
-      # (AWS CLI v2 does not come with a non-sudo installer as of writing)
-      - name: Set up Python (default to latest 3.x)
-        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
+      # Install AWS CLI v1 using pip for uploading storybook to S3
+      # (AWS CLI v2 does not come with a non-sudo installer as of writing).
+      - name: Set up Python (latest 3.x)
+        if: $IS_PUSH_TO_MASTER
         uses: actions/setup-python@v2
       - name: Install pip
-        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
+        if: $IS_PUSH_TO_MASTER
         run: pip install -U pip
       - name: Install AWS CLI v1
-        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
+        if: $IS_PUSH_TO_MASTER
         run: pip install awscli
       # Deploy storybook demo to S3 if handling a push (non-PR build) on the main branch
       # https://s3.amazonaws.com/transitive.js/index.html
       - name: Deploy storybook to S3
-        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
+        if: $IS_PUSH_TO_MASTER
         run: yarn deploy-storybook
