@@ -15,6 +15,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install npm packages using cache
+        uses: bahmutov/npm-install@v1
       - name: Lint code
         run: yarn lint
       - name: Run tests with coverage
