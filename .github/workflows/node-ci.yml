@@ -9,6 +9,8 @@ on:
 jobs:
   test-build-release:
     env:
+      GIT_BRANCH_NAME: ${{ github.ref }}
+      IS_PUSH: ${{ github.event.push }}
       IS_PUSH_TO_MASTER: ${{ github.event.push && github.ref == 'refs/heads/master' }}
 
     runs-on: ubuntu-latest
