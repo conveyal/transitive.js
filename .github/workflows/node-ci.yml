@@ -9,10 +9,7 @@ on:
 jobs:
   test-build-release:
     env:
-      GIT_BRANCH_NAME: ${{ github.ref }}
-      IS_PUSH: ${{ github.event_name }}
-      IS_PUSH_TO_MASTER: ${{ github.event.push && github.ref == 'refs/heads/master' }}
-      IS_PUSH_TO_MASTER_ALT: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      IS_PUSH_TO_MASTER: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 
     runs-on: ubuntu-latest
 
@@ -53,5 +50,5 @@ jobs:
       # Deploy storybook demo to S3 if handling a push (non-PR build) on the main branch
       # https://s3.amazonaws.com/transitive.js/index.html
       - name: Deploy storybook to S3
-        if: ${{ env.IS_PUSH_TO_MASTER }}
+        if: ${{ env.IS_PUSH_TO_MASTER == true }}
         run: yarn deploy-storybook
