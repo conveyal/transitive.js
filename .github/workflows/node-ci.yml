@@ -41,7 +41,7 @@ jobs:
       # Note that AWS CLI v2 is already installed by default on GitHub's Ubuntu 20.04.
       # per https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md#cli-tools.
       - name: Add AWS credentials
-        if: ${{ env.IS_PUSH_TO_MASTER }}
+        if: ${{ env.IS_PUSH_TO_MASTER == true }}
         run: mkdir ~/.aws && printf '%s\n' '[default]' "aws_access_key_id=$AWS_ACCESS_KEY_ID" "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" "region=$AWS_REGION" > ~/.aws/config
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
