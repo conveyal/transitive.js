@@ -19,7 +19,6 @@
     "component-emitter": "1.2.1",
     "d3": "^3.5.8",
     "debug": "^2.5.1",
-    "isnumeric": "^0.2.0",
     "lodash.foreach": "^4.5.0",
     "measure-text": "^0.0.4",
     "priorityqueuejs": "1.0.0",
