@@ -39,7 +39,7 @@ Itinerary2.args = {
     segment_labels: {
       color: "#FFDD00",
       "font-size": "24px"
-    }    
+    }
   }
 }
 
@@ -48,5 +48,20 @@ Profile.args = {
   center: [38.885, -77.0369],
   styles: undefined,
   transitiveData: require('./data/profile.json'),
+  zoom: 14
+}
+
+export const TransitRoutesWithNoItinerary = Template.bind({})
+TransitRoutesWithNoItinerary.args = {
+  styles: {
+    labels: {
+      color: '#fff'
+    },
+    segment_labels: {
+      color: "#FFDD00",
+      "font-size": "24px"
+    }
+  },
+  transitiveData: require('./data/trimet-pattern-data.json'),
   zoom: 14
 }
