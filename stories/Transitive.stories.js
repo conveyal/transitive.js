@@ -26,8 +26,8 @@ Itinerary.args = {
   styles: undefined
 }
 
-export const Itinerary2 = Template.bind({})
-Itinerary2.args = {
+export const ItineraryWithAlternativeStyling = Template.bind({})
+ItineraryWithAlternativeStyling.args = {
   center: [28.5459257, -81.3467216],
   companies,
   itinerary: require('./data/fdot-itin.json'),
