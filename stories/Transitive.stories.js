@@ -26,6 +26,23 @@ Itinerary.args = {
   styles: undefined
 }
 
+export const ItineraryWithAlternativeStyling = Template.bind({})
+ItineraryWithAlternativeStyling.args = {
+  center: [28.5459257, -81.3467216],
+  companies,
+  itinerary: require('./data/fdot-itin.json'),
+  styles: {
+    labels: {
+      "font-size": "18px",
+      "font-family": "serif"
+    },
+    segment_labels: {
+      color: "#FFDD00",
+      "font-size": "24px"
+    }    
+  }
+}
+
 export const Profile = Template.bind({})
 Profile.args = {
   center: [38.885, -77.0369],

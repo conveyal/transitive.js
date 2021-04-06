@@ -43,6 +43,7 @@ export const TransitiveMap = ({
         zoom={zoom}
       >
         <TransitiveOverlay
+          styles={styles}
           transitiveData={transitiveData}
           visible
         />
