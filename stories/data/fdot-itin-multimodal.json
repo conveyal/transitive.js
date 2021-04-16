@@ -1,0 +1,1921 @@
+{
+  "duration": 4612,
+  "startTime": 1618606835000,
+  "endTime": 1618611447000,
+  "walkTime": 1717,
+  "transitTime": 2757,
+  "waitingTime": 138,
+  "walkDistance": 2171.4392984933816,
+  "walkLimitExceeded": false,
+  "elevationLost": 2.880000000000006,
+  "elevationGained": 0.5700000000000038,
+  "transfers": 1,
+  "fare": {
+    "fare": {
+      "regular": {
+        "currency": {
+          "currency": "USD",
+          "defaultFractionDigits": 2,
+          "currencyCode": "USD",
+          "symbol": "$"
+        },
+        "cents": 150
+      }
+    },
+    "details": {
+      "regular": [
+        {
+          "fareId": "1:411_1363",
+          "price": {
+            "currency": {
+              "currency": "USD",
+              "defaultFractionDigits": 2,
+              "currencyCode": "USD",
+              "symbol": "$"
+            },
+            "cents": 150
+          },
+          "routes": [
+            "1:FDOT_1",
+            "1:CFRTA_11750"
+          ]
+        }
+      ]
+    }
+  },
+  "legs": [
+    {
+      "startTime": 1618606835000,
+      "endTime": 1618607579000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 914.884,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -14400000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "Taft Yard, Orange County, FL, USA",
+        "lon": -81.36714935302736,
+        "lat": 28.450883161501586,
+        "departure": 1618606835000,
+        "orig": "Taft Yard, Orange County, FL, USA",
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "Sand Lake Road",
+        "stopId": "1:FDOT_9",
+        "lon": -81.366985,
+        "lat": 28.453154,
+        "arrival": 1618607579000,
+        "departure": 1618607580000,
+        "zoneId": "FDOT_3",
+        "stopIndex": 4,
+        "stopSequence": 5,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "myslDv_soNAqB?s@?g@@m@@q@HuB@a@@_@AgBAs@a@@K?ADCJCDCBUOCAC?{@DYBI@I@}@HI@?`@?H@xA@X?fAA`C?DkC??D?F@hA?FAf@VLNFDFJ@?H?H?H?FO??EwA?",
+        "length": 50
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 744,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 314.17199999999997,
+          "relativeDirection": "DEPART",
+          "streetName": "Sand Lake Road",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -81.36715035647492,
+          "lat": 28.450959735385737,
+          "elevation": [
+            {
+              "first": 55.637,
+              "second": 28.96
+            },
+            {
+              "first": 65.637,
+              "second": 29.04
+            },
+            {
+              "first": 75.637,
+              "second": 29.07
+            },
+            {
+              "first": 85.637,
+              "second": 29.08
+            },
+            {
+              "first": 95.637,
+              "second": 29.07
+            },
+            {
+              "first": 105.637,
+              "second": 29.06
+            },
+            {
+              "first": 115.637,
+              "second": 29.06
+            },
+            {
+              "first": 125.637,
+              "second": 29.06
+            },
+            {
+              "first": 135.637,
+              "second": 29.06
+            },
+            {
+              "first": 145.637,
+              "second": 29.06
+            },
+            {
+              "first": 155.637,
+              "second": 29.06
+            },
+            {
+              "first": 165.637,
+              "second": 29.06
+            },
+            {
+              "first": 175.637,
+              "second": 29.06
+            },
+            {
+              "first": 185.637,
+              "second": 29.06
+            },
+            {
+              "first": 195.637,
+              "second": 29.06
+            },
+            {
+              "first": 205.577,
+              "second": 29.06
+            },
+            {
+              "first": 205.578,
+              "second": 29.06
+            },
+            {
+              "first": 215.578,
+              "second": 29.07
+            },
+            {
+              "first": 225.578,
+              "second": 29.07
+            },
+            {
+              "first": 235.578,
+              "second": 29.07
+            },
+            {
+              "first": 245.578,
+              "second": 29.07
+            },
+            {
+              "first": 255.578,
+              "second": 29.07
+            },
+            {
+              "first": 265.578,
+              "second": 29.07
+            },
+            {
+              "first": 275.578,
+              "second": 29.07
+            },
+            {
+              "first": 288.478,
+              "second": 29.07
+            },
+            {
+              "first": 288.48199999999997,
+              "second": 29.07
+            },
+            {
+              "first": 298.48199999999997,
+              "second": 29.07
+            },
+            {
+              "first": 308.48199999999997,
+              "second": 29.07
+            },
+            {
+              "first": 314.17199999999997,
+              "second": 29.07
+            }
+          ]
+        },
+        {
+          "distance": 160.687,
+          "relativeDirection": "LEFT",
+          "streetName": "sidewalk",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.3639412,
+          "lat": 28.4508906,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 29.07
+            },
+            {
+              "first": 10,
+              "second": 29.07
+            },
+            {
+              "first": 19.2,
+              "second": 29.07
+            },
+            {
+              "first": 19.201,
+              "second": 29.07
+            },
+            {
+              "first": 25.841,
+              "second": 29.07
+            },
+            {
+              "first": 25.842,
+              "second": 29.07
+            },
+            {
+              "first": 35.251999999999995,
+              "second": 29.07
+            },
+            {
+              "first": 35.248999999999995,
+              "second": 29.07
+            },
+            {
+              "first": 42.059,
+              "second": 29.07
+            },
+            {
+              "first": 42.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 52.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 62.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 72.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 82.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 92.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 102.06099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 114.58099999999999,
+              "second": 29.07
+            },
+            {
+              "first": 114.568,
+              "second": 29.07
+            },
+            {
+              "first": 124.568,
+              "second": 29.07
+            },
+            {
+              "first": 134.56799999999998,
+              "second": 29.06
+            },
+            {
+              "first": 144.56799999999998,
+              "second": 29.04
+            },
+            {
+              "first": 154.56799999999998,
+              "second": 29.01
+            },
+            {
+              "first": 160.678,
+              "second": 29
+            }
+          ]
+        },
+        {
+          "distance": 256.989,
+          "relativeDirection": "LEFT",
+          "streetName": "service road",
+          "absoluteDirection": "WEST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.36413780000001,
+          "lat": 28.452231200000003,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 29
+            },
+            {
+              "first": 10,
+              "second": 28.94
+            },
+            {
+              "first": 16.12,
+              "second": 28.9
+            },
+            {
+              "first": 16.121,
+              "second": 28.9
+            },
+            {
+              "first": 26.121,
+              "second": 28.84
+            },
+            {
+              "first": 36.120999999999995,
+              "second": 28.82
+            },
+            {
+              "first": 46.120999999999995,
+              "second": 28.82
+            },
+            {
+              "first": 56.120999999999995,
+              "second": 28.83
+            },
+            {
+              "first": 65.371,
+              "second": 28.83
+            },
+            {
+              "first": 65.366,
+              "second": 28.83
+            },
+            {
+              "first": 75.366,
+              "second": 28.84
+            },
+            {
+              "first": 85.366,
+              "second": 28.84
+            },
+            {
+              "first": 95.366,
+              "second": 28.84
+            },
+            {
+              "first": 105.366,
+              "second": 28.84
+            },
+            {
+              "first": 112.916,
+              "second": 28.84
+            },
+            {
+              "first": 112.919,
+              "second": 28.84
+            },
+            {
+              "first": 122.919,
+              "second": 28.84
+            },
+            {
+              "first": 132.91899999999998,
+              "second": 28.83
+            },
+            {
+              "first": 142.91899999999998,
+              "second": 28.83
+            },
+            {
+              "first": 152.91899999999998,
+              "second": 28.83
+            },
+            {
+              "first": 162.91899999999998,
+              "second": 28.83
+            },
+            {
+              "first": 176.649,
+              "second": 28.83
+            },
+            {
+              "first": 176.646,
+              "second": 28.83
+            },
+            {
+              "first": 179.33599999999998,
+              "second": 28.83
+            },
+            {
+              "first": 179.331,
+              "second": 28.83
+            },
+            {
+              "first": 189.331,
+              "second": 28.77
+            },
+            {
+              "first": 199.331,
+              "second": 28.75
+            },
+            {
+              "first": 209.331,
+              "second": 28.74
+            },
+            {
+              "first": 219.331,
+              "second": 28.69
+            },
+            {
+              "first": 229.331,
+              "second": 28.61
+            },
+            {
+              "first": 239.331,
+              "second": 28.52
+            },
+            {
+              "first": 249.331,
+              "second": 28.46
+            },
+            {
+              "first": 256.991,
+              "second": 28.44
+            }
+          ]
+        },
+        {
+          "distance": 131.714,
+          "relativeDirection": "LEFT",
+          "streetName": "path",
+          "absoluteDirection": "WEST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.3659734,
+          "lat": 28.4529217,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 28.44
+            },
+            {
+              "first": 3.3,
+              "second": 28.44
+            },
+            {
+              "first": 3.304,
+              "second": 28.44
+            },
+            {
+              "first": 6.9239999999999995,
+              "second": 28.44
+            },
+            {
+              "first": 6.928,
+              "second": 28.44
+            },
+            {
+              "first": 16.928,
+              "second": 28.44
+            },
+            {
+              "first": 26.928,
+              "second": 28.44
+            },
+            {
+              "first": 36.928,
+              "second": 28.44
+            },
+            {
+              "first": 43.077999999999996,
+              "second": 28.44
+            },
+            {
+              "first": 43.074999999999996,
+              "second": 28.44
+            },
+            {
+              "first": 53.074999999999996,
+              "second": 28.43
+            },
+            {
+              "first": 66.32499999999999,
+              "second": 28.43
+            },
+            {
+              "first": 66.321,
+              "second": 28.43
+            },
+            {
+              "first": 76.321,
+              "second": 28.5
+            },
+            {
+              "first": 81.67099999999999,
+              "second": 28.53
+            },
+            {
+              "first": 81.66799999999999,
+              "second": 28.53
+            },
+            {
+              "first": 91.66799999999999,
+              "second": 28.6
+            },
+            {
+              "first": 101.66799999999999,
+              "second": 28.67
+            },
+            {
+              "first": 109.04799999999999,
+              "second": 28.69
+            },
+            {
+              "first": 109.07199999999999,
+              "second": 28.69
+            },
+            {
+              "first": 119.07199999999999,
+              "second": 28.69
+            },
+            {
+              "first": 131.702,
+              "second": 28.61
+            }
+          ]
+        },
+        {
+          "distance": 51.322,
+          "relativeDirection": "HARD_RIGHT",
+          "streetName": "platform",
+          "absoluteDirection": "EAST",
+          "stayOn": true,
+          "area": true,
+          "bogusName": true,
+          "lon": -81.3670063,
+          "lat": 28.452718200000003,
+          "elevation": []
+        }
+      ]
+    },
+    {
+      "startTime": 1618607580000,
+      "endTime": 1618608330000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 10822.52178786855,
+      "pathway": false,
+      "mode": "RAIL",
+      "route": "SunRail",
+      "agencyName": "Florida Department of Transportation",
+      "agencyUrl": "http://www.sunrail.com",
+      "agencyTimeZoneOffset": -14400000,
+      "routeColor": "#BB8800",
+      "routeType": 2,
+      "routeShortName": "SunRail",
+      "routeId": "1:FDOT_1",
+      "interlineWithPreviousLeg": false,
+      "tripShortName": "P330",
+      "headsign": "Northbound",
+      "agencyId": "FDOT",
+      "tripId": "1:FDOT_330",
+      "serviceDate": "20210416",
+      "from": {
+        "name": "Sand Lake Road",
+        "stopId": "1:FDOT_9",
+        "lon": -81.366985,
+        "lat": 28.453154,
+        "arrival": 1618607579000,
+        "departure": 1618607580000,
+        "zoneId": "FDOT_3",
+        "stopIndex": 4,
+        "stopSequence": 5,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "LYNX Central",
+        "stopId": "1:FDOT_7",
+        "lon": -81.380865,
+        "lat": 28.548551,
+        "arrival": 1618608330000,
+        "departure": 1618608330000,
+        "zoneId": "FDOT_3",
+        "stopIndex": 7,
+        "stopSequence": 8,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "egtlDt~roNY?eR@iR?aDByBDmBJgBJkBPmAPmAR_MxBuQjDaRlDkARoOvC{QhDgOpCoAVaRlDkOrC{FdAyI`BoPdCgBXcG|@_G|@cSxCgPfCiDf@yB^gBTu@LgDf@wQpCuCb@qARo@Ha@Hk@Hw@LcJtAqAR}GbAcBZeCXk@D{FVcI`@wER_Kd@e@BuCPgDLoDRyADmAJcNl@i@B{H^sHZ{FVcJb@aI\\iABw@Ge@C_@GeBk@[Qq@e@qAgA_A_Aa@[qA{@oAa@w@Oq@Gg@?cB@aNDyC?yJBkRDgH@",
+        "length": 85
+      },
+      "interStopGeometry": [
+        {
+          "points": "egtlDt~roNY?eR@iR?aDByBDmBJgBJkBPmAPmAR_MxBuQjDaRlDkARoOvC{QhDgOpCoAVaRlDkOrC{FdAyI`BoPdCgBXcG|@_G|@cSxCgPfCiDf@yB^gBTu@LgDf@wQpCuCb@qARo@Ha@Hk@Hw@LcJtAqAR}GbAcBZeCXk@D{FVcI`@wER_Kd@e@BuCPgDLoDRyADmAJcNl@",
+          "length": 58
+        },
+        {
+          "points": "_obmDl|uoNi@B{H^sHZ{FVcJb@aI\\iABw@Ge@C_@GeBk@[Qq@e@qAgA_A_Aa@[qA{@oAa@w@Oq@Gg@?cB@",
+          "length": 23
+        },
+        {
+          "points": "c_emDztuoNaNDyC?yJBkRDgH@",
+          "length": 6
+        }
+      ],
+      "alerts": [
+        {
+          "alertUrl": "https://sunrail.com/",
+          "alertHeaderText": "(TEST) Sunrail is running reduced service!",
+          "alertDescriptionText": "Because of unknown circumstances, Sunrail is running reduced service."
+        }
+      ],
+      "routeLongName": "SunRail",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 750,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "Orlando Health/Amtrak",
+          "stopId": "1:FDOT_8",
+          "lon": -81.381982,
+          "lat": 28.526087,
+          "arrival": 1618607970000,
+          "departure": 1618608000000,
+          "zoneId": "FDOT_3",
+          "stopIndex": 5,
+          "stopSequence": 6,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "Church Street",
+          "stopId": "1:FDOT_14",
+          "lon": -81.38077,
+          "lat": 28.538901,
+          "arrival": 1618608150000,
+          "departure": 1618608180000,
+          "zoneId": "FDOT_3",
+          "stopIndex": 6,
+          "stopSequence": 7,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1618608330000,
+      "endTime": 1618608464000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 176.285,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -14400000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "LYNX Central",
+        "stopId": "1:FDOT_7",
+        "lon": -81.380865,
+        "lat": 28.548551,
+        "arrival": 1618608330000,
+        "departure": 1618608330000,
+        "zoneId": "FDOT_3",
+        "stopIndex": 7,
+        "stopSequence": 8,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "LCS-LYNX CENTRAL STATION",
+        "stopId": "1:CFRTA_6850",
+        "lon": -81.381272,
+        "lat": 28.548913,
+        "arrival": 1618608464000,
+        "departure": 1618608600000,
+        "stopIndex": 0,
+        "stopSequence": 1,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "m{fmD~tuoNqA??H?F?N}@?CBC?@B@BD?D@AT?^`A?",
+        "length": 15
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 134,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 101.72200000000001,
+          "relativeDirection": "DEPART",
+          "streetName": "path",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.38079297065977,
+          "lat": 28.548551677923744,
+          "elevation": [
+            {
+              "first": 61.754,
+              "second": 32
+            },
+            {
+              "first": 71.75399999999999,
+              "second": 31.99
+            },
+            {
+              "first": 81.75399999999999,
+              "second": 31.99
+            },
+            {
+              "first": 91.75399999999999,
+              "second": 31.98
+            },
+            {
+              "first": 101.75399999999999,
+              "second": 31.99
+            }
+          ]
+        },
+        {
+          "distance": 74.563,
+          "relativeDirection": "HARD_LEFT",
+          "streetName": "sidewalk",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.3809816,
+          "lat": 28.549316500000003,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 31.99
+            },
+            {
+              "first": 10.99,
+              "second": 31.99
+            },
+            {
+              "first": 10.99,
+              "second": 31.99
+            },
+            {
+              "first": 20.990000000000002,
+              "second": 32
+            },
+            {
+              "first": 30.990000000000002,
+              "second": 32.01
+            },
+            {
+              "first": 37.79,
+              "second": 32.01
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "startTime": 1618608600000,
+      "endTime": 1618610607000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 14641.207869632133,
+      "pathway": false,
+      "mode": "BUS",
+      "route": "13",
+      "agencyName": "Central Florida Regional Transit Authority",
+      "agencyUrl": "http://www.golynx.com",
+      "agencyTimeZoneOffset": -14400000,
+      "routeType": 3,
+      "routeId": "1:CFRTA_11750",
+      "interlineWithPreviousLeg": false,
+      "agencyId": "CFRTA",
+      "tripId": "1:CFRTA_1497483",
+      "serviceDate": "20210416",
+      "from": {
+        "name": "LCS-LYNX CENTRAL STATION",
+        "stopId": "1:CFRTA_6850",
+        "lon": -81.381272,
+        "lat": 28.548913,
+        "arrival": 1618608464000,
+        "departure": 1618608600000,
+        "stopIndex": 0,
+        "stopSequence": 1,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "GENERAL REES AVENUE AND GLENRIDGE WAY",
+        "stopId": "1:CFRTA_4000",
+        "lon": -81.339859,
+        "lat": 28.577832,
+        "arrival": 1618610607000,
+        "departure": 1618610608000,
+        "stopIndex": 28,
+        "stopSequence": 29,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "legGeometry": {
+        "points": "q`gmDrvuoNAc@A??sGAgA`EA_EBdFC^?|A?R?vCEwCDjBA`ACxA?j@?v@?|BA{B@tECyA@zBAxBA{C@tECy@@tFA{D?zGC_BBfBC|CE}CDvA?bGC}DAfMAiGBhC?~DA_AApA@RESDf@OSH~Ai@kA^bBg@WFj@KSBd@EQ@bBAqA?bC?Ec@?a@C]AkA@jA?Y?aBAn@DsACb@DmBAhADuB?m@CxAFeDCjAHwCEjAHmBC`@LoAIl@RqAIb@d@wA[r@`@aAELNk@I\\L{@C\\Bq@?M?Q?m@?k@Ao@?i@AaEAmG?m@AgFAqG?w@CiD?cECqE?s@?s@AyAC{@G{@CSIo@[eBY}Ai@iC_@wB[gBOcAIu@Gq@EmAAqA?cA@{AAeFAaE?wA?m@AkLAiC?w@?{@w@@U?U?y@@}B@w@@cDBQ?kDC_C?{@A{DBgD@mA@kB@kA?oB@w@@aA?mA@{@?_B@CaGCyCC}KgD@?|@?v@??m@OwA]IIAMBIHGP?LD??bBX?}@?|@fD_AgD@fDAC}H?K?gCgA?g@?cEB]Ai@Iu@Ue@Q{A}@GCu@Yu@M_AGsI@a@?_A@y@CcAK_AOoA_@eBw@k@[oAw@uAkAs@}@EI]e@wDwGwB_EaCmE[k@oAaC[k@y@sBs@gC_@wBWkCK}BK}CAmCHYIXHYS?_A@uA@sABuFFqFD}DFsCBcFBoABq@BBXCYHtAE{@NtBIy@PlCGsAHjCAw@?\\?dD@kCAbP?dB?fA?nC?`A_A?eB@}A@wB?kD@wA?mA@sD@m@@uB@iD@iEBkPH",
+        "length": 265
+      },
+      "interStopGeometry": [
+        {
+          "points": "q`gmDrvuoNAc@A??sG",
+          "length": 4
+        },
+        {
+          "points": "u`gmDzluoNAgA`EA_EBdFC^?|A?R?vCEwCDjBA",
+          "length": 11
+        },
+        {
+          "points": "qqfmDnjuoN`ACxA?j@?v@?|BA{B@tECyA@zBA",
+          "length": 10
+        },
+        {
+          "points": "wafmDfjuoNxBA{C@tECy@@tFA{D?zGC_BBfBC|CE}CDvA?",
+          "length": 13
+        },
+        {
+          "points": "gpemD~iuoNbGC}DAfMAiGBhC?",
+          "length": 6
+        },
+        {
+          "points": "ycemDziuoN~DA_AApA@RESDf@OSH~Ai@kA^bBg@WFj@KSBd@EQ@bBAqA?bC?Ec@?a@C]AkA@jA?Y",
+          "length": 25
+        },
+        {
+          "points": "{sdmD|cuoN?aBAn@DsACb@DmBAhADuB",
+          "length": 8
+        },
+        {
+          "points": "qsdmD`|toN?m@CxAFeDCjAHwCEjAHmBC`@LoAIl@RqAIb@d@wA[r@`@aAELNk@I\\L{@C\\Bq@",
+          "length": 22
+        },
+        {
+          "points": "_qdmDtmtoN?M?Q?m@?k@Ao@?i@AaEAmG?m@",
+          "length": 10
+        },
+        {
+          "points": "eqdmDbwsoNAgFAqG?w@",
+          "length": 4
+        },
+        {
+          "points": "iqdmDpesoNCiD?cECqE?s@?s@AyAC{@G{@CS",
+          "length": 10
+        },
+        {
+          "points": "crdmDbiroNIo@[eBY}Ai@iC_@wB[gBOcAIu@Gq@EmAAqA?cA@{AAeFAaE?wA?m@",
+          "length": 18
+        },
+        {
+          "points": "uxdmDjupoNAkLAiC?w@",
+          "length": 4
+        },
+        {
+          "points": "yxdmD|apoN?{@w@@U?U?y@@}B@w@@cDB",
+          "length": 9
+        },
+        {
+          "points": "qhemDl`poNQ?kDC_C?",
+          "length": 4
+        },
+        {
+          "points": "oremDh`poN{@A{DBgD@mA@",
+          "length": 5
+        },
+        {
+          "points": "}afmDn`poNkB@kA?oB@w@@",
+          "length": 5
+        },
+        {
+          "points": "}lfmDt`poNaA?mA@{@?_B@CaG",
+          "length": 6
+        },
+        {
+          "points": "mvfmDvxooNCyCC}KgD@?|@?v@??m@O",
+          "length": 8
+        },
+        {
+          "points": "k}fmDfjooNwA]IIAMBIHGP?LD??bBX?}@?|@fD_AgD@fDAC}H?K?gCgA?g@?cEB]Ai@Iu@Ue@Q{A}@GC",
+          "length": 27
+        },
+        {
+          "points": "uhgmDztnoNu@Yu@M_AGsI@a@?_A@y@CcAK_AOoA_@eBw@k@[oAw@uAkAs@}@EI",
+          "length": 17
+        },
+        {
+          "points": "wohmDnhnoN]e@wDwGwB_EaCmE[k@oAaC",
+          "length": 7
+        },
+        {
+          "points": "saimDtlmoN[k@y@sBs@gC_@wBWkCK}BK}CAmCHYIXHYS?_A@",
+          "length": 14
+        },
+        {
+          "points": "yjimDfmloNuA@sABuFFqFD}DF",
+          "length": 6
+        },
+        {
+          "points": "iejmDbnloNsCBcFBoABq@BBXCYHtAE{@NtBIy@PlCGsAHjCAw@?\\",
+          "length": 16
+        },
+        {
+          "points": "gtjmDtvloN?dD@kCAbP?dB?fA?nC?`A_A?eB@}A@",
+          "length": 11
+        },
+        {
+          "points": "k|jmDvtmoNwB?kD@wA?mA@sD@m@@",
+          "length": 7
+        },
+        {
+          "points": "wqkmD~tmoNuB@iD@iEBkPH",
+          "length": 5
+        }
+      ],
+      "routeShortName": "13",
+      "routeLongName": "UNIVERSITY BLVD/UCF",
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 2007,
+      "transitLeg": true,
+      "intermediateStops": [
+        {
+          "name": "W AMELIA STREET AND N ORANGE AVENUE",
+          "stopId": "1:CFRTA_6334",
+          "lon": -81.379498,
+          "lat": 28.549308,
+          "arrival": 1618608666000,
+          "departure": 1618608666000,
+          "stopIndex": 1,
+          "stopSequence": 2,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N ORANGE AVENUE AND W LIVINGSTON STREET",
+          "stopId": "1:CFRTA_3969",
+          "lon": -81.379199,
+          "lat": 28.546976,
+          "arrival": 1618608732000,
+          "departure": 1618608732000,
+          "stopIndex": 2,
+          "stopSequence": 3,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N ORANGE AVENUE AND W JEFFERSON STREET",
+          "stopId": "1:CFRTA_3971",
+          "lon": -81.379141,
+          "lat": 28.544446,
+          "arrival": 1618608798000,
+          "departure": 1618608798000,
+          "stopIndex": 3,
+          "stopSequence": 4,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "S ORANGE AVENUE AND W PINE STREET",
+          "stopId": "1:CFRTA_9194",
+          "lon": -81.379103,
+          "lat": 28.541646,
+          "arrival": 1618608865000,
+          "departure": 1618608865000,
+          "stopIndex": 4,
+          "stopSequence": 5,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "S ORANGE AVENUE AND E JACKSON STREET",
+          "stopId": "1:CFRTA_4713",
+          "lon": -81.379098,
+          "lat": 28.539654,
+          "arrival": 1618608931000,
+          "departure": 1618608931000,
+          "stopIndex": 5,
+          "stopSequence": 6,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S ORANGE AVENUE",
+          "stopId": "1:CFRTA_4313",
+          "lon": -81.378062,
+          "lat": 28.536993,
+          "arrival": 1618608997000,
+          "departure": 1618608997000,
+          "stopIndex": 6,
+          "stopSequence": 7,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S MAGNOLIA AVENUE",
+          "stopId": "1:CFRTA_5737",
+          "lon": -81.376807,
+          "lat": 28.536974,
+          "arrival": 1618609064000,
+          "departure": 1618609064000,
+          "stopIndex": 7,
+          "stopSequence": 8,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND DELANEY AVENUE",
+          "stopId": "1:CFRTA_4315",
+          "lon": -81.37451,
+          "lat": 28.53658,
+          "arrival": 1618609130000,
+          "departure": 1618609130000,
+          "stopIndex": 8,
+          "stopSequence": 9,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S OSCEOLA AVENUE",
+          "stopId": "1:CFRTA_4316",
+          "lon": -81.370891,
+          "lat": 28.536625,
+          "arrival": 1618609196000,
+          "departure": 1618609196000,
+          "stopIndex": 9,
+          "stopSequence": 10,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S SUMMERLIN AVENUE",
+          "stopId": "1:CFRTA_4447",
+          "lon": -81.368084,
+          "lat": 28.536639,
+          "arrival": 1618609263000,
+          "departure": 1618609263000,
+          "stopIndex": 10,
+          "stopSequence": 11,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S MILLS AVENUE",
+          "stopId": "1:CFRTA_4491",
+          "lon": -81.363521,
+          "lat": 28.536771,
+          "arrival": 1618609329000,
+          "departure": 1618609329000,
+          "stopIndex": 11,
+          "stopSequence": 12,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S HAMPTON AVENUE",
+          "stopId": "1:CFRTA_4492",
+          "lon": -81.355259,
+          "lat": 28.537819,
+          "arrival": 1618609395000,
+          "departure": 1618609395000,
+          "stopIndex": 12,
+          "stopSequence": 13,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E ANDERSON STREET AND S BUMBY AVENUE",
+          "stopId": "1:CFRTA_4545",
+          "lon": -81.352149,
+          "lat": 28.537847,
+          "arrival": 1618609462000,
+          "departure": 1618609462000,
+          "stopIndex": 13,
+          "stopSequence": 14,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "S BUMBY AVENUE AND E CHURCH STREET",
+          "stopId": "1:CFRTA_4494",
+          "lon": -81.35177,
+          "lat": 28.540416,
+          "arrival": 1618609528000,
+          "departure": 1618609528000,
+          "stopIndex": 14,
+          "stopSequence": 15,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "S BUMBY AVENUE AND E CENTRAL BOULEVARD",
+          "stopId": "1:CFRTA_4495",
+          "lon": -81.351757,
+          "lat": 28.542003,
+          "arrival": 1618609594000,
+          "departure": 1618609594000,
+          "stopIndex": 15,
+          "stopSequence": 16,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N BUMBY AVENUE AND E WASHINGTON STREET",
+          "stopId": "1:CFRTA_4496",
+          "lon": -81.3518,
+          "lat": 28.544481,
+          "arrival": 1618609661000,
+          "departure": 1618609661000,
+          "stopIndex": 16,
+          "stopSequence": 17,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "N BUMBY AVENUE AND E ROBINSON STREET",
+          "stopId": "1:CFRTA_4326",
+          "lon": -81.351846,
+          "lat": 28.546236,
+          "arrival": 1618609727000,
+          "departure": 1618609727000,
+          "stopIndex": 17,
+          "stopSequence": 18,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "E LIVINGSTON STREET AND N GRAHAM AVENUE",
+          "stopId": "1:CFRTA_4327",
+          "lon": -81.350672,
+          "lat": 28.547705,
+          "arrival": 1618609793000,
+          "departure": 1618609793000,
+          "stopIndex": 18,
+          "stopSequence": 19,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "PRIMROSE DR  AND COLONIAL CIR",
+          "stopId": "1:CFRTA_3984",
+          "lon": -81.348304,
+          "lat": 28.548852,
+          "arrival": 1618609860000,
+          "departure": 1618609860000,
+          "stopIndex": 19,
+          "stopSequence": 20,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "MAGUIRE BOULEVARD AND FAIRGREEN STREET",
+          "stopId": "1:CFRTA_6534",
+          "lon": -81.344831,
+          "lat": 28.550634,
+          "arrival": 1618609943000,
+          "departure": 1618609943000,
+          "stopIndex": 20,
+          "stopSequence": 21,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "MAGUIRE BOULEVARD AND WOODCOCK ROAD",
+          "stopId": "1:CFRTA_4687",
+          "lon": -81.342919,
+          "lat": 28.556889,
+          "arrival": 1618610026000,
+          "departure": 1618610026000,
+          "stopIndex": 21,
+          "stopSequence": 22,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "MAGUIRE BOULEVARD AND LAWTON ROAD",
+          "stopId": "1:CFRTA_4693",
+          "lon": -81.338566,
+          "lat": 28.559864,
+          "arrival": 1618610109000,
+          "departure": 1618610109000,
+          "stopIndex": 22,
+          "stopSequence": 23,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "BENNETT ROAD AND MAGUIRE BOULEVARD",
+          "stopId": "1:CFRTA_4694",
+          "lon": -81.333413,
+          "lat": 28.561258,
+          "arrival": 1618610192000,
+          "departure": 1618610192000,
+          "stopIndex": 23,
+          "stopSequence": 24,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "BENNETT ROAD AND BOBOLINK LANE",
+          "stopId": "1:CFRTA_4695",
+          "lon": -81.333557,
+          "lat": 28.565498,
+          "arrival": 1618610275000,
+          "departure": 1618610275000,
+          "stopIndex": 24,
+          "stopSequence": 25,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "CORRINE DRIVE AND ROBIN ROAD",
+          "stopId": "1:CFRTA_4696",
+          "lon": -81.334984,
+          "lat": 28.567983,
+          "arrival": 1618610358000,
+          "departure": 1618610358000,
+          "stopIndex": 25,
+          "stopSequence": 26,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "GENERAL REES AVENUE AND LOWER UNION ROAD",
+          "stopId": "1:CFRTA_3998",
+          "lon": -81.339722,
+          "lat": 28.569187,
+          "arrival": 1618610441000,
+          "departure": 1618610441000,
+          "stopIndex": 26,
+          "stopSequence": 27,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        },
+        {
+          "name": "GENERAL REES AVENUE AND PARKLAND DRIVE",
+          "stopId": "1:CFRTA_3999",
+          "lon": -81.339775,
+          "lat": 28.572608,
+          "arrival": 1618610524000,
+          "departure": 1618610524000,
+          "stopIndex": 27,
+          "stopSequence": 28,
+          "vertexType": "TRANSIT",
+          "boardAlightType": "DEFAULT"
+        }
+      ],
+      "steps": []
+    },
+    {
+      "startTime": 1618610608000,
+      "endTime": 1618611447000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 1079.705,
+      "pathway": false,
+      "mode": "WALK",
+      "route": "",
+      "agencyTimeZoneOffset": -14400000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "GENERAL REES AVENUE AND GLENRIDGE WAY",
+        "stopId": "1:CFRTA_4000",
+        "lon": -81.339859,
+        "lat": 28.577832,
+        "arrival": 1618610607000,
+        "departure": 1618610608000,
+        "stopIndex": 28,
+        "stopSequence": 29,
+        "vertexType": "TRANSIT",
+        "boardAlightType": "DEFAULT"
+      },
+      "to": {
+        "name": "235 East Kings Way, Winter Park, FL, USA",
+        "lon": -81.34689331054689,
+        "lat": 28.581808401090516,
+        "arrival": 1618611447000,
+        "orig": "235 East Kings Way, Winter Park, FL, USA",
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "mrlmD|tmoN}C@OIAXO??T?v@@x@@dE?zC@|B?tA{MHI@C@E@CHAL?zB?Z?t@BNRpCSbC?`@?^KdB",
+        "length": 27
+      },
+      "rentedBike": false,
+      "rentedCar": false,
+      "rentedVehicle": false,
+      "hailedCar": false,
+      "flexDrtAdvanceBookMin": 0,
+      "duration": 839,
+      "transitLeg": false,
+      "intermediateStops": [],
+      "steps": [
+        {
+          "distance": 97.755,
+          "relativeDirection": "DEPART",
+          "streetName": "sidewalk",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.33982648100371,
+          "lat": 28.5778323030571,
+          "elevation": []
+        },
+        {
+          "distance": 12.15,
+          "relativeDirection": "LEFT",
+          "streetName": "sidewalk",
+          "absoluteDirection": "WEST",
+          "stayOn": true,
+          "area": false,
+          "bogusName": true,
+          "lon": -81.3397875,
+          "lat": 28.5787009,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 35.7
+            },
+            {
+              "first": 12.15,
+              "second": 35.7
+            }
+          ]
+        },
+        {
+          "distance": 9.04,
+          "relativeDirection": "RIGHT",
+          "streetName": "General Rees Avenue",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -81.3399112,
+          "lat": 28.5787127,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 35.7
+            },
+            {
+              "first": 9.04,
+              "second": 35.67
+            }
+          ]
+        },
+        {
+          "distance": 343.422,
+          "relativeDirection": "LEFT",
+          "streetName": "Glenridge Way",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -81.3399122,
+          "lat": 28.578794000000002,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 35.67
+            },
+            {
+              "first": 10,
+              "second": 35.67
+            },
+            {
+              "first": 20,
+              "second": 35.67
+            },
+            {
+              "first": 30,
+              "second": 35.67
+            },
+            {
+              "first": 38.79,
+              "second": 35.67
+            },
+            {
+              "first": 38.787,
+              "second": 35.67
+            },
+            {
+              "first": 48.787,
+              "second": 35.67
+            },
+            {
+              "first": 58.787,
+              "second": 35.67
+            },
+            {
+              "first": 66.407,
+              "second": 35.67
+            },
+            {
+              "first": 66.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 76.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 86.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 96.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 106.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 116.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 126.40299999999999,
+              "second": 35.67
+            },
+            {
+              "first": 136.403,
+              "second": 35.67
+            },
+            {
+              "first": 146.403,
+              "second": 35.67
+            },
+            {
+              "first": 156.403,
+              "second": 35.68
+            },
+            {
+              "first": 163.22299999999998,
+              "second": 35.68
+            },
+            {
+              "first": 163.22699999999998,
+              "second": 35.68
+            },
+            {
+              "first": 173.22699999999998,
+              "second": 35.69
+            },
+            {
+              "first": 183.22699999999998,
+              "second": 35.69
+            },
+            {
+              "first": 193.22699999999998,
+              "second": 35.7
+            },
+            {
+              "first": 203.22699999999998,
+              "second": 35.7
+            },
+            {
+              "first": 213.22699999999998,
+              "second": 35.7
+            },
+            {
+              "first": 223.22699999999998,
+              "second": 35.7
+            },
+            {
+              "first": 233.22699999999998,
+              "second": 35.7
+            },
+            {
+              "first": 239.837,
+              "second": 35.7
+            },
+            {
+              "first": 239.83399999999997,
+              "second": 35.7
+            },
+            {
+              "first": 249.83399999999997,
+              "second": 35.7
+            },
+            {
+              "first": 259.83399999999995,
+              "second": 35.7
+            },
+            {
+              "first": 269.83399999999995,
+              "second": 35.69
+            },
+            {
+              "first": 279.83399999999995,
+              "second": 35.69
+            },
+            {
+              "first": 289.83399999999995,
+              "second": 35.68
+            },
+            {
+              "first": 301.044,
+              "second": 35.68
+            },
+            {
+              "first": 301.041,
+              "second": 35.68
+            },
+            {
+              "first": 311.041,
+              "second": 35.67
+            },
+            {
+              "first": 321.041,
+              "second": 35.67
+            },
+            {
+              "first": 331.041,
+              "second": 35.67
+            },
+            {
+              "first": 343.421,
+              "second": 35.67
+            }
+          ]
+        },
+        {
+          "distance": 276.409,
+          "relativeDirection": "RIGHT",
+          "streetName": "Stonehurst Road",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -81.343429,
+          "lat": 28.578761900000003,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 35.67
+            },
+            {
+              "first": 10,
+              "second": 35.61
+            },
+            {
+              "first": 20,
+              "second": 35.52
+            },
+            {
+              "first": 30,
+              "second": 35.44
+            },
+            {
+              "first": 40,
+              "second": 35.38
+            },
+            {
+              "first": 50,
+              "second": 35.36
+            },
+            {
+              "first": 60,
+              "second": 35.37
+            },
+            {
+              "first": 70,
+              "second": 35.39
+            },
+            {
+              "first": 80,
+              "second": 35.39
+            },
+            {
+              "first": 90,
+              "second": 35.37
+            },
+            {
+              "first": 100,
+              "second": 35.31
+            },
+            {
+              "first": 110,
+              "second": 35.23
+            },
+            {
+              "first": 120,
+              "second": 35.15
+            },
+            {
+              "first": 130,
+              "second": 35.1
+            },
+            {
+              "first": 140,
+              "second": 35.08
+            },
+            {
+              "first": 150,
+              "second": 35.06
+            },
+            {
+              "first": 160,
+              "second": 35.02
+            },
+            {
+              "first": 170,
+              "second": 34.94
+            },
+            {
+              "first": 180,
+              "second": 34.83
+            },
+            {
+              "first": 190,
+              "second": 34.71
+            },
+            {
+              "first": 200,
+              "second": 34.59
+            },
+            {
+              "first": 210,
+              "second": 34.5
+            },
+            {
+              "first": 220,
+              "second": 34.45
+            },
+            {
+              "first": 230,
+              "second": 34.44
+            },
+            {
+              "first": 240,
+              "second": 34.45
+            },
+            {
+              "first": 250,
+              "second": 34.44
+            },
+            {
+              "first": 260,
+              "second": 34.41
+            },
+            {
+              "first": 273.2,
+              "second": 34.36
+            },
+            {
+              "first": 273.206,
+              "second": 34.36
+            },
+            {
+              "first": 276.406,
+              "second": 34.36
+            }
+          ]
+        },
+        {
+          "distance": 340.929,
+          "relativeDirection": "LEFT",
+          "streetName": "Kings Way",
+          "absoluteDirection": "WEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -81.3435087,
+          "lat": 28.581240400000002,
+          "elevation": [
+            {
+              "first": 0,
+              "second": 34.36
+            },
+            {
+              "first": 10,
+              "second": 34.37
+            },
+            {
+              "first": 20,
+              "second": 34.36
+            },
+            {
+              "first": 30,
+              "second": 34.29
+            },
+            {
+              "first": 40,
+              "second": 34.22
+            },
+            {
+              "first": 50,
+              "second": 34.18
+            },
+            {
+              "first": 60,
+              "second": 34.17
+            },
+            {
+              "first": 73.15,
+              "second": 34.16
+            },
+            {
+              "first": 73.129,
+              "second": 34.16
+            },
+            {
+              "first": 86.339,
+              "second": 34.15
+            },
+            {
+              "first": 86.342,
+              "second": 34.15
+            },
+            {
+              "first": 96.342,
+              "second": 34.13
+            },
+            {
+              "first": 106.342,
+              "second": 34.12
+            },
+            {
+              "first": 112.822,
+              "second": 34.12
+            },
+            {
+              "first": 112.824,
+              "second": 34.12
+            },
+            {
+              "first": 120.724,
+              "second": 34.14
+            },
+            {
+              "first": 120.727,
+              "second": 34.14
+            },
+            {
+              "first": 130.727,
+              "second": 34.16
+            },
+            {
+              "first": 140.727,
+              "second": 34.18
+            },
+            {
+              "first": 150.727,
+              "second": 34.19
+            },
+            {
+              "first": 160.727,
+              "second": 34.19
+            },
+            {
+              "first": 170.727,
+              "second": 34.19
+            },
+            {
+              "first": 180.727,
+              "second": 34.17
+            },
+            {
+              "first": 190.727,
+              "second": 34.16
+            },
+            {
+              "first": 200.727,
+              "second": 34.14
+            },
+            {
+              "first": 210.727,
+              "second": 34.13
+            },
+            {
+              "first": 220.727,
+              "second": 34.1
+            },
+            {
+              "first": 230.727,
+              "second": 34.04
+            },
+            {
+              "first": 240.727,
+              "second": 33.96
+            },
+            {
+              "first": 250.727,
+              "second": 33.89
+            },
+            {
+              "first": 258.647,
+              "second": 33.86
+            },
+            {
+              "first": 258.635,
+              "second": 33.86
+            },
+            {
+              "first": 268.635,
+              "second": 33.83
+            },
+            {
+              "first": 274.875,
+              "second": 33.82
+            },
+            {
+              "first": 274.873,
+              "second": 33.82
+            },
+            {
+              "first": 284.873,
+              "second": 33.81
+            },
+            {
+              "first": 290.673,
+              "second": 33.8
+            },
+            {
+              "first": 290.673,
+              "second": 33.8
+            },
+            {
+              "first": 300.673,
+              "second": 33.77
+            },
+            {
+              "first": 310.673,
+              "second": 33.74
+            },
+            {
+              "first": 320.673,
+              "second": 33.74
+            },
+            {
+              "first": 330.673,
+              "second": 33.75
+            },
+            {
+              "first": 340.673,
+              "second": 33.74
+            },
+            {
+              "first": 340.933,
+              "second": 33.74
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tooSloped": false
+}
