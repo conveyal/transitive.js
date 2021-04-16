@@ -37,6 +37,9 @@ ItineraryWithAlternativeStyling.args = {
       "font-family": "serif"
     },
     segment_labels: {
+      "border-color": "#FF0000",
+      "border-radius": 6,
+      "border-width": 3,
       color: "#FFDD00",
       "font-size": "24px"
     }    
