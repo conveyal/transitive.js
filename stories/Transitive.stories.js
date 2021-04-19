@@ -1,6 +1,7 @@
 import {TransitiveMap} from './TransitiveMap'
 
-// Fonts used by storybook <body> (no need to import extra fonts).
+// Use the font-family defined by storybook <body> element,
+// so we don't need to install/import extra fonts.
 const storybookFonts = '"Nunito Sans", -apple-system, ".SFNSText-Regular", "San Francisco", BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
 const companies = [
@@ -36,7 +37,6 @@ MultiModalItinerary.args = {
   styles: undefined,
   zoom: 12
 }
-
 
 export const MultiModalItineraryWithCustomSettings = Template.bind({})
 MultiModalItineraryWithCustomSettings.args = {
