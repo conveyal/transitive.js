@@ -37,6 +37,10 @@ const zoomFactors = [
   }
 ]
 
+// By default, only bus segments are labeled.
+// (See /lib/util/index.js#otpModeToGtfsType for mode type codes.)
+const DEFAULT_LABELED_MODES = [3]
+
 class TransitiveCanvasOverlay extends MapLayer {
   // React Lifecycle Methods
 
@@ -87,7 +91,12 @@ class TransitiveCanvasOverlay extends MapLayer {
   // Internal Methods
 
   initTransitive (canvas) {
-    const { leaflet, transitiveData, styles = transitiveStyles } = this.props
+    const {
+      labeledModes = DEFAULT_LABELED_MODES,
+      leaflet,
+      styles = transitiveStyles,
+      transitiveData
+    } = this.props
     const { map } = leaflet
 
     // set up the transitive instance
@@ -98,6 +107,7 @@ class TransitiveCanvasOverlay extends MapLayer {
         [mapBounds.getWest(), mapBounds.getSouth()],
         [mapBounds.getEast(), mapBounds.getNorth()]
       ],
+      labeledModes,
       zoomEnabled: false,
       autoResize: false,
       styles,

@@ -30,6 +30,7 @@ export const TransitiveMap = ({
   center = [45.506, -122.68302],
   companies = [],
   itinerary,
+  labeledModes,
   styles,
   // If no transitiveData is provided, default to generating from itinerary.
   transitiveData = itineraryToTransitive(itinerary, companies),
@@ -43,6 +44,7 @@ export const TransitiveMap = ({
         zoom={zoom}
       >
         <TransitiveOverlay
+          labeledModes={labeledModes}
           styles={styles}
           transitiveData={transitiveData}
           visible
