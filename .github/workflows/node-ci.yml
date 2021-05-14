@@ -27,9 +27,6 @@ jobs:
         run: yarn cover
 
       # at this point, the build is successful
-      - name: Codecov
-        uses: codecov/codecov-action@v1.2.0
-        continue-on-error: true
       - name: Semantic Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
