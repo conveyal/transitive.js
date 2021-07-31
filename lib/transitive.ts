@@ -13,30 +13,126 @@ import Labeler from './labeler/labeler'
 import Point from './point/point'
 import { sm } from './util'
 
-/*
- * Expose `Transitive`
- */
+type TransitiveData = {}
 
-// module.exports = Transitive
+type TransitiveStyles = {}
+
+type Bounds = [
+  [
+    /**
+     * west
+     */
+    number,
+    /**
+     * south
+     */
+    number
+  ],
+  [
+    /**
+     * east
+     */
+    number,
+    /**
+     * north
+     */
+    number
+  ]
+]
+
+type RendererType = 'wireframe' | 'default'
+
+type TransitiveOptions = {
+  /**
+   * whether the display should listen for window resize events and update
+   * automatically (defaults to true)
+   */
+  autoResize?: boolean
+  /**
+   * Transitive Data to Render
+   */
+  data: TransitiveData
+  /**
+   * Set to 'canvas' to use CanvasDisplay. Otherwise SvgDisplay is used.
+   */
+  display?: string
+  /**
+   * padding to apply to the initial rendered network within the display.
+   * Expressed in pixels for top/bottom/left/right
+   */
+  displayMargins?: {
+    bottom: number
+    left: number
+    right: number
+    top: number
+  }
+  /**
+   * a list of network element types to enable dragging for
+   */
+  draggableTypes?: Array<string>
+   /**
+   * An optional HTMLElement to render the Transitve display to
+   */
+  el?: HTMLElement
+  /**
+   * resolution of the grid in SphericalMercator meters
+   */
+  gridCellSize?: number
+  /**
+   * whether to consider edges with the same origin/destination equivalent for
+   * rendering, even if intermediate stop sequence is different (defaults to
+   * true)
+   */
+  groupEdges?: boolean
+  /**
+   * initial lon/lat bounds for the display
+   */
+  initialBounds?: Bounds
+  /**
+   * FIXME
+   */
+  initialRenderer?: RendererType
+  /**
+   * Custom styling rules that affect rendering behavior
+   */
+  styles: TransitiveStyles
+  /**
+   * whether to enable the display's built-in zoom/pan functionality (defaults
+   * to true)
+   */
+  zoomEnabled?: boolean
+}
 
 /**
- * Create a new instance of `Transitive`
- *
- * @param {Object} options object
- *   - data {Object} data to render
- *   - styles {Object} styles to apply
- *   - el {Element} the DOM element to render the main display to
- *   - gridCellSize {Number} resolution of the grid in SphericalMercator meters
- *   - draggableTypes {Array} a list of network element types to enable dragging for
- *   - initialBounds {Array} initial lon/lat bounds for the display expressed as [[west, south], [east, north]]
- *   - displayMargins {Object} padding to apply to the initial rendered network within the display. Expressed in pixels for top/bottom/left/right
- *   - zoomEnabled {Boolean} whether to enable the display's built-in zoom/pan functionality (defaults to true)
- *   - autoResize {Boolean} whether the display should listen for window resize events and update automatically (defaults to true)
- *   - groupEdges {Boolean} whether to consider edges with the same origin/destination equivalent for rendering, even if intermediate stop sequence is different (defaults to true)
+ * No clue what this global Display thing is. :(
  */
+declare class Display {
+  constructor(arg0: TransitiveData)
+}
+
+/**
+ * A transformation {x, y, k} to the *initial* state of the map., where
+ * (x, y) is the pixel offset and k is a scale factor relative to an initial
+ * zoom level of 1.0. Intended primarily to support D3-style panning/zooming.
+ */
+type DisplayTransform = {
+  k: number
+  x: number
+  y: number
+}
 
 export default class Transitive {
-  constructor (options) {
+  data: TransitiveData | null | undefined
+  display!: CanvasDisplay | SvgDisplay
+  el?: HTMLElement
+  emit!: (message: string, transitiveInstance: this, el?: HTMLElement) => void
+  labeler!: Labeler
+  options?: TransitiveOptions
+  network: Network | null | undefined
+  renderer!: DefaultRenderer | WireframeRenderer
+  styler!: Styler
+
+  constructor (options: TransitiveOptions) {
     if (!(this instanceof Transitive)) return new Transitive(options)
 
     this.options = options
@@ -79,7 +175,7 @@ export default class Transitive {
    * Update the Network data and redraw the map
    */
 
-  updateData (data, resetDisplay) {
+  updateData (data: TransitiveData, resetDisplay?: boolean) {
     this.network = null
     this.data = data
     if (resetDisplay) this.display.reset()
@@ -94,7 +190,7 @@ export default class Transitive {
    * @param {String} an OTP mode string
    */
 
-  getModeStyles (mode) {
+  getModeStyles (mode: string) {
     return this.styler.getModeStyles(mode, this.display || new Display(this))
   }
 
@@ -104,7 +200,7 @@ export default class Transitive {
    * Set the DOM element that serves as the main map canvas
    */
 
-  setElement (el) {
+  setElement (el?: HTMLElement) {
     if (this.el) d3.select(this.el).selectAll('*').remove()
 
     this.el = el
@@ -117,7 +213,7 @@ export default class Transitive {
    * Set the DOM element that serves as the main map canvas
    */
 
-  setRenderer (type) {
+  setRenderer (type: RendererType) {
     switch (type) {
       case 'wireframe':
         this.renderer = new WireframeRenderer(this)
@@ -152,7 +248,7 @@ export default class Transitive {
    * @param {Element} el
    */
 
-  renderTo (el) {
+  renderTo (el: HTMLElement) {
     this.setElement(el)
     this.render()
 
@@ -164,8 +260,13 @@ export default class Transitive {
    * focusJourney
    */
 
-  focusJourney (journeyId) {
-    var path = journeyId ? this.network.journeys[journeyId].path : null
+  focusJourney (journeyId: string) {
+    if (!this.network) {
+      console.warn('Transitive network is not defined! Cannot focus journey!');
+      return
+    }
+    const journey = (this.network.journeys as { [id: string]: { path: {} }})[journeyId]
+    var path = journey?.path || null
     this.renderer.focusPath(path)
   }
 
@@ -174,7 +275,7 @@ export default class Transitive {
    * @param {Array} lon/lat bounds expressed as [[west, south], [east, north]]
    */
 
-  setDisplayBounds (llBounds) {
+  setDisplayBounds (llBounds: Bounds) {
     if (!this.display) return
     const smWestSouth = sm.forward(llBounds[0])
     const smEastNorth = sm.forward(llBounds[1])
@@ -206,11 +307,15 @@ export default class Transitive {
    * resize
    */
 
-  resize (width, height) {
+  resize (width: number, height: number) {
     if (!this.display) return
+    // @ts-expect-error I have no idea what magic this display object uses to
+    // get an el property. - Evan :(
     d3.select(this.display.el)
       .style('width', width + 'px')
       .style('height', height + 'px')
+    // @ts-expect-error I have no idea what magic this display object uses to
+    // get a resized method. - Evan :(
     this.display.resized()
   }
 
@@ -218,18 +323,24 @@ export default class Transitive {
    * trigger a display resize action (for externally-managed SVG containers)
    */
 
-  resized (width, height) {
+  resized (width: number, height: number) {
+    // @ts-expect-error I have no idea what magic this display object uses to
+    // get a resized method. - Evan :(
     this.display.resized(width, height)
   }
 
-  setTransform (transform) {
+  setTransform (transform: DisplayTransform) {
     this.display.applyTransform(transform)
     this.render()
   }
 
   /** editor functions **/
 
-  createVertex (wx, wy) {
+  createVertex (wx?: number, wy?: number) {
+    if (!this.network) {
+      console.warn('Transitive network is not defined! Cannot create vertex!');
+      return
+    }
     this.network.graph.addVertex(new Point(), wx, wy)
   }
 }

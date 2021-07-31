@@ -12,7 +12,9 @@
     "type": "git",
     "url": "https://github.com/conveyal/transitive.js.git"
   },
-  "main": "build/transitive.js",
+  "main": "dist/index.js",
+  "module": "dist/transitive-js.esm.js",
+  "typings": "dist/transitive.d.ts",
   "dependencies": {
     "augment": "4.3.0",
     "component-each": "0.2.6",
@@ -27,12 +29,16 @@
     "svg.js": "^2.6.5"
   },
   "scripts": {
-    "prepublish": "mastarm prepublish lib:build",
-    "cover": "npm test -- --coverage",
-    "lint": "mastarm lint lib",
+    "b": "tsdx build",
+    "build": "tsdx build -i lib/transitive.ts --target node",
+    "cover": "tsdx test --coverage --coverage-paths index.ts",
+    "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read",
+    "jest": "tsdx test",
+    "lint": "tsdx lint __tests__ lib --quiet",
+    "prepublish": "yarn build",
     "semantic-release": "semantic-release",
     "start": "start-storybook -p 5555",
-    "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read"
+    "test": "yarn run lint && yarn run lint-docs && yarn jest"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -45,6 +51,8 @@
     "@storybook/preset-create-react-app": "^3.1.5",
     "@storybook/react": "^6.1.0-beta.6",
     "@storybook/storybook-deployer": "^2.8.7",
+    "@types/component-emitter": "^1.2.10",
+    "@types/d3": "^3.5.8",
     "@webpack-cli/init": "^1.0.3",
     "babel-loader": "^8.1.0",
     "core-js": "2",
@@ -52,16 +60,13 @@
     "file-loader": "^6.2.0",
     "leaflet": "^1.7.1",
     "lodash.isequal": "^4.5.0",
-    "mastarm": "^5.0.1",
     "react-leaflet": "^2.6.1",
     "semantic-release": "^17.2.3",
     "style-loader": "^2.0.0",
     "styled-components": "^5.2.1",
     "terser-webpack-plugin": "^5.0.3",
+    "tsdx": "https://github.com/ibi-group/tsdx",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.2.0"
-  },
-  "standard": {
-    "parser": "babel-eslint"
   }
 }
