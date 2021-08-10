@@ -311,7 +311,87 @@ type TransitiveData = {
   streetEdges: StreetEdge[]
 }
 
-type TransitiveStyles = {}
+// Transitive Style data model
+
+/**
+ * A function for calculating the style of a particular feature.
+ */
+type TransitiveStyleComputeFn = (
+  /**
+   * The transtiive display instance currently being used.
+   */
+  display?: CanvasDisplay | SvgDisplay,
+  /**
+   * The entity instance which the style result will be applied to.
+   */
+  entity?: Object,
+  /**
+   * The index of the entity within some collection. This argument's value may
+   * not always be included when calling this function.
+   */
+  index?: number,
+  /**
+   * Some util functions for calculating certain styles.
+   * See code: https://github.com/conveyal/transitive.js/blob/6a8932930de003788b9034609697421731e7f812/lib/styler/styles.js#L17-L44
+   */
+  styleUtils?: Object
+) => number | string
+
+/**
+ * A map describing a styling override applied to a particular styleing value
+ * noted with the key value. The value for this style can be either a number,
+ * string or result of a custom function.
+ *
+ * The applicability of each key differs between different styling entities.
+ * Example values for the key value include:
+ * - "background" - // background of text
+ * - "border-color" - // used for borders around text
+ * - "border-radius" - // used for borders around text
+ * - "border-width" - // used for borders around text
+ * - "color" - // text color
+ * - "display" - // whether or not to display the entity. Set value or make
+ *                  function return "none" to not display an entity.
+ * - "envelope" - // used in calculating line width
+ * - "fill" - // fill color
+ * - "font-family" - // font family used when rendering text
+ * - "font-size" - // font size used when rendering text
+ * - "marker-padding" - // Amount of padding to give a marker beyond its radius
+ * - "marker-type" - // for styling stops and maybe places. Valid values
+ *                      include: "circle", "rectangle" or "roundedrect"
+ * - "orientations" - // a list of possible orientations to try to apply to
+ *                      labels. Valid values include: "N", "S", "E", "W", "NE",
+ *                       "NW", "SE", "SW"
+ * - "r" - // a radius in pixels to apply to certain stops or places
+ * - "stroke" - // stroke color
+ * - "stroke-dasharray" - // stroke dasharray
+ * - "stroke-linecap" - // stroke linecap
+ * - "stroke-width" - // stroke width
+ */
+type TransitiveStyleConfig = Record<
+  string,
+  number | string | TransitiveStyleComputeFn
+>
+
+/**
+ * A map of transitive features and the associated map of config records that
+ * override transitive default style calculations.
+ */
+type TransitiveStyles = {
+  labels?: TransitiveStyleConfig
+  segments?: TransitiveStyleConfig
+  segments_front?: TransitiveStyleConfig
+  segments_halo?: TransitiveStyleConfig
+  segment_labels?: TransitiveStyleConfig
+  segment_label_containers?: TransitiveStyleConfig
+  stops_merged?: TransitiveStyleConfig
+  stops_pattern?: TransitiveStyleConfig
+  places?: TransitiveStyleConfig
+  places_icon?: TransitiveStyleConfig
+  multipoints_merged?: TransitiveStyleConfig
+  multipoints_pattern?: TransitiveStyleConfig
+  wireframe_vertices?: TransitiveStyleConfig
+  wireframe_edges?: TransitiveStyleConfig
+}
 
 type Bounds = [
   [
@@ -366,7 +446,7 @@ type TransitiveOptions = {
    * a list of network element types to enable dragging for
    */
   draggableTypes?: Array<string>
-   /**
+  /**
    * An optional HTMLElement to render the Transitve display to
    */
   el?: HTMLElement
@@ -403,7 +483,7 @@ type TransitiveOptions = {
  * No clue what this global Display thing is. :(
  */
 declare class Display {
-  constructor(arg0: TransitiveData)
+  constructor(arg0: Transitive)
 }
 
 /**
