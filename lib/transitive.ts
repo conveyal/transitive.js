@@ -13,7 +13,303 @@ import Labeler from './labeler/labeler'
 import Point from './point/point'
 import { sm } from './util'
 
-type TransitiveData = {}
+// Transitive Data Model
+
+/**
+ * A description of the transit pattern that a segment of a journey is using.
+ *
+ * TODO: move to core/journey.js when adding static typing to that file
+ */
+type SegmentPattern = {
+  /**
+   * The from stop index within the pattern referenced by the pattern_id
+   */
+  from_stop_index: number
+  /**
+   * The ID of the pattern
+   */
+  pattern_id: string
+  /**
+   * The to stop index within the pattern referenced by the pattern_id
+   */
+  to_stop_index: number
+}
+
+/**
+ * A point where a segment starts or ends. This must be either a place or a stop
+ * and must have a proper reference to a defined place or stop that is defined
+ * in the list of places or stops in the root transitive data object.
+ *
+ * TODO: move to core/journey.js when adding static typing to that file
+ */
+type SegmentPoint = {
+  /**
+   * The place_id of this point if it is a place. This MUST be set if the "type"
+   * value is "PLACE"
+   */
+  place_id?: string
+  /**
+   * The place_id of this point if it is a place. This MUST be set if the "type"
+   * value is "STOP"
+   */
+  stop_id?: string
+  /**
+   * The type of place that this is.
+   */
+  type: 'PLACE' | 'STOP'
+}
+
+/**
+ * Information about a particular segment of a journey.
+ *
+ * TODO: move to core/journey.js when adding static typing to that file
+ */
+type Segment = {
+  /**
+   * If set to true, instructs the renderer to ignore all other geometry data
+   * and instead draw an arc between the from and to points.
+   */
+  arc?: boolean
+  /**
+   * The starting point of this segment
+   */
+  from: SegmentPoint
+  /**
+   * A list of pattern segments identifying how this segment uses certain parts
+   * of the transit network. This should be set when the type of this segment is
+   * "TRANSIT".
+   */
+  patterns?: SegmentPattern[]
+  /**
+   * A list of strings representing street edge IDs that this journey uses. This
+   * should be set when the type of this segment is not "TRANSIT".
+   */
+  streetEdges?: string[]
+  /**
+   * The ending point of this segment
+   */
+  to: SegmentPoint
+  /**
+   * The type of segment. This should be set to "TRANSIT" for transit segments
+   * or the on-street leg mode otherwise.
+   */
+  type: string
+}
+
+/**
+ * An object describing how a journey uses various parts of the transportation
+ * network.
+ *
+ * This object can additionally have other key/value items added onto the data
+ * model that may or may not be processed with custom styler rules. However,
+ * a few keys might be overwritten by transitive internals, so choose carefully.
+ *
+ * TODO: move to core/journey.js when adding static typing to that file
+ */
+type Journey = {
+  /**
+   * The ID of the journey
+   */
+  journey_id: string
+  /**
+   * The name of the journey
+   */
+  journey_name: string
+  /**
+   * What is this?
+   * The segments of a journey
+   */
+  segments: Segment[]
+}
+
+/**
+ * Information about a sequence of stops that make up a directional segment of
+ * travel that a transit trip or part of a transit trip takes.
+ *
+ * This object can additionally have other key/value items added onto the data
+ * model that may or may not be processed with custom styler rules. However,
+ * a few keys might be overwritten by transitive internals, so choose carefully.
+ *
+ * TODO: move to core/pattern.js when adding static typing to that file
+ */
+type Pattern = {
+  /**
+   * The ID of the pattern
+   */
+  pattern_id: string
+  /**
+   * The name of the pattern
+   */
+  pattern_name: string
+  /**
+   * If true, unconditionally render the entire pattern.
+   */
+  render?: boolean
+  /**
+   * The ID of the transit route associated with this pattern
+   */
+  route_id: string
+  /**
+   * A list of stops in order of the direction of travel and the associated
+   * geometry to that particular stop. The first stop omits the geometry, but
+   * all further stops should include the geometry. It is possible to include
+   * intermediate stops within the pattern or just the final stop.
+   */
+  stops: Array<{
+    /**
+     * An encoded polyline string representing the path that the transit trip
+     * took from the previous stop in this list to this current stop. This is
+     * omitted for the first stop, but should be included for all further stops.
+     */
+    geometry?: string
+    /**
+     * The ID of the stop
+     */
+    stop_id: string
+  }>
+}
+
+/**
+ * A place is a point *other* than a transit stop/station, e.g. a home/work
+ * location, a point of interest, etc.
+ *
+ * This object can additionally have other key/value items added onto the data
+ * model that may or may not be processed with custom styler rules. However,
+ * a few keys might be overwritten by transitive internals, so choose carefully.
+ *
+ * TODO: move to point/place.js when adding static typing to that file
+ */
+type Place = {
+  /**
+   * The ID of the place
+   */
+  place_id: string
+  /**
+   * The latitude of the place
+   */
+  place_lat: number
+  /**
+   * The longitude of the place
+   */
+  place_lon: number
+  /**
+   * The name of the place
+   */
+  place_name: string
+}
+
+/**
+ * Information about a particular transit route.
+ *
+ * This object can additionally have other key/value items added onto the data
+ * model that may or may not be processed with custom styler rules. However,
+ * a few keys might be overwritten by transitive internals, so choose carefully.
+ *
+ * TODO: move to core/route.js when adding static typing to that file
+ */
+type Route = {
+  /**
+   * A string describing the route color in hex color format. If this value is
+   * provided and the first character is not a '#' character, that character
+   * will be added to the front of the string.
+   */
+  route_color?: string
+  /**
+   * The route's ID
+   */
+  route_id: string
+  /**
+   * The short name of the route
+   */
+  route_short_name?: string
+  /**
+   * The GTFS route type number.
+   */
+  route_type: number
+}
+
+/**
+ * A transit stop.
+ *
+ * This object can additionally have other key/value items added onto the data
+ * model that may or may not be processed with custom styler rules. However,
+ * a few keys might be overwritten by transitive internals, so choose carefully.
+ *
+ * TODO: move to point/stop.js when adding static typing to that file
+ */
+type Stop = {
+  /**
+   * The ID of the stop
+   */
+  stop_id: string
+  /**
+   * The latitude of the stop
+   */
+  stop_lat: number
+  /**
+   * The longitude of the stop
+   */
+  stop_lon: number
+  /**
+   * The name of the stop
+   */
+  stop_name?: string
+}
+
+/**
+ * Edges describing a section of the street network.
+ *
+ * TODO: move to core/network.js when adding static typing to that file
+ */
+type StreetEdge = {
+  /**
+   * A unique edge ID
+   */
+  edge_id: number | string
+  /**
+   * A geometry object, typically from the leg response in an OpenTripPlanner
+   * itinerary
+   */
+  geometry: {
+    /**
+     * An encoded polyline string
+     */
+    points: string
+  }
+}
+
+/**
+ * An object with various pieces of data that should be rendered.
+ */
+type TransitiveData = {
+  /**
+   * A list of journeys that describing how the transit network is used in
+   * specific journeys (typically OTP itineraries).
+   */
+  journeys?: Journey[]
+  /**
+   * A list of transit trips that should be rendered or are referenced by
+   * individual journeys
+   */
+  patterns: Pattern[]
+  /**
+   * A list of places in the transportation network
+   */
+  places: Place[]
+  /**
+   * A list of transit routes in the transportation network
+   */
+  routes: Route[]
+  /**
+   * A list of transit stops in the transportation network
+   */
+  stops: Stop[]
+  /**
+   * A list of street edges in the transportation network that are referenced by
+   * invididual journeys.
+   */
+  streetEdges: StreetEdge[]
+}
 
 type TransitiveStyles = {}
 
