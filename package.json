@@ -34,7 +34,7 @@
     "cover": "tsdx test --coverage --coverage-paths index.ts",
     "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read",
     "jest": "tsdx test",
-    "lint": "tsdx lint __tests__ lib --quiet",
+    "lint": "tsdx lint __tests__ lib stories .storybook --quiet",
     "prepublish": "yarn build",
     "semantic-release": "semantic-release",
     "start": "start-storybook -p 5555",
