@@ -418,12 +418,51 @@ type Bounds = [
 
 type RendererType = 'wireframe' | 'default'
 
+/**
+ * An object describing various styling actions that may be taken at a
+ * particular zoom level between the value of the key "minScale" and whatever
+ * value "minScale" is in the next ZoomFactor object in the zoomFactors config
+ * of the TransitiveOptions.
+ */
+type ZoomFactor = {
+  /**
+   * The minimum angle degree to use to render curves at this current zoom
+   * level.
+   */
+  angleConstraint: number
+  /**
+   * The grid cell size to use for snapping purposes at this current zoom level.
+   */
+  gridCellSize: number
+  /**
+   * A factor used to determine how many vertices should be displayed at this
+   * current zoom level.
+   */
+  internalVertexFactor: number
+  /**
+   * If above 0, this will result in a point cluster map being used.
+   */
+  mergeVertexThreshold: number
+  /**
+   * The minimum scale at which to show this zoom factor
+   */
+  minScale: number
+  /**
+   * Whether or not to use geographic rendering
+   */
+  useGeographicRendering?: boolean
+}
+
 type TransitiveOptions = {
   /**
    * whether the display should listen for window resize events and update
    * automatically (defaults to true)
    */
   autoResize?: boolean
+  /**
+   * An optional HTMLCanvasElement to render the Transitve display to
+   */
+  canvas?: HTMLCanvasElement
   /**
    * Transitive Data to Render
    */
@@ -465,18 +504,33 @@ type TransitiveOptions = {
    */
   initialBounds?: Bounds
   /**
-   * FIXME
+   * Whether to render as a wireframe or default.
    */
   initialRenderer?: RendererType
+  /**
+   * A list of transit mode types that should have labels created on them
+   */
+  labeledModes?: number[]
   /**
    * Custom styling rules that affect rendering behavior
    */
   styles: TransitiveStyles
   /**
-   * whether to enable the display's built-in zoom/pan functionality (defaults
+   * Whether to enable the display's built-in zoom/pan functionality (defaults
    * to true)
    */
   zoomEnabled?: boolean
+  /**
+   * A list of different styling configurations to show at various zoom levels.
+   * This list of Zoomfactors must be ordered by each object's "minScale" key
+   * with the lowest "minScale" value appearing first and the largest one
+   * appearing last.
+   *
+   * Default values for this config item are used, unless overridden by adding
+   * this key and value. The default values can be found here:
+   * https://github.com/conveyal/transitive.js/blob/6a8932930de003788b9034609697421731e7f812/lib/display/display.js#L78-L92
+   */
+  zoomFactors?: ZoomFactor[]
 }
 
 /**
