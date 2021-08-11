@@ -49,6 +49,7 @@
     "@storybook/storybook-deployer": "^2.8.10",
     "@types/component-emitter": "^1.2.10",
     "@types/d3": "^3.5.8",
+    "eslint-plugin-prettier": "^3.4.0",
     "leaflet": "^1.7.1",
     "lodash.isequal": "^4.5.0",
     "react": "^17.0.2",
