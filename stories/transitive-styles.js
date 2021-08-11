@@ -1,17 +1,11 @@
 const STYLES = {}
 
 STYLES.places_icon = {
+  height: [20],
+  visibility: ['visible'],
+  width: [20],
   x: [-10],
-  y: [-10],
-  width: [
-    20
-  ],
-  height: [
-    20
-  ],
-  visibility: [
-    'visible'
-  ]
+  y: [-10]
 }
 
 /**
@@ -19,7 +13,7 @@ STYLES.places_icon = {
  * radius to 6 pixels.
  */
 STYLES.stops_merged = {
-  r () {
+  r() {
     return 6
   }
 }

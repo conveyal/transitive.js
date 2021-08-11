@@ -1,5 +1,5 @@
 import BaseMap from '@opentripplanner/base-map'
-import {itineraryToTransitive} from '@opentripplanner/core-utils/lib/map'
+import { itineraryToTransitive } from '@opentripplanner/core-utils/lib/map'
 import React from 'react'
 import styled from 'styled-components'
 

@@ -562,7 +562,7 @@ export default class Transitive {
   renderer!: DefaultRenderer | WireframeRenderer
   styler!: Styler
 
-  constructor (options: TransitiveOptions) {
+  constructor(options: TransitiveOptions) {
     if (!(this instanceof Transitive)) return new Transitive(options)
 
     this.options = options
@@ -572,9 +572,10 @@ export default class Transitive {
 
     if (options.el) this.el = options.el
 
-    this.display = this.options.display === 'canvas'
-      ? new CanvasDisplay(this)
-      : new SvgDisplay(this)
+    this.display =
+      this.options.display === 'canvas'
+        ? new CanvasDisplay(this)
+        : new SvgDisplay(this)
 
     this.data = options.data
 
@@ -595,7 +596,7 @@ export default class Transitive {
    * Clear the Network data and redraw the (empty) map
    */
 
-  clearData () {
+  clearData() {
     this.network = this.data = null
     this.labeler.clear()
     this.emit('clear data', this)
@@ -605,7 +606,7 @@ export default class Transitive {
    * Update the Network data and redraw the map
    */
 
-  updateData (data: TransitiveData, resetDisplay?: boolean) {
+  updateData(data: TransitiveData, resetDisplay?: boolean) {
     this.network = null
     this.data = data
     if (resetDisplay) this.display.reset()
@@ -620,7 +621,7 @@ export default class Transitive {
    * @param {String} an OTP mode string
    */
 
-  getModeStyles (mode: string) {
+  getModeStyles(mode: string) {
     return this.styler.getModeStyles(mode, this.display || new Display(this))
   }
 
@@ -630,7 +631,7 @@ export default class Transitive {
    * Set the DOM element that serves as the main map canvas
    */
 
-  setElement (el?: HTMLElement) {
+  setElement(el?: HTMLElement) {
     if (this.el) d3.select(this.el).selectAll('*').remove()
 
     this.el = el
@@ -643,7 +644,7 @@ export default class Transitive {
    * Set the DOM element that serves as the main map canvas
    */
 
-  setRenderer (type: RendererType) {
+  setRenderer(type: RendererType) {
     switch (type) {
       case 'wireframe':
         this.renderer = new WireframeRenderer(this)
@@ -658,7 +659,7 @@ export default class Transitive {
    * Render
    */
 
-  render () {
+  render() {
     if (!this.network) {
       this.network = new Network(this, this.data)
     }
@@ -678,7 +679,7 @@ export default class Transitive {
    * @param {Element} el
    */
 
-  renderTo (el: HTMLElement) {
+  renderTo(el: HTMLElement) {
     this.setElement(el)
     this.render()
 
@@ -690,13 +691,15 @@ export default class Transitive {
    * focusJourney
    */
 
-  focusJourney (journeyId: string) {
+  focusJourney(journeyId: string) {
     if (!this.network) {
-      console.warn('Transitive network is not defined! Cannot focus journey!');
+      console.warn('Transitive network is not defined! Cannot focus journey!')
       return
     }
-    const journey = (this.network.journeys as { [id: string]: { path: {} }})[journeyId]
-    var path = journey?.path || null
+    const journey = (this.network.journeys as { [id: string]: { path: {} } })[
+      journeyId
+    ]
+    const path = journey?.path || null
     this.renderer.focusPath(path)
   }
 
@@ -705,7 +708,7 @@ export default class Transitive {
    * @param {Array} lon/lat bounds expressed as [[west, south], [east, north]]
    */
 
-  setDisplayBounds (llBounds: Bounds) {
+  setDisplayBounds(llBounds: Bounds) {
     if (!this.display) return
     const smWestSouth = sm.forward(llBounds[0])
     const smEastNorth = sm.forward(llBounds[1])
@@ -722,11 +725,11 @@ export default class Transitive {
    * @returns {Array} lon/lat bounds expressed as [[west, south], [east, north]]
    */
 
-  getNetworkBounds () {
+  getNetworkBounds() {
     if (!this.network || !this.network.graph) return null
-    var graphBounds = this.network.graph.bounds()
-    var ll1 = sm.inverse(graphBounds[0])
-    var ll2 = sm.inverse(graphBounds[1])
+    const graphBounds = this.network.graph.bounds()
+    const ll1 = sm.inverse(graphBounds[0])
+    const ll2 = sm.inverse(graphBounds[1])
     return [
       [Math.min(ll1[0], ll2[0]), Math.min(ll1[1], ll2[1])],
       [Math.max(ll1[0], ll2[0]), Math.max(ll1[1], ll2[1])]
@@ -737,7 +740,7 @@ export default class Transitive {
    * resize
    */
 
-  resize (width: number, height: number) {
+  resize(width: number, height: number) {
     if (!this.display) return
     // @ts-expect-error I have no idea what magic this display object uses to
     // get an el property. - Evan :(
@@ -753,22 +756,22 @@ export default class Transitive {
    * trigger a display resize action (for externally-managed SVG containers)
    */
 
-  resized (width: number, height: number) {
+  resized(width: number, height: number) {
     // @ts-expect-error I have no idea what magic this display object uses to
     // get a resized method. - Evan :(
     this.display.resized(width, height)
   }
 
-  setTransform (transform: DisplayTransform) {
+  setTransform(transform: DisplayTransform) {
     this.display.applyTransform(transform)
     this.render()
   }
 
   /** editor functions **/
 
-  createVertex (wx?: number, wy?: number) {
+  createVertex(wx?: number, wy?: number) {
     if (!this.network) {
-      console.warn('Transitive network is not defined! Cannot create vertex!');
+      console.warn('Transitive network is not defined! Cannot create vertex!')
       return
     }
     this.network.graph.addVertex(new Point(), wx, wy)

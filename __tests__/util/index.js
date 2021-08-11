@@ -1,6 +1,6 @@
 /* globals describe, expect, it */
 
-import {addVectors} from '../../lib/util'
+import { addVectors } from '../../lib/util'
 
 describe('util', () => {
   it('addVectors should work', () => {
