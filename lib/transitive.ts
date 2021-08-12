@@ -562,7 +562,9 @@ export default class Transitive {
   data: TransitiveData | null | undefined
   display!: CanvasDisplay | SvgDisplay
   el?: HTMLElement
-  emit!: (message: string, transitiveInstance: this, el?: HTMLElement) => void
+  // FIXME: somehow typing the emit method (which is injected at the end of this
+  // file by component-emitter causes the emit method to not work.
+  // emit!: (message: string, transitiveInstance: this, el?: HTMLElement) => void
   labeler!: Labeler
   options?: TransitiveOptions
   network: Network | null | undefined
@@ -606,6 +608,7 @@ export default class Transitive {
   clearData() {
     this.network = this.data = null
     this.labeler.clear()
+    // @ts-expect-error See notes in constructor about emit method.
     this.emit('clear data', this)
   }
 
@@ -619,6 +622,7 @@ export default class Transitive {
     if (resetDisplay) this.display.reset()
     else if (this.data) this.display.scaleSet = false
     this.labeler.clear()
+    // @ts-expect-error See notes in constructor about emit method.
     this.emit('update data', this)
   }
 
@@ -643,6 +647,7 @@ export default class Transitive {
 
     this.el = el
 
+    // @ts-expect-error See notes in constructor about emit method.
     this.emit('set element', this, this.el)
     return this
   }
@@ -677,6 +682,7 @@ export default class Transitive {
 
     this.renderer.render()
 
+    // @ts-expect-error See notes in constructor about emit method.
     this.emit('render', this)
   }
 
@@ -690,6 +696,7 @@ export default class Transitive {
     this.setElement(el)
     this.render()
 
+    // @ts-expect-error See notes in constructor about emit method.
     this.emit('render to', this)
     return this
   }
