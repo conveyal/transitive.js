@@ -29,16 +29,15 @@
     "svg.js": "^2.6.5"
   },
   "scripts": {
-    "b": "tsdx build",
     "build": "tsdx build -i lib/transitive.ts --target node",
-    "cover": "tsdx test --coverage --coverage-paths index.ts",
+    "cover": "tsdx test --coverage --collectCoverageFrom=lib/**/*",
     "deploy-storybook": "storybook-to-aws-s3 --bucket-path=transitive.js --s3-sync-options=--acl=public-read",
     "jest": "tsdx test",
     "lint": "tsdx lint __tests__ lib stories .storybook --quiet",
     "prepublish": "yarn build",
     "semantic-release": "semantic-release",
     "start": "start-storybook -p 5555",
-    "test": "yarn run lint && yarn run lint-docs && yarn jest"
+    "test": "yarn run lint && yarn jest"
   },
   "devDependencies": {
     "@opentripplanner/base-map": "^1.0.4",
@@ -57,6 +56,6 @@
     "react-leaflet": "^2.6.1",
     "semantic-release": "^17.2.3",
     "styled-components": "^5.2.1",
-    "tsdx": "https://github.com/ibi-group/tsdx"
+    "tsdx": "https://github.com/ibi-group/tsdx#jest-transform-change"
   }
 }
