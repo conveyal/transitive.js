@@ -528,7 +528,8 @@ type TransitiveOptions = {
    * A list of different styling configurations to show at various zoom levels.
    * This list of Zoomfactors must be ordered by each object's "minScale" key
    * with the lowest "minScale" value appearing first and the largest one
-   * appearing last.
+   * appearing last. There must be a "minScale" value below 1 in the list of
+   * definitions.
    *
    * Default values for this config item are used, unless overridden by adding
    * this key and value. The default values can be found here:
@@ -726,6 +727,9 @@ export default class Transitive {
     const smEastNorth = sm.forward(llBounds[1])
     // reset the display to make sure the correct display scale is recomputed
     // see https://github.com/conveyal/transitive.js/pull/50
+    // FIXME this is a work-around for some other problem that occurs somewhere
+    //   else. To investigate further, uncomment this line and compare the
+    //   differences near the Putnam Plaza place in the Putnam Bug story.
     this.display.reset()
     this.display.setXDomain([smWestSouth[0], smEastNorth[0]])
     this.display.setYDomain([smWestSouth[1], smEastNorth[1]])
