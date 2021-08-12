@@ -69,3 +69,21 @@ Profile.args = {
   transitiveData: require('./data/profile.json'),
   zoom: 14
 }
+
+export const ProfileWith45DegreeAngles = Template.bind({})
+ProfileWith45DegreeAngles.args = {
+  center: [38.885, -77.0369],
+  styles: undefined,
+  transitiveData: require('./data/profile.json'),
+  zoom: 14,
+  zoomFactors: [
+    {
+      angleConstraint: 45,
+      gridCellSize: 200,
+      internalVertexFactor: 0,
+      mergeVertexThreshold: 0,
+      minScale: 0,
+      useGeographicRendering: false
+    }
+  ]
+}

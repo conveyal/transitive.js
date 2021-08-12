@@ -35,7 +35,8 @@ export const TransitiveMap = ({
   styles,
   // If no transitiveData is provided, default to generating from itinerary.
   transitiveData = coreUtils.map.itineraryToTransitive(itinerary, companies),
-  zoom = 15
+  zoom = 15,
+  zoomFactors
 }) => {
   return (
     <MapContainer>
@@ -49,6 +50,7 @@ export const TransitiveMap = ({
           styles={styles}
           transitiveData={transitiveData}
           visible
+          zoomFactors={zoomFactors}
         />
       </BaseMap>
     </MapContainer>
@@ -62,5 +64,6 @@ TransitiveMap.propTypes = {
   labeledModes: propTypes.arrayOf(propTypes.string),
   styles: propTypes.object,
   transitiveData: propTypes.object,
-  zoom: propTypes.number
+  zoom: propTypes.number,
+  zoomFactors: propTypes.arrayOf(propTypes.object)
 }

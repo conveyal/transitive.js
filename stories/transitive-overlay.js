@@ -27,7 +27,7 @@ function checkHiPPI(canvas) {
   }
 }
 
-const zoomFactors = [
+const DEFAULT_ZOOM_FACTORS = [
   {
     angleConstraint: 5,
     gridCellSize: 0,
@@ -96,7 +96,8 @@ class TransitiveCanvasOverlay extends MapLayer {
       labeledModes = DEFAULT_LABELED_MODES,
       leaflet,
       styles = transitiveStyles,
-      transitiveData
+      transitiveData,
+      zoomFactors = DEFAULT_ZOOM_FACTORS
     } = this.props
     const { map } = leaflet
 
