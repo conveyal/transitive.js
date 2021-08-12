@@ -160,10 +160,16 @@ class TransitiveCanvasOverlay extends MapLayer {
     this.lastMapSize = this.props.leaflet.map.getSize()
   }
 
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   createTile() {}
 
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   createLeafletElement() {}
 
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   updateLeafletElement() {}
 }
 

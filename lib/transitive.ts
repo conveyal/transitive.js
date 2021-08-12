@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */ // FIXME remove camel case
 /* globals Display */
 
 import d3 from 'd3'
@@ -323,8 +324,10 @@ type TransitiveStyleComputeFn = (
   display?: CanvasDisplay | SvgDisplay,
   /**
    * The entity instance which the style result will be applied to.
+   *
+   * FIXME add better typing
    */
-  entity?: Object,
+  entity?: unknown,
   /**
    * The index of the entity within some collection. This argument's value may
    * not always be included when calling this function.
@@ -333,8 +336,9 @@ type TransitiveStyleComputeFn = (
   /**
    * Some util functions for calculating certain styles.
    * See code: https://github.com/conveyal/transitive.js/blob/6a8932930de003788b9034609697421731e7f812/lib/styler/styles.js#L17-L44
+   * FIXME add better typing once other files are typed
    */
-  styleUtils?: Object
+  styleUtils?: unknown
 ) => number | string
 
 /**
@@ -551,6 +555,9 @@ type DisplayTransform = {
   y: number
 }
 
+// FIXME add better typing once more files are typed
+type Journeys = { [id: string]: { path: Record<string, unknown> } }
+
 export default class Transitive {
   data: TransitiveData | null | undefined
   display!: CanvasDisplay | SvgDisplay
@@ -696,9 +703,7 @@ export default class Transitive {
       console.warn('Transitive network is not defined! Cannot focus journey!')
       return
     }
-    const journey = (this.network.journeys as { [id: string]: { path: {} } })[
-      journeyId
-    ]
+    const journey = (this.network.journeys as Journeys)[journeyId]
     const path = journey?.path || null
     this.renderer.focusPath(path)
   }
