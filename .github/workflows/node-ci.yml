@@ -21,6 +21,11 @@ jobs:
           node-version: 12.x
       - name: Install npm packages using cache
         uses: bahmutov/npm-install@v1
+        with:
+          # the IBI Group TSDX fork has some dependency issues
+          # that cause yarn install to fail on a ci runner. Disabling
+          # concurrency allows installation to complete successfully
+          install-command: yarn --frozen-lockfile --network-concurrency 1
       - name: Lint code
         run: yarn lint
       - name: Run tests with coverage
