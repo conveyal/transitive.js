@@ -307,7 +307,7 @@ type TransitiveData = {
   stops: Stop[]
   /**
    * A list of street edges in the transportation network that are referenced by
-   * invididual journeys.
+   * individual journeys.
    */
   streetEdges: StreetEdge[]
 }
@@ -338,7 +338,47 @@ type TransitiveStyleComputeFn = (
    * See code: https://github.com/conveyal/transitive.js/blob/6a8932930de003788b9034609697421731e7f812/lib/styler/styles.js#L17-L44
    * FIXME add better typing once other files are typed
    */
-  styleUtils?: unknown
+  styleUtils?: {
+    /**
+     * Creates a svg definition for a marker and returns the string url for the
+     * defined marker
+     */
+    defineSegmentCircleMarker: (
+      /**
+       * The display being used to render transitive
+       */
+      display: unknown,
+      /**
+       * The segment to create a marker for
+       */
+      segment: unknown,
+      /**
+       * The size of the radius that the marker should have
+       */
+      radius: number,
+      /**
+       * The fill color of the marker
+       */
+      fillColor: string
+    ) => string
+    /**
+     * Calculates the font size based on the display's scale
+     */
+    fontSize: (display: unknown) => number
+    /**
+     * Calculates something as it relates to the zoom in relation to zoom
+     */
+    pixels: (
+      zoom: unknown,
+      min: unknown,
+      normal: unknown,
+      max: unknown
+    ) => unknown
+    /**
+     * Calculates a stroke width depending on the display scale
+     */
+    strokeWidth: (display: unknown) => unknown
+  }
 ) => number | string
 
 /**
