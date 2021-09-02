@@ -56,6 +56,6 @@
     "react-leaflet": "^2.6.1",
     "semantic-release": "^17.2.3",
     "styled-components": "^5.2.1",
-    "tsdx": "https://github.com/ibi-group/tsdx#jest-transform-change"
+    "tsdx": "https://github.com/ibi-group/tsdx"
   }
 }
