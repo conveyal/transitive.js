@@ -422,19 +422,19 @@ type TransitiveStyleConfig = Record<
  */
 type TransitiveStyles = {
   labels?: TransitiveStyleConfig
+  multipoints_merged?: TransitiveStyleConfig
+  multipoints_pattern?: TransitiveStyleConfig
+  places?: TransitiveStyleConfig
+  places_icon?: TransitiveStyleConfig
+  segment_label_containers?: TransitiveStyleConfig
+  segment_labels?: TransitiveStyleConfig
   segments?: TransitiveStyleConfig
   segments_front?: TransitiveStyleConfig
   segments_halo?: TransitiveStyleConfig
-  segment_labels?: TransitiveStyleConfig
-  segment_label_containers?: TransitiveStyleConfig
   stops_merged?: TransitiveStyleConfig
   stops_pattern?: TransitiveStyleConfig
-  places?: TransitiveStyleConfig
-  places_icon?: TransitiveStyleConfig
-  multipoints_merged?: TransitiveStyleConfig
-  multipoints_pattern?: TransitiveStyleConfig
-  wireframe_vertices?: TransitiveStyleConfig
   wireframe_edges?: TransitiveStyleConfig
+  wireframe_vertices?: TransitiveStyleConfig
 }
 
 type Bounds = [
