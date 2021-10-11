@@ -117,7 +117,6 @@ type Journey = {
    */
   journey_name: string
   /**
-   * What is this?
    * The segments of a journey
    */
   segments: Segment[]
@@ -382,7 +381,7 @@ type TransitiveStyleComputeFn = (
 ) => number | string
 
 /**
- * A map describing a styling override applied to a particular styleing value
+ * A map describing a styling override applied to a particular styling value
  * noted with the key value. The value for this style can be either a number,
  * string or result of a custom function.
  *
@@ -604,7 +603,7 @@ export default class Transitive {
   display!: CanvasDisplay | SvgDisplay
   el?: HTMLElement
   // FIXME: somehow typing the emit method (which is injected at the end of this
-  // file by component-emitter causes the emit method to not work.
+  // file by component-emitter) causes the emit method to not work.
   // emit!: (message: string, transitiveInstance: this, el?: HTMLElement) => void
   labeler!: Labeler
   options?: TransitiveOptions
@@ -645,7 +644,6 @@ export default class Transitive {
   /**
    * Clear the Network data and redraw the (empty) map
    */
-
   clearData() {
     this.network = this.data = null
     this.labeler.clear()
@@ -656,7 +654,6 @@ export default class Transitive {
   /**
    * Update the Network data and redraw the map
    */
-
   updateData(data: TransitiveData, resetDisplay?: boolean) {
     this.network = null
     this.data = data
@@ -672,7 +669,6 @@ export default class Transitive {
    *
    * @param {String} an OTP mode string
    */
-
   getModeStyles(mode: string) {
     return this.styler.getModeStyles(mode, this.display || new Display(this))
   }
@@ -682,7 +678,6 @@ export default class Transitive {
   /**
    * Set the DOM element that serves as the main map canvas
    */
-
   setElement(el?: HTMLElement) {
     if (this.el) d3.select(this.el).selectAll('*').remove()
 
@@ -696,7 +691,6 @@ export default class Transitive {
   /**
    * Set the DOM element that serves as the main map canvas
    */
-
   setRenderer(type: RendererType) {
     switch (type) {
       case 'wireframe':
@@ -711,7 +705,6 @@ export default class Transitive {
   /**
    * Render
    */
-
   render() {
     if (!this.network) {
       this.network = new Network(this, this.data)
@@ -732,7 +725,6 @@ export default class Transitive {
    *
    * @param {Element} el
    */
-
   renderTo(el: HTMLElement) {
     this.setElement(el)
     this.render()
@@ -745,7 +737,6 @@ export default class Transitive {
   /**
    * focusJourney
    */
-
   focusJourney(journeyId: string) {
     if (!this.network) {
       console.warn('Transitive network is not defined! Cannot focus journey!')
@@ -760,7 +751,6 @@ export default class Transitive {
    * Sets the Display bounds
    * @param {Array} lon/lat bounds expressed as [[west, south], [east, north]]
    */
-
   setDisplayBounds(llBounds: Bounds) {
     if (!this.display) return
     const smWestSouth = sm.forward(llBounds[0])
@@ -780,7 +770,6 @@ export default class Transitive {
    * Gets the Network bounds
    * @returns {Array} lon/lat bounds expressed as [[west, south], [east, north]]
    */
-
   getNetworkBounds() {
     if (!this.network || !this.network.graph) return null
     const graphBounds = this.network.graph.bounds()
@@ -795,7 +784,6 @@ export default class Transitive {
   /**
    * resize
    */
-
   resize(width: number, height: number) {
     if (!this.display) return
     // @ts-expect-error I have no idea what magic this display object uses to
@@ -811,7 +799,6 @@ export default class Transitive {
   /**
    * trigger a display resize action (for externally-managed SVG containers)
    */
-
   resized(width: number, height: number) {
     // @ts-expect-error I have no idea what magic this display object uses to
     // get a resized method. - Evan :(
