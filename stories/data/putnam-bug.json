@@ -1,0 +1,737 @@
+{
+  "duration": 3151,
+  "startTime": 1591012063000,
+  "endTime": 1591015214000,
+  "walkTime": 1229,
+  "transitTime": 1920,
+  "waitingTime": 2,
+  "walkDistance": 1591.8597014854458,
+  "walkLimitExceeded": false,
+  "elevationLost": 0,
+  "elevationGained": 0,
+  "transfers": 0,
+  "legs": [
+      {
+          "startTime": 1591012063000,
+          "endTime": 1591012799000,
+          "departureDelay": 0,
+          "arrivalDelay": 0,
+          "realTime": false,
+          "distance": 960.894,
+          "pathway": false,
+          "mode": "WALK",
+          "route": "",
+          "agencyTimeZoneOffset": -14400000,
+          "interlineWithPreviousLeg": false,
+          "from": {
+              "name": "Terrace Drive, Carmel Hamlet, NY, USA",
+              "lon": -73.670197,
+              "lat": 41.408862,
+              "departure": 1591012063000,
+              "orig": "Terrace Drive, Carmel Hamlet, NY, USA",
+              "vertexType": "NORMAL"
+          },
+          "to": {
+              "name": "Putnam Plaza",
+              "stopId": "1:PT_113581",
+              "stopCode": "113581",
+              "lon": -73.668443,
+              "lat": 41.413419,
+              "arrival": 1591012799000,
+              "departure": 1591012800000,
+              "stopIndex": 0,
+              "stopSequence": 0,
+              "vertexType": "TRANSIT",
+              "boardAlightType": "DEFAULT"
+          },
+          "legGeometry": {
+              "points": "ktv{Fvus`Mh@~BwBdAMHMBOBYBy@FyAJS?OCOGMIKKIMIOGQCOCUC[]eJQuDIsBC]GSKWKOc@m@WXs@|@m@v@yAlBSV[`@SPKJOHOBO@MCKG",
+              "length": 41
+          },
+          "rentedBike": false,
+          "rentedCar": false,
+          "rentedVehicle": false,
+          "hailedCar": false,
+          "flexDrtAdvanceBookMin": 0,
+          "transitLeg": false,
+          "duration": 736,
+          "intermediateStops": [],
+          "steps": [
+              {
+                  "distance": 57.71,
+                  "relativeDirection": "DEPART",
+                  "streetName": "Terrace Drive",
+                  "absoluteDirection": "SOUTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.6701971035336,
+                  "lat": 41.408862181463356,
+                  "elevation": []
+              },
+              {
+                  "distance": 644.061,
+                  "relativeDirection": "RIGHT",
+                  "streetName": "Terrace Drive",
+                  "absoluteDirection": "NORTHWEST",
+                  "stayOn": true,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.6708333,
+                  "lat": 41.408658,
+                  "elevation": []
+              },
+              {
+                  "distance": 251.59900000000002,
+                  "relativeDirection": "LEFT",
+                  "streetName": "Stoneleigh Avenue",
+                  "absoluteDirection": "NORTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.66669040000001,
+                  "lat": 41.411588,
+                  "elevation": []
+              },
+              {
+                  "distance": 7.524,
+                  "relativeDirection": "SLIGHTLY_RIGHT",
+                  "streetName": "service road",
+                  "absoluteDirection": "NORTHEAST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": true,
+                  "lon": -73.66846670000001,
+                  "lat": 41.413352200000006,
+                  "elevation": []
+              }
+          ]
+      },
+      {
+          "startTime": 1591012800000,
+          "endTime": 1591014720000,
+          "departureDelay": 0,
+          "arrivalDelay": 0,
+          "realTime": false,
+          "distance": 34695.52263764036,
+          "pathway": false,
+          "mode": "BUS",
+          "route": "5",
+          "agencyName": "PART Putnam Area Rapid Transit",
+          "agencyUrl": "http://www.putnamcountyny.com/PART/",
+          "agencyTimeZoneOffset": -14400000,
+          "routeColor": "D17C63",
+          "routeType": 3,
+          "routeId": "1:PART5",
+          "routeTextColor": "FFFFFF",
+          "interlineWithPreviousLeg": false,
+          "agencyId": "PART-Putnam-ny-us",
+          "tripId": "1:PART5-06-01",
+          "serviceDate": "20200601",
+          "from": {
+              "name": "Putnam Plaza",
+              "stopId": "1:PT_113581",
+              "stopCode": "113581",
+              "lon": -73.668443,
+              "lat": 41.413419,
+              "arrival": 1591012799000,
+              "departure": 1591012800000,
+              "stopIndex": 0,
+              "stopSequence": 0,
+              "vertexType": "TRANSIT",
+              "boardAlightType": "DEFAULT"
+          },
+          "to": {
+              "name": "Terry Hill Rd. & Montrose Dr.",
+              "stopId": "1:6e95bd2",
+              "lon": -73.653792,
+              "lat": 41.460616,
+              "arrival": 1591014720000,
+              "departure": 1591014721000,
+              "stopIndex": 29,
+              "stopSequence": 29,
+              "vertexType": "TRANSIT",
+              "boardAlightType": "DEFAULT"
+          },
+          "legGeometry": {
+              "points": "ypw{Fxjs`M?CJFjAsBt@eBf@yAn@iC\\uBXuCL}C@{@A}BC_AM}BWwB_@sBc@gBNs@L_AhCE@k@??C??[Ow@Ug@Mm@Ae@YFw@xFM~@Or@b@fB^rBVvBL|BB~@@|BAz@M|CYtC]tBo@hCg@xAu@dBkArBgA~AiBnBR`@^hAVSTC^UlAgA?K?AQ]gC`Ce@yA_VtUqAfAeEvCaBnAyA`BoAdBRfQB?@@pGhAEu@]aBGc@AWDs@LkB?AMlBEr@@VFb@\\`BDt@wGkAAfBmG}Ba@Ik@?@Y?@AVwGd@mJz@cEXA@cEX_E^yEt@}A\\qBl@qEjBgA`@eN`DSIUSQu@kATa@{C_Bb@A@mBd@VvCnAWLfALPuCt@c@Fa@Bc@AuAMJ_D@u@CuBE_BGWMQkAm@c@e@Oa@Gg@CwBDc@Pg@hCeBDL??EMiCdBQf@Eb@BvBFf@N`@b@d@jAl@LPFVD~ABtBAt@K~CsEm@i@EkCDy@K]QMMuAsBwC_Fe@u@aDcEmC}EaCqD_I}M{@qAy@aASQ_Ag@YG{EeAcA[eEq@{BSuBWAAkU}DiGiAkFu@oDs@o@SqAu@}GcEu@c@q@[u@Qs@KaE]iBSoB]mBi@gDoAMzEL|AC|@[nBQ`@mArAW^a@t@IZMt@KnAEpCg@lBYp@INq@h@_@j@eB`DUx@I^E~@DhBBb@H\\^bAJ`BGnBD~@XfBZvAJv@CVEXc@|ACZCdB??BeBB[b@}ADYBWKw@[wAYgBE_AFoBKaB_@cAI]Cc@EiBD_AH_@Ty@dBaD^k@p@i@HOXq@f@mBDqCJoALu@H[`@u@V_@lAsAPa@ZoBB}@M}AL{EqC_AAA@?kL_EqDkAu@MoAE]?{@HsBb@iEdAwBp@}KhFmBhAwDtC}AdAaAd@kHpBu@\\q@h@UVyAnB}@qA_@[m@MeB?CiAK_@QYSKkAA??gB@]\\OXEVKv@@N???@?b@Lx@Tb@XLZD`B?p@S??HGPYXi@Be@xAA\\DZLVVr@jAmCpDiAfAsA`A_ZzOaBl@mQnFcA^cAf@kAn@eBhA}KtHsAr@}@XeAV{HdByAf@oHvCgJvDiA^gAVsAR}Ix@iAPgIbB_Bd@}@`@_EbC??aBv@c@N}@PsAHu@?s@EqAYy@UsF{B}@WgAMu@EiBDA?jBEC{VDaBJaBHm@RaAl@uBj@{AxBwEx@sBjByHNwARsDNuA`@eAl@iAZ}@\\cBd@yAhCm@z@Y`@A^Vf@`Af@j@j@Z|@b@h@Lb@Bf@C~Cm@ZKXWVa@hBcGTi@Tc@nDgF\\}@V_AjBsITs@Xi@|AkBpDsDd@]Mk@????Lj@e@\\qDrD}AjBYh@Ur@kBrIW~@]|@oDfFUb@Uh@iBbGW`@YV[J_Dl@g@Bc@Ci@M}@c@k@[g@k@g@aA_@Wa@@{@XiCl@e@xA]bB[|@m@hAa@dAOtASrDOvAkBxHy@rByBvEc@hA?@GNm@tBS`AIl@K`BE`BBzVt@DfAL|@VrFzBx@TpAXr@Dt@?rAI|@Qb@ObAe@|EuC|@a@~Ae@fIcBhAQ|Iy@rASfAWhA_@fJwDnHwCxAg@`K}B|@YrAs@|KuHdBiAjAo@bAg@bA_@lQoF`Bm@~Y{OrAaAhAgAxFuHTWp@i@t@]jHqB`Ae@|AeAzDuC?AC@Fg@Pk@bA}Ah@yAHUHk@?m@UeC?M@?@UPc@z@cARSpBqAtGgD~Am@^YHOJ???K?WO{I}HaAy@i@[m@Si@IwAEgEHiACQEgAc@aCKqGU{Sg@{C??@A?E}@E_DCq@QeC?[Jy@A?A?xJ?vKHfG?jED|BAp@DXFTLVTdCzCf@b@l@P`Kv@v@@bF[??B?n@xC?@?@?Ch@kCT}@\\s@b@e@l@a@h@QjDi@|@U~@c@jA{@@??AWUsAc@_C_A]KcFy@kAWeAYq@_@@@HFV]LEnE_@@?B?uFePLC?AfF_CACAABDhBeBfAiA^YAEAABFf@GlKZ~H`@\\FZTJLXp@XP]NA@mBz@ONQ^Ab@Ld@Tl@fAfB??x@rAfArBbFqFKG@@",
+              "length": 637
+          },
+          "interStopGeometry": [
+              {
+                  "points": "ypw{Fxjs`M?CJFjAsBt@eBf@yAn@iC\\uBXuCL}C@{@A}BC_AM}BWwB_@sBc@gBNs@L_AhCE@k@",
+                  "length": 21
+              },
+              {
+                  "points": "qew{Fbtq`M??C??[Ow@Ug@Mm@Ae@YFw@xFM~@Or@b@fB^rBVvBL|BB~@@|BAz@M|CYtC]tBo@hCg@xAu@dBkArBgA~AiBnBR`@^hAVSTC^UlAgA?K?A",
+                  "length": 36
+              },
+              {
+                  "points": "oow{Ftps`MQ]gC`Ce@yA_VtUqAfAeEvCaBnAyA`BoAdBRfQB?@@",
+                  "length": 13
+              },
+              {
+                  "points": "y|x{Fviu`MpGhAEu@]aBGc@AWDs@LkB",
+                  "length": 8
+              },
+              {
+                  "points": "aux{Fl`u`M?AMlBEr@@VFb@\\`BDt@wGkAAfBmG}Ba@Ik@?@Y?@",
+                  "length": 15
+              },
+              {
+                  "points": "{gy{F|gu`MAVwGd@mJz@cEX",
+                  "length": 5
+              },
+              {
+                  "points": "gbz{Fplu`MA@cEX_E^yEt@}A\\qBl@qEjBgA`@eN`DSIUSQu@kATa@{C_Bb@A@",
+                  "length": 17
+              },
+              {
+                  "points": "c|{{Fjvu`MmBd@VvCnAWLfALPuCt@c@Fa@Bc@AuAMJ_D@u@CuBE_BGWMQkAm@c@e@Oa@Gg@CwBDc@Pg@hCeBDL??",
+                  "length": 27
+              },
+              {
+                  "points": "ye|{Flcu`MEMiCdBQf@Eb@BvBFf@N`@b@d@jAl@LPFVD~ABtBAt@K~CsEm@i@EkCDy@K]QMMuAsBwC_Fe@u@aDcEmC}EaCqD_I}M{@qAy@aASQ_Ag@YG{EeAcA[eEq@{BSuBW",
+                  "length": 39
+              },
+              {
+                  "points": "us~{Fpbt`MAAkU}DiGiAkFu@oDs@o@SqAu@}GcEu@c@q@[u@Qs@KaE]iBSoB]mBi@gDoAMzEL|AC|@[nBQ`@mArAW^a@t@IZMt@KnAEpCg@lBYp@INq@h@_@j@eB`DUx@I^E~@DhBBb@H\\^bAJ`BGnBD~@XfBZvAJv@CVEXc@|ACZCdB",
+                  "length": 54
+              },
+              {
+                  "points": "qva|F|vu`M??BeBB[b@}ADYBWKw@[wAYgBE_AFoBKaB_@cAI]Cc@EiBD_AH_@Ty@dBaD^k@p@i@HOXq@f@mBDqCJoALu@H[`@u@V_@lAsAPa@ZoBB}@M}AL{EqC_A",
+                  "length": 39
+              },
+              {
+                  "points": "_ma|Ffcs`MAA@?kL_EqDkAu@MoAE]?{@HsBb@iEdAwBp@}KhFmBhAwDtC}AdAaAd@kHpBu@\\q@h@UVyAnB}@qA_@[m@MeB?CiAK_@QYSKkAA??gB@]\\OXEVKv@@N",
+                  "length": 38
+              },
+              {
+                  "points": "upd|Fnws`M???@?b@Lx@Tb@XLZD`B?p@S??HGPYXi@Be@xAA\\DZLVVr@jAmCpDiAfAsA`A_ZzOaBl@mQnFcA^cAf@kAn@eBhA}KtHsAr@}@XeAV{HdByAf@oHvCgJvDiA^gAVsAR}Ix@iAPgIbB_Bd@}@`@_EbC",
+                  "length": 47
+              },
+              {
+                  "points": "{bi|Fpov`M??aBv@c@N}@PsAHu@?s@EqAYy@UsF{B}@WgAMu@EiBD",
+                  "length": 15
+              },
+              {
+                  "points": "cdj|F|kv`MA?jBEC{VDaBJaBHm@RaAl@uBj@{AxBwEx@sBjByHNwARsDNuA`@eAl@iAZ}@\\cBd@yAhCm@z@Y`@A^Vf@`Af@j@j@Z|@b@h@Lb@Bf@C~Cm@ZKXWVa@hBcGTi@Tc@nDgF\\}@V_AjBsITs@Xi@|AkBpDsDd@]Mk@",
+                  "length": 49
+              },
+              {
+                  "points": "iyg|Fbjr`M????Lj@e@\\qDrD}AjBYh@Ur@kBrIW~@]|@oDfFUb@Uh@iBbGW`@YV[J_Dl@g@Bc@Ci@M}@c@k@[g@k@g@aA_@Wa@@{@XiCl@e@xA]bB[|@m@hAa@dAOtASrDOvAkBxHy@rByBvEc@hA?@GNm@tBS`AIl@K`BE`BBzVt@DfAL|@VrFzBx@TpAXr@Dt@?rAI|@Qb@ObAe@|EuC|@a@~Ae@fIcBhAQ|Iy@rASfAWhA_@fJwDnHwCxAg@`K}B|@YrAs@|KuHdBiAjAo@bAg@bA_@lQoF`Bm@~Y{OrAaAhAgAxFuHTWp@i@t@]jHqB`Ae@|AeAzDuC",
+                  "length": 96
+              },
+              {
+                  "points": "{dc|F~hs`M?AC@Fg@Pk@bA}Ah@yAHUHk@?m@UeC?M@?@UPc@z@cARSpBqAtGgD~Am@^YHOJ???",
+                  "length": 24
+              },
+              {
+                  "points": "ulb|Fjir`MK?WO{I}HaAy@i@[m@Si@IwAEgEHiACQEgAc@aCKqGU{Sg@{C??@A?",
+                  "length": 19
+              },
+              {
+                  "points": "ksd|Fvwq`ME}@E_DCq@QeC?[Jy@A?",
+                  "length": 8
+              },
+              {
+                  "points": "ctd|Fjhq`MA?xJ?vKHfG?jED|BAp@DXFTLVTdCzCf@b@l@P`Kv@v@@bF[??",
+                  "length": 18
+              },
+              {
+                  "points": "mib|Fzqq`MB?n@xC?@",
+                  "length": 4
+              },
+              {
+                  "points": "ygb|Fvvq`M?@?Ch@kCT}@\\s@b@e@l@a@h@QjDi@|@U~@c@jA{@@?",
+                  "length": 14
+              },
+              {
+                  "points": "gua|F|fq`M?AWUsAc@_C_A]KcFy@kAWeAYq@_@@@",
+                  "length": 11
+              },
+              {
+                  "points": "wjb|Fj~p`MHFV]LEnE_@@?",
+                  "length": 6
+              },
+              {
+                  "points": "ubb|Fn|p`MB?uFePLC",
+                  "length": 4
+              },
+              {
+                  "points": "yib|Fdkp`M?AfF_CAC",
+                  "length": 4
+              },
+              {
+                  "points": "sbb|F~fp`MAABDhBeBfAiA^YAE",
+                  "length": 7
+              },
+              {
+                  "points": "a|a|Fr`p`MAABFf@GlKZ~H`@\\FZTJLXp@XP]NA@",
+                  "length": 13
+              },
+              {
+                  "points": "oaa|Fpfp`MmBz@ONQ^Ab@Ld@Tl@fAfB??x@rAfArBbFqFKG@@",
+                  "length": 14
+              }
+          ],
+          "routeShortName": "5",
+          "routeLongName": "Carmel, Kent, Lake Carmel",
+          "rentedBike": false,
+          "rentedCar": false,
+          "rentedVehicle": false,
+          "hailedCar": false,
+          "flexDrtAdvanceBookMin": 0,
+          "transitLeg": true,
+          "duration": 1920,
+          "intermediateStops": [
+              {
+                  "name": "O/C DSS (Call 845-878-RIDE)",
+                  "stopId": "1:113569OC",
+                  "lon": -73.659693,
+                  "lat": 41.411619,
+                  "arrival": 1591012800000,
+                  "departure": 1591012800000,
+                  "stopIndex": 1,
+                  "stopSequence": 1,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C CVS Carmel (Call 845-878-RIDE)",
+                  "stopId": "1:89ih",
+                  "lon": -73.669206,
+                  "lat": 41.412964,
+                  "arrival": 1591012800000,
+                  "departure": 1591012800000,
+                  "stopIndex": 2,
+                  "stopSequence": 2,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Church St & Seminary Hill Rd (Call 845-878-RIDE)",
+                  "stopId": "1:ve0q",
+                  "lon": -73.678511,
+                  "lat": 41.420466,
+                  "arrival": 1591012800000,
+                  "departure": 1591012800000,
+                  "stopIndex": 3,
+                  "stopSequence": 3,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Gleneida Court (Call 845-878-RIDE)",
+                  "stopId": "1:96a6OC",
+                  "lon": -73.677009,
+                  "lat": 41.419219,
+                  "arrival": 1591012800000,
+                  "departure": 1591012800000,
+                  "stopIndex": 4,
+                  "stopSequence": 4,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Rte. 6 & Route 52",
+                  "stopId": "1:PT_113597",
+                  "stopCode": "113597",
+                  "lon": -73.678202,
+                  "lat": 41.422309,
+                  "arrival": 1591012920000,
+                  "departure": 1591012920000,
+                  "stopIndex": 5,
+                  "stopSequence": 5,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "County Courthouse",
+                  "stopId": "1:d386526",
+                  "lon": -73.678962,
+                  "lat": 41.426452,
+                  "arrival": 1591013100000,
+                  "departure": 1591013100000,
+                  "stopIndex": 6,
+                  "stopSequence": 6,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Carmel Plaza/Shoprite",
+                  "stopId": "1:81c83883",
+                  "lon": -73.680507,
+                  "lat": 41.435709,
+                  "arrival": 1591013400000,
+                  "departure": 1591013400000,
+                  "stopIndex": 7,
+                  "stopSequence": 7,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Hillcrest Commons (Call 845-878-RIDE)",
+                  "stopId": "1:ebeecOC",
+                  "lon": -73.677503,
+                  "lat": 41.437247,
+                  "arrival": 1591013400000,
+                  "departure": 1591013400000,
+                  "stopIndex": 8,
+                  "stopSequence": 8,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Rte. 52 & Towners Rd.",
+                  "stopId": "1:a69543",
+                  "lon": -73.672235,
+                  "lat": 41.449728,
+                  "arrival": 1591013820000,
+                  "departure": 1591013820000,
+                  "stopIndex": 9,
+                  "stopSequence": 9,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Barret Hill Rd. (Call 845-878-RIDE)",
+                  "stopId": "1:OCa4b9ddbd",
+                  "lon": -73.680618,
+                  "lat": 41.465595,
+                  "arrival": 1591013820000,
+                  "departure": 1591013820000,
+                  "stopIndex": 10,
+                  "stopSequence": 10,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Rte. 52 & Barret Hill Rd./AOTL",
+                  "stopId": "1:48c1a35e",
+                  "lon": -73.667214,
+                  "lat": 41.464009,
+                  "arrival": 1591013880000,
+                  "departure": 1591013880000,
+                  "stopIndex": 11,
+                  "stopSequence": 11,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Kent Town Hall/Library (Call 845-878-RIDE)",
+                  "stopId": "1:OCc17d3",
+                  "lon": -73.670476,
+                  "lat": 41.47995,
+                  "arrival": 1591013880000,
+                  "departure": 1591013880000,
+                  "stopIndex": 12,
+                  "stopSequence": 12,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Kent Apartments (Call 845-878-RIDE)",
+                  "stopId": "1:ml0j",
+                  "lon": -73.684307,
+                  "lat": 41.503456,
+                  "arrival": 1591013880000,
+                  "departure": 1591013880000,
+                  "stopIndex": 13,
+                  "stopSequence": 13,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Ludingtonville Rd & RT-52",
+                  "stopId": "1:kjzk",
+                  "lon": -73.683969,
+                  "lat": 41.508676,
+                  "arrival": 1591014000000,
+                  "departure": 1591014000000,
+                  "stopIndex": 14,
+                  "stopSequence": 14,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Ludingtonville Rd./Nursing Home (Call 845-878-RIDE)",
+                  "stopId": "1:8b99964OC",
+                  "lon": -73.66318,
+                  "lat": 41.496667,
+                  "arrival": 1591014000000,
+                  "departure": 1591014000000,
+                  "stopIndex": 15,
+                  "stopSequence": 15,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Rte. 52 & North Terry Hill Rd.",
+                  "stopId": "1:934950",
+                  "lon": -73.668158,
+                  "lat": 41.472941,
+                  "arrival": 1591014120000,
+                  "departure": 1591014120000,
+                  "stopIndex": 16,
+                  "stopSequence": 16,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "North Terry Hill Rd. & Putnam Dr.",
+                  "stopId": "1:55789e",
+                  "lon": -73.663107,
+                  "lat": 41.469073,
+                  "arrival": 1591014240000,
+                  "departure": 1591014240000,
+                  "stopIndex": 17,
+                  "stopSequence": 17,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Putnam Dr. & Knollcrest Rd.",
+                  "stopId": "1:STOP_4f821697-e387-41fa-9f68-832963b48c2c",
+                  "lon": -73.660272,
+                  "lat": 41.480392,
+                  "arrival": 1591014360000,
+                  "departure": 1591014360000,
+                  "stopIndex": 18,
+                  "stopSequence": 18,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Knollcrest Rd. & Longfellow Dr.",
+                  "stopId": "1:STOP_85e30446-ecb0-49cd-866f-3162a5229a41",
+                  "lon": -73.657783,
+                  "lat": 41.480513,
+                  "arrival": 1591014420000,
+                  "departure": 1591014420000,
+                  "stopIndex": 19,
+                  "stopSequence": 19,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Longfellow Dr. & Rte. 311",
+                  "stopId": "1:STOP_b4ddc388-bf65-4af8-b2f5-5d310a403178",
+                  "lon": -73.659339,
+                  "lat": 41.468567,
+                  "arrival": 1591014480000,
+                  "departure": 1591014480000,
+                  "stopIndex": 20,
+                  "stopSequence": 20,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Rte. 311 & Terry Hill Rd.",
+                  "stopId": "1:071690",
+                  "lon": -73.660111,
+                  "lat": 41.468302,
+                  "arrival": 1591014540000,
+                  "departure": 1591014540000,
+                  "stopIndex": 21,
+                  "stopSequence": 21,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "Terry Hill Rd. & Lakeshore Dr E.",
+                  "stopId": "1:STOP_891726b1-a08e-4072-baeb-04dd00b30162",
+                  "lon": -73.657579,
+                  "lat": 41.465335,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 22,
+                  "stopSequence": 22,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Lake Shore Drive E & Montrose Dr (Call 845-878-RIDE)",
+                  "stopId": "1:vky0",
+                  "lon": -73.656155,
+                  "lat": 41.468752,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 23,
+                  "stopSequence": 23,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Beechmont Rd. & Montrose Dr. (Call 845-878-RIDE)",
+                  "stopId": "1:OC2b184a4",
+                  "lon": -73.655927,
+                  "lat": 41.467482,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 24,
+                  "stopSequence": 24,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Beechmont Rd & Vernon Dr (Call 845-878-RIDE)",
+                  "stopId": "1:3mtv",
+                  "lon": -73.653172,
+                  "lat": 41.468607,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 25,
+                  "stopSequence": 25,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Vernon Dr & Woodstock Rd (Call 845-878-RIDE)",
+                  "stopId": "1:fj5g",
+                  "lon": -73.652464,
+                  "lat": 41.467466,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 26,
+                  "stopSequence": 26,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Echo Rd & Vernon Dr (Call 845-878-RIDE)",
+                  "stopId": "1:px78",
+                  "lon": -73.651412,
+                  "lat": 41.46639,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 27,
+                  "stopSequence": 27,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              },
+              {
+                  "name": "O/C Clubhouse Dr. & Vernon Rd. (Call 845-878-RIDE)",
+                  "stopId": "1:1c14f",
+                  "lon": -73.652369,
+                  "lat": 41.462169,
+                  "arrival": 1591014600000,
+                  "departure": 1591014600000,
+                  "stopIndex": 28,
+                  "stopSequence": 28,
+                  "vertexType": "TRANSIT",
+                  "boardAlightType": "DEFAULT"
+              }
+          ],
+          "steps": []
+      },
+      {
+          "startTime": 1591014721000,
+          "endTime": 1591015214000,
+          "departureDelay": 0,
+          "arrivalDelay": 0,
+          "realTime": false,
+          "distance": 630.681,
+          "pathway": false,
+          "mode": "WALK",
+          "route": "",
+          "agencyTimeZoneOffset": -14400000,
+          "interlineWithPreviousLeg": false,
+          "from": {
+              "name": "Terry Hill Rd. & Montrose Dr.",
+              "stopId": "1:6e95bd2",
+              "lon": -73.653792,
+              "lat": 41.460616,
+              "arrival": 1591014720000,
+              "departure": 1591014721000,
+              "stopIndex": 29,
+              "stopSequence": 29,
+              "vertexType": "TRANSIT",
+              "boardAlightType": "DEFAULT"
+          },
+          "to": {
+              "name": "37 Huguenot Road, New York, NY, USA",
+              "lon": -73.659579,
+              "lat": 41.459172,
+              "arrival": 1591015214000,
+              "orig": "37 Huguenot Road, New York, NY, USA",
+              "vertexType": "NORMAL"
+          },
+          "legGeometry": {
+              "points": "{w`|Fhop`MJHkApAk@n@r@zBX`ARp@Nl@VbARp@HTFHDBDBHCHEFMNWLOj@xBNh@Z|@DRDZHjDH~D",
+              "length": 26
+          },
+          "rentedBike": false,
+          "rentedCar": false,
+          "rentedVehicle": false,
+          "hailedCar": false,
+          "flexDrtAdvanceBookMin": 0,
+          "transitLeg": false,
+          "duration": 493,
+          "intermediateStops": [],
+          "steps": [
+              {
+                  "distance": 7.74,
+                  "relativeDirection": "DEPART",
+                  "streetName": "Montrose Drive",
+                  "absoluteDirection": "SOUTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.65380695838235,
+                  "lat": 41.460622177805824,
+                  "elevation": []
+              },
+              {
+                  "distance": 86.484,
+                  "relativeDirection": "RIGHT",
+                  "streetName": "Terry Hill Road",
+                  "absoluteDirection": "NORTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.6538518,
+                  "lat": 41.4605612,
+                  "elevation": []
+              },
+              {
+                  "distance": 214.478,
+                  "relativeDirection": "LEFT",
+                  "streetName": "Talmadge Road",
+                  "absoluteDirection": "SOUTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.6545055,
+                  "lat": 41.461165300000005,
+                  "elevation": []
+              },
+              {
+                  "distance": 42.259,
+                  "relativeDirection": "LEFT",
+                  "streetName": "Elmsford Road",
+                  "absoluteDirection": "SOUTH",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.65672310000001,
+                  "lat": 41.4602215,
+                  "elevation": []
+              },
+              {
+                  "distance": 279.72,
+                  "relativeDirection": "RIGHT",
+                  "streetName": "Huguenot Road",
+                  "absoluteDirection": "SOUTHWEST",
+                  "stayOn": false,
+                  "area": false,
+                  "bogusName": false,
+                  "lon": -73.65640110000001,
+                  "lat": 41.4599386,
+                  "elevation": []
+              }
+          ]
+      }
+  ],
+  "tooSloped": false
+}

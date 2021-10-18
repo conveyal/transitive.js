@@ -1,5 +1,6 @@
 import BaseMap from '@opentripplanner/base-map'
-import {itineraryToTransitive} from '@opentripplanner/core-utils/lib/map'
+import coreUtils from '@opentripplanner/core-utils'
+import propTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -33,8 +34,9 @@ export const TransitiveMap = ({
   labeledModes,
   styles,
   // If no transitiveData is provided, default to generating from itinerary.
-  transitiveData = itineraryToTransitive(itinerary, companies),
-  zoom = 15
+  transitiveData = coreUtils.map.itineraryToTransitive(itinerary, companies),
+  zoom = 15,
+  zoomFactors
 }) => {
   return (
     <MapContainer>
@@ -48,8 +50,20 @@ export const TransitiveMap = ({
           styles={styles}
           transitiveData={transitiveData}
           visible
+          zoomFactors={zoomFactors}
         />
       </BaseMap>
     </MapContainer>
   )
+}
+
+TransitiveMap.propTypes = {
+  center: propTypes.arrayOf(propTypes.number),
+  companies: propTypes.arrayOf(propTypes.string),
+  itinerary: coreUtils.types.itinerary,
+  labeledModes: propTypes.arrayOf(propTypes.string),
+  styles: propTypes.object,
+  transitiveData: propTypes.object,
+  zoom: propTypes.number,
+  zoomFactors: propTypes.arrayOf(propTypes.object)
 }

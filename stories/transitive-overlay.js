@@ -7,12 +7,13 @@ import isEqual from 'lodash.isequal'
 import { MapLayer, withLeaflet } from 'react-leaflet'
 
 import Transitive from '../lib/transitive'
+
 import transitiveStyles from './transitive-styles'
 
 require('./leaflet-canvas-layer')
 
 // TODO: move to util?
-function checkHiPPI (canvas) {
+function checkHiPPI(canvas) {
   if (window.devicePixelRatio > 1) {
     const PIXEL_RATIO = 2
     canvas.style.width = `${canvas.width}px`
@@ -26,13 +27,13 @@ function checkHiPPI (canvas) {
   }
 }
 
-const zoomFactors = [
+const DEFAULT_ZOOM_FACTORS = [
   {
-    minScale: 0,
+    angleConstraint: 5,
     gridCellSize: 0,
     internalVertexFactor: 0,
-    angleConstraint: 5,
     mergeVertexThreshold: 0,
+    minScale: 0,
     useGeographicRendering: true
   }
 ]
@@ -44,14 +45,14 @@ const DEFAULT_LABELED_MODES = [3]
 class TransitiveCanvasOverlay extends MapLayer {
   // React Lifecycle Methods
 
-  componentDidMount () {
+  componentDidMount() {
     const { map } = this.props.leaflet
     L.canvasLayer()
       .delegate(this) // -- if we do not inherit from L.CanvasLayer  we can setup a delegate to receive events from L.CanvasLayer
       .addTo(map)
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     // Check if we received new transitive data
     if (
       this.transitive &&
@@ -81,7 +82,7 @@ class TransitiveCanvasOverlay extends MapLayer {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     if (this.transitive) {
       this.transitive.updateData(null)
       this.transitive.render()
@@ -90,30 +91,31 @@ class TransitiveCanvasOverlay extends MapLayer {
 
   // Internal Methods
 
-  initTransitive (canvas) {
+  initTransitive(canvas) {
     const {
       labeledModes = DEFAULT_LABELED_MODES,
       leaflet,
       styles = transitiveStyles,
-      transitiveData
+      transitiveData,
+      zoomFactors = DEFAULT_ZOOM_FACTORS
     } = this.props
     const { map } = leaflet
 
     // set up the transitive instance
     const mapBounds = map.getBounds()
     this.transitive = new Transitive({
+      autoResize: false,
+      canvas,
       data: transitiveData,
+      display: 'canvas',
       initialBounds: [
         [mapBounds.getWest(), mapBounds.getSouth()],
         [mapBounds.getEast(), mapBounds.getNorth()]
       ],
       labeledModes,
-      zoomEnabled: false,
-      autoResize: false,
       styles,
-      zoomFactors,
-      display: 'canvas',
-      canvas
+      zoomEnabled: false,
+      zoomFactors
     })
 
     checkHiPPI(canvas)
@@ -122,7 +124,7 @@ class TransitiveCanvasOverlay extends MapLayer {
     this.updateBoundsAndRender()
   }
 
-  updateBoundsAndRender () {
+  updateBoundsAndRender() {
     if (!this.transitive) {
       console.log(
         'WARNING: Transitive object not set in transitive-canvas-overlay'
@@ -140,7 +142,7 @@ class TransitiveCanvasOverlay extends MapLayer {
 
   // Leaflet Layer API Methods
 
-  onDrawLayer (info) {
+  onDrawLayer(info) {
     if (!this.transitive) this.initTransitive(info.canvas)
 
     const mapSize = this.props.leaflet.map.getSize()
@@ -159,11 +161,17 @@ class TransitiveCanvasOverlay extends MapLayer {
     this.lastMapSize = this.props.leaflet.map.getSize()
   }
 
-  createTile () {}
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  createTile() {}
 
-  createLeafletElement () {}
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  createLeafletElement() {}
 
-  updateLeafletElement () {}
+  // the next line might be needed for react-leaflet
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  updateLeafletElement() {}
 }
 
 export default withLeaflet(TransitiveCanvasOverlay)
